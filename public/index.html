@@ -1,1 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cheap Stocks Finder</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: Arial; padding: 2rem; background: #f0f4f8; }
+    h1 { color: #333; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { padding: 0.75rem; border: 1px solid #ccc; text-align: left; }
+    th { background: #333; color: white; }
+  </style>
+</head>
+<body>
+  <h1>📉 Cheap Stocks Finder</h1>
+  <p>These stocks are currently under $5:</p>
+  <table id="stocksTable">
+    <thead>
+      <tr><th>Symbol</th><th>Name</th><th>Price</th><th>Currency</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 
+  <script>
+    async function fetchCheapStocks() {
+      const response = await fetch('/api/cheap-stocks');
+      const stocks = await response.json();
+      const tbody = document.querySelector('#stocksTable tbody');
+      tbody.innerHTML = '';
+      stocks.forEach(stock => {
+        const row = `<tr>
+          <td>${stock.symbol}</td>
+          <td>${stock.name}</td>
+          <td>${stock.price.toFixed(2)}</td>
+          <td>${stock.currency}</td>
+        </tr>`;
+        tbody.insertAdjacentHTML('beforeend', row);
+      });
+    }
+
+    fetchCheapStocks();
+  </script>
+</body>
+</html>
