@@ -5,71 +5,486 @@
   <title>Cheap Stocks Finder</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body { font-family: Arial; padding: 2rem; background: #f0f4f8; }
-    h1 { color: #333; }
-    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-    th, td { padding: 0.75rem; border: 1px solid #ccc; text-align: left; }
-    th { background: #333; color: white; }
-    #search { margin-top: 2rem; }
-  </style>
-</head>
-<body>
-  <h1>📉 Cheap Stocks Finder</h1>
-  <p>These stocks are currently under $5:</p>
-  <table id="stocksTable">
-    <thead>
-      <tr><th>Symbol</th><th>Name</th><th>Price</th><th>Currency</th></tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-
-  <div id="search">
-    <h2>🔍 Search a stock by symbol</h2>
-    <input type="text" id="symbolInput" placeholder="e.g. AAPL or MSFT" />
-    <button onclick="searchStock()">Search</button>
-    <div id="result"></div>
-  </div>
-
-  <script>
-    async function fetchCheapStocks() {
-      const response = await fetch('/api/index');
-      const stocks = await response.json();
-      const tbody = document.querySelector('#stocksTable tbody');
-      tbody.innerHTML = '';
-      stocks.forEach(stock => {
-        const row = `<tr>
-          <td>${stock.symbol}</td>
-          <td>${stock.name}</td>
-          <td>${stock.price.toFixed(2)}</td>
-          <td>${stock.currency}</td>
-        </tr>`;
-        tbody.insertAdjacentHTML('beforeend', row);
-      });
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
-    async function searchStock() {
-      const symbol = document.getElementById('symbolInput').value.trim();
-      const resultDiv = document.getElementById('result');
-      if (!symbol) return resultDiv.innerHTML = '<p>Please enter a symbol.</p>';
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 2rem;
+      line-height: 1.6;
+    }
 
-      resultDiv.innerHTML = '<p>Loading...</p>';
-      try {
-        const res = await fetch('/api/index?symbol=' + symbol);
-        const data = await res.json();
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      backdrop-filter: blur(10px);
+      overflow: hidden;
+      animation: slideIn 0.8s ease-out;
+    }
 
-        if (data.error) {
-          resultDiv.innerHTML = `<p style="color:red;">${data.error}</p>`;
-        } else {
-          resultDiv.innerHTML = `
-            <p><strong>${data.symbol}</strong> - ${data.name}<br>
-            Price: <strong>${data.price.toFixed(2)} ${data.currency}</strong></p>
-          `;
-        }
-      } catch (err) {
-        resultDiv.innerHTML = '<p style="color:red;">Something went wrong.</p>';
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
       }
     }
 
+    .header {
+      background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+      color: white;
+      padding: 2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      animation: rotate 20s linear infinite;
+    }
+
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      position: relative;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .header p {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      position: relative;
+    }
+
+    .content {
+      padding: 2rem;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, #74b9ff, #0984e3);
+      color: white;
+      padding: 1.5rem;
+      border-radius: 15px;
+      text-align: center;
+      box-shadow: 0 10px 20px rgba(116, 185, 255, 0.3);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(116, 185, 255, 0.4);
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: bold;
+      display: block;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      opacity: 0.9;
+      margin-top: 0.5rem;
+    }
+
+    .search-section {
+      background: linear-gradient(135deg, #a8edea, #fed6e3);
+      border-radius: 15px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .search-section h2 {
+      color: #2d3436;
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+    }
+
+    .search-container {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    #symbolInput {
+      flex: 1;
+      min-width: 200px;
+      padding: 1rem;
+      border: 2px solid transparent;
+      border-radius: 10px;
+      font-size: 1rem;
+      background: white;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    #symbolInput:focus {
+      outline: none;
+      border-color: #74b9ff;
+      box-shadow: 0 5px 20px rgba(116, 185, 255, 0.3);
+    }
+
+    .search-btn {
+      background: linear-gradient(135deg, #fd79a8, #e84393);
+      color: white;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(232, 67, 147, 0.3);
+    }
+
+    .search-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(232, 67, 147, 0.4);
+    }
+
+    .search-btn:active {
+      transform: translateY(0);
+    }
+
+    #result {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(5px);
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+
+    .table-container {
+      background: white;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .table-header {
+      background: linear-gradient(135deg, #2d3436, #636e72);
+      color: white;
+      padding: 1rem 2rem;
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      background: linear-gradient(135deg, #74b9ff, #0984e3);
+      color: white;
+      padding: 1rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-size: 0.9rem;
+    }
+
+    td {
+      padding: 1rem;
+      border-bottom: 1px solid #e9ecef;
+      transition: background-color 0.3s ease;
+    }
+
+    tbody tr:hover {
+      background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+      transform: scale(1.01);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .price {
+      font-weight: bold;
+      color: #00b894;
+      font-size: 1.1rem;
+    }
+
+    .symbol {
+      font-weight: bold;
+      color: #2d3436;
+      font-family: 'Courier New', monospace;
+    }
+
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #74b9ff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 10px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .error {
+      color: #e17055;
+      background: #ffeaa7;
+      padding: 1rem;
+      border-radius: 10px;
+      border-left: 4px solid #e17055;
+    }
+
+    .success {
+      background: #d1f2eb;
+      border-left: 4px solid #00b894;
+      padding: 1rem;
+      border-radius: 10px;
+    }
+
+    .success strong {
+      color: #00b894;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem;
+      }
+
+      .header h1 {
+        font-size: 2rem;
+      }
+
+      .search-container {
+        flex-direction: column;
+      }
+
+      #symbolInput {
+        min-width: 100%;
+      }
+
+      .search-btn {
+        width: 100%;
+      }
+
+      table {
+        font-size: 0.9rem;
+      }
+
+      th, td {
+        padding: 0.75rem 0.5rem;
+      }
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: #636e72;
+    }
+
+    .empty-state .icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📈 Cheap Stocks Finder</h1>
+      <p>Discover undervalued opportunities in the stock market</p>
+    </div>
+
+    <div class="content">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-number" id="totalStocks">0</span>
+          <span class="stat-label">Stocks Under $5</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number" id="avgPrice">$0.00</span>
+          <span class="stat-label">Average Price</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-number" id="lowestPrice">$0.00</span>
+          <span class="stat-label">Lowest Price</span>
+        </div>
+      </div>
+
+      <div class="search-section">
+        <h2>🔍 Search Stock by Symbol</h2>
+        <div class="search-container">
+          <input type="text" id="symbolInput" placeholder="Enter stock symbol (e.g. AAPL, MSFT, TSLA)" />
+          <button class="search-btn" onclick="searchStock()">Search Stock</button>
+        </div>
+        <div id="result"></div>
+      </div>
+
+      <div class="table-container">
+        <div class="table-header">
+          💰 Stocks Currently Under $5
+        </div>
+        <table id="stocksTable">
+          <thead>
+            <tr>
+              <th>Symbol</th>
+              <th>Company Name</th>
+              <th>Current Price</th>
+              <th>Currency</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Mock data for demonstration
+    const mockStocks = [
+      { symbol: 'SNDL', name: 'Sundial Growers Inc.', price: 2.45, currency: 'USD' },
+      { symbol: 'NOK', name: 'Nokia Corporation', price: 3.78, currency: 'USD' },
+      { symbol: 'WISH', name: 'ContextLogic Inc.', price: 1.89, currency: 'USD' },
+      { symbol: 'SOFI', name: 'SoFi Technologies Inc.', price: 4.23, currency: 'USD' },
+      { symbol: 'PLTR', name: 'Palantir Technologies Inc.', price: 4.67, currency: 'USD' },
+      { symbol: 'NIO', name: 'NIO Inc.', price: 3.45, currency: 'USD' },
+      { symbol: 'BBBY', name: 'Bed Bath & Beyond Inc.', price: 1.23, currency: 'USD' },
+      { symbol: 'AMC', name: 'AMC Entertainment Holdings Inc.', price: 4.89, currency: 'USD' }
+    ];
+
+    const mockSearchData = {
+      'AAPL': { symbol: 'AAPL', name: 'Apple Inc.', price: 182.52, currency: 'USD' },
+      'MSFT': { symbol: 'MSFT', name: 'Microsoft Corporation', price: 378.85, currency: 'USD' },
+      'TSLA': { symbol: 'TSLA', name: 'Tesla Inc.', price: 248.50, currency: 'USD' },
+      'GOOGL': { symbol: 'GOOGL', name: 'Alphabet Inc.', price: 175.35, currency: 'USD' }
+    };
+
+    async function fetchCheapStocks() {
+      const tbody = document.querySelector('#stocksTable tbody');
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 2rem;"><div class="loading"></div>Loading stocks...</td></tr>';
+      
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      tbody.innerHTML = '';
+      
+      if (mockStocks.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="4" class="empty-state">
+              <div class="icon">📊</div>
+              <div>No stocks under $5 found at the moment</div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      mockStocks.forEach((stock, index) => {
+        const row = document.createElement('tr');
+        row.style.animationDelay = `${index * 0.1}s`;
+        row.innerHTML = `
+          <td class="symbol">${stock.symbol}</td>
+          <td>${stock.name}</td>
+          <td class="price">$${stock.price.toFixed(2)}</td>
+          <td>${stock.currency}</td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      updateStats();
+    }
+
+    function updateStats() {
+      const totalStocks = mockStocks.length;
+      const avgPrice = mockStocks.reduce((sum, stock) => sum + stock.price, 0) / totalStocks;
+      const lowestPrice = Math.min(...mockStocks.map(stock => stock.price));
+
+      document.getElementById('totalStocks').textContent = totalStocks;
+      document.getElementById('avgPrice').textContent = `$${avgPrice.toFixed(2)}`;
+      document.getElementById('lowestPrice').textContent = `$${lowestPrice.toFixed(2)}`;
+    }
+
+    async function searchStock() {
+      const symbol = document.getElementById('symbolInput').value.trim().toUpperCase();
+      const resultDiv = document.getElementById('result');
+      
+      if (!symbol) {
+        resultDiv.innerHTML = '<div class="error">Please enter a stock symbol.</div>';
+        return;
+      }
+
+      resultDiv.innerHTML = '<div><div class="loading"></div>Searching for ' + symbol + '...</div>';
+
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 800));
+
+      try {
+        const data = mockSearchData[symbol];
+        
+        if (!data) {
+          resultDiv.innerHTML = `<div class="error">Stock symbol "${symbol}" not found. Please check the symbol and try again.</div>`;
+        } else {
+          const priceClass = data.price < 5 ? 'style="color: #00b894; font-weight: bold;"' : '';
+          const priceNote = data.price < 5 ? ' <span style="color: #00b894;">✓ Under $5!</span>' : '';
+          
+          resultDiv.innerHTML = `
+            <div class="success">
+              <strong>${data.symbol}</strong> - ${data.name}<br>
+              <span style="font-size: 1.2rem; margin-top: 0.5rem; display: inline-block;">
+                Current Price: <strong ${priceClass}>$${data.price.toFixed(2)} ${data.currency}</strong>${priceNote}
+              </span>
+            </div>
+          `;
+        }
+      } catch (err) {
+        resultDiv.innerHTML = '<div class="error">Something went wrong while searching. Please try again.</div>';
+      }
+    }
+
+    // Add enter key support for search
+    document.getElementById('symbolInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        searchStock();
+      }
+    });
+
+    // Initialize the app
     fetchCheapStocks();
   </script>
 </body>
