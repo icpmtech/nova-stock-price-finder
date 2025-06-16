@@ -1,262 +1,280 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Advanced Cheap Stocks Analyzer</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- -------------  ESTILOS ------------- -->
-  <style>
-    /* (…mesmos estilos que já tinhas – nada mudou) */
-    /*  — para caber aqui tirei comentários; cola tudo igual aos teus estilos acima — */
-    /* ⬇️  Estilos encurtados para caber; mantêm-se idênticos ao template anterior ⬇️ */
-    *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',Tahoma,Geneva,sans-serif;background:linear-gradient(135deg,#667eea 0,#764ba2 100%);min-height:100vh;padding:1rem;line-height:1.6}.container{max-width:1400px;margin:0 auto;background:rgba(255,255,255,.95);border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,.1);backdrop-filter:blur(10px);overflow:hidden;animation:slideIn .8s ease-out}@keyframes slideIn{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}.header{background:linear-gradient(135deg,#ff6b6b,#ee5a24);color:#fff;padding:2rem;text-align:center}.header h1{font-size:2.5rem;font-weight:700;margin-bottom:.5rem;text-shadow:2px 2px 4px rgba(0,0,0,.3)}.header p{font-size:1.1rem;opacity:.9}.content{padding:2rem}.controls-section{background:linear-gradient(135deg,#a8edea,#fed6e3);border-radius:15px;padding:2rem;margin-bottom:2rem;box-shadow:0 10px 20px rgba(0,0,0,.1)}.controls-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin-bottom:1.5rem}.control-group{background:rgba(255,255,255,.8);padding:1.5rem;border-radius:12px;box-shadow:0 5px 15px rgba(0,0,0,.1)}.control-group h3{color:#2d3436;margin-bottom:1rem;font-size:1.1rem}.filter-row{display:flex;gap:1rem;align-items:center;margin-bottom:.75rem}.filter-row:last-child{margin-bottom:0}label{font-weight:500;color:#2d3436;min-width:80px;font-size:.9rem}input,select{flex:1;padding:.75rem;border:2px solid transparent;border-radius:8px;font-size:.9rem;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.1);transition:all .3s}input:focus,select:focus{outline:none;border-color:#74b9ff;box-shadow:0 2px 12px rgba(116,185,255,.3)}.search-container{display:flex;gap:1rem;margin-top:1rem}#symbolInput{flex:1;min-width:200px}.btn{background:linear-gradient(135deg,#fd79a8,#e84393);color:#fff;border:none;padding:.75rem 1.5rem;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .3s;box-shadow:0 5px 15px rgba(232,67,147,.3)}.btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(232,67,147,.4)}.btn-secondary{background:linear-gradient(135deg,#74b9ff,#0984e3);box-shadow:0 5px 15px rgba(116,185,255,.3)}.btn-secondary:hover{box-shadow:0 8px 20px rgba(116,185,255,.4)}.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:2rem}.stat-card{background:linear-gradient(135deg,#74b9ff,#0984e3);color:#fff;padding:1.5rem;border-radius:15px;text-align:center;box-shadow:0 10px 20px rgba(116,185,255,.3);transition:transform .3s}.stat-card:hover{transform:translateY(-5px)}.stat-number{font-size:1.8rem;font-weight:700;display:block}.stat-label{font-size:.85rem;opacity:.9;margin-top:.5rem}.table-container{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.1);overflow:hidden;margin-bottom:2rem}.table-header{background:linear-gradient(135deg,#2d3436,#636e72);color:#fff;padding:1rem 2rem;font-size:1.2rem;font-weight:600;display:flex;justify-content:space-between;align-items:center}.sort-controls{display:flex;gap:.5rem;align-items:center;font-size:.9rem}.sort-btn{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);color:#fff;padding:.25rem .5rem;border-radius:4px;cursor:pointer;font-size:.8rem}.sort-btn:hover,.sort-btn.active{background:rgba(255,255,255,.3)}table{width:100%;border-collapse:collapse}th{background:linear-gradient(135deg,#74b9ff,#0984e3);color:#fff;padding:1rem .75rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;font-size:.85rem;cursor:pointer}th:hover{background:linear-gradient(135deg,#0984e3,#74b9ff)}td{padding:1rem .75rem;border-bottom:1px solid #e9ecef;font-size:.9rem}tbody tr:hover{background:linear-gradient(135deg,#f8f9fa,#e9ecef);transform:scale(1.01);box-shadow:0 5px 15px rgba(0,0,0,.1)}.symbol{font-weight:700;color:#2d3436;font-family:'Courier New',monospace}.price{font-weight:700;color:#00b894}.score{padding:.25rem .5rem;border-radius:12px;font-weight:700;font-size:.8rem;text-align:center}.score-excellent{background:#d1f2eb;color:#00b894}.score-good{background:#fef9e7;color:#f39c12}.score-fair{background:#fdf2e9;color:#e67e22}.score-poor{background:#fadbd8;color:#e74c3c}.risk-low{color:#00b894;font-weight:700}.risk-medium{color:#f39c12;font-weight:700}.risk-high{color:#e74c3c;font-weight:700}#result{margin-top:1rem;padding:1rem;border-radius:10px;background:rgba(255,255,255,.7);backdrop-filter:blur(5px)}.loading{display:inline-block;width:20px;height:20px;border:3px solid #f3f3f3;border-top:3px solid #74b9ff;border-radius:50%;animation:spin 1s linear infinite;margin-right:10px}@keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}.error{color:#e17055;background:#ffeaa7;padding:1rem;border-radius:10px;border-left:4px solid #e17055}.success{background:#d1f2eb;border-left:4px solid #00b894;padding:1rem;border-radius:10px}.stock-details{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-top:1rem}.detail-item{background:rgba(255,255,255,.9);padding:1rem;border-radius:8px;border-left:4px solid #74b9ff}.detail-label{font-size:.8rem;color:#636e72;text-transform:uppercase;letter-spacing:.5px}.detail-value{font-size:1.1rem;font-weight:700;color:#2d3436;margin-top:.25rem}@media(max-width:768px){.controls-grid{grid-template-columns:1fr}.filter-row{flex-direction:column;align-items:stretch;gap:.5rem}.search-container{flex-direction:column}.table-header{flex-direction:column;gap:1rem;text-align:center}table{font-size:.8rem}th,td{padding:.5rem .25rem}}
-  </style>
+<meta charset="UTF-8">
+<title>Advanced Cheap Stocks Analyzer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- ———————————————————  ESTILOS  ——————————————————— -->
+<style>
+  /* Reset + base */
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:"Segoe UI",Tahoma,Geneva,sans-serif;background:linear-gradient(145deg,#6b73ff 0%,#000dff 100%);min-height:100vh;padding:1rem;color:#2d3436;line-height:1.55}
+  /* Content shell */
+  .container{max-width:1440px;margin:0 auto;background:#fff;border-radius:22px;box-shadow:0 25px 50px -12px rgba(0,0,0,.25);overflow:hidden;animation:fadeIn .6s ease-out}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+  /* Header */
+  .header{background:linear-gradient(135deg,#ff5f6d,#ffc371);color:#fff;text-align:center;padding:2.5rem 1rem;position:relative}
+  .header h1{font-size:2.4rem;font-weight:700;text-shadow:1px 2px 4px rgba(0,0,0,.25)}
+  .header p{opacity:.9;margin-top:.3rem;font-size:1.05rem}
+  /* Controls */
+  .content{padding:2rem}
+  .controls-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem}
+  .control-card{background:#fafafb;border-radius:14px;padding:1.4rem;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+  .control-card h3{font-size:1.1rem;margin-bottom:.9rem;color:#333;display:flex;align-items:center;gap:.5rem}
+  .row{display:flex;align-items:center;gap:1rem;margin-bottom:.8rem}
+  .row:last-child{margin:0}
+  label{flex-shrink:0;font-size:.88rem;color:#555;width:85px}
+  input,select{flex:1;padding:.7rem .8rem;border:1.8px solid #e3e7fd;border-radius:9px;font-size:.9rem;background:#fff;transition:.2s}
+  input:focus,select:focus{outline:none;border-color:#6b73ff;box-shadow:0 0 0 3px rgba(107,115,255,.18)}
+  /* Slider */
+  input[type=range]{padding:0;width:100%;cursor:pointer;background:transparent}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;height:14px;width:14px;border-radius:50%;background:#ff5f6d;border:none;box-shadow:0 0 2px rgba(0,0,0,.4)}
+  input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:#e0e0e0}
+  /* Buttons */
+  .btn{display:inline-block;padding:.7rem 1.3rem;font-size:.88rem;border:none;border-radius:9px;font-weight:600;cursor:pointer;transition:.2s;color:#fff}
+  .primary{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%)}
+  .primary:hover{opacity:.9}
+  .secondary{background:#2d3436}
+  .secondary:hover{opacity:.85}
+  /* Table & stats */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1rem;margin:2rem 0}
+  .stat{background:#667eea;color:#fff;border-radius:14px;padding:1rem;text-align:center;box-shadow:0 6px 18px rgba(0,0,0,.12)}
+  .stat-number{font-size:1.7rem;font-weight:700}
+  .stat-label{font-size:.8rem;opacity:.9}
+  .table-wrap{border-radius:14px;overflow-x:auto;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+  table{width:100%;border-collapse:collapse;font-size:.9rem}
+  thead{background:#2d3436;color:#fff}
+  th,td{padding:.9rem .75rem;text-align:left;white-space:nowrap}
+  tbody tr{transition:.15s}
+  tbody tr:hover{background:#f5f7ff}
+  .symbol{font-weight:600;font-family:Consolas,monospace}
+  .price{font-weight:600;color:#009e73}
+  .risk-low{color:#009e73;font-weight:600}
+  .risk-medium{color:#e69500;font-weight:600}
+  .risk-high{color:#e74c3c;font-weight:600}
+  .badge{display:inline-block;padding:.2rem .5rem;border-radius:8px;font-size:.75rem;font-weight:600;color:#fff}
+  .score-excellent{background:#009e73}
+  .score-good{background:#e69500}
+  .score-fair{background:#ffb84d}
+  .score-poor{background:#e74c3c}
+  /* Result box */
+  #result{margin-top:1.2rem}
+  .alert{padding:1rem;border-radius:10px;font-size:.88rem}
+  .error{background:#ffecec;color:#d60000;border-left:5px solid #d60000}
+  .ok{background:#eafdf5;color:#009e73;border-left:5px solid #009e73}
+  /* Responsive */
+  @media(max-width:768px){th,td{padding:.65rem}}
+</style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>📊 Advanced Cheap Stocks Analyzer</h1>
-      <p>Smart screening & analysis for undervalued investment opportunities</p>
-    </div>
-
-    <!-- ------------ CONTROLOS ------------ -->
-    <div class="content">
-      <div class="controls-section">
-        <div class="controls-grid">
-          <!-- Preço -->
-          <div class="control-group">
-            <h3>💰 Price Filters</h3>
-            <div class="filter-row">
-              <label>Max Price:</label>
-              <input type="number" id="maxPrice" value="5" min="0" step="0.01">
-            </div>
-            <div class="filter-row">
-              <label>Min Price:</label>
-              <input type="number" id="minPrice" value="0.10" min="0" step="0.01">
-            </div>
-          </div>
-
-          <!-- Volume & MarketCap -->
-          <div class="control-group">
-            <h3>📈 Performance Filters</h3>
-            <div class="filter-row">
-              <label>Min Volume:</label>
-              <input type="number" id="minVolume" value="100000" step="1000">
-            </div>
-            <div class="filter-row">
-              <label>Market Cap:</label>
-              <select id="marketCap">
-                <option value="">All Sizes</option>
-                <option value="micro">Micro (&lt; $300 M)</option>
-                <option value="small">Small ($300 M – $2 B)</option>
-                <option value="mid">Mid ($2 B – $10 B)</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Score & Risco -->
-          <div class="control-group">
-            <h3>🎯 Quality Filters</h3>
-            <div class="filter-row">
-              <label>Min Score:</label>
-              <select id="minScore">
-                <option value="0">All Scores</option>
-                <option value="6">Good (6+)</option>
-                <option value="7">Very Good (7+)</option>
-                <option value="8">Excellent (8+)</option>
-              </select>
-            </div>
-            <div class="filter-row">
-              <label>Risk Level:</label>
-              <select id="riskLevel">
-                <option value="">All</option>
-                <option value="Low">Low</option>
-                <option value="Medium">≤ Medium</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Pesquisa -->
-          <div class="control-group">
-            <h3>🔍 Search & Actions</h3>
-            <div class="search-container">
-              <input id="symbolInput" placeholder="Search by symbol (e.g. AAPL)">
-              <button class="btn" onclick="searchStock()">Search</button>
-            </div>
-            <div style="margin-top:1rem">
-              <button class="btn btn-secondary" onclick="applyFilters()">Apply Filters</button>
-              <button class="btn" style="margin-left:.5rem" onclick="resetFilters()">Reset</button>
-            </div>
-          </div>
-        </div>
-        <div id="result"></div>
-      </div>
-
-      <!-- ------------ ESTATÍSTICAS ------------ -->
-      <div class="stats-grid">
-        <div class="stat-card"><span class="stat-number" id="totalStocks">0</span><span class="stat-label">Stocks Found</span></div>
-        <div class="stat-card"><span class="stat-number" id="avgPrice">$0.00</span><span class="stat-label">Avg Price</span></div>
-        <div class="stat-card"><span class="stat-number" id="avgScore">0.0</span><span class="stat-label">Avg Score</span></div>
-        <div class="stat-card"><span class="stat-number" id="highQualityCount">0</span><span class="stat-label">High Quality (7+)</span></div>
-      </div>
-
-      <!-- ------------ TABELA ------------ -->
-      <div class="table-container">
-        <div class="table-header">
-          <span>🎯 Filtered Results</span>
-          <div class="sort-controls">
-            <span>Sort by:</span>
-            <button class="sort-btn active" onclick="sortTable('score')">Score</button>
-            <button class="sort-btn" onclick="sortTable('price')">Price</button>
-            <button class="sort-btn" onclick="sortTable('volume')">Volume</button>
-            <button class="sort-btn" onclick="sortTable('change')">Change %</button>
-          </div>
-        </div>
-
-        <table id="stocksTable">
-          <thead>
-            <tr>
-              <th onclick="sortTable('symbol')">Symbol</th>
-              <th onclick="sortTable('name')">Company</th>
-              <th onclick="sortTable('price')">Price</th>
-              <th onclick="sortTable('change')">24h Change</th>
-              <th onclick="sortTable('volume')">Volume</th>
-              <th onclick="sortTable('marketCap')">Market Cap</th>
-              <th onclick="sortTable('score')">Score</th>
-              <th onclick="sortTable('risk')">Risk</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </div>
+<div class="container">
+  <!-- Header -->
+  <div class="header">
+    <h1>📊 Advanced Cheap Stocks Analyzer</h1>
+    <p>Screen & analyse undervalued opportunities by price, exchange and more</p>
   </div>
 
-<!-- -------------  SCRIPT ------------- -->
+  <div class="content">
+    <!-- Controls -->
+    <div class="controls-grid">
+      <div class="control-card">
+        <h3>💰 Price Range</h3>
+        <div class="row"><label>Max ($):</label><input type="range" id="maxPriceSlider" min="1" max="20" value="5" oninput="syncSlider()"><span id="maxPriceVal">5</span></div>
+        <div class="row"><label>Min ($):</label><input type="number" id="minPrice" value="0.10" min="0" step="0.01"></div>
+      </div>
+
+      <div class="control-card">
+        <h3>📈 Volume & Cap</h3>
+        <div class="row"><label>Min Vol:</label><input type="number" id="minVolume" value="100000" step="1000"></div>
+        <div class="row"><label>Market Cap:</label>
+          <select id="marketCap">
+            <option value="">All</option><option value="micro">Micro&nbsp;&lt;$300M</option>
+            <option value="small">Small&nbsp;$300M–$2B</option>
+            <option value="mid">Mid&nbsp;$2B–$10B</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="control-card">
+        <h3>🎯 Quality & Risk</h3>
+        <div class="row"><label>Min Score:</label>
+          <select id="minScore">
+            <option value="0">All</option><option value="6">≥6</option><option value="7">≥7</option><option value="8">≥8</option>
+          </select>
+        </div>
+        <div class="row"><label>Risk:</label>
+          <select id="riskLevel">
+            <option value="">All</option><option value="Low">Low</option><option value="Medium">≤Medium</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="control-card">
+        <h3>🌐 Market / Exchange</h3>
+        <div class="row"><label>Exchange:</label>
+          <select id="exchange">
+            <option value="">All</option><option value="Nasdaq">NASDAQ</option>
+            <option value="NYSE">NYSE</option><option value="NYSEArca">NYSE Arca</option>
+            <option value="AMEX">AMEX</option><option value="TSX">TSX</option>
+          </select>
+        </div>
+        <div class="search-container" style="margin-top:1rem">
+          <input id="symbolInput" placeholder="Symbol (e.g. AAPL)" oninput="debouncedSearch()">
+          <button class="btn primary" onclick="searchStock()">Search</button>
+        </div>
+        <div style="margin-top:1rem">
+          <button class="btn secondary" onclick="applyFilters()">Apply Filters</button>
+          <button class="btn primary" style="margin-left:.4rem" onclick="resetFilters()">Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="result"></div>
+
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat"><span class="stat-number" id="totalStocks">0</span><span class="stat-label">Matches</span></div>
+      <div class="stat"><span class="stat-number" id="avgPrice">$0.00</span><span class="stat-label">Avg Price</span></div>
+      <div class="stat"><span class="stat-number" id="avgScore">0.0</span><span class="stat-label">Avg Score</span></div>
+      <div class="stat"><span class="stat-number" id="highQualityCount">0</span><span class="stat-label">Score ≥7</span></div>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <table id="stocksTable">
+        <thead>
+          <tr>
+            <th onclick="sortTable('symbol')">Symbol</th>
+            <th onclick="sortTable('name')">Company</th>
+            <th onclick="sortTable('exchange')">Exchange</th>
+            <th onclick="sortTable('price')">Price</th>
+            <th onclick="sortTable('change')">Δ 24h</th>
+            <th onclick="sortTable('volume')">Volume</th>
+            <th onclick="sortTable('marketCap')">Mkt Cap</th>
+            <th onclick="sortTable('score')">Score</th>
+            <th onclick="sortTable('risk')">Risk</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ———————————————————  SCRIPT  ——————————————————— -->
 <script>
-/* ---------- Utilidades ---------- */
-function formatNumber(n){return n>=1e9?(n/1e9).toFixed(1)+'B':n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':n.toString()}
-function scoreFrom(stock){
-  // simples: bom preço + boa var. + tamanho ⇒ maior score
-  let s=0
-  if(stock.price<5)s+=2
-  if(stock.change>0)s+=1
-  if(stock.marketCap>2e9)s+=1
-  if(stock.volume>1e7)s+=1
-  return (5+s).toFixed(1)  // escala 5-10
+/* ------------ helpers ------------ */
+const $ = id => document.getElementById(id)
+const formatNumber = n => n>=1e9?(n/1e9).toFixed(1)+'B':n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':n.toString()
+const scoreClass = x => x>=8?'score-excellent':x>=7?'score-good':x>=6?'score-fair':'score-poor'
+const riskClass  = r => 'risk-'+r.toLowerCase()
+let stocks=[],currentStocks=[],currentSort={field:'score',dir:'desc'}
+/* basic score/risk heuristic */
+const scoreFrom = s=>{
+  let k=5
+  if(s.price<5)k+=2
+  if(s.change>0)k+=1
+  if(s.marketCap>2e9)k+=1
+  if(s.volume>1e7)k+=1
+  return +k.toFixed(1)
 }
-function riskFrom(stock){
-  if(stock.price<1||stock.volume<1e6)return 'High'
-  if(stock.price<3||stock.volume<5e6)return 'Medium'
+const riskFrom = s=>{
+  if(s.price<1||s.volume<1e6)return 'High'
+  if(s.price<3||s.volume<5e6)return 'Medium'
   return 'Low'
 }
-function getScoreClass(x){return x>=8?'score-excellent':x>=7?'score-good':x>=6?'score-fair':'score-poor'}
-function getRiskClass(r){return 'risk-'+r.toLowerCase()}
-let stocks=[],currentStocks=[],currentSort={field:'score',direction:'desc'}
-
+/* ------------ API load ------------ */
 async function loadStocks(){
-  const max=document.getElementById('maxPrice').value||5
-  // fetch básicos (símbolos default definidos no backend)
+  const max=$('maxPriceSlider').value
   const res=await fetch('/api/index?max='+max)
   const data=await res.json()
-  // enriquece com campos que a API devolve
   stocks=data.map(q=>({
-      symbol:q.symbol,
-      name:q.name,
-      price:q.price,
-      change:q.changePercent??0,
-      volume:q.volume??0,
-      marketCap:q.marketCap??0,
-      score:parseFloat(scoreFrom(q)),
-      risk:riskFrom(q)
+    symbol:q.symbol,name:q.name,exchange:q.fullExchangeName||q.exchangeName||'',
+    price:q.price,change:q.changePercent??0,volume:q.volume??0,marketCap:q.marketCap??0,
+    score:scoreFrom(q),risk:riskFrom(q)
   }))
   currentStocks=[...stocks]
-  displayStocks();updateStats()
+  display();stats()
 }
-
-function sortTable(field){
-  document.querySelectorAll('.sort-btn').forEach(b=>b.classList.remove('active'))
-  event.target.classList.add('active')
-  if(currentSort.field===field){currentSort.direction=currentSort.direction==='asc'?'desc':'asc'}
-  else{currentSort.field=field;currentSort.direction=field==='price'||field==='change'?'asc':'desc'}
-  currentStocks.sort((a,b)=>{
-    const A=a[field],B=b[field]
-    return currentSort.direction==='asc'?(A>B?1:-1):(A<B?1:-1)
-  })
-  displayStocks()
-}
-
-function applyFilters(){
-  const maxP=+document.getElementById('maxPrice').value||Infinity
-  const minP=+document.getElementById('minPrice').value||0
-  const minVol=+document.getElementById('minVolume').value||0
-  const mcap=document.getElementById('marketCap').value
-  const minScore=+document.getElementById('minScore').value||0
-  const risk=document.getElementById('riskLevel').value
-  currentStocks=stocks.filter(s=>{
-    if(s.price>maxP||s.price<minP)return false
-    if(s.volume<minVol)return false
-    if(mcap==='micro'&&s.marketCap>=3e8)return false
-    if(mcap==='small'&&(s.marketCap<3e8||s.marketCap>=2e9))return false
-    if(mcap==='mid'&&(s.marketCap<2e9||s.marketCap>=1e10))return false
-    if(s.score<minScore)return false
-    if(risk&&((risk==='Low'&&s.risk!=='Low')||(risk==='Medium'&&s.risk==='High')))return false
-    return true
-  })
-  displayStocks();updateStats()
-}
-function resetFilters(){['maxPrice','minPrice','minVolume'].forEach(id=>document.getElementById(id).value='');document.getElementById('maxPrice').value=5;document.getElementById('minPrice').value=0.1;document.getElementById('minVolume').value=100000;['marketCap','minScore','riskLevel'].forEach(id=>document.getElementById(id).value='');currentStocks=[...stocks];displayStocks();updateStats()}
-
-function displayStocks(){
-  const tbody=document.querySelector('#stocksTable tbody');tbody.innerHTML=''
-  if(!currentStocks.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:2rem;">No results</td></tr>';return}
+/* ------------ display ------------ */
+function display(){
+  const tb=document.querySelector('#stocksTable tbody');tb.innerHTML=''
+  if(!currentStocks.length){tb.innerHTML=`<tr><td colspan="9" style="text-align:center;padding:1.8rem;">No matches</td></tr>`;return}
   currentStocks.forEach(s=>{
-    const chColor=s.change>=0?'#00b894':'#e74c3c',icon=s.change>=0?'↗':'↘'
-    tbody.insertAdjacentHTML('beforeend',`
+    const chColor=s.change>=0?'#009e73':'#e74c3c',icon=s.change>=0?'▲':'▼'
+    tb.insertAdjacentHTML('beforeend',`
       <tr>
         <td class="symbol">${s.symbol}</td>
         <td>${s.name}</td>
+        <td>${s.exchange}</td>
         <td class="price">$${s.price.toFixed(2)}</td>
-        <td style="color:${chColor};font-weight:bold;">${icon} ${Math.abs(s.change).toFixed(2)}%</td>
+        <td style="color:${chColor};font-weight:600">${icon}&nbsp;${Math.abs(s.change).toFixed(2)}%</td>
         <td>${formatNumber(s.volume)}</td>
         <td>$${formatNumber(s.marketCap)}</td>
-        <td><span class="score ${getScoreClass(s.score)}">${s.score}</span></td>
-        <td class="${getRiskClass(s.risk)}">${s.risk}</td>
-      </tr>`)}
-  )
+        <td><span class="badge ${scoreClass(s.score)}">${s.score}</span></td>
+        <td class="${riskClass(s.risk)}">${s.risk}</td>
+      </tr>` )
+  })
 }
-
-function updateStats(){
-  const total=currentStocks.length
-  const avgP=total?currentStocks.reduce((t,s)=>t+s.price,0)/total:0
-  const avgS=total?currentStocks.reduce((t,s)=>t+parseFloat(s.score),0)/total:0
-  const high=currentStocks.filter(s=>s.score>=7).length
-  document.getElementById('totalStocks').textContent=total
-  document.getElementById('avgPrice').textContent='$'+avgP.toFixed(2)
-  document.getElementById('avgScore').textContent=avgS.toFixed(1)
-  document.getElementById('highQualityCount').textContent=high
+/* ------------ stats ------------ */
+function stats(){
+  const n=currentStocks.length
+  $('totalStocks').textContent=n
+  $('avgPrice').textContent='$'+(n?currentStocks.reduce((a,s)=>a+s.price,0)/n:0).toFixed(2)
+  $('avgScore').textContent=(n?currentStocks.reduce((a,s)=>a+s.score,0)/n:0).toFixed(1)
+  $('highQualityCount').textContent=currentStocks.filter(s=>s.score>=7).length
 }
-
-async function searchStock(){
-  const sym=document.getElementById('symbolInput').value.trim().toUpperCase()
-  const resDiv=document.getElementById('result')
-  if(!sym){resDiv.innerHTML='<div class="error">Enter a symbol.</div>';return}
-  resDiv.innerHTML='<div><div class="loading"></div>Searching…</div>'
+/* ------------ sorting ------------ */
+function sortTable(field){
+  currentSort.dir = currentSort.field===field && currentSort.dir==='asc'?'desc':'asc'
+  currentSort.field=field
+  currentStocks.sort((a,b)=>{
+    const [A,B]=[a[field],b[field]]
+    return currentSort.dir==='asc'?(A>B?1:-1):(A<B?1:-1)
+  })
+  display()
+}
+/* ------------ filters ------------ */
+function applyFilters(){
+  const max=+$('maxPriceSlider').value||Infinity,min=+$('minPrice').value||0,
+        minVol=+$('minVolume').value||0,cap=$('marketCap').value,
+        minScore=+$('minScore').value||0,risk=$('riskLevel').value,
+        exch=$('exchange').value
+  currentStocks=stocks.filter(s=>{
+    if(s.price>max||s.price<min)return false
+    if(s.volume<minVol)return false
+    if(cap==='micro'&&s.marketCap>=3e8)return false
+    if(cap==='small'&&(s.marketCap<3e8||s.marketCap>=2e9))return false
+    if(cap==='mid'  &&(s.marketCap<2e9||s.marketCap>=1e10))return false
+    if(minScore&&s.score<minScore)return false
+    if(risk==='Low'&&s.risk!=='Low')return false
+    if(risk==='Medium'&&s.risk==='High')return false
+    if(exch&&s.exchange.indexOf(exch)===-1)return false
+    return true
+  })
+  sortTable(currentSort.field) // mantém ordem
+  stats()
+}
+function resetFilters(){document.querySelectorAll('input,select').forEach(e=>{if(e.type==='range')e.value=5;else if(e.tagName==='SELECT')e.value='';else if(e.id==='minPrice')e.value='0.10';else if(e.id==='minVolume')e.value='100000'});$('maxPriceVal').textContent=5;currentStocks=[...stocks];display();stats()}
+/* ------------ search ------------ */
+async function searchStock(sym){
+  sym=sym||$('symbolInput').value.trim().toUpperCase()
+  if(!sym)return
+  $('result').innerHTML='<div class="alert">Searching…</div>'
   try{
-    const res=await fetch('/api/index?symbol='+sym)
-    const d=await res.json()
-    if(d.error){resDiv.innerHTML='<div class="error">'+d.error+'</div>';return}
+    const d=await (await fetch('/api/index?symbol='+sym)).json()
+    if(d.error){$('result').innerHTML='<div class="alert error">'+d.error+'</div>';return}
     d.score=scoreFrom(d);d.risk=riskFrom(d)
-    const sClass=getScoreClass(d.score),rClass=getRiskClass(d.risk)
-    resDiv.innerHTML=`<div class="success"><strong>${d.symbol}</strong> – ${d.name}<br>
-      Price: <span class="price">$${d.price.toFixed(2)}</span><br>
-      Score: <span class="score ${sClass}">${d.score}</span> | Risk: <span class="${rClass}">${d.risk}</span></div>`
-  }catch{
-    resDiv.innerHTML='<div class="error">Error fetching symbol.</div>'
-  }
+    $('result').innerHTML=`<div class="alert ok"><strong>${d.symbol}</strong> – ${d.name}<br>Price: $${d.price.toFixed(2)}<br>Score: <span class="badge ${scoreClass(d.score)}">${d.score}</span> | Risk: <span class="${riskClass(d.risk)}">${d.risk}</span></div>`
+  }catch{ $('result').innerHTML='<div class="alert error">Error fetching symbol.</div>' }
 }
-document.getElementById('symbolInput').addEventListener('keypress',e=>{if(e.key==='Enter')searchStock()})
-loadStocks()
+/* instant search debounce */
+let timer
+function debouncedSearch(){clearTimeout(timer);timer=setTimeout(()=>searchStock(),600)}
+/* slider sync */
+function syncSlider(){ $('maxPriceVal').textContent=$('maxPriceSlider').value }
+/* init */
+document.addEventListener('DOMContentLoaded',loadStocks)
 </script>
 </body>
 </html>
