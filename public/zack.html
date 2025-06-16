@@ -32,6 +32,7 @@
       <div class="metric"><span>Volume:</span> <span id="volume">-</span></div>
       <div class="metric"><span>Market Cap:</span> <span id="marketCap">-</span></div>
       <div class="metric"><span>Zacks Rank (estimado):</span> <span id="zacksRank">-</span></div>
+      <div class="metric"><span>Explicação:</span> <span id="rankExplanation">-</span></div>
     </div>
   </div>  <script>
     // Função para buscar dados usando a API interna (/api)
@@ -41,21 +42,28 @@
       return resp.json();
     }
 
+    // Mapeia rank para explicação Zacks
+    function getRankExplanation(rank) {
+      switch(rank) {
+        case 1: return 'Strong Buy: Analistas esperam que a ação supere o mercado.';
+        case 2: return 'Buy: Expectativa de performance acima da média do mercado.';
+        case 3: return 'Hold: Performance esperada em linha com o mercado.';
+        case 4: return 'Sell: Performance esperada abaixo da média do mercado.';
+        case 5: return 'Strong Sell: Analistas recomendam venda, pois desempenho deverá ficar abaixo do mercado.';
+        default: return '-';
+      }
+    }
+
     // Calcula Zacks Rank simplificado usando price change e marketCap
     function computeZacksRankFromQuote(q) {
-      // Ex: score momentum: variação positiva = 1; negativa = 5
       const momentumScore = q.changePercent >= 0 ? 1 : 5;
-      // safety: marketCap buckets
-      let safetyScore = 3;
+      let safetyScore;
       if (q.marketCap >= 1e10) safetyScore = 1;
       else if (q.marketCap >= 2e9) safetyScore = 2;
       else if (q.marketCap >= 3e8) safetyScore = 3;
       else safetyScore = 4;
-      // value: uso de price/100 arbitrário
       const valueScore = Math.max(1, Math.min(5, Math.round(q.price / 100)));
-      // growth: placeholder neutro
-      const growthScore = 3;
-
+      const growthScore = 3; // placeholder
       const avg = (valueScore + growthScore + momentumScore + safetyScore) / 4;
       return Math.round(avg);
     }
@@ -71,6 +79,7 @@
         document.getElementById('marketCap').textContent = quote.marketCap.toLocaleString();
         const rank = computeZacksRankFromQuote(quote);
         document.getElementById('zacksRank').textContent = rank;
+        document.getElementById('rankExplanation').textContent = getRankExplanation(rank);
       } catch (error) {
         console.error(error);
         alert('Erro ao buscar dados ou analisar o ticker.');
