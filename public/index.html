@@ -10,6 +10,7 @@
     table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
     th, td { padding: 0.75rem; border: 1px solid #ccc; text-align: left; }
     th { background: #333; color: white; }
+    #search { margin-top: 2rem; }
   </style>
 </head>
 <body>
@@ -21,6 +22,13 @@
     </thead>
     <tbody></tbody>
   </table>
+
+  <div id="search">
+    <h2>🔍 Search a stock by symbol</h2>
+    <input type="text" id="symbolInput" placeholder="e.g. AAPL or MSFT" />
+    <button onclick="searchStock()">Search</button>
+    <div id="result"></div>
+  </div>
 
   <script>
     async function fetchCheapStocks() {
@@ -37,6 +45,29 @@
         </tr>`;
         tbody.insertAdjacentHTML('beforeend', row);
       });
+    }
+
+    async function searchStock() {
+      const symbol = document.getElementById('symbolInput').value.trim();
+      const resultDiv = document.getElementById('result');
+      if (!symbol) return resultDiv.innerHTML = '<p>Please enter a symbol.</p>';
+
+      resultDiv.innerHTML = '<p>Loading...</p>';
+      try {
+        const res = await fetch('/api/index?symbol=' + symbol);
+        const data = await res.json();
+
+        if (data.error) {
+          resultDiv.innerHTML = `<p style="color:red;">${data.error}</p>`;
+        } else {
+          resultDiv.innerHTML = `
+            <p><strong>${data.symbol}</strong> - ${data.name}<br>
+            Price: <strong>${data.price.toFixed(2)} ${data.currency}</strong></p>
+          `;
+        }
+      } catch (err) {
+        resultDiv.innerHTML = '<p style="color:red;">Something went wrong.</p>';
+      }
     }
 
     fetchCheapStocks();
