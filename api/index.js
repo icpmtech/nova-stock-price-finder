@@ -47,4 +47,4 @@ export default async function handler(req, res) {
     console.error(err);
     res.status(500).json({ error: 'Failed to fetch stock data' });
   }
-}a
+}
