@@ -21,85 +21,59 @@
     <h1>Análise de Ação (Zacks Framework)</h1>
     <div class="form-group">
       <label for="ticker">Ticker da Ação:</label>
-      <input type="text" id="ticker" placeholder="Ex: AAPL, TSLA, VALE3" />
+      <input type="text" id="ticker" placeholder="Ex: AAPL, TSLA, VALE" />
     </div>
     <button id="analyzeBtn">Analisar</button>
     <hr />
     <div id="results">
       <h2>Resultados</h2>
-      <div class="metric"><span>Zacks Rank:</span> <span id="zacksRank">-</span></div>
-      <div class="metric"><span>Revisões de Lucro:</span> <span id="earningsRevisions">-</span></div>
-      <div class="metric"><span>Histórico de Surpresas:</span> <span id="earningsSurprise">-</span></div>
-      <div class="metric"><span>Value Score:</span> <span id="valueScore">-</span></div>
-      <div class="metric"><span>Growth Score:</span> <span id="growthScore">-</span></div>
-      <div class="metric"><span>Momentum Score:</span> <span id="momentumScore">-</span></div>
-      <div class="metric"><span>Safety Score:</span> <span id="safetyScore">-</span></div>
+      <div class="metric"><span>Preço:</span> <span id="price">-</span></div>
+      <div class="metric"><span>Variação %:</span> <span id="changePercent">-</span></div>
+      <div class="metric"><span>Volume:</span> <span id="volume">-</span></div>
+      <div class="metric"><span>Market Cap:</span> <span id="marketCap">-</span></div>
+      <div class="metric"><span>Zacks Rank (estimado):</span> <span id="zacksRank">-</span></div>
     </div>
   </div>  <script>
-    // Função para buscar dados financeiros da API
-    async function fetchFinancialData(ticker) {
-      const apiBase = 'https://api.exemplo.com/zacks'; // Substitua pela sua API
-      const response = await fetch(`${apiBase}?ticker=${ticker}`);
-      if (!response.ok) throw new Error('Não foi possível obter dados financeiros');
-      return response.json();
+    // Função para buscar dados usando a API interna (/api)
+    async function fetchQuote(symbol) {
+      const resp = await fetch(`/api?symbol=${symbol}`);
+      if (!resp.ok) throw new Error('Falha ao obter dados da API');
+      return resp.json();
     }
 
-    // Calcula tendência de revisões de lucro: retorna 'Positive', 'Negative' ou 'Neutral'
-    function calculateRevisionTrend(estimateHistory) {
-      // estimateHistory: array de { date, estimate }
-      if (estimateHistory.length < 2) return 'Neutral';
-      const first = estimateHistory[0].estimate;
-      const last = estimateHistory[estimateHistory.length - 1].estimate;
-      if (last > first) return 'Positive';
-      if (last < first) return 'Negative';
-      return 'Neutral';
-    }
+    // Calcula Zacks Rank simplificado usando price change e marketCap
+    function computeZacksRankFromQuote(q) {
+      // Ex: score momentum: variação positiva = 1; negativa = 5
+      const momentumScore = q.changePercent >= 0 ? 1 : 5;
+      // safety: marketCap buckets
+      let safetyScore = 3;
+      if (q.marketCap >= 1e10) safetyScore = 1;
+      else if (q.marketCap >= 2e9) safetyScore = 2;
+      else if (q.marketCap >= 3e8) safetyScore = 3;
+      else safetyScore = 4;
+      // value: uso de price/100 arbitrário
+      const valueScore = Math.max(1, Math.min(5, Math.round(q.price / 100)));
+      // growth: placeholder neutro
+      const growthScore = 3;
 
-    // Calcula média de surpresas de lucro (%) nos últimos trimestres
-    function calculateAverageSurprise(surpriseHistory) {
-      if (!surpriseHistory.length) return 0;
-      const total = surpriseHistory.reduce((sum, s) => sum + s.surprisePercent, 0);
-      return (total / surpriseHistory.length).toFixed(2);
-    }
-
-    // Normaliza e calcula scores (Value, Growth, Momentum, Safety)
-    function calculateScores(metrics) {
-      // Exemplo: metrics = { peRatio, pegRatio, epsGrowth, priceChange, debtEquity }
-      return {
-        value: Math.max(1, Math.min(5, (5 - Math.round(metrics.peRatio / 10)))),
-        growth: Math.max(1, Math.min(5, Math.round(metrics.epsGrowth / 5))),
-        momentum: Math.max(1, Math.min(5, metrics.priceChange > 0 ? 1 : 5)),
-        safety: Math.max(1, Math.min(5, (metrics.debtEquity < 1 ? 1 : 5)))
-      };
-    }
-
-    // Compoe Zacks Rank a partir dos scores
-    function computeZacksRank(scores) {
-      // Simples média dos 4 scores arredondada
-      const avg = (scores.value + scores.growth + scores.momentum + scores.safety) / 4;
+      const avg = (valueScore + growthScore + momentumScore + safetyScore) / 4;
       return Math.round(avg);
     }
 
     document.getElementById('analyzeBtn').addEventListener('click', async () => {
       const ticker = document.getElementById('ticker').value.trim().toUpperCase();
-      if (!ticker) return alert('Por favor, insira um ticker válido.');
+      if (!ticker) return alert('Insira um ticker válido.');
       try {
-        const data = await fetchFinancialData(ticker);
-        const revisionTrend = calculateRevisionTrend(data.earningsEstimates);
-        const avgSurprise = calculateAverageSurprise(data.earningsSurprises);
-        const scores = calculateScores(data.metrics);
-        const zacksRank = computeZacksRank(scores);
-
-        document.getElementById('zacksRank').textContent = zacksRank;
-        document.getElementById('earningsRevisions').textContent = revisionTrend;
-        document.getElementById('earningsSurprise').textContent = avgSurprise + '%';
-        document.getElementById('valueScore').textContent = scores.value;
-        document.getElementById('growthScore').textContent = scores.growth;
-        document.getElementById('momentumScore').textContent = scores.momentum;
-        document.getElementById('safetyScore').textContent = scores.safety;
-      } catch (err) {
-        console.error(err);
-        alert('Erro ao analisar o ticker.');
+        const quote = await fetchQuote(ticker);
+        document.getElementById('price').textContent = quote.price.toLocaleString();
+        document.getElementById('changePercent').textContent = (quote.changePercent * 100).toFixed(2) + '%';
+        document.getElementById('volume').textContent = quote.volume.toLocaleString();
+        document.getElementById('marketCap').textContent = quote.marketCap.toLocaleString();
+        const rank = computeZacksRankFromQuote(quote);
+        document.getElementById('zacksRank').textContent = rank;
+      } catch (error) {
+        console.error(error);
+        alert('Erro ao buscar dados ou analisar o ticker.');
       }
     });
   </script></body>
