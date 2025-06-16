@@ -1,1 +1,106 @@
+<!DOCTYPE html><html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Análise Zacks</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
+    .container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    h1 { text-align: center; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; font-weight: bold; }
+    input[type="text"] { width: 100%; padding: 8px; box-sizing: border-box; }
+    button { padding: 10px 20px; background: #007bff; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+    button:hover { background: #0056b3; }
+    .metric { margin-bottom: 10px; }
+    .metric span { font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Análise de Ação (Zacks Framework)</h1>
+    <div class="form-group">
+      <label for="ticker">Ticker da Ação:</label>
+      <input type="text" id="ticker" placeholder="Ex: AAPL, TSLA, VALE3" />
+    </div>
+    <button id="analyzeBtn">Analisar</button>
+    <hr />
+    <div id="results">
+      <h2>Resultados</h2>
+      <div class="metric"><span>Zacks Rank:</span> <span id="zacksRank">-</span></div>
+      <div class="metric"><span>Revisões de Lucro:</span> <span id="earningsRevisions">-</span></div>
+      <div class="metric"><span>Histórico de Surpresas:</span> <span id="earningsSurprise">-</span></div>
+      <div class="metric"><span>Value Score:</span> <span id="valueScore">-</span></div>
+      <div class="metric"><span>Growth Score:</span> <span id="growthScore">-</span></div>
+      <div class="metric"><span>Momentum Score:</span> <span id="momentumScore">-</span></div>
+      <div class="metric"><span>Safety Score:</span> <span id="safetyScore">-</span></div>
+    </div>
+  </div>  <script>
+    // Função para buscar dados financeiros da API
+    async function fetchFinancialData(ticker) {
+      const apiBase = 'https://api.exemplo.com/zacks'; // Substitua pela sua API
+      const response = await fetch(`${apiBase}?ticker=${ticker}`);
+      if (!response.ok) throw new Error('Não foi possível obter dados financeiros');
+      return response.json();
+    }
 
+    // Calcula tendência de revisões de lucro: retorna 'Positive', 'Negative' ou 'Neutral'
+    function calculateRevisionTrend(estimateHistory) {
+      // estimateHistory: array de { date, estimate }
+      if (estimateHistory.length < 2) return 'Neutral';
+      const first = estimateHistory[0].estimate;
+      const last = estimateHistory[estimateHistory.length - 1].estimate;
+      if (last > first) return 'Positive';
+      if (last < first) return 'Negative';
+      return 'Neutral';
+    }
+
+    // Calcula média de surpresas de lucro (%) nos últimos trimestres
+    function calculateAverageSurprise(surpriseHistory) {
+      if (!surpriseHistory.length) return 0;
+      const total = surpriseHistory.reduce((sum, s) => sum + s.surprisePercent, 0);
+      return (total / surpriseHistory.length).toFixed(2);
+    }
+
+    // Normaliza e calcula scores (Value, Growth, Momentum, Safety)
+    function calculateScores(metrics) {
+      // Exemplo: metrics = { peRatio, pegRatio, epsGrowth, priceChange, debtEquity }
+      return {
+        value: Math.max(1, Math.min(5, (5 - Math.round(metrics.peRatio / 10)))),
+        growth: Math.max(1, Math.min(5, Math.round(metrics.epsGrowth / 5))),
+        momentum: Math.max(1, Math.min(5, metrics.priceChange > 0 ? 1 : 5)),
+        safety: Math.max(1, Math.min(5, (metrics.debtEquity < 1 ? 1 : 5)))
+      };
+    }
+
+    // Compoe Zacks Rank a partir dos scores
+    function computeZacksRank(scores) {
+      // Simples média dos 4 scores arredondada
+      const avg = (scores.value + scores.growth + scores.momentum + scores.safety) / 4;
+      return Math.round(avg);
+    }
+
+    document.getElementById('analyzeBtn').addEventListener('click', async () => {
+      const ticker = document.getElementById('ticker').value.trim().toUpperCase();
+      if (!ticker) return alert('Por favor, insira um ticker válido.');
+      try {
+        const data = await fetchFinancialData(ticker);
+        const revisionTrend = calculateRevisionTrend(data.earningsEstimates);
+        const avgSurprise = calculateAverageSurprise(data.earningsSurprises);
+        const scores = calculateScores(data.metrics);
+        const zacksRank = computeZacksRank(scores);
+
+        document.getElementById('zacksRank').textContent = zacksRank;
+        document.getElementById('earningsRevisions').textContent = revisionTrend;
+        document.getElementById('earningsSurprise').textContent = avgSurprise + '%';
+        document.getElementById('valueScore').textContent = scores.value;
+        document.getElementById('growthScore').textContent = scores.growth;
+        document.getElementById('momentumScore').textContent = scores.momentum;
+        document.getElementById('safetyScore').textContent = scores.safety;
+      } catch (err) {
+        console.error(err);
+        alert('Erro ao analisar o ticker.');
+      }
+    });
+  </script></body>
+</html>
