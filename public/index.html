@@ -293,7 +293,7 @@
         flex-direction: column;
       }
 
-      #symbolInput {
+      #symbolInput, #maxPrice {
         min-width: 100%;
       }
 
@@ -334,7 +334,7 @@
       <div class="stats-grid">
         <div class="stat-card">
           <span class="stat-number" id="totalStocks">0</span>
-          <span class="stat-label">Stocks Under $5</span>
+          <span class="stat-label">Stocks Under $<span id="currentMax">5</span></span>
         </div>
         <div class="stat-card">
           <span class="stat-number" id="avgPrice">$0.00</span>
@@ -344,6 +344,12 @@
           <span class="stat-number" id="lowestPrice">$0.00</span>
           <span class="stat-label">Lowest Price</span>
         </div>
+      </div>
+
+      <div style="margin: 2rem 0 1rem 0; display: flex; align-items: center;">
+        <label for="maxPrice" style="font-weight:600;margin-right:8px;">Show stocks below $</label>
+        <input type="number" id="maxPrice" value="5" min="0" step="0.01" style="width:80px; margin-right:10px; padding: 0.5rem; border-radius:6px; border:1px solid #ddd;" />
+        <button class="search-btn" onclick="fetchCheapStocks()">Apply</button>
       </div>
 
       <div class="search-section">
@@ -357,7 +363,7 @@
 
       <div class="table-container">
         <div class="table-header">
-          💰 Stocks Currently Under $5
+          💰 Stocks Currently Under $<span id="tableMax">5</span>
         </div>
         <table id="stocksTable">
           <thead>
@@ -375,47 +381,41 @@
   </div>
 
   <script>
-    // Mock data for demonstration
-    const mockStocks = [
-      { symbol: 'SNDL', name: 'Sundial Growers Inc.', price: 2.45, currency: 'USD' },
-      { symbol: 'NOK', name: 'Nokia Corporation', price: 3.78, currency: 'USD' },
-      { symbol: 'WISH', name: 'ContextLogic Inc.', price: 1.89, currency: 'USD' },
-      { symbol: 'SOFI', name: 'SoFi Technologies Inc.', price: 4.23, currency: 'USD' },
-      { symbol: 'PLTR', name: 'Palantir Technologies Inc.', price: 4.67, currency: 'USD' },
-      { symbol: 'NIO', name: 'NIO Inc.', price: 3.45, currency: 'USD' },
-      { symbol: 'BBBY', name: 'Bed Bath & Beyond Inc.', price: 1.23, currency: 'USD' },
-      { symbol: 'AMC', name: 'AMC Entertainment Holdings Inc.', price: 4.89, currency: 'USD' }
-    ];
-
-    const mockSearchData = {
-      'AAPL': { symbol: 'AAPL', name: 'Apple Inc.', price: 182.52, currency: 'USD' },
-      'MSFT': { symbol: 'MSFT', name: 'Microsoft Corporation', price: 378.85, currency: 'USD' },
-      'TSLA': { symbol: 'TSLA', name: 'Tesla Inc.', price: 248.50, currency: 'USD' },
-      'GOOGL': { symbol: 'GOOGL', name: 'Alphabet Inc.', price: 175.35, currency: 'USD' }
-    };
+    let stocks = [];
 
     async function fetchCheapStocks() {
+      const maxPrice = document.getElementById('maxPrice').value || 5;
+      document.getElementById('currentMax').textContent = maxPrice;
+      document.getElementById('tableMax').textContent = maxPrice;
+
       const tbody = document.querySelector('#stocksTable tbody');
       tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 2rem;"><div class="loading"></div>Loading stocks...</td></tr>';
-      
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
+      try {
+        const response = await fetch('/api/index?max=' + maxPrice);
+        stocks = await response.json();
+      } catch {
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">Error loading stocks.</td></tr>`;
+        updateStats();
+        return;
+      }
+
       tbody.innerHTML = '';
-      
-      if (mockStocks.length === 0) {
+
+      if (!stocks.length) {
         tbody.innerHTML = `
           <tr>
             <td colspan="4" class="empty-state">
               <div class="icon">📊</div>
-              <div>No stocks under $5 found at the moment</div>
+              <div>No stocks found below that price.</div>
             </td>
           </tr>
         `;
+        updateStats();
         return;
       }
 
-      mockStocks.forEach((stock, index) => {
+      stocks.forEach((stock, index) => {
         const row = document.createElement('tr');
         row.style.animationDelay = `${index * 0.1}s`;
         row.innerHTML = `
@@ -431,9 +431,9 @@
     }
 
     function updateStats() {
-      const totalStocks = mockStocks.length;
-      const avgPrice = mockStocks.reduce((sum, stock) => sum + stock.price, 0) / totalStocks;
-      const lowestPrice = Math.min(...mockStocks.map(stock => stock.price));
+      const totalStocks = stocks.length;
+      const avgPrice = totalStocks ? stocks.reduce((sum, stock) => sum + stock.price, 0) / totalStocks : 0;
+      const lowestPrice = totalStocks ? Math.min(...stocks.map(stock => stock.price)) : 0;
 
       document.getElementById('totalStocks').textContent = totalStocks;
       document.getElementById('avgPrice').textContent = `$${avgPrice.toFixed(2)}`;
@@ -451,13 +451,11 @@
 
       resultDiv.innerHTML = '<div><div class="loading"></div>Searching for ' + symbol + '...</div>';
 
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 800));
-
       try {
-        const data = mockSearchData[symbol];
+        const res = await fetch('/api/index?symbol=' + symbol);
+        const data = await res.json();
         
-        if (!data) {
+        if (data.error) {
           resultDiv.innerHTML = `<div class="error">Stock symbol "${symbol}" not found. Please check the symbol and try again.</div>`;
         } else {
           const priceClass = data.price < 5 ? 'style="color: #00b894; font-weight: bold;"' : '';
@@ -477,14 +475,13 @@
       }
     }
 
-    // Add enter key support for search
     document.getElementById('symbolInput').addEventListener('keypress', function(e) {
       if (e.key === 'Enter') {
         searchStock();
       }
     });
 
-    // Initialize the app
+    // Inicializa com o valor padrão (ex: $5)
     fetchCheapStocks();
   </script>
 </body>
