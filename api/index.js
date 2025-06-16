@@ -1,60 +1,65 @@
-// api/index.js
-// ------------------------------------------------------------
-// API handler para Vercel (ou qualquer ambiente Serverless)
-// Devolve:
-//   • /api/index?symbol=TSLA   → objeto com dados completos da ação
-//   • /api/index?max=5         → lista das DEFAULT_STOCKS abaixo desse preço
-//     (podes acrescentar ?min=0.5 ou outros filtros se quiseres)
-// ------------------------------------------------------------
+// api/index.js -------------------------------------------------------------
 import yahooFinance from 'yahoo-finance2';
 
 const DEFAULT_STOCKS = [
-  'SNDL', 'NOK', 'SOFI', 'PLTR', 'NIO', 'F', 'WISH',
-  'BBD', 'ITUB', 'VALE', 'KO', 'PFE', 'BAC', 'GE', 'T'
+  'SNDL','NOK','SOFI','PLTR','NIO','F','WISH',
+  'BBD','ITUB','VALE','KO','PFE','BAC','GE','T'
 ];
 
-// Utilitário para ler n query strings de forma tipada
-function num(value, def) {
-  const n = parseFloat(value);
-  return isNaN(n) ? def : n;
-}
+const num = (v, def) => {
+  const n = parseFloat(v);
+  return Number.isFinite(n) ? n : def;
+};
 
 export default async function handler(req, res) {
-  const { symbol, max, min } = req.query;
+  const { symbol, max, min, exchange, minVolume, cap } = req.query;
 
-  // --- PEDIDO POR SÍMBOLO ÚNICO -------------------------------------------
+  /* ---------- 1) símbolo único ---------- */
   if (symbol) {
     try {
-      const quote = await yahooFinance.quote(symbol.toUpperCase());
-
-      if (!quote || quote.regularMarketPrice == null) {
-        return res.status(404).json({ error: 'Stock not found' });
-      }
-
-      const data = mapQuote(quote);
-      return res.status(200).json(data);
+      const q = await yahooFinance.quote(symbol.toUpperCase());
+      if (!q || q.regularMarketPrice == null) return res.status(404).json({ error: 'Stock not found' });
+      return res.status(200).json(mapQuote(q));
     } catch (err) {
       console.error(err);
       return res.status(500).json({ error: 'Failed to fetch stock data' });
     }
   }
 
-  // --- LISTA FILTRADA -------------------------------------------------------
+  /* ---------- 2) lista filtrada ---------- */
   try {
-    const maxPrice = num(max, 5);   // default $5
-    const minPrice = num(min, 0);   // default $0
+    const maxP   = num(max, 5);
+    const minP   = num(min, 0);
+    const minVol = num(minVolume, 0);
+    const capKey = (cap || '').toLowerCase();   // micro | small | mid | large
 
-    const quotes = await Promise.all(
-      DEFAULT_STOCKS.map(s => yahooFinance.quote(s))
-    );
+    const quotes = await Promise.all(DEFAULT_STOCKS.map(t => yahooFinance.quote(t)));
 
-    const results = quotes
-      .filter(q =>
-        q.regularMarketPrice != null &&
-        q.regularMarketPrice <= maxPrice &&
-        q.regularMarketPrice >= minPrice
-      )
-      .map(mapQuote);
+    const results = quotes.filter(q => {
+      const price   = q.regularMarketPrice;
+      const volume  = q.regularMarketVolume ?? 0;
+      const mktCap  = q.marketCap ?? 0;
+      const exch    = (q.fullExchangeName || q.exchangeName || '');
+
+      // Preço
+      if (price == null || price > maxP || price < minP) return false;
+
+      // Volume
+      if (volume < minVol) return false;
+
+      // Exchange
+      if (exchange && !exch.toLowerCase().includes(exchange.toLowerCase())) return false;
+
+      // Market-cap categoria
+      if (capKey) {
+        if (capKey === 'micro' && mktCap >= 3e8) return false;
+        if (capKey === 'small' && (mktCap < 3e8 || mktCap >= 2e9)) return false;
+        if (capKey === 'mid'   && (mktCap < 2e9 || mktCap >= 1e10)) return false;
+        if (capKey === 'large' && mktCap < 1e10) return false;
+      }
+      return true;
+    })
+    .map(mapQuote);
 
     return res.status(200).json(results);
   } catch (err) {
@@ -63,14 +68,15 @@ export default async function handler(req, res) {
   }
 }
 
-// Converte o objeto da yahoo-finance2 para o formato que o frontend espera
+/* ---------- helper ---------- */
 function mapQuote(q) {
   return {
-    symbol: q.symbol,
-    name: q.shortName || q.longName || '',
-    price: q.regularMarketPrice,
+    symbol:   q.symbol,
+    name:     q.shortName || q.longName || '',
+    exchange: q.fullExchangeName || q.exchangeName || '',
+    price:    q.regularMarketPrice,
     changePercent: q.regularMarketChangePercent ?? 0,
-    volume: q.regularMarketVolume ?? 0,
+    volume:   q.regularMarketVolume ?? 0,
     marketCap: q.marketCap ?? 0,
     currency: q.currency || 'USD'
   };
