@@ -1,11 +1,12 @@
 import yahooFinance from 'yahoo-finance2';
 
-const DEFAULT_STOCKS = ['AAPL', 'AMD', 'NOK', 'INTC', 'F', 'T', 'GE', 'SIRI', 'PFE', 'BAC'];
+const DEFAULT_STOCKS = [
+  'AAPL', 'AMD', 'NOK', 'INTC', 'F', 'T', 'GE', 'SIRI', 'PFE', 'BAC', 'SNDL', 'WISH', 'SOFI', 'PLTR', 'NIO', 'BBBY', 'AMC'
+];
 
 export default async function handler(req, res) {
-  const { symbol } = req.query;
+  const { symbol, max } = req.query;
 
-  // Pesquisa por símbolo específico
   if (symbol) {
     try {
       const quote = await yahooFinance.quote(symbol.toUpperCase());
@@ -26,13 +27,14 @@ export default async function handler(req, res) {
     }
   }
 
-  // Listagem de ações baratas (< 5 USD)
+  // List all stocks below max price (default $5)
   try {
     const results = [];
+    const maxPrice = parseFloat(max) || 5;
 
     for (const s of DEFAULT_STOCKS) {
       const quote = await yahooFinance.quote(s);
-      if (quote.regularMarketPrice && quote.regularMarketPrice < 5) {
+      if (quote.regularMarketPrice && quote.regularMarketPrice < maxPrice) {
         results.push({
           symbol: s,
           name: quote.shortName,
@@ -42,9 +44,9 @@ export default async function handler(req, res) {
       }
     }
 
-    res.status(200).json(results);
+    return res.status(200).json(results);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to fetch stock data' });
+    return res.status(500).json({ error: 'Failed to fetch stock data' });
   }
 }
