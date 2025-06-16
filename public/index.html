@@ -24,7 +24,7 @@
 
   <script>
     async function fetchCheapStocks() {
-      const response = await fetch('/api/cheap-stocks');
+      const response = await fetch('/api/index');
       const stocks = await response.json();
       const tbody = document.querySelector('#stocksTable tbody');
       tbody.innerHTML = '';
