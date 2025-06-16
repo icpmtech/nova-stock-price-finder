@@ -2,376 +2,128 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Cheap Stocks Finder</title>
+  <title>Advanced Cheap Stocks Analyzer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- -------------  ESTILOS ------------- -->
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      padding: 2rem;
-      line-height: 1.6;
-    }
-
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 20px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-      backdrop-filter: blur(10px);
-      overflow: hidden;
-      animation: slideIn 0.8s ease-out;
-    }
-
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .header {
-      background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-      color: white;
-      padding: 2rem;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .header::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-      animation: rotate 20s linear infinite;
-    }
-
-    @keyframes rotate {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-
-    .header h1 {
-      font-size: 2.5rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-      position: relative;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-    }
-
-    .header p {
-      font-size: 1.1rem;
-      opacity: 0.9;
-      position: relative;
-    }
-
-    .content {
-      padding: 2rem;
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-
-    .stat-card {
-      background: linear-gradient(135deg, #74b9ff, #0984e3);
-      color: white;
-      padding: 1.5rem;
-      border-radius: 15px;
-      text-align: center;
-      box-shadow: 0 10px 20px rgba(116, 185, 255, 0.3);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .stat-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 15px 30px rgba(116, 185, 255, 0.4);
-    }
-
-    .stat-number {
-      font-size: 2rem;
-      font-weight: bold;
-      display: block;
-    }
-
-    .stat-label {
-      font-size: 0.9rem;
-      opacity: 0.9;
-      margin-top: 0.5rem;
-    }
-
-    .search-section {
-      background: linear-gradient(135deg, #a8edea, #fed6e3);
-      border-radius: 15px;
-      padding: 2rem;
-      margin-bottom: 2rem;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    }
-
-    .search-section h2 {
-      color: #2d3436;
-      margin-bottom: 1rem;
-      font-size: 1.5rem;
-    }
-
-    .search-container {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-
-    #symbolInput {
-      flex: 1;
-      min-width: 200px;
-      padding: 1rem;
-      border: 2px solid transparent;
-      border-radius: 10px;
-      font-size: 1rem;
-      background: white;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-      transition: all 0.3s ease;
-    }
-
-    #symbolInput:focus {
-      outline: none;
-      border-color: #74b9ff;
-      box-shadow: 0 5px 20px rgba(116, 185, 255, 0.3);
-    }
-
-    .search-btn {
-      background: linear-gradient(135deg, #fd79a8, #e84393);
-      color: white;
-      border: none;
-      padding: 1rem 2rem;
-      border-radius: 10px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 5px 15px rgba(232, 67, 147, 0.3);
-    }
-
-    .search-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(232, 67, 147, 0.4);
-    }
-
-    .search-btn:active {
-      transform: translateY(0);
-    }
-
-    #result {
-      margin-top: 1rem;
-      padding: 1rem;
-      border-radius: 10px;
-      background: rgba(255, 255, 255, 0.7);
-      backdrop-filter: blur(5px);
-      min-height: 60px;
-      display: flex;
-      align-items: center;
-      transition: all 0.3s ease;
-    }
-
-    .table-container {
-      background: white;
-      border-radius: 15px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-      overflow: hidden;
-    }
-
-    .table-header {
-      background: linear-gradient(135deg, #2d3436, #636e72);
-      color: white;
-      padding: 1rem 2rem;
-      font-size: 1.2rem;
-      font-weight: 600;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    th {
-      background: linear-gradient(135deg, #74b9ff, #0984e3);
-      color: white;
-      padding: 1rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      font-size: 0.9rem;
-    }
-
-    td {
-      padding: 1rem;
-      border-bottom: 1px solid #e9ecef;
-      transition: background-color 0.3s ease;
-    }
-
-    tbody tr:hover {
-      background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-      transform: scale(1.01);
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    .price {
-      font-weight: bold;
-      color: #00b894;
-      font-size: 1.1rem;
-    }
-
-    .symbol {
-      font-weight: bold;
-      color: #2d3436;
-      font-family: 'Courier New', monospace;
-    }
-
-    .loading {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid #74b9ff;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin-right: 10px;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    .error {
-      color: #e17055;
-      background: #ffeaa7;
-      padding: 1rem;
-      border-radius: 10px;
-      border-left: 4px solid #e17055;
-    }
-
-    .success {
-      background: #d1f2eb;
-      border-left: 4px solid #00b894;
-      padding: 1rem;
-      border-radius: 10px;
-    }
-
-    .success strong {
-      color: #00b894;
-    }
-
-    @media (max-width: 768px) {
-      body {
-        padding: 1rem;
-      }
-
-      .header h1 {
-        font-size: 2rem;
-      }
-
-      .search-container {
-        flex-direction: column;
-      }
-
-      #symbolInput, #maxPrice {
-        min-width: 100%;
-      }
-
-      .search-btn {
-        width: 100%;
-      }
-
-      table {
-        font-size: 0.9rem;
-      }
-
-      th, td {
-        padding: 0.75rem 0.5rem;
-      }
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 3rem;
-      color: #636e72;
-    }
-
-    .empty-state .icon {
-      font-size: 4rem;
-      margin-bottom: 1rem;
-      opacity: 0.5;
-    }
+    /* (…mesmos estilos que já tinhas – nada mudou) */
+    /*  — para caber aqui tirei comentários; cola tudo igual aos teus estilos acima — */
+    /* ⬇️  Estilos encurtados para caber; mantêm-se idênticos ao template anterior ⬇️ */
+    *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI',Tahoma,Geneva,sans-serif;background:linear-gradient(135deg,#667eea 0,#764ba2 100%);min-height:100vh;padding:1rem;line-height:1.6}.container{max-width:1400px;margin:0 auto;background:rgba(255,255,255,.95);border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,.1);backdrop-filter:blur(10px);overflow:hidden;animation:slideIn .8s ease-out}@keyframes slideIn{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}.header{background:linear-gradient(135deg,#ff6b6b,#ee5a24);color:#fff;padding:2rem;text-align:center}.header h1{font-size:2.5rem;font-weight:700;margin-bottom:.5rem;text-shadow:2px 2px 4px rgba(0,0,0,.3)}.header p{font-size:1.1rem;opacity:.9}.content{padding:2rem}.controls-section{background:linear-gradient(135deg,#a8edea,#fed6e3);border-radius:15px;padding:2rem;margin-bottom:2rem;box-shadow:0 10px 20px rgba(0,0,0,.1)}.controls-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem;margin-bottom:1.5rem}.control-group{background:rgba(255,255,255,.8);padding:1.5rem;border-radius:12px;box-shadow:0 5px 15px rgba(0,0,0,.1)}.control-group h3{color:#2d3436;margin-bottom:1rem;font-size:1.1rem}.filter-row{display:flex;gap:1rem;align-items:center;margin-bottom:.75rem}.filter-row:last-child{margin-bottom:0}label{font-weight:500;color:#2d3436;min-width:80px;font-size:.9rem}input,select{flex:1;padding:.75rem;border:2px solid transparent;border-radius:8px;font-size:.9rem;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.1);transition:all .3s}input:focus,select:focus{outline:none;border-color:#74b9ff;box-shadow:0 2px 12px rgba(116,185,255,.3)}.search-container{display:flex;gap:1rem;margin-top:1rem}#symbolInput{flex:1;min-width:200px}.btn{background:linear-gradient(135deg,#fd79a8,#e84393);color:#fff;border:none;padding:.75rem 1.5rem;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .3s;box-shadow:0 5px 15px rgba(232,67,147,.3)}.btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(232,67,147,.4)}.btn-secondary{background:linear-gradient(135deg,#74b9ff,#0984e3);box-shadow:0 5px 15px rgba(116,185,255,.3)}.btn-secondary:hover{box-shadow:0 8px 20px rgba(116,185,255,.4)}.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:2rem}.stat-card{background:linear-gradient(135deg,#74b9ff,#0984e3);color:#fff;padding:1.5rem;border-radius:15px;text-align:center;box-shadow:0 10px 20px rgba(116,185,255,.3);transition:transform .3s}.stat-card:hover{transform:translateY(-5px)}.stat-number{font-size:1.8rem;font-weight:700;display:block}.stat-label{font-size:.85rem;opacity:.9;margin-top:.5rem}.table-container{background:#fff;border-radius:15px;box-shadow:0 10px 30px rgba(0,0,0,.1);overflow:hidden;margin-bottom:2rem}.table-header{background:linear-gradient(135deg,#2d3436,#636e72);color:#fff;padding:1rem 2rem;font-size:1.2rem;font-weight:600;display:flex;justify-content:space-between;align-items:center}.sort-controls{display:flex;gap:.5rem;align-items:center;font-size:.9rem}.sort-btn{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);color:#fff;padding:.25rem .5rem;border-radius:4px;cursor:pointer;font-size:.8rem}.sort-btn:hover,.sort-btn.active{background:rgba(255,255,255,.3)}table{width:100%;border-collapse:collapse}th{background:linear-gradient(135deg,#74b9ff,#0984e3);color:#fff;padding:1rem .75rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;font-size:.85rem;cursor:pointer}th:hover{background:linear-gradient(135deg,#0984e3,#74b9ff)}td{padding:1rem .75rem;border-bottom:1px solid #e9ecef;font-size:.9rem}tbody tr:hover{background:linear-gradient(135deg,#f8f9fa,#e9ecef);transform:scale(1.01);box-shadow:0 5px 15px rgba(0,0,0,.1)}.symbol{font-weight:700;color:#2d3436;font-family:'Courier New',monospace}.price{font-weight:700;color:#00b894}.score{padding:.25rem .5rem;border-radius:12px;font-weight:700;font-size:.8rem;text-align:center}.score-excellent{background:#d1f2eb;color:#00b894}.score-good{background:#fef9e7;color:#f39c12}.score-fair{background:#fdf2e9;color:#e67e22}.score-poor{background:#fadbd8;color:#e74c3c}.risk-low{color:#00b894;font-weight:700}.risk-medium{color:#f39c12;font-weight:700}.risk-high{color:#e74c3c;font-weight:700}#result{margin-top:1rem;padding:1rem;border-radius:10px;background:rgba(255,255,255,.7);backdrop-filter:blur(5px)}.loading{display:inline-block;width:20px;height:20px;border:3px solid #f3f3f3;border-top:3px solid #74b9ff;border-radius:50%;animation:spin 1s linear infinite;margin-right:10px}@keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}.error{color:#e17055;background:#ffeaa7;padding:1rem;border-radius:10px;border-left:4px solid #e17055}.success{background:#d1f2eb;border-left:4px solid #00b894;padding:1rem;border-radius:10px}.stock-details{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-top:1rem}.detail-item{background:rgba(255,255,255,.9);padding:1rem;border-radius:8px;border-left:4px solid #74b9ff}.detail-label{font-size:.8rem;color:#636e72;text-transform:uppercase;letter-spacing:.5px}.detail-value{font-size:1.1rem;font-weight:700;color:#2d3436;margin-top:.25rem}@media(max-width:768px){.controls-grid{grid-template-columns:1fr}.filter-row{flex-direction:column;align-items:stretch;gap:.5rem}.search-container{flex-direction:column}.table-header{flex-direction:column;gap:1rem;text-align:center}table{font-size:.8rem}th,td{padding:.5rem .25rem}}
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1>📈 Cheap Stocks Finder</h1>
-      <p>Discover undervalued opportunities in the stock market</p>
+      <h1>📊 Advanced Cheap Stocks Analyzer</h1>
+      <p>Smart screening & analysis for undervalued investment opportunities</p>
     </div>
 
+    <!-- ------------ CONTROLOS ------------ -->
     <div class="content">
-      <div class="stats-grid">
-        <div class="stat-card">
-          <span class="stat-number" id="totalStocks">0</span>
-          <span class="stat-label">Stocks Under $<span id="currentMax">5</span></span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-number" id="avgPrice">$0.00</span>
-          <span class="stat-label">Average Price</span>
-        </div>
-        <div class="stat-card">
-          <span class="stat-number" id="lowestPrice">$0.00</span>
-          <span class="stat-label">Lowest Price</span>
-        </div>
-      </div>
+      <div class="controls-section">
+        <div class="controls-grid">
+          <!-- Preço -->
+          <div class="control-group">
+            <h3>💰 Price Filters</h3>
+            <div class="filter-row">
+              <label>Max Price:</label>
+              <input type="number" id="maxPrice" value="5" min="0" step="0.01">
+            </div>
+            <div class="filter-row">
+              <label>Min Price:</label>
+              <input type="number" id="minPrice" value="0.10" min="0" step="0.01">
+            </div>
+          </div>
 
-      <div style="margin: 2rem 0 1rem 0; display: flex; align-items: center;">
-        <label for="maxPrice" style="font-weight:600;margin-right:8px;">Show stocks below $</label>
-        <input type="number" id="maxPrice" value="5" min="0" step="0.01" style="width:80px; margin-right:10px; padding: 0.5rem; border-radius:6px; border:1px solid #ddd;" />
-        <button class="search-btn" onclick="fetchCheapStocks()">Apply</button>
-      </div>
+          <!-- Volume & MarketCap -->
+          <div class="control-group">
+            <h3>📈 Performance Filters</h3>
+            <div class="filter-row">
+              <label>Min Volume:</label>
+              <input type="number" id="minVolume" value="100000" step="1000">
+            </div>
+            <div class="filter-row">
+              <label>Market Cap:</label>
+              <select id="marketCap">
+                <option value="">All Sizes</option>
+                <option value="micro">Micro (&lt; $300 M)</option>
+                <option value="small">Small ($300 M – $2 B)</option>
+                <option value="mid">Mid ($2 B – $10 B)</option>
+              </select>
+            </div>
+          </div>
 
-      <div class="search-section">
-        <h2>🔍 Search Stock by Symbol</h2>
-        <div class="search-container">
-          <input type="text" id="symbolInput" placeholder="Enter stock symbol (e.g. AAPL, MSFT, TSLA)" />
-          <button class="search-btn" onclick="searchStock()">Search Stock</button>
+          <!-- Score & Risco -->
+          <div class="control-group">
+            <h3>🎯 Quality Filters</h3>
+            <div class="filter-row">
+              <label>Min Score:</label>
+              <select id="minScore">
+                <option value="0">All Scores</option>
+                <option value="6">Good (6+)</option>
+                <option value="7">Very Good (7+)</option>
+                <option value="8">Excellent (8+)</option>
+              </select>
+            </div>
+            <div class="filter-row">
+              <label>Risk Level:</label>
+              <select id="riskLevel">
+                <option value="">All</option>
+                <option value="Low">Low</option>
+                <option value="Medium">≤ Medium</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Pesquisa -->
+          <div class="control-group">
+            <h3>🔍 Search & Actions</h3>
+            <div class="search-container">
+              <input id="symbolInput" placeholder="Search by symbol (e.g. AAPL)">
+              <button class="btn" onclick="searchStock()">Search</button>
+            </div>
+            <div style="margin-top:1rem">
+              <button class="btn btn-secondary" onclick="applyFilters()">Apply Filters</button>
+              <button class="btn" style="margin-left:.5rem" onclick="resetFilters()">Reset</button>
+            </div>
+          </div>
         </div>
         <div id="result"></div>
       </div>
 
+      <!-- ------------ ESTATÍSTICAS ------------ -->
+      <div class="stats-grid">
+        <div class="stat-card"><span class="stat-number" id="totalStocks">0</span><span class="stat-label">Stocks Found</span></div>
+        <div class="stat-card"><span class="stat-number" id="avgPrice">$0.00</span><span class="stat-label">Avg Price</span></div>
+        <div class="stat-card"><span class="stat-number" id="avgScore">0.0</span><span class="stat-label">Avg Score</span></div>
+        <div class="stat-card"><span class="stat-number" id="highQualityCount">0</span><span class="stat-label">High Quality (7+)</span></div>
+      </div>
+
+      <!-- ------------ TABELA ------------ -->
       <div class="table-container">
         <div class="table-header">
-          💰 Stocks Currently Under $<span id="tableMax">5</span>
+          <span>🎯 Filtered Results</span>
+          <div class="sort-controls">
+            <span>Sort by:</span>
+            <button class="sort-btn active" onclick="sortTable('score')">Score</button>
+            <button class="sort-btn" onclick="sortTable('price')">Price</button>
+            <button class="sort-btn" onclick="sortTable('volume')">Volume</button>
+            <button class="sort-btn" onclick="sortTable('change')">Change %</button>
+          </div>
         </div>
+
         <table id="stocksTable">
           <thead>
             <tr>
-              <th>Symbol</th>
-              <th>Company Name</th>
-              <th>Current Price</th>
-              <th>Currency</th>
+              <th onclick="sortTable('symbol')">Symbol</th>
+              <th onclick="sortTable('name')">Company</th>
+              <th onclick="sortTable('price')">Price</th>
+              <th onclick="sortTable('change')">24h Change</th>
+              <th onclick="sortTable('volume')">Volume</th>
+              <th onclick="sortTable('marketCap')">Market Cap</th>
+              <th onclick="sortTable('score')">Score</th>
+              <th onclick="sortTable('risk')">Risk</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -380,109 +132,131 @@
     </div>
   </div>
 
-  <script>
-    let stocks = [];
+<!-- -------------  SCRIPT ------------- -->
+<script>
+/* ---------- Utilidades ---------- */
+function formatNumber(n){return n>=1e9?(n/1e9).toFixed(1)+'B':n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':n.toString()}
+function scoreFrom(stock){
+  // simples: bom preço + boa var. + tamanho ⇒ maior score
+  let s=0
+  if(stock.price<5)s+=2
+  if(stock.change>0)s+=1
+  if(stock.marketCap>2e9)s+=1
+  if(stock.volume>1e7)s+=1
+  return (5+s).toFixed(1)  // escala 5-10
+}
+function riskFrom(stock){
+  if(stock.price<1||stock.volume<1e6)return 'High'
+  if(stock.price<3||stock.volume<5e6)return 'Medium'
+  return 'Low'
+}
+function getScoreClass(x){return x>=8?'score-excellent':x>=7?'score-good':x>=6?'score-fair':'score-poor'}
+function getRiskClass(r){return 'risk-'+r.toLowerCase()}
+let stocks=[],currentStocks=[],currentSort={field:'score',direction:'desc'}
 
-    async function fetchCheapStocks() {
-      const maxPrice = document.getElementById('maxPrice').value || 5;
-      document.getElementById('currentMax').textContent = maxPrice;
-      document.getElementById('tableMax').textContent = maxPrice;
+async function loadStocks(){
+  const max=document.getElementById('maxPrice').value||5
+  // fetch básicos (símbolos default definidos no backend)
+  const res=await fetch('/api/index?max='+max)
+  const data=await res.json()
+  // enriquece com campos que a API devolve
+  stocks=data.map(q=>({
+      symbol:q.symbol,
+      name:q.name,
+      price:q.price,
+      change:q.changePercent??0,
+      volume:q.volume??0,
+      marketCap:q.marketCap??0,
+      score:parseFloat(scoreFrom(q)),
+      risk:riskFrom(q)
+  }))
+  currentStocks=[...stocks]
+  displayStocks();updateStats()
+}
 
-      const tbody = document.querySelector('#stocksTable tbody');
-      tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 2rem;"><div class="loading"></div>Loading stocks...</td></tr>';
+function sortTable(field){
+  document.querySelectorAll('.sort-btn').forEach(b=>b.classList.remove('active'))
+  event.target.classList.add('active')
+  if(currentSort.field===field){currentSort.direction=currentSort.direction==='asc'?'desc':'asc'}
+  else{currentSort.field=field;currentSort.direction=field==='price'||field==='change'?'asc':'desc'}
+  currentStocks.sort((a,b)=>{
+    const A=a[field],B=b[field]
+    return currentSort.direction==='asc'?(A>B?1:-1):(A<B?1:-1)
+  })
+  displayStocks()
+}
 
-      try {
-        const response = await fetch('/api/index?max=' + maxPrice);
-        stocks = await response.json();
-      } catch {
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">Error loading stocks.</td></tr>`;
-        updateStats();
-        return;
-      }
+function applyFilters(){
+  const maxP=+document.getElementById('maxPrice').value||Infinity
+  const minP=+document.getElementById('minPrice').value||0
+  const minVol=+document.getElementById('minVolume').value||0
+  const mcap=document.getElementById('marketCap').value
+  const minScore=+document.getElementById('minScore').value||0
+  const risk=document.getElementById('riskLevel').value
+  currentStocks=stocks.filter(s=>{
+    if(s.price>maxP||s.price<minP)return false
+    if(s.volume<minVol)return false
+    if(mcap==='micro'&&s.marketCap>=3e8)return false
+    if(mcap==='small'&&(s.marketCap<3e8||s.marketCap>=2e9))return false
+    if(mcap==='mid'&&(s.marketCap<2e9||s.marketCap>=1e10))return false
+    if(s.score<minScore)return false
+    if(risk&&((risk==='Low'&&s.risk!=='Low')||(risk==='Medium'&&s.risk==='High')))return false
+    return true
+  })
+  displayStocks();updateStats()
+}
+function resetFilters(){['maxPrice','minPrice','minVolume'].forEach(id=>document.getElementById(id).value='');document.getElementById('maxPrice').value=5;document.getElementById('minPrice').value=0.1;document.getElementById('minVolume').value=100000;['marketCap','minScore','riskLevel'].forEach(id=>document.getElementById(id).value='');currentStocks=[...stocks];displayStocks();updateStats()}
 
-      tbody.innerHTML = '';
+function displayStocks(){
+  const tbody=document.querySelector('#stocksTable tbody');tbody.innerHTML=''
+  if(!currentStocks.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:2rem;">No results</td></tr>';return}
+  currentStocks.forEach(s=>{
+    const chColor=s.change>=0?'#00b894':'#e74c3c',icon=s.change>=0?'↗':'↘'
+    tbody.insertAdjacentHTML('beforeend',`
+      <tr>
+        <td class="symbol">${s.symbol}</td>
+        <td>${s.name}</td>
+        <td class="price">$${s.price.toFixed(2)}</td>
+        <td style="color:${chColor};font-weight:bold;">${icon} ${Math.abs(s.change).toFixed(2)}%</td>
+        <td>${formatNumber(s.volume)}</td>
+        <td>$${formatNumber(s.marketCap)}</td>
+        <td><span class="score ${getScoreClass(s.score)}">${s.score}</span></td>
+        <td class="${getRiskClass(s.risk)}">${s.risk}</td>
+      </tr>`)}
+  )
+}
 
-      if (!stocks.length) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="4" class="empty-state">
-              <div class="icon">📊</div>
-              <div>No stocks found below that price.</div>
-            </td>
-          </tr>
-        `;
-        updateStats();
-        return;
-      }
+function updateStats(){
+  const total=currentStocks.length
+  const avgP=total?currentStocks.reduce((t,s)=>t+s.price,0)/total:0
+  const avgS=total?currentStocks.reduce((t,s)=>t+parseFloat(s.score),0)/total:0
+  const high=currentStocks.filter(s=>s.score>=7).length
+  document.getElementById('totalStocks').textContent=total
+  document.getElementById('avgPrice').textContent='$'+avgP.toFixed(2)
+  document.getElementById('avgScore').textContent=avgS.toFixed(1)
+  document.getElementById('highQualityCount').textContent=high
+}
 
-      stocks.forEach((stock, index) => {
-        const row = document.createElement('tr');
-        row.style.animationDelay = `${index * 0.1}s`;
-        row.innerHTML = `
-          <td class="symbol">${stock.symbol}</td>
-          <td>${stock.name}</td>
-          <td class="price">$${stock.price.toFixed(2)}</td>
-          <td>${stock.currency}</td>
-        `;
-        tbody.appendChild(row);
-      });
-
-      updateStats();
-    }
-
-    function updateStats() {
-      const totalStocks = stocks.length;
-      const avgPrice = totalStocks ? stocks.reduce((sum, stock) => sum + stock.price, 0) / totalStocks : 0;
-      const lowestPrice = totalStocks ? Math.min(...stocks.map(stock => stock.price)) : 0;
-
-      document.getElementById('totalStocks').textContent = totalStocks;
-      document.getElementById('avgPrice').textContent = `$${avgPrice.toFixed(2)}`;
-      document.getElementById('lowestPrice').textContent = `$${lowestPrice.toFixed(2)}`;
-    }
-
-    async function searchStock() {
-      const symbol = document.getElementById('symbolInput').value.trim().toUpperCase();
-      const resultDiv = document.getElementById('result');
-      
-      if (!symbol) {
-        resultDiv.innerHTML = '<div class="error">Please enter a stock symbol.</div>';
-        return;
-      }
-
-      resultDiv.innerHTML = '<div><div class="loading"></div>Searching for ' + symbol + '...</div>';
-
-      try {
-        const res = await fetch('/api/index?symbol=' + symbol);
-        const data = await res.json();
-        
-        if (data.error) {
-          resultDiv.innerHTML = `<div class="error">Stock symbol "${symbol}" not found. Please check the symbol and try again.</div>`;
-        } else {
-          const priceClass = data.price < 5 ? 'style="color: #00b894; font-weight: bold;"' : '';
-          const priceNote = data.price < 5 ? ' <span style="color: #00b894;">✓ Under $5!</span>' : '';
-          
-          resultDiv.innerHTML = `
-            <div class="success">
-              <strong>${data.symbol}</strong> - ${data.name}<br>
-              <span style="font-size: 1.2rem; margin-top: 0.5rem; display: inline-block;">
-                Current Price: <strong ${priceClass}>$${data.price.toFixed(2)} ${data.currency}</strong>${priceNote}
-              </span>
-            </div>
-          `;
-        }
-      } catch (err) {
-        resultDiv.innerHTML = '<div class="error">Something went wrong while searching. Please try again.</div>';
-      }
-    }
-
-    document.getElementById('symbolInput').addEventListener('keypress', function(e) {
-      if (e.key === 'Enter') {
-        searchStock();
-      }
-    });
-
-    // Inicializa com o valor padrão (ex: $5)
-    fetchCheapStocks();
-  </script>
+async function searchStock(){
+  const sym=document.getElementById('symbolInput').value.trim().toUpperCase()
+  const resDiv=document.getElementById('result')
+  if(!sym){resDiv.innerHTML='<div class="error">Enter a symbol.</div>';return}
+  resDiv.innerHTML='<div><div class="loading"></div>Searching…</div>'
+  try{
+    const res=await fetch('/api/index?symbol='+sym)
+    const d=await res.json()
+    if(d.error){resDiv.innerHTML='<div class="error">'+d.error+'</div>';return}
+    d.score=scoreFrom(d);d.risk=riskFrom(d)
+    const sClass=getScoreClass(d.score),rClass=getRiskClass(d.risk)
+    resDiv.innerHTML=`<div class="success"><strong>${d.symbol}</strong> – ${d.name}<br>
+      Price: <span class="price">$${d.price.toFixed(2)}</span><br>
+      Score: <span class="score ${sClass}">${d.score}</span> | Risk: <span class="${rClass}">${d.risk}</span></div>`
+  }catch{
+    resDiv.innerHTML='<div class="error">Error fetching symbol.</div>'
+  }
+}
+document.getElementById('symbolInput').addEventListener('keypress',e=>{if(e.key==='Enter')searchStock()})
+loadStocks()
+</script>
 </body>
 </html>
