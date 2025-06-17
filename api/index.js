@@ -1,10 +1,14 @@
-// api/index.js import yahooFinance from 'yahoo-finance2';
+// api/index.js 
+import yahooFinance from 'yahoo-finance2';
 
-// Símbolos de referência (podes aumentar esta lista) const DEFAULT_STOCKS = [ 'SNDL','NOK','SOFI','PLTR','NIO','F','WISH', 'BBD','ITUB','VALE','KO','PFE','BAC','GE','T' ];
+// Símbolos de referência (podes aumentar esta lista)
+const DEFAULT_STOCKS = [ 'SNDL','NOK','SOFI','PLTR','NIO','F','WISH', 'BBD','ITUB','VALE','KO','PFE','BAC','GE','T' ];
 
-// Converte string-numérica para número seguro const toNum = (v, def = null) => { const n = parseFloat(v); return Number.isFinite(n) ? n : def; };
+// Converte string-numérica para número seguro 
+const toNum = (v, def = null) => { const n = parseFloat(v); return Number.isFinite(n) ? n : def; };
 
-// Normaliza o objeto devolvido pela API do Yahoo function mapQuote(q) { const summary = q.summaryDetail || {}; const fin = q.financialData || {}; return { symbol:    q.symbol, name:      q.shortName || q.longName || '', exchange:  q.fullExchangeName || q.exchangeName || '', price:     toNum(q.regularMarketPrice, 0), changePercent: toNum(q.regularMarketChangePercent, 0), volume:    toNum(q.regularMarketVolume, 0), marketCap: toNum(q.marketCap, 0), currency:  q.currency || 'USD', forwardPE: toNum(summary.forwardPE?.raw, null), forwardSales: toNum(fin.priceToSalesTrailing12Months, null) }; }
+// Normaliza o objeto devolvido pela API do Yahoo 
+function mapQuote(q) { const summary = q.summaryDetail || {}; const fin = q.financialData || {}; return { symbol:    q.symbol, name:      q.shortName || q.longName || '', exchange:  q.fullExchangeName || q.exchangeName || '', price:     toNum(q.regularMarketPrice, 0), changePercent: toNum(q.regularMarketChangePercent, 0), volume:    toNum(q.regularMarketVolume, 0), marketCap: toNum(q.marketCap, 0), currency:  q.currency || 'USD', forwardPE: toNum(summary.forwardPE?.raw, null), forwardSales: toNum(fin.priceToSalesTrailing12Months, null) }; }
 
 export default async function handler(req, res) { const { symbol, max, min, exchange, minVolume, cap } = req.query;
 
