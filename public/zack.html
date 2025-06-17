@@ -14,6 +14,7 @@
     button:hover { background: #0056b3; }
     .metric { margin-bottom: 10px; }
     .metric span { font-weight: bold; }
+    .valuation { margin-top: 15px; padding: 10px; background: #e8f4fd; border-radius: 4px; }
   </style>
 </head>
 <body>
@@ -31,8 +32,11 @@
       <div class="metric"><span>Variação %:</span> <span id="changePercent">-</span></div>
       <div class="metric"><span>Volume:</span> <span id="volume">-</span></div>
       <div class="metric"><span>Market Cap:</span> <span id="marketCap">-</span></div>
+      <div class="metric"><span>PE (Forward):</span> <span id="forwardPE">-</span>x</div>
+      <div class="metric"><span>Sales (Forward):</span> <span id="forwardSales">-</span>x</div>
       <div class="metric"><span>Zacks Rank (estimado):</span> <span id="zacksRank">-</span></div>
       <div class="metric"><span>Explicação:</span> <span id="rankExplanation">-</span></div>
+      <div id="valuation" class="valuation">-</div>
     </div>
   </div>  <script>
     // Função para buscar dados usando a API interna (/api)
@@ -63,7 +67,7 @@
       else if (q.marketCap >= 3e8) safetyScore = 3;
       else safetyScore = 4;
       const valueScore = Math.max(1, Math.min(5, Math.round(q.price / 100)));
-      const growthScore = 3; // placeholder
+      const growthScore = 3; // placeholder neutro
       const avg = (valueScore + growthScore + momentumScore + safetyScore) / 4;
       return Math.round(avg);
     }
@@ -72,14 +76,26 @@
       const ticker = document.getElementById('ticker').value.trim().toUpperCase();
       if (!ticker) return alert('Insira um ticker válido.');
       try {
-        const quote = await fetchQuote(ticker);
-        document.getElementById('price').textContent = quote.price.toLocaleString();
-        document.getElementById('changePercent').textContent = (quote.changePercent * 100).toFixed(2) + '%';
-        document.getElementById('volume').textContent = quote.volume.toLocaleString();
-        document.getElementById('marketCap').textContent = quote.marketCap.toLocaleString();
-        const rank = computeZacksRankFromQuote(quote);
+        const q = await fetchQuote(ticker);
+        document.getElementById('price').textContent = q.price.toLocaleString();
+        document.getElementById('changePercent').textContent = (q.changePercent * 100).toFixed(2) + '%';
+        document.getElementById('volume').textContent = q.volume.toLocaleString();
+        document.getElementById('marketCap').textContent = q.marketCap.toLocaleString();
+        // Valuation metrics retornados pela API
+        document.getElementById('forwardPE').textContent = q.forwardPE?.toFixed(1) || '-';
+        document.getElementById('forwardSales').textContent = q.forwardSales?.toFixed(1) || '-';
+
+        const rank = computeZacksRankFromQuote(q);
         document.getElementById('zacksRank').textContent = rank;
         document.getElementById('rankExplanation').textContent = getRankExplanation(rank);
+
+        // Construir explicação de valuation
+        if (q.forwardPE && q.forwardSales && q.industryAvgPE && q.industryAvgSales) {
+          const text = `Do ponto de vista de valuation, ${ticker} negocia agora a ${q.forwardPE.toFixed(1)}x lucros futuros e ${q.forwardSales.toFixed(1)}x vendas futuras. Ambos os múltiplos são ${q.forwardPE < q.industryAvgPE && q.forwardSales < q.industryAvgSales ? 'inferiores' : 'superiores'} à média da indústria de ${q.industryAvgPE.toFixed(1)}x e ${q.industryAvgSales.toFixed(1)}x, respectivamente.`;
+          document.getElementById('valuation').textContent = text;
+        } else {
+          document.getElementById('valuation').textContent = '-';
+        }
       } catch (error) {
         console.error(error);
         alert('Erro ao buscar dados ou analisar o ticker.');
