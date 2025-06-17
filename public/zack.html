@@ -4,102 +4,98 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Análise Zacks</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
-    .container { max-width: 800px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-    h1 { text-align: center; }
-    .form-group { margin-bottom: 15px; }
-    label { display: block; margin-bottom: 5px; font-weight: bold; }
-    input[type="text"] { width: 100%; padding: 8px; box-sizing: border-box; }
-    button { padding: 10px 20px; background: #007bff; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
-    button:hover { background: #0056b3; }
-    .metric { margin-bottom: 10px; }
-    .metric span { font-weight: bold; }
-    .valuation { margin-top: 15px; padding: 10px; background: #e8f4fd; border-radius: 4px; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+    .container { max-width: 900px; margin: auto; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); overflow: hidden; animation: slideIn 0.6s ease-out; }
+    @keyframes slideIn { from { opacity:0; transform: translateY(30px); } to { opacity:1; transform: translateY(0); } }
+    .header { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 30px; text-align: center; }
+    .header h1 { font-size:2.5rem; font-weight:700; margin-bottom:10px; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+    .header p { font-size:1.1rem; opacity:0.9; }
+    .content { padding:40px; }
+    .input-section { background:#f8f9fa; padding:30px; border-radius:15px; margin-bottom:30px; border:2px solid #e9ecef; transition: all 0.3s ease; }
+    .input-section:hover { border-color:#007bff; box-shadow:0 5px 15px rgba(0,123,255,0.1); }
+    .form-group { margin-bottom:20px; }
+    label { display:block; margin-bottom:8px; font-weight:600; color:#495057; font-size:1.1rem; }
+    .input-wrapper { display:flex; gap:15px; }
+    input[type="text"] { flex:1; padding:15px 20px; border:2px solid #dee2e6; border-radius:10px; font-size:1.1rem; transition: all 0.3s ease; }
+    input:focus { outline:none; border-color:#007bff; box-shadow:0 0 0 3px rgba(0,123,255,0.1); transform: translateY(-2px); }
+    .analyze-btn { padding:15px 30px; background:linear-gradient(135deg,#007bff 0%,#0056b3 100%); color:#fff; border:none; border-radius:10px; font-size:1.1rem; font-weight:600; cursor:pointer; transition: all 0.3s ease; position:relative; overflow:hidden; min-width:120px; }
+    .analyze-btn:hover { transform: translateY(-2px); box-shadow:0 10px 25px rgba(0,123,255,0.3); }
+    .analyze-btn:active { transform: translateY(0); }
+    .analyze-btn:disabled { background:#6c757d; cursor:not-allowed; transform:none; }
+    .spinner { display:none; width:20px; height:20px; border:2px solid #fff; border-top:2px solid transparent; border-radius:50%; animation: spin 1s linear infinite; margin-right:10px; }
+    @keyframes spin { 0%{transform:rotate(0deg);}100%{transform:rotate(360deg);} }
+    .results { background:#fff; border-radius:15px; padding:0; box-shadow:0 10px 30px rgba(0,0,0,0.1); border:1px solid #e9ecef; opacity:0; transform: translateY(20px); transition: all 0.5s ease; }
+    .results.show { opacity:1; transform: translateY(0); }
+    .results-header { background:linear-gradient(135deg,#28a745 0%,#20c997 100%); color:#fff; padding:20px 30px; border-radius:15px 15px 0 0; }
+    .results-header h2 { font-size:1.8rem; font-weight:600; }
+    .results-content { padding:30px; }
+    .metrics-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:20px; margin-bottom:30px; }
+    .metric-card { background:#f8f9fa; padding:20px; border-radius:12px; border-left:4px solid #007bff; transition: all 0.3s ease; }
+    .metric-card:hover { transform: translateY(-3px); box-shadow:0 8px 25px rgba(0,0,0,0.1); }
+    .metric-label { font-size:0.9rem; color:#6c757d; font-weight:500; margin-bottom:5px; }
+    .metric-value { font-size:1.4rem; font-weight:700; color:#212529; }
+    .zacks-rank { background:linear-gradient(135deg,#ff6b6b 0%,#ee5a24 100%); color:#fff; padding:25px; border-radius:15px; text-align:center; margin-bottom:25px; box-shadow:0 10px 30px rgba(255,107,107,0.3); }
+    .zacks-rank.rank-1, .zacks-rank.rank-2 { background:linear-gradient(135deg,#00b894 0%,#00a085 100%); box-shadow:0 10px 30px rgba(0,184,148,0.3); }
+    .zacks-rank.rank-3 { background:linear-gradient(135deg,#fdcb6e 0%,#f39c12 100%); box-shadow:0 10px 30px rgba(253,203,110,0.3); }
+    .rank-number { font-size:3rem; font-weight:800; margin-bottom:10px; text-shadow:0 2px 4px rgba(0,0,0,0.3); }
+    .rank-title { font-size:1.3rem; font-weight:600; margin-bottom:10px; }
+    .rank-description { font-size:1rem; opacity:0.9; line-height:1.5; }
+    .valuation { background:linear-gradient(135deg,#e8f4fd 0%,#d1ecf1 100%); padding:25px; border-radius:15px; border:1px solid #bee5eb; position:relative; overflow:hidden; }
+    .valuation::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; background:linear-gradient(90deg,#17a2b8,#138496); }
+    .valuation h3 { color:#0c5460; font-size:1.3rem; margin-bottom:15px; font-weight:600; }
+    .valuation-text { color:#155724; line-height:1.6; font-size:1rem; }
+    .error-message { background:linear-gradient(135deg,#ff6b6b 0%,#ee5a24 100%); color:#fff; padding:20px; border-radius:12px; margin-top:20px; text-align:center; font-weight:600; animation:shake 0.5s ease-in-out; }
+    .loading-overlay { position:fixed; top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5); display:none; justify-content:center; align-items:center; z-index:1000; }
+    .loading-spinner { width:60px;height:60px;border:4px solid #fff;border-top:4px solid #007bff;border-radius:50%;animation:spin 1s linear infinite; }
+    @media(max-width:768px){ .container{margin:10px;border-radius:15px;} .header h1{font-size:2rem;} .content{padding:20px;} .input-section{padding:20px;} .input-wrapper{flex-direction:column;} .metrics-grid{grid-template-columns:1fr;} .rank-number{font-size:2.5rem;} }
   </style>
 </head>
 <body>
+  <div class="loading-overlay" id="loadingOverlay"><div class="loading-spinner"></div></div>
   <div class="container">
-    <h1>Análise de Ação (Zacks Framework)</h1>
-    <div class="form-group">
-      <label for="ticker">Ticker da Ação:</label>
-      <input type="text" id="ticker" placeholder="Ex: AAPL, TSLA, VALE" />
+    <div class="header"><h1>📈 Análise Zacks</h1><p>Análise profissional de ações baseada no framework Zacks</p></div>
+    <div class="content">
+      <div class="input-section">
+        <div class="form-group"><label for="ticker">🎯 Ticker da Ação</label>
+          <div class="input-wrapper">
+            <input type="text" id="ticker" placeholder="Digite o ticker (ex: AAPL, TSLA, VALE)" />
+            <button class="analyze-btn" id="analyzeBtn"><span class="spinner" id="spinner"></span><span id="btnText">Analisar</span></button>
+          </div>
+        </div>
+      </div>
+      <div class="results" id="results">
+        <div class="results-header"><h2>📊 Resultados da Análise</h2></div>
+        <div class="results-content">
+          <div class="metrics-grid">
+            <div class="metric-card"><div class="metric-label">💰 Preço Atual</div><div class="metric-value" id="price">-</div></div>
+            <div class="metric-card"><div class="metric-label">📈 Variação %</div><div class="metric-value" id="changePercent">-</div></div>
+            <div class="metric-card"><div class="metric-label">📊 Volume</div><div class="metric-value" id="volume">-</div></div>
+            <div class="metric-card"><div class="metric-label">🏢 Market Cap</div><div class="metric-value" id="marketCap">-</div></div>
+            <div class="metric-card"><div class="metric-label">🔮 PE (Forward)</div><div class="metric-value" id="forwardPE">-</div></div>
+            <div class="metric-card"><div class="metric-label">💼 Sales (Forward)</div><div class="metric-value" id="forwardSales">-</div></div>
+          </div>
+          <div class="zacks-rank" id="zacksRankCard"><div class="rank-number" id="zacksRank">-</div><div class="rank-title" id="rankTitle">Zacks Rank</div><div class="rank-description" id="rankExplanation">-</div></div>
+          <div class="valuation"><h3>🎯 Análise de Valuation</h3><div class="valuation-text" id="valuation">-</div></div>
+        </div>
+      </div>
     </div>
-    <button id="analyzeBtn">Analisar</button>
-    <hr />
-    <div id="results">
-      <h2>Resultados</h2>
-      <div class="metric"><span>Preço:</span> <span id="price">-</span></div>
-      <div class="metric"><span>Variação %:</span> <span id="changePercent">-</span></div>
-      <div class="metric"><span>Volume:</span> <span id="volume">-</span></div>
-      <div class="metric"><span>Market Cap:</span> <span id="marketCap">-</span></div>
-      <div class="metric"><span>PE (Forward):</span> <span id="forwardPE">-</span>x</div>
-      <div class="metric"><span>Sales (Forward):</span> <span id="forwardSales">-</span>x</div>
-      <div class="metric"><span>Zacks Rank (estimado):</span> <span id="zacksRank">-</span></div>
-      <div class="metric"><span>Explicação:</span> <span id="rankExplanation">-</span></div>
-      <div id="valuation" class="valuation">-</div>
-    </div>
-  </div>  <script>
-    // Função para buscar dados usando a API interna (/api)
-    async function fetchQuote(symbol) {
-      const resp = await fetch(`/api?symbol=${symbol}`);
-      if (!resp.ok) throw new Error('Falha ao obter dados da API');
-      return resp.json();
-    }
-
-    // Mapeia rank para explicação Zacks
-    function getRankExplanation(rank) {
-      switch(rank) {
-        case 1: return 'Strong Buy: Analistas esperam que a ação supere o mercado.';
-        case 2: return 'Buy: Expectativa de performance acima da média do mercado.';
-        case 3: return 'Hold: Performance esperada em linha com o mercado.';
-        case 4: return 'Sell: Performance esperada abaixo da média do mercado.';
-        case 5: return 'Strong Sell: Analistas recomendam venda, pois desempenho deverá ficar abaixo do mercado.';
-        default: return '-';
-      }
-    }
-
-    // Calcula Zacks Rank simplificado usando price change e marketCap
-    function computeZacksRankFromQuote(q) {
-      const momentumScore = q.changePercent >= 0 ? 1 : 5;
-      let safetyScore;
-      if (q.marketCap >= 1e10) safetyScore = 1;
-      else if (q.marketCap >= 2e9) safetyScore = 2;
-      else if (q.marketCap >= 3e8) safetyScore = 3;
-      else safetyScore = 4;
-      const valueScore = Math.max(1, Math.min(5, Math.round(q.price / 100)));
-      const growthScore = 3; // placeholder neutro
-      const avg = (valueScore + growthScore + momentumScore + safetyScore) / 4;
-      return Math.round(avg);
-    }
-
-    document.getElementById('analyzeBtn').addEventListener('click', async () => {
-      const ticker = document.getElementById('ticker').value.trim().toUpperCase();
-      if (!ticker) return alert('Insira um ticker válido.');
-      try {
-        const q = await fetchQuote(ticker);
-        document.getElementById('price').textContent = q.price.toLocaleString();
-        document.getElementById('changePercent').textContent = (q.changePercent * 100).toFixed(2) + '%';
-        document.getElementById('volume').textContent = q.volume.toLocaleString();
-        document.getElementById('marketCap').textContent = q.marketCap.toLocaleString();
-        // Valuation metrics retornados pela API
-        document.getElementById('forwardPE').textContent = q.forwardPE?.toFixed(1) || '-';
-        document.getElementById('forwardSales').textContent = q.forwardSales?.toFixed(1) || '-';
-
-        const rank = computeZacksRankFromQuote(q);
-        document.getElementById('zacksRank').textContent = rank;
-        document.getElementById('rankExplanation').textContent = getRankExplanation(rank);
-
-        // Construir explicação de valuation
-        if (q.forwardPE && q.forwardSales && q.industryAvgPE && q.industryAvgSales) {
-          const text = `Do ponto de vista de valuation, ${ticker} negocia agora a ${q.forwardPE.toFixed(1)}x lucros futuros e ${q.forwardSales.toFixed(1)}x vendas futuras. Ambos os múltiplos são ${q.forwardPE < q.industryAvgPE && q.forwardSales < q.industryAvgSales ? 'inferiores' : 'superiores'} à média da indústria de ${q.industryAvgPE.toFixed(1)}x e ${q.industryAvgSales.toFixed(1)}x, respectivamente.`;
-          document.getElementById('valuation').textContent = text;
-        } else {
-          document.getElementById('valuation').textContent = '-';
-        }
-      } catch (error) {
-        console.error(error);
-        alert('Erro ao buscar dados ou analisar o ticker.');
-      }
-    });
-  </script></body>
+  </div>
+  <script>
+    async function fetchQuote(symbol) { const resp=await fetch(`/api?symbol=${symbol}`); if(!resp.ok)throw new Error('Falha ao obter dados da API'); return resp.json(); }
+    function getRankExplanation(rank){switch(rank){case 1:return 'Strong Buy: Analistas esperam que a ação supere o mercado.';case 2:return 'Buy: Expectativa de performance acima da média do mercado.';case 3:return 'Hold: Performance esperada em linha com o mercado.';case 4:return 'Sell: Performance esperada abaixo da média do mercado.';case 5:return 'Strong Sell: Analistas recomendam venda, pois desempenho deverá ficar abaixo do mercado.';default:return '-';}}
+    function computeZacksRankFromQuote(q){const momentumScore=q.changePercent>=0?1:5;let safetyScore;if(q.marketCap>=1e10)safetyScore=1;else if(q.marketCap>=2e9)safetyScore=2;else if(q.marketCap>=3e8)safetyScore=3;else safetyScore=4;const valueScore=Math.max(1,Math.min(5,Math.round(q.price/100)));const growthScore=3;return Math.round((valueScore+growthScore+momentumScore+safetyScore)/4);}    
+    function getRankTitle(rank){return['Zacks Rank','Strong Buy','Buy','Hold','Sell','Strong Sell'][rank]||'Zacks Rank';}
+    function updateRankCardStyle(rank){const card=document.getElementById('zacksRankCard');card.className='zacks-rank rank-'+rank;}
+    function formatNumber(num){if(num>=1e12)return(num/1e12).toFixed(2)+'T';if(num>=1e9)return(num/1e9).toFixed(2)+'B';if(num>=1e6)return(num/1e6).toFixed(2)+'M';if(num>=1e3)return(num/1e3).toFixed(2)+'K';return num.toLocaleString();}
+    function formatPercentage(percent){const v=(percent*100).toFixed(2);const c=percent>=0?'#00b894':'#ff6b6b';return`<span style='color:${c};font-weight:bold;'>${percent>=0?'+':''}${v}%</span>`;}
+    function showLoading(){const btn=document.getElementById('analyzeBtn'),sp=document.getElementById('spinner'),txt=document.getElementById('btnText');btn.disabled=true;sp.style.display='inline-block';txt.textContent='Analisando...';document.getElementById('loadingOverlay').style.display='flex';}
+    function hideLoading(){const btn=document.getElementById('analyzeBtn'),sp=document.getElementById('spinner'),txt=document.getElementById('btnText');btn.disabled=false;sp.style.display='none';txt.textContent='Analisar';document.getElementById('loadingOverlay').style.display='none';}
+    function showResults(){const r=document.getElementById('results');r.classList.add('show');r.scrollIntoView({behavior:'smooth',block:'start'});}    
+    function showError(msg){const rc=document.querySelector('.results-content'),ex=document.querySelector('.error-message');if(ex)ex.remove();const e=document.createElement('div');e.className='error-message';e.textContent=msg;rc.appendChild(e);showResults();}
+    document.getElementById('ticker').addEventListener('keypress',e=>{if(e.key==='Enter')document.getElementById('analyzeBtn').click();});
+    document.getElementById('analyzeBtn').addEventListener('click',async()=>{const t=document.getElementById('ticker').value.trim().toUpperCase();if(!t){showError('⚠️ Por favor, insira um ticker válido.');return;}showLoading();try{await new Promise(r=>setTimeout(r,500));const q=await fetchQuote(t);const exE=document.querySelector('.error-message');if(exE)exE.remove();document.getElementById('price').innerHTML=`$${q.price.toLocaleString()}`;document.getElementById('changePercent').innerHTML=formatPercentage(q.changePercent);document.getElementById('volume').textContent=formatNumber(q.volume);document.getElementById('marketCap').textContent=`$${formatNumber(q.marketCap)}`;document.getElementById('forwardPE').textContent=q.forwardPE?`${q.forwardPE.toFixed(1)}x`:'N/A';document.getElementById('forwardSales').textContent=q.forwardSales?`${q.forwardSales.toFixed(1)}x`:'N/A';const rnk=computeZacksRankFromQuote(q);document.getElementById('zacksRank').textContent=rnk;document.getElementById('rankTitle').textContent=getRankTitle(rnk);document.getElementById('rankExplanation').textContent=getRankExplanation(rnk);updateRankCardStyle(rnk);if(q.forwardPE&&q.forwardSales&&q.industryAvgPE&&q.industryAvgSales){const peComp=q.forwardPE<q.industryAvgPE?'inferior':'superior';const salesComp=q.forwardSales<q.industryAvgSales?'inferior':'superior';const overall=q.forwardPE<q.industryAvgPE&&q.forwardSales<q.industryAvgSales?'inferiores':'superiores';const txt=`📊 Do ponto de vista de valuation, ${t} negocia atualmente a ${q.forwardPE.toFixed(1)}x lucros futuros e ${q.forwardSales.toFixed(1)}x vendas futuras.<br><br>📈 O múltiplo P/E é ${peComp} à média da indústria (${q.industryAvgPE.toFixed(1)}x), enquanto o P/S é ${salesComp} à média setorial (${q.industryAvgSales.toFixed(1)}x).<br><br>🎯 Ambos os múltiplos são ${overall} à média da indústria, indicando que a ação está ${overall==='inferiores'?'potencialmente subvalorizada':'potencialmente sobrevalorizada'} em relação aos pares do setor.`;document.getElementById('valuation').innerHTML=txt;}else{document.getElementById('valuation').innerHTML='📊 Dados de valuation não disponíveis para análise comparativa no momento.';}showResults();}catch(err){console.error(err);showError('❌ Erro ao buscar dados da ação. Verifique o ticker e tente novamente.');}finally{hideLoading();}});
+    document.getElementById('ticker').focus();
+  </script>
+</body>
 </html>
