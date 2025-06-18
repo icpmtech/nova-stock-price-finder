@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nova Stocks | Eventos</title>
+  <style>
+    body {
+      background: #0d1117;
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+    }
+    input {
+      padding: 1rem;
+      border-radius: 10px;
+      border: none;
+      font-size: 1rem;
+      width: 90%;
+      max-width: 500px;
+      margin-bottom: 1rem;
+    }
+    .card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding: 1rem;
+      margin: 1rem;
+      width: 100%;
+      max-width: 600px;
+    }
+    .card h2 {
+      margin: 0 0 0.5rem 0;
+      color: #58a6ff;
+    }
+    .card span {
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      margin-top: 1rem;
+      border: none;
+      border-radius: 8px;
+      background: #238636;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #2ea043;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔍 Nova Stocks</h1>
+  <input type="text" id="search" placeholder="Ex: Apple, Tesla, BCP..." />
+  <div id="results"></div>
+
+  <script>
+    const API_BASE = '/api/stocks';
+    const input = document.getElementById('search');
+    const results = document.getElementById('results');
+
+    let debounce;
+    input.addEventListener('input', () => {
+      clearTimeout(debounce);
+      const query = input.value.trim();
+      if (query.length < 2) return;
+      debounce = setTimeout(() => searchStocks(query), 400);
+    });
+
+    async function searchStocks(query) {
+      results.innerHTML = '🔄 A procurar...';
+      try {
+        const res = await fetch(`${API_BASE}?query=${encodeURIComponent(query)}`);
+        const data = await res.json();
+
+        results.innerHTML = '';
+        data.forEach(stock => {
+          const div = document.createElement('div');
+          div.className = 'card';
+          div.innerHTML = `
+            <h2>${stock.symbol} - ${stock.name}</h2>
+            <span><strong>Exchange:</strong> ${stock.exchange}</span>
+            <button onclick="showDetails('${stock.symbol}')">Ver Detalhes</button>
+          `;
+          results.appendChild(div);
+        });
+      } catch (err) {
+        results.innerHTML = '❌ Erro ao procurar ações';
+        console.error(err);
+      }
+    }
+
+    async function showDetails(symbol) {
+      results.innerHTML = '📊 A obter dados da ação...';
+      try {
+        const [quoteRes, eventRes] = await Promise.all([
+          fetch(`${API_BASE}?symbol=${symbol}`),
+          fetch(`${API_BASE}?symbol=${symbol}&events=1`)
+        ]);
+        const quote = await quoteRes.json();
+        const events = await eventRes.json();
+
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <h2>${quote.name} (${quote.symbol})</h2>
+          <span><strong>Preço:</strong> $${quote.price}</span>
+          <span><strong>Variação:</strong> ${quote.changePercent.toFixed(2)}%</span>
+          <span><strong>Volume:</strong> ${quote.volume.toLocaleString()}</span>
+          <span><strong>Capitalização:</strong> ${quote.marketCap?.toLocaleString() ?? '-'}</span>
+          <span><strong>PE Futuro:</strong> ${quote.forwardPE ?? '-'}</span>
+          <span><strong>Preço/Vendas:</strong> ${quote.forwardSales ?? '-'}</span>
+          <hr>
+          <h3>📅 Eventos</h3>
+          <span><strong>Próximo Earnings:</strong> ${
+            events.earningsDate?.[0]?.fmt ?? '—'
+          }</span>
+          <span><strong>Ex-Dividendo:</strong> ${
+            events.exDividendDate?.fmt ?? '—'
+          }</span>
+          <span><strong>Data de Pagamento:</strong> ${
+            events.dividendDate?.fmt ?? '—'
+          }</span>
+        `;
+        results.innerHTML = '';
+        results.appendChild(card);
+      } catch (err) {
+        results.innerHTML = '❌ Erro ao obter detalhes';
+        console.error(err);
+      }
+    }
+  </script>
+</body>
+</html>
