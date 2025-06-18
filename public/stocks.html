@@ -164,7 +164,7 @@ button {
     const tickerField = document.getElementById('ticker');
 
     async function fetchSuggestions(query) {
-      const res = await fetch(`/api/stocks?query=${encodeURIComponent(query)}`);
+      const res = await fetch(`/api/index?query=${encodeURIComponent(query)}`);
       if (!res.ok) return [];
       return await res.json();
     }
