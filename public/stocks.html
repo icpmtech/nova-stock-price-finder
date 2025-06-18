@@ -135,9 +135,25 @@ button {
 }
 
   </style>
+    <link rel="stylesheet" href="nav.css">
 </head>
 <body>
-  <h1>🔍 Nova Stock Search + Registo</h1>  <div class="search-container">
+   <!-- Header with Navigation Menu -->
+    <header class="header">
+      <div class="logo-title">
+         <h1>🔍 Nova Stock Search + Registo</h1> 
+        <p>Pesquisa e Registo de Ações</p>
+      <nav class="main-nav">
+        <ul>
+          <li><a href="index.html" class="active">Home</a></li>
+          <li><a href="zack.html">Zack Analisys</a></li>
+          <li><a href="stocks.html">Stocks List</a></li>
+          <li><a href="stocks.html">Stock Analysis Tool</a></li>
+          <li><a href="#about">About</a></li>
+        </ul>
+      </nav>
+    </header>
+  <div class="search-container">
     <label>Pesquisar Ação:
       <input type="text" id="searchInput" placeholder="Escreve o nome ou símbolo da ação..." autocomplete="off"/>
     </label>
