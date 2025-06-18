@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="pt-PT">
+<!DOCTYPE html><html lang="pt-PT">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,44 +7,55 @@
 </head>
 <body class="bg-gray-50 text-gray-800">
   <main class="max-w-2xl mx-auto p-6">
-    <h1 class="text-3xl font-bold mb-4">📅 Registo de Eventos de Ações</h1>
+    <h1 class="text-3xl font-bold mb-4">📅 Registo de Eventos de Ações</h1><!-- Pesquisa -->
+<div class="mb-6">
+  <label class="block text-lg font-medium mb-2">Pesquisar Ticker:</label>
+  <input type="text" id="searchInput" placeholder="Ex: SMCI, EDP, NVDA..." class="w-full border p-2 rounded" />
+  <ul id="results" class="bg-white border rounded mt-1 shadow p-2"></ul>
+</div>
 
-    <!-- Pesquisa -->
-    <div class="mb-6">
-      <label class="block text-lg font-medium mb-2">Pesquisar Ticker:</label>
-      <input type="text" id="searchInput" placeholder="Ex: SMCI, EDP, NVDA..." class="w-full border p-2 rounded" />
-      <ul id="results" class="bg-white border rounded mt-1 shadow p-2"></ul>
-    </div>
+<!-- Registo de Evento -->
+<form id="eventForm" class="bg-white p-4 rounded shadow space-y-4">
+  <input type="text" id="title" placeholder="Título do Evento" class="w-full border p-2 rounded" required />
+  <input type="text" id="symbol" placeholder="Ticker da Ação" class="w-full border p-2 rounded bg-gray-100" required readonly />
+  <input type="date" id="date" class="w-full border p-2 rounded" required />
+  <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">💾 Guardar Evento</button>
+</form>
 
-    <!-- Registo de Evento -->
-    <form id="eventForm" class="bg-white p-4 rounded shadow space-y-4">
-      <input type="text" id="title" placeholder="Título do Evento" class="w-full border p-2 rounded" required />
-      <input type="text" id="symbol" placeholder="Ticker da Ação" class="w-full border p-2 rounded bg-gray-100" required readonly />
-      <input type="date" id="date" class="w-full border p-2 rounded" required />
-      <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">💾 Guardar Evento</button>
-    </form>
+<!-- Lista de Eventos -->
+<section class="mt-8">
+  <h2 class="text-2xl font-semibold mb-4">📑 Eventos Guardados</h2>
+  <ul id="eventList" class="space-y-2 bg-white p-4 rounded shadow"></ul>
+</section>
 
-    <!-- Lista de Eventos -->
-    <section class="mt-8">
-      <h2 class="text-2xl font-semibold mb-4">📑 Eventos Guardados</h2>
-      <ul id="eventList" class="space-y-2 bg-white p-4 rounded shadow"></ul>
-    </section>
-  </main>
+<!-- Botões de Exportação -->
+<div class="mt-6 flex gap-4">
+  <button onclick="exportToICS()" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">📅 Exportar .ICS</button>
+  <button onclick="exportToCSV()" class="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-800">📥 Exportar CSV</button>
+</div>
 
-  <script>
+  </main>  <script>
     const searchInput = document.getElementById("searchInput");
     const results = document.getElementById("results");
     const eventForm = document.getElementById("eventForm");
     const eventList = document.getElementById("eventList");
 
-    const mockTickers = ["SMCI", "EDP", "NVDA", "AAPL", "GOOGL", "TSLA", "MSFT", "BABA", "NIO", "SOFI", "KO", "PFE"];
+    async function searchStocks(query) {
+      try {
+        const res = await fetch(`/api/index?query=${encodeURIComponent(query)}`);
+        return await res.json();
+      } catch (err) {
+        console.error('Erro na pesquisa de ticker:', err);
+        return [];
+      }
+    }
 
     function renderEvents() {
       const events = JSON.parse(localStorage.getItem("stockEvents") || "[]");
       const today = new Date().toISOString().split("T")[0];
       eventList.innerHTML = "";
 
-      events.filter(e => e.date >= today).forEach((e, index) => {
+      events.filter(e => e.date >= today).forEach((e) => {
         const li = document.createElement("li");
         li.className = "border-b py-2";
         li.textContent = `${e.date} - ${e.title} (${e.symbol})`;
@@ -75,18 +85,18 @@
       }
     }
 
-    searchInput.addEventListener("input", () => {
-      const query = searchInput.value.toUpperCase();
+    searchInput.addEventListener("input", async () => {
+      const query = searchInput.value.trim();
       results.innerHTML = "";
 
       if (query.length >= 2) {
-        const matches = mockTickers.filter(t => t.includes(query));
-        matches.forEach(ticker => {
+        const matches = await searchStocks(query);
+        matches.forEach(stock => {
           const li = document.createElement("li");
           li.className = "p-1 hover:bg-blue-100 cursor-pointer";
-          li.textContent = ticker;
+          li.textContent = `${stock.symbol} - ${stock.name}`;
           li.onclick = () => {
-            document.getElementById("symbol").value = ticker;
+            document.getElementById("symbol").value = stock.symbol;
             results.innerHTML = "";
           };
           results.appendChild(li);
@@ -108,10 +118,49 @@
       renderEvents();
     });
 
+    function exportToICS() {
+      const events = JSON.parse(localStorage.getItem("stockEvents") || "[]");
+      let ics = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//Nova Stocks//Eventos//PT\n";
+
+      events.forEach(e => {
+        const dt = new Date(e.date);
+        const dtStart = dt.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+        const dtEnd = new Date(dt.getTime() + 3600000).toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+        ics += `BEGIN:VEVENT\nSUMMARY:${e.title} (${e.symbol})\nDTSTART:${dtStart}\nDTEND:${dtEnd}\nDESCRIPTION=${e.title}\nEND:VEVENT\n`;
+      });
+
+      ics += "END:VCALENDAR";
+      const blob = new Blob([ics], { type: 'text/calendar' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "eventos_stocks.ics";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function exportToCSV() {
+      const events = JSON.parse(localStorage.getItem("stockEvents") || "[]");
+      const headers = ["Título", "Símbolo", "Data"];
+      const rows = events.map(e => [e.title, e.symbol, e.date]);
+
+      let csvContent = headers.join(",") + "\n";
+      rows.forEach(row => {
+        csvContent += row.join(",") + "\n";
+      });
+
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "eventos_stocks.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
       renderEvents();
       requestNotificationPermission();
     });
-  </script>
-</body>
+  </script></body>
 </html>
