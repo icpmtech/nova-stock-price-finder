@@ -1,7 +1,9 @@
-<!DOCTYPE html><html lang="pt-PT">
+<!DOCTYPE html>
+<html lang="pt-PT">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Nova Stocks Neon</title>
   <style>
     :root {
@@ -10,139 +12,149 @@
       --bg-dark: #0f0f0f;
       --text: #fff;
       --gray: #444;
-    }* {
-  box-sizing: border-box;
-  font-family: 'Segoe UI', sans-serif;
-}
+    }
 
-body {
-  background: linear-gradient(135deg, var(--bg-dark), #1a1a1a);
-  color: var(--text);
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-height: 100vh;
-}
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
 
-h1, h2 {
-  margin: 1rem 0;
-  color: var(--accent);
-  text-shadow: 0 0 6px var(--accent);
-}
+    body {
+      background: linear-gradient(135deg, var(--bg-dark), #1a1a1a);
+      color: var(--text);
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
 
-form, .search-container {
-  background: #1A1A1A;
-  border: 2px solid var(--primary);
-  border-radius: 16px;
-  padding: 1rem;
-  width: 100%;
-  max-width: 700px;
-  box-shadow: 0 0 15px var(--primary);
-  margin-bottom: 2rem;
-}
+    h1,
+    h2 {
+      margin: 1rem 0;
+      color: var(--accent);
+      text-shadow: 0 0 6px var(--accent);
+    }
 
-label {
-  display: block;
-  margin-top: 1rem;
-  font-weight: 600;
-}
+    form,
+    .search-container {
+      background: #1A1A1A;
+      border: 2px solid var(--primary);
+      border-radius: 16px;
+      padding: 1rem;
+      width: 100%;
+      max-width: 700px;
+      box-shadow: 0 0 15px var(--primary);
+      margin-bottom: 2rem;
+    }
 
-input, select, textarea {
-  width: 100%;
-  padding: 1rem;
-  margin-top: 0.3rem;
-  background: #111;
-  border: 1px solid #333;
-  border-radius: 12px;
-  color: white;
-  font-size: 1rem;
-}
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: 600;
+    }
 
-button {
-  margin-top: 1.5rem;
-  width: 100%;
-  background: linear-gradient(90deg, #ff0050, var(--primary));
-  color: white;
-  padding: 1rem;
-  font-size: 1.1rem;
-  font-weight: bold;
-  border: none;
-  border-radius: 30px;
-  cursor: pointer;
-}
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 1rem;
+      margin-top: 0.3rem;
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 12px;
+      color: white;
+      font-size: 1rem;
+    }
 
-.badge {
-  background: var(--gray);
-  color: #ccc;
-  font-size: 0.75rem;
-  padding: 0.3rem 0.6rem;
-  border-radius: 6px;
-  margin-left: 0.5rem;
-}
+    button {
+      margin-top: 1.5rem;
+      width: 100%;
+      background: linear-gradient(90deg, #ff0050, var(--primary));
+      color: white;
+      padding: 1rem;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+    }
 
-.results {
-  list-style: none;
-  padding: 0;
-  margin-top: 0.5rem;
-  background-color: #111;
-  border-radius: 12px;
-  box-shadow: 0 0 12px rgba(0, 0, 0, 0.6);
-  max-height: 300px;
-  overflow-y: auto;
-}
+    .badge {
+      background: var(--gray);
+      color: #ccc;
+      font-size: 0.75rem;
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+      margin-left: 0.5rem;
+    }
 
-.results li {
-  padding: 1rem;
-  border-bottom: 1px solid var(--gray);
-  cursor: pointer;
-}
+    .results {
+      list-style: none;
+      padding: 0;
+      margin-top: 0.5rem;
+      background-color: #111;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.6);
+      max-height: 300px;
+      overflow-y: auto;
+    }
 
-.results li:hover {
-  background-color: #2a2a2a;
-}
+    .results li {
+      padding: 1rem;
+      border-bottom: 1px solid var(--gray);
+      cursor: pointer;
+    }
 
-.card {
-  background: #1a1a1a;
-  border-left: 5px solid var(--primary);
-  padding: 1rem;
-  margin-bottom: 1rem;
-  border-radius: 10px;
-  width: 100%;
-  max-width: 700px;
-}
+    .results li:hover {
+      background-color: #2a2a2a;
+    }
 
-@media (min-width: 1024px) {
-  .card-list { display: none; }
-  table {
-    width: 100%;
-    max-width: 1000px;
-    margin-top: 2rem;
-    border-collapse: collapse;
-    background: #1a1a1a;
-  }
+    .card {
+      background: #1a1a1a;
+      border-left: 5px solid var(--primary);
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 10px;
+      width: 100%;
+      max-width: 700px;
+    }
 
-  th, td {
-    padding: 1rem;
-    text-align: center;
-    border-bottom: 1px solid #333;
-  }
+    @media (min-width: 1024px) {
+      .card-list {
+        display: none;
+      }
 
-  th {
-    background: var(--primary);
-    color: #fff;
-  }
-}
+      table {
+        width: 100%;
+        max-width: 1000px;
+        margin-top: 2rem;
+        border-collapse: collapse;
+        background: #1a1a1a;
+      }
 
+      th,
+      td {
+        padding: 1rem;
+        text-align: center;
+        border-bottom: 1px solid #333;
+      }
+
+      th {
+        background: var(--primary);
+        color: #fff;
+      }
+    }
   </style>
-    <link rel="stylesheet" href="nav.css">
+  <link rel="stylesheet" href="nav.css">
 </head>
+
 <body>
-   <!-- Header with Navigation Menu -->
-    <header class="header">
-      <div class="logo-title">
-         <h1>🔍 Nova Stock Search + Registo</h1> 
-        <p>Pesquisa e Registo de Ações</p>
+  <!-- Header with Navigation Menu -->
+  <header class="header">
+    <div class="logo-title">
+      <h1>🔍 Nova Stock Search + Registo</h1>
+      <p>Pesquisa e Registo de Ações</p>
       <nav class="main-nav">
         <ul>
           <li><a href="index.html" class="active">Home</a></li>
@@ -152,13 +164,14 @@ button {
           <li><a href="#about">About</a></li>
         </ul>
       </nav>
-    </header>
+  </header>
   <div class="search-container">
     <label>Pesquisar Ação:
-      <input type="text" id="searchInput" placeholder="Escreve o nome ou símbolo da ação..." autocomplete="off"/>
+      <input type="text" id="searchInput" placeholder="Escreve o nome ou símbolo da ação..." autocomplete="off" />
     </label>
     <ul id="results" class="results"></ul>
-  </div>  <form id="stockForm">
+  </div>
+  <form id="stockForm">
     <label>Ticker <input type="text" id="ticker" required readonly></label>
     <label>Tipo
       <select id="tipo">
@@ -173,8 +186,10 @@ button {
     <label>Indústria <input type="text" id="industria" required></label>
     <label>Observações <textarea id="obs" rows="2"></textarea></label>
     <button type="submit">💾 Guardar Registo</button>
-  </form>  <h2>📑 Histórico</h2>
-  <div id="cardsContainer"></div>  <script>
+  </form>
+  <h2>📑 Histórico</h2>
+  <div id="cardsContainer"></div>
+  <script>
     const searchInput = document.getElementById('searchInput');
     const resultsList = document.getElementById('results');
     const tickerField = document.getElementById('ticker');
@@ -257,5 +272,7 @@ button {
     });
 
     loadRegistos();
-  </script></body>
+  </script>
+</body>
+
 </html>
