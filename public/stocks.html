@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <title>Nova Stocks Neon</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root {
+      --primary: #0078D4;
+      --accent: #00f0ff;
+      --bg-dark: #0D0D0D;
+      --bg-card: #1A1A1A;
+      --text: #E1E1E1;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background: var(--bg-dark);
+      color: var(--text);
+      padding: 1rem;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      margin: 1rem 0;
+      color: var(--accent);
+      text-shadow: 0 0 6px var(--accent);
+    }
+
+    form {
+      background: var(--bg-card);
+      border: 2px solid var(--primary);
+      padding: 1rem;
+      border-radius: 18px;
+      box-shadow: 0 0 15px var(--primary);
+    }
+
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 1rem;
+      margin-top: 0.3rem;
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 12px;
+      color: white;
+      font-size: 1rem;
+    }
+
+    button {
+      margin-top: 1.5rem;
+      width: 100%;
+      background: linear-gradient(90deg, #ff0050, var(--primary));
+      color: white;
+      padding: 1rem;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: 0.3s ease-in-out;
+    }
+
+    button:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 10px var(--accent);
+    }
+
+    table {
+      display: none; /* Hidden on mobile/tablet — replaced by cards */
+    }
+
+    .card {
+      background: var(--bg-card);
+      border-left: 5px solid var(--primary);
+      border-radius: 10px;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.4);
+    }
+
+    .card div {
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    .card strong {
+      color: var(--accent);
+    }
+
+    @media (min-width: 768px) {
+      body {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+
+      h2 { font-size: 2rem; }
+
+      form label {
+        font-size: 1.1rem;
+      }
+
+      input, select, textarea {
+        font-size: 1.05rem;
+      }
+
+      .card {
+        font-size: 1rem;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      table {
+        display: table;
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 2rem;
+        background: var(--bg-card);
+        border-radius: 16px;
+        overflow: hidden;
+        font-size: 1rem;
+      }
+
+      th, td {
+        padding: 1rem;
+        text-align: center;
+        border-bottom: 1px solid #333;
+      }
+
+      th {
+        background: var(--primary);
+        color: #fff;
+        text-shadow: 0 0 2px #000;
+      }
+
+      tr:hover td {
+        background-color: #2a2a2a;
+      }
+
+      .card {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h2>📱 Nova Stocks Neon</h2>
+
+  <form id="stockForm">
+    <label>Ticker <input type="text" id="ticker" required></label>
+    <label>Tipo
+      <select id="tipo">
+        <option value="Compra">🟢 Compra</option>
+        <option value="Venda">🔴 Venda</option>
+      </select>
+    </label>
+    <label>Quantidade <input type="number" id="quantidade" min="1" required></label>
+    <label>Preço (€) <input type="number" id="preco" step="0.01" required></label>
+    <label>Comissão (€) <input type="number" id="comissao" step="0.01" required></label>
+    <label>Data <input type="date" id="data" required></label>
+    <label>Indústria <input type="text" id="industria" required></label>
+    <label>Observações <textarea id="obs" rows="2" placeholder="Opcional..."></textarea></label>
+    <button type="submit">💾 Guardar Registo</button>
+  </form>
+
+  <h2>📑 Histórico</h2>
+
+  <div id="cardsContainer"></div>
+
+  <table id="registosTable">
+    <thead>
+      <tr>
+        <th>Ticker</th><th>Tipo</th><th>Qtd</th><th>Preço</th><th>Comissão</th><th>Data</th><th>Indústria</th><th>Obs</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const form = document.getElementById('stockForm');
+    const tbody = document.querySelector('#registosTable tbody');
+    const cardsContainer = document.getElementById('cardsContainer');
+
+    function loadRegistos() {
+      const registos = JSON.parse(localStorage.getItem('registos') || '[]');
+      tbody.innerHTML = '';
+      cardsContainer.innerHTML = '';
+
+      registos.forEach(reg => {
+        // Tabela (desktop)
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${reg.ticker}</td>
+          <td>${reg.tipo}</td>
+          <td>${reg.quantidade}</td>
+          <td>€${parseFloat(reg.preco).toFixed(2)}</td>
+          <td>€${parseFloat(reg.comissao).toFixed(2)}</td>
+          <td>${reg.data}</td>
+          <td>${reg.industria}</td>
+          <td>${reg.obs || ''}</td>
+        `;
+        tbody.appendChild(row);
+
+        // Cartões (mobile/tablet)
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <div><strong>${reg.ticker}</strong> — ${reg.tipo}</div>
+          <div><strong>Qtd:</strong> ${reg.quantidade}</div>
+          <div><strong>Preço:</strong> €${parseFloat(reg.preco).toFixed(2)}</div>
+          <div><strong>Comissão:</strong> €${parseFloat(reg.comissao).toFixed(2)}</div>
+          <div><strong>Data:</strong> ${reg.data}</div>
+          <div><strong>Indústria:</strong> ${reg.industria}</div>
+          ${reg.obs ? `<div><strong>Obs:</strong> ${reg.obs}</div>` : ''}
+        `;
+        cardsContainer.appendChild(card);
+      });
+    }
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const reg = {
+        ticker: document.getElementById('ticker').value.toUpperCase(),
+        tipo: document.getElementById('tipo').value,
+        quantidade: parseInt(document.getElementById('quantidade').value),
+        preco: parseFloat(document.getElementById('preco').value),
+        comissao: parseFloat(document.getElementById('comissao').value),
+        data: document.getElementById('data').value,
+        industria: document.getElementById('industria').value,
+        obs: document.getElementById('obs').value
+      };
+      const registos = JSON.parse(localStorage.getItem('registos') || '[]');
+      registos.push(reg);
+      localStorage.setItem('registos', JSON.stringify(registos));
+      form.reset();
+      loadRegistos();
+    });
+
+    loadRegistos();
+  </script>
+
+</body>
+</html>
