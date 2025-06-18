@@ -1,165 +1,149 @@
-<!DOCTYPE html>
-<html lang="pt-PT">
+<!DOCTYPE html><html lang="pt-PT">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Nova Stocks Neon</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     :root {
       --primary: #0078D4;
       --accent: #00f0ff;
-      --bg-dark: #0D0D0D;
-      --bg-card: #1A1A1A;
-      --text: #E1E1E1;
-    }
+      --bg-dark: #0f0f0f;
+      --text: #fff;
+      --gray: #444;
+    }* {
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
 
-    * {
-      box-sizing: border-box;
-      font-family: 'Segoe UI', sans-serif;
-    }
+body {
+  background: linear-gradient(135deg, var(--bg-dark), #1a1a1a);
+  color: var(--text);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+}
 
-    body {
-      background: var(--bg-dark);
-      color: var(--text);
-      padding: 1rem;
-    }
+h1, h2 {
+  margin: 1rem 0;
+  color: var(--accent);
+  text-shadow: 0 0 6px var(--accent);
+}
 
-    h2 {
-      font-size: 1.5rem;
-      margin: 1rem 0;
-      color: var(--accent);
-      text-shadow: 0 0 6px var(--accent);
-    }
+form, .search-container {
+  background: #1A1A1A;
+  border: 2px solid var(--primary);
+  border-radius: 16px;
+  padding: 1rem;
+  width: 100%;
+  max-width: 700px;
+  box-shadow: 0 0 15px var(--primary);
+  margin-bottom: 2rem;
+}
 
-    form {
-      background: var(--bg-card);
-      border: 2px solid var(--primary);
-      padding: 1rem;
-      border-radius: 18px;
-      box-shadow: 0 0 15px var(--primary);
-    }
+label {
+  display: block;
+  margin-top: 1rem;
+  font-weight: 600;
+}
 
-    label {
-      display: block;
-      margin-top: 1rem;
-      font-weight: 600;
-      font-size: 1rem;
-    }
+input, select, textarea {
+  width: 100%;
+  padding: 1rem;
+  margin-top: 0.3rem;
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 12px;
+  color: white;
+  font-size: 1rem;
+}
 
-    input, select, textarea {
-      width: 100%;
-      padding: 1rem;
-      margin-top: 0.3rem;
-      background: #111;
-      border: 1px solid #333;
-      border-radius: 12px;
-      color: white;
-      font-size: 1rem;
-    }
+button {
+  margin-top: 1.5rem;
+  width: 100%;
+  background: linear-gradient(90deg, #ff0050, var(--primary));
+  color: white;
+  padding: 1rem;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+}
 
-    button {
-      margin-top: 1.5rem;
-      width: 100%;
-      background: linear-gradient(90deg, #ff0050, var(--primary));
-      color: white;
-      padding: 1rem;
-      font-size: 1.1rem;
-      font-weight: bold;
-      border: none;
-      border-radius: 30px;
-      cursor: pointer;
-      transition: 0.3s ease-in-out;
-    }
+.badge {
+  background: var(--gray);
+  color: #ccc;
+  font-size: 0.75rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  margin-left: 0.5rem;
+}
 
-    button:hover {
-      transform: scale(1.03);
-      box-shadow: 0 0 10px var(--accent);
-    }
+.results {
+  list-style: none;
+  padding: 0;
+  margin-top: 0.5rem;
+  background-color: #111;
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.6);
+  max-height: 300px;
+  overflow-y: auto;
+}
 
-    table {
-      display: none; /* Hidden on mobile/tablet — replaced by cards */
-    }
+.results li {
+  padding: 1rem;
+  border-bottom: 1px solid var(--gray);
+  cursor: pointer;
+}
 
-    .card {
-      background: var(--bg-card);
-      border-left: 5px solid var(--primary);
-      border-radius: 10px;
-      margin-bottom: 1rem;
-      padding: 1rem;
-      box-shadow: 0 0 10px rgba(0,0,0,0.4);
-    }
+.results li:hover {
+  background-color: #2a2a2a;
+}
 
-    .card div {
-      margin-bottom: 0.5rem;
-      font-size: 0.95rem;
-    }
+.card {
+  background: #1a1a1a;
+  border-left: 5px solid var(--primary);
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 700px;
+}
 
-    .card strong {
-      color: var(--accent);
-    }
+@media (min-width: 1024px) {
+  .card-list { display: none; }
+  table {
+    width: 100%;
+    max-width: 1000px;
+    margin-top: 2rem;
+    border-collapse: collapse;
+    background: #1a1a1a;
+  }
 
-    @media (min-width: 768px) {
-      body {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 2rem;
-      }
+  th, td {
+    padding: 1rem;
+    text-align: center;
+    border-bottom: 1px solid #333;
+  }
 
-      h2 { font-size: 2rem; }
+  th {
+    background: var(--primary);
+    color: #fff;
+  }
+}
 
-      form label {
-        font-size: 1.1rem;
-      }
-
-      input, select, textarea {
-        font-size: 1.05rem;
-      }
-
-      .card {
-        font-size: 1rem;
-      }
-    }
-
-    @media (min-width: 1024px) {
-      table {
-        display: table;
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 2rem;
-        background: var(--bg-card);
-        border-radius: 16px;
-        overflow: hidden;
-        font-size: 1rem;
-      }
-
-      th, td {
-        padding: 1rem;
-        text-align: center;
-        border-bottom: 1px solid #333;
-      }
-
-      th {
-        background: var(--primary);
-        color: #fff;
-        text-shadow: 0 0 2px #000;
-      }
-
-      tr:hover td {
-        background-color: #2a2a2a;
-      }
-
-      .card {
-        display: none;
-      }
-    }
   </style>
 </head>
 <body>
-
-  <h2>📱 Nova Stocks Neon</h2>
-
-  <form id="stockForm">
-    <label>Ticker <input type="text" id="ticker" required></label>
+  <h1>🔍 Nova Stock Search + Registo</h1>  <div class="search-container">
+    <label>Pesquisar Ação:
+      <input type="text" id="searchInput" placeholder="Escreve o nome ou símbolo da ação..." autocomplete="off"/>
+    </label>
+    <ul id="results" class="results"></ul>
+  </div>  <form id="stockForm">
+    <label>Ticker <input type="text" id="ticker" required readonly></label>
     <label>Tipo
       <select id="tipo">
         <option value="Compra">🟢 Compra</option>
@@ -171,49 +155,55 @@
     <label>Comissão (€) <input type="number" id="comissao" step="0.01" required></label>
     <label>Data <input type="date" id="data" required></label>
     <label>Indústria <input type="text" id="industria" required></label>
-    <label>Observações <textarea id="obs" rows="2" placeholder="Opcional..."></textarea></label>
+    <label>Observações <textarea id="obs" rows="2"></textarea></label>
     <button type="submit">💾 Guardar Registo</button>
-  </form>
+  </form>  <h2>📑 Histórico</h2>
+  <div id="cardsContainer"></div>  <script>
+    const searchInput = document.getElementById('searchInput');
+    const resultsList = document.getElementById('results');
+    const tickerField = document.getElementById('ticker');
 
-  <h2>📑 Histórico</h2>
+    async function fetchSuggestions(query) {
+      const res = await fetch(`https://nova-stock-price-finder.vercel.app/api/stocks?query=${encodeURIComponent(query)}`);
+      if (!res.ok) return [];
+      return await res.json();
+    }
 
-  <div id="cardsContainer"></div>
+    function renderResults(suggestions) {
+      resultsList.innerHTML = '';
+      suggestions.forEach(stock => {
+        const li = document.createElement('li');
+        li.innerHTML = `<strong>${stock.symbol}</strong> — ${stock.name}<span class="badge">${stock.exchange}</span>`;
+        li.onclick = () => {
+          tickerField.value = stock.symbol;
+          searchInput.value = `${stock.name} (${stock.symbol})`;
+          resultsList.innerHTML = '';
+        };
+        resultsList.appendChild(li);
+      });
+    }
 
-  <table id="registosTable">
-    <thead>
-      <tr>
-        <th>Ticker</th><th>Tipo</th><th>Qtd</th><th>Preço</th><th>Comissão</th><th>Data</th><th>Indústria</th><th>Obs</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+    let debounceTimer;
+    searchInput.addEventListener('input', () => {
+      const query = searchInput.value.trim();
+      clearTimeout(debounceTimer);
+      if (query.length < 2) {
+        resultsList.innerHTML = '';
+        return;
+      }
+      debounceTimer = setTimeout(async () => {
+        const results = await fetchSuggestions(query);
+        renderResults(results);
+      }, 300);
+    });
 
-  <script>
     const form = document.getElementById('stockForm');
-    const tbody = document.querySelector('#registosTable tbody');
     const cardsContainer = document.getElementById('cardsContainer');
 
     function loadRegistos() {
       const registos = JSON.parse(localStorage.getItem('registos') || '[]');
-      tbody.innerHTML = '';
       cardsContainer.innerHTML = '';
-
       registos.forEach(reg => {
-        // Tabela (desktop)
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${reg.ticker}</td>
-          <td>${reg.tipo}</td>
-          <td>${reg.quantidade}</td>
-          <td>€${parseFloat(reg.preco).toFixed(2)}</td>
-          <td>€${parseFloat(reg.comissao).toFixed(2)}</td>
-          <td>${reg.data}</td>
-          <td>${reg.industria}</td>
-          <td>${reg.obs || ''}</td>
-        `;
-        tbody.appendChild(row);
-
-        // Cartões (mobile/tablet)
         const card = document.createElement('div');
         card.className = 'card';
         card.innerHTML = `
@@ -232,7 +222,7 @@
     form.addEventListener('submit', e => {
       e.preventDefault();
       const reg = {
-        ticker: document.getElementById('ticker').value.toUpperCase(),
+        ticker: document.getElementById('ticker').value,
         tipo: document.getElementById('tipo').value,
         quantidade: parseInt(document.getElementById('quantidade').value),
         preco: parseFloat(document.getElementById('preco').value),
@@ -245,11 +235,11 @@
       registos.push(reg);
       localStorage.setItem('registos', JSON.stringify(registos));
       form.reset();
+      tickerField.value = '';
+      searchInput.value = '';
       loadRegistos();
     });
 
     loadRegistos();
-  </script>
-
-</body>
+  </script></body>
 </html>
