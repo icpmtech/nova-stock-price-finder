@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Calendário de Eventos de Ações</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: white;
+      padding: 2rem;
+    }
+    h1 { text-align: center; color: #00ffe1; }
+    .form-container, .events-container {
+      background: rgba(0, 0, 0, 0.5);
+      padding: 1rem;
+      margin: 1rem auto;
+      max-width: 600px;
+      border-radius: 12px;
+    }
+    input, button {
+      padding: 0.5rem;
+      margin: 0.5rem 0;
+      width: 100%;
+      font-size: 1rem;
+      border: none;
+      border-radius: 6px;
+    }
+    button {
+      background: #00ffe1;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    ul { list-style: none; padding: 0; }
+    li { margin: 0.5rem 0; border-bottom: 1px solid #ccc; padding-bottom: 0.5rem; }
+  </style>
+</head>
+<body>
+
+  <h1>📆 Calendário de Eventos de Stocks</h1>
+
+  <div class="form-container">
+    <h2>Adicionar Evento</h2>
+    <input type="text" id="title" placeholder="Título do Evento (ex: Resultados SMCI)">
+    <input type="text" id="symbol" placeholder="Símbolo da Ação (ex: SMCI)">
+    <input type="date" id="date">
+    <button onclick="addEvent()">Adicionar Evento</button>
+  </div>
+
+  <div class="events-container">
+    <h2>Eventos Futuros</h2>
+    <ul id="eventsList"></ul>
+  </div>
+
+  <script>
+    const events = JSON.parse(localStorage.getItem("stockEvents") || "[]");
+
+    function renderEvents() {
+      const list = document.getElementById("eventsList");
+      list.innerHTML = "";
+      const today = new Date().toISOString().split("T")[0];
+
+      events
+        .filter(e => e.date >= today)
+        .sort((a, b) => a.date.localeCompare(b.date))
+        .forEach((e, index) => {
+          const li = document.createElement("li");
+          li.textContent = `${e.date} - ${e.title} [${e.symbol}]`;
+          list.appendChild(li);
+        });
+    }
+
+    function addEvent() {
+      const title = document.getElementById("title").value.trim();
+      const symbol = document.getElementById("symbol").value.trim();
+      const date = document.getElementById("date").value;
+
+      if (!title || !symbol || !date) {
+        alert("Preencha todos os campos.");
+        return;
+      }
+
+      events.push({ title, symbol, date });
+      localStorage.setItem("stockEvents", JSON.stringify(events));
+      renderEvents();
+      scheduleNotification(title, date);
+    }
+
+    function scheduleNotification(title, date) {
+      const eventDate = new Date(date);
+      const now = new Date();
+
+      const delay = eventDate.getTime() - now.getTime();
+      if (delay > 0 && delay < 86400000) { // Menos de 24h
+        setTimeout(() => {
+          if (Notification.permission === "granted") {
+            new Notification("📢 Lembrete de Evento de Stock", {
+              body: title,
+              icon: "https://cdn-icons-png.flaticon.com/512/1170/1170627.png"
+            });
+          }
+        }, delay);
+      }
+    }
+
+    function requestNotificationPermission() {
+      if ("Notification" in window && Notification.permission !== "granted") {
+        Notification.requestPermission();
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      requestNotificationPermission();
+      renderEvents();
+    });
+  </script>
+
+</body>
+</html>
