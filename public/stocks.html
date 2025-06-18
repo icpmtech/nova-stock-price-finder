@@ -147,9 +147,44 @@
     }
   </style>
   <link rel="stylesheet" href="nav.css">
+    <link rel="stylesheet" href="app-mah.css">
 </head>
 
 <body>
+   <!-- Primary navbar (unchanged except for language switcher) -->
+  <header class="mah-navbar">
+    <div class="mah-inner">
+      <button id="burger" class="burger">☰</button>
+      <a href="/" class="mah-brand"><span class="mah-icon">📈</span><span class="hero-title mah-name">Market Analytics Hub</span></a>
+      <nav class="mah-nav">
+        <a href="https://marketanalyticshubapp.azurewebsites.net/#home" class="mah-link active">Home</a>
+        <a href="https://marketanalyticshubapp.azurewebsites.net/#features" class="mah-link">Features</a>
+        <a href="https://marketanalyticshubapp.azurewebsites.net/#team" class="mah-link">Team</a>
+        <a href="https://marketanalyticshubapp.azurewebsites.net/#pricing" class="mah-link">Pricing</a>
+        <a href="https://marketanalyticshubapp.azurewebsites.net/#faq" class="mah-link">FAQ</a>
+        <a href="https://marketanalyticshubapp.azurewebsites.net/#contact" class="mah-link">Contact Us</a>
+        <a href="https://marketanalyticshubapp.azurewebsites.net/#help" class="mah-link">Help Center</a>
+        <a href="https://nova-search-stock.netlify.app/sim.html" class="mah-link">Simulate Strategy</a>
+      </nav>
+      <a href="https://marketanalyticshubapp.azurewebsites.net/Account/Login" target="_blank" rel="noopener" class="mah-cta"><span class="mah-cta-icon">↻</span> Login/Register</a>
+      <!-- PT | EN toggle -->
+      <div class="lang-switcher" id="langSwitcher">
+        <button data-lang="pt" class="active">PT</button>|
+        <button data-lang="en">EN</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Secondary navbar (unchanged) -->
+  <header class="mah-navbar">
+    <div class="mah-inner">
+      <nav class="mah-nav">
+        <a href="index.html" class="mah-link">Home</a>
+        <a href="zack.html" class="mah-link active">Zacks Analysis</a>
+        <a href="stocks.html" class="mah-link">Stocks List</a>
+      </nav>
+    </div>
+  </header>
   <!-- Header with Navigation Menu -->
   <header class="header">
     <div class="logo-title">
