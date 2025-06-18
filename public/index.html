@@ -4,50 +4,8 @@
 <meta charset="UTF-8">
 <title>Advanced Cheap Stocks Analyzer</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-/* —— estilos principais —— */
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:"Segoe UI",Tahoma,Geneva,sans-serif;background:linear-gradient(145deg,#6b73ff 0%,#000dff 100%);min-height:100vh;padding:1rem;color:#2d3436;line-height:1.55}
-.container{max-width:1440px;margin:0 auto;background:#fff;border-radius:22px;box-shadow:0 25px 50px -12px rgba(0,0,0,.25);overflow:hidden;animation:fadeIn .6s ease-out}
-@keyframes fadeIn{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
-.header{background:linear-gradient(135deg,#ff5f6d,#ffc371);color:#fff;text-align:center;padding:2.5rem 1rem}
-.header h1{font-size:2.4rem;font-weight:700;text-shadow:1px 2px 4px rgba(0,0,0,.25)}
-.header p{opacity:.9;margin-top:.3rem;font-size:1.05rem}
-.content{padding:2rem}
-
-/* cards & inputs */
-.controls-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem}
-.control-card{background:#fafafb;border-radius:14px;padding:1.4rem;box-shadow:0 4px 12px rgba(0,0,0,.08)}
-.control-card h3{font-size:1.1rem;margin-bottom:.9rem;color:#333}
-.row{display:flex;align-items:center;gap:1rem;margin-bottom:.8rem}
-.row:last-child{margin:0}
-label{flex-shrink:0;font-size:.88rem;color:#555;width:85px}
-input,select{flex:1;padding:.7rem .8rem;border:1.8px solid #e3e7fd;border-radius:9px;font-size:.9rem;background:#fff;transition:.2s}
-input:focus,select:focus{outline:none;border-color:#6b73ff;box-shadow:0 0 0 3px rgba(107,115,255,.18)}
-input[type=range]{width:100%;background:transparent;cursor:pointer}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;height:14px;width:14px;border-radius:50%;background:#ff5f6d;border:none}
-input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:#e0e0e0}
-
-/* botões */
-.btn{display:inline-block;padding:.7rem 1.3rem;font-size:.88rem;border:none;border-radius:9px;font-weight:600;cursor:pointer;transition:.2s;color:#fff}
-.primary{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%)}.primary:hover{opacity:.9}
-.secondary{background:#2d3436}.secondary:hover{opacity:.85}
-
-/* estatísticas e tabela */
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1rem;margin:2rem 0}
-.stat{background:#667eea;color:#fff;border-radius:14px;padding:1rem;text-align:center}
-.stat-number{font-size:1.7rem;font-weight:700}.stat-label{font-size:.8rem;opacity:.9}
-.table-wrap{border-radius:14px;overflow-x:auto;box-shadow:0 8px 24px rgba(0,0,0,.12)}
-table{width:100%;border-collapse:collapse;font-size:.9rem}
-thead{background:#2d3436;color:#fff}
-th,td{padding:.9rem .75rem;text-align:left;white-space:nowrap}
-tbody tr:hover{background:#f5f7ff}
-.symbol{font-weight:600;font-family:Consolas,monospace}.price{font-weight:600;color:#009e73}
-.risk-low{color:#009e73;font-weight:600}.risk-medium{color:#e69500;font-weight:600}.risk-high{color:#e74c3c;font-weight:600}
-.badge{display:inline-block;padding:.2rem .5rem;border-radius:8px;font-size:.75rem;font-weight:600;color:#fff}
-.score-excellent{background:#009e73}.score-good{background:#e69500}.score-fair{background:#ffb84d}.score-poor{background:#e74c3c}
-@media(max-width:768px){th,td{padding:.65rem}}
-</style>
+<link rel="stylesheet" href="app.css">
+<link rel="icon" href="/favicon.ico">
 </head>
 <body>
 <div class="container">
@@ -135,65 +93,7 @@ tbody tr:hover{background:#f5f7ff}
     </div>
   </div>
 </div>
-
 <!-- ——— SCRIPT ——— -->
-<script>
-const $ = id => document.getElementById(id);
-const fmt = n => n>=1e9?(n/1e9).toFixed(1)+'B':n>=1e6?(n/1e6).toFixed(1)+'M':n>=1e3?(n/1e3).toFixed(1)+'K':n;
-const badge = x => x>=8?'score-excellent':x>=7?'score-good':x>=6?'score-fair':'score-poor';
-const riskC  = r => 'risk-'+r.toLowerCase();
-
-let rows=[],sort={field:'score',dir:'desc'};
-
-const scoreOf=s=>{let k=5;if(s.price<5)k+=2;if(s.changePercent>0)k+=1;if(s.marketCap>2e9)k+=1;if(s.volume>1e7)k+=1;return+ k.toFixed(1);}
-const riskOf=s=>s.price<1||s.volume<1e6?'High':s.price<3||s.volume<5e6?'Medium':'Low';
-
-async function fetchData(){
-  const q=new URLSearchParams({
-    max: $('maxPriceSlider').value, min:$('minPrice').value, minVolume:$('minVolume').value,
-    exchange:$('exchange').value, cap:$('marketCap').value
-  }); [...q].forEach(([k,v])=>!v&&q.delete(k));
-  const data=await (await fetch('/api/index?'+q)).json();
-  rows=data.map(d=>({...d,score:scoreOf(d),risk:riskOf(d)}));
-  sortTable(sort.field,false); updateStats();
-}
-
-function render(){
-  const tb=document.querySelector('#stocksTable tbody');
-  tb.innerHTML = rows.length?rows.map(r=>{
-    const col=r.changePercent>=0?'#009e73':'#e74c3c',ic=r.changePercent>=0?'▲':'▼';
-    return `<tr>
-      <td class="symbol">${r.symbol}</td><td>${r.name}</td><td>${r.exchange}</td>
-      <td class="price">$${r.price.toFixed(2)}</td>
-      <td style="color:${col};font-weight:600">${ic} ${Math.abs(r.changePercent).toFixed(2)}%</td>
-      <td>${fmt(r.volume)}</td><td>$${fmt(r.marketCap)}</td>
-      <td><span class="badge ${badge(r.score)}">${r.score}</span></td>
-      <td class="${riskC(r.risk)}">${r.risk}</td>
-    </tr>`}).join(''):`<tr><td colspan="9" style="text-align:center;padding:1.6rem">No matches</td></tr>`;
-}
-
-function sortTable(f,flip=true){
-  if(flip)sort.dir=sort.field===f&&sort.dir==='asc'?'desc':'asc';
-  sort.field=f; const d=sort.dir==='asc'?1:-1;
-  rows.sort((a,b)=>a[f]>b[f]?d:-d); render();
-}
-
-function updateStats(){
-  const n=rows.length; $('totalStocks').textContent=n;
-  $('avgPrice').textContent='$'+(n?rows.reduce((t,s)=>t+s.price,0)/n:0).toFixed(2);
-  $('avgScore').textContent=(n?rows.reduce((t,s)=>t+s.score,0)/n:0).toFixed(1);
-  $('highQualityCount').textContent=rows.filter(s=>s.score>=7).length;
-}
-
-function applyFilters(){fetchData();}
-function resetFilters(){
-  $('maxPriceSlider').value=5;$('maxPriceVal').textContent=5;
-  $('minPrice').value='0.10';$('minVolume').value='100000';
-  ['marketCap','minScore','riskLevel','exchange'].forEach(id=>$(id).value='');fetchData();
-}
-function syncSlider(){ $('maxPriceVal').textContent=$('maxPriceSlider').value; }
-
-document.addEventListener('DOMContentLoaded',()=>{syncSlider();fetchData();});
-</script>
+<script src="app.js"></script>
 </body>
 </html>
