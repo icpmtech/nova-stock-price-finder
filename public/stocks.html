@@ -1,83 +1,124 @@
 <!DOCTYPE html>
 <html lang="pt-PT">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Nova Stocks Register</title>
-   <link rel="stylesheet" href="app-stocks.css">
-  <link rel="stylesheet" href="app-mah.css">
- 
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-
-<body>
-   <!-- Primary navbar (unchanged except for language switcher) -->
-  <header class="mah-navbar">
-    <div class="mah-inner">
-      <button id="burger" class="burger">☰</button>
-      <a href="/" class="mah-brand"><span class="mah-icon">📈</span><span class="hero-title mah-name">Market Analytics Hub</span></a>
-      <nav class="mah-nav">
-        <a href="https://marketanalyticshubapp.azurewebsites.net/#home" class="mah-link active">Home</a>
-        <a href="https://marketanalyticshubapp.azurewebsites.net/#features" class="mah-link">Features</a>
-        <a href="https://marketanalyticshubapp.azurewebsites.net/#team" class="mah-link">Team</a>
-        <a href="https://marketanalyticshubapp.azurewebsites.net/#pricing" class="mah-link">Pricing</a>
-        <a href="https://marketanalyticshubapp.azurewebsites.net/#faq" class="mah-link">FAQ</a>
-        <a href="https://marketanalyticshubapp.azurewebsites.net/#contact" class="mah-link">Contact Us</a>
-        <a href="https://marketanalyticshubapp.azurewebsites.net/#help" class="mah-link">Help Center</a>
-        <a href="https://nova-search-stock.netlify.app/sim.html" class="mah-link">Simulate Strategy</a>
+<body class="bg-gray-50 text-gray-800">
+  <!-- Primary navbar -->
+  <header class="bg-white shadow">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+      <button id="burger" class="text-2xl md:hidden">☰</button>
+      <a href="/" class="flex items-center space-x-2">
+        <span class="text-2xl">📈</span>
+        <span class="text-lg font-semibold">Market Analytics Hub</span>
+      </a>
+      <nav class="hidden md:flex space-x-4">
+        <a href="#home" class="text-gray-700 hover:text-blue-600">Home</a>
+        <a href="#features" class="text-gray-700 hover:text-blue-600">Features</a>
+        <a href="#team" class="text-gray-700 hover:text-blue-600">Team</a>
+        <a href="#pricing" class="text-gray-700 hover:text-blue-600">Pricing</a>
+        <a href="#faq" class="text-gray-700 hover:text-blue-600">FAQ</a>
+        <a href="#contact" class="text-gray-700 hover:text-blue-600">Contact Us</a>
+        <a href="#help" class="text-gray-700 hover:text-blue-600">Help Center</a>
+        <a href="sim.html" class="text-gray-700 hover:text-blue-600">Simulate Strategy</a>
       </nav>
-      <a href="https://marketanalyticshubapp.azurewebsites.net/Account/Login" target="_blank" rel="noopener" class="mah-cta"><span class="mah-cta-icon">↻</span> Login/Register</a>
-      <!-- PT | EN toggle -->
-      <div class="lang-switcher" id="langSwitcher">
-        <button data-lang="pt" class="active">PT</button>|
-        <button data-lang="en">EN</button>
+      <div class="flex items-center space-x-4">
+        <a href="Account/Login" target="_blank" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Login/Register</a>
+        <div class="flex items-center space-x-1">
+          <button data-lang="pt" class="text-sm font-medium text-blue-600">PT</button>
+          <span class="text-gray-400">|</span>
+          <button data-lang="en" class="text-sm font-medium text-gray-600">EN</button>
+        </div>
       </div>
     </div>
   </header>
 
-  <!-- Secondary navbar (unchanged) -->
-  <header class="mah-navbar">
-    <div class="mah-inner">
-      <nav class="mah-nav">
-        <a href="index.html" class="mah-link">Home</a>
-        <a href="zack.html" class="mah-link active">Zacks Analysis</a>
-        <a href="stocks.html" class="mah-link">Stocks List</a>
+  <!-- Secondary navbar -->
+  <header class="bg-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav class="flex space-x-4 py-3">
+        <a href="index.html" class="text-gray-700 hover:text-blue-600">Home</a>
+        <a href="zack.html" class="text-blue-600 font-semibold">Zacks Analysis</a>
+        <a href="stocks.html" class="text-gray-700 hover:text-blue-600">Stocks List</a>
       </nav>
     </div>
   </header>
-  <div class="container">
-  <!-- Header with Navigation Menu -->
-  <div class="header">
-    <div class="logo-title">
-      <h1>🔍 Nova Stock Search + Registo</h1>
-      <p>Pesquisa e Registo de Ações</p>
-  </div>
-  <div class="search-container">
-    <label>Pesquisar Ação:
-      <input type="text" id="searchInput" placeholder="Escreve o nome ou símbolo da ação..." autocomplete="off" />
-    </label>
-    <ul id="results" class="results"></ul>
-  </div>
-  <form id="stockForm">
-    <label>Ticker <input type="text" id="ticker" required readonly></label>
-    <label>Tipo
-      <select id="tipo">
-        <option value="Compra">🟢 Compra</option>
-        <option value="Venda">🔴 Venda</option>
-      </select>
-    </label>
-    <label>Quantidade <input type="number" id="quantidade" min="1" required></label>
-    <label>Preço (€) <input type="number" id="preco" step="0.01" required></label>
-    <label>Comissão (€) <input type="number" id="comissao" step="0.01" required></label>
-    <label>Data <input type="date" id="data" required></label>
-    <label>Indústria <input type="text" id="industria" required></label>
-    <label>Observações <textarea id="obs" rows="2"></textarea></label>
-    <button type="submit">💾 Guardar Registo</button>
-  </form>
-  <h2>📑 Histórico</h2>
-  <div id="cardsContainer"></div>
-  </div>
- <script src="app-stocks.js"></script>
-</body>
 
+  <main class="max-w-3xl mx-auto p-6">
+    <!-- Header -->
+    <div class="mb-6">
+      <h1 class="text-3xl font-bold">🔍 Nova Stock Search + Registo</h1>
+      <p class="text-gray-600">Pesquisa e Registo de Ações</p>
+    </div>
+
+    <!-- Search -->
+    <div class="mb-6">
+      <label class="block text-lg font-medium mb-2">Pesquisar Ação:
+        <input type="text" id="searchInput" placeholder="Escreve o nome ou símbolo da ação..." autocomplete="off" class="mt-1 block w-full border rounded p-2" />
+      </label>
+      <ul id="results" class="results bg-white border rounded mt-1 shadow"></ul>
+    </div>
+
+    <!-- Form -->
+    <form id="stockForm" class="space-y-4 bg-white p-6 rounded shadow">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <label class="block">
+          <span class="text-sm font-medium">Ticker</span>
+          <input type="text" id="ticker" required readonly class="mt-1 block w-full border rounded p-2 bg-gray-100" />
+        </label>
+        <label class="block">
+          <span class="text-sm font-medium">Tipo</span>
+          <select id="tipo" class="mt-1 block w-full border rounded p-2">
+            <option value="Compra">🟢 Compra</option>
+            <option value="Venda">🔴 Venda</option>
+          </select>
+        </label>
+        <label class="block">
+          <span class="text-sm font-medium">Quantidade</span>
+          <input type="number" id="quantidade" min="1" required class="mt-1 block w-full border rounded p-2" />
+        </label>
+        <label class="block">
+          <span class="text-sm font-medium">Preço (€)</span>
+          <input type="number" id="preco" step="0.01" required class="mt-1 block w-full border rounded p-2" />
+        </label>
+        <label class="block">
+          <span class="text-sm font-medium">Comissão (€)</span>
+          <input type="number" id="comissao" step="0.01" required class="mt-1 block w-full border rounded p-2" />
+        </label>
+        <label class="block">
+          <span class="text-sm font-medium">Data</span>
+          <input type="date" id="data" required class="mt-1 block w-full border rounded p-2" />
+        </label>
+        <label class="block">
+          <span class="text-sm font-medium">Indústria</span>
+          <input type="text" id="industria" required class="mt-1 block w-full border rounded p-2" />
+        </label>
+      </div>
+      <label class="block">
+        <span class="text-sm font-medium">Observações</span>
+        <textarea id="obs" rows="2" class="mt-1 block w-full border rounded p-2"></textarea>
+      </label>
+      <button type="submit" class="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700">💾 Guardar Registo</button>
+    </form>
+
+    <!-- History -->
+    <section class="mt-8">
+      <h2 class="text-2xl font-semibold mb-4">📑 Histórico</h2>
+      <div id="cardsContainer" class="space-y-4"></div>
+    </section>
+  </main>
+
+  <footer class="bg-white mt-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Footer content here... reuse Tailwind classes as needed -->
+      <p class="text-center text-gray-500">© <script>document.write(new Date().getFullYear());</script> cantinhodedotnet. Made with ❤️ for a better web.</p>
+    </div>
+  </footer>
+
+  <script src="app-stocks.js"></script>
+</body>
 </html>

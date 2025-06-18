@@ -4,164 +4,146 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Zacks Analysis / Análise Zacks</title>
-  <!-- External CSS (kept as‑is) -->
+  <!-- External CSS -->
   <link rel="stylesheet" href="app-zack.css">
   <link rel="stylesheet" href="nav.css">
   <link rel="stylesheet" href="app-mah.css">
-  <!-- Minimal inline CSS for the language switcher (rest lives in external files) -->
-  <style>
-    .lang-switcher{margin-left:1rem;font-size:.9rem;}
-    .lang-switcher button{background:none;border:none;cursor:pointer;padding:0 .4rem;}
-    .lang-switcher button.active{font-weight:700;text-decoration:underline;}
-  </style>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <!-- Primary navbar (unchanged except for language switcher) -->
-  <header class="mah-navbar">
-    <div class="mah-inner">
-      <button id="burger" class="burger">☰</button>
-      <a href="/" class="mah-brand"><span class="mah-icon">📈</span><span class="hero-title mah-name">Market Analytics Hub</span></a>
-      <nav class="mah-nav">
-        <a href="https://marketanalyticshubapp.azurewebsites.net/#home" class="mah-link active">Home</a>
-        <a href="https://marketanalyticshubapp.azurewebsites.net/#features" class="mah-link">Features</a>
-        <a href="https://marketanalyticshubapp.azurewebsites.net/#team" class="mah-link">Team</a>
-        <a href="https://marketanalyticshubapp.azurewebsites.net/#pricing" class="mah-link">Pricing</a>
-        <a href="https://marketanalyticshubapp.azurewebsites.net/#faq" class="mah-link">FAQ</a>
-        <a href="https://marketanalyticshubapp.azurewebsites.net/#contact" class="mah-link">Contact Us</a>
-        <a href="https://marketanalyticshubapp.azurewebsites.net/#help" class="mah-link">Help Center</a>
-        <a href="https://nova-search-stock.netlify.app/sim.html" class="mah-link">Simulate Strategy</a>
+<body class="bg-gray-50 text-gray-800">
+  <!-- Primary navbar -->
+  <header class="mah-navbar bg-white shadow">
+    <div class="mah-inner max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+      <button id="burger" class="burger text-2xl md:hidden">☰</button>
+      <a href="/" class="mah-brand flex items-center space-x-2">
+        <span class="mah-icon text-2xl">📈</span>
+        <span class="hero-title mah-name text-xl font-semibold">Market Analytics Hub</span>
+      </a>
+      <nav class="mah-nav hidden md:flex space-x-4">
+        <a href="https://marketanalyticshubapp.azurewebsites.net/#home" class="mah-link text-gray-700 hover:text-blue-600">Home</a>
+        <a href="https://marketanalyticshubapp.azurewebsites.net/#features" class="mah-link text-gray-700 hover:text-blue-600">Features</a>
+        <a href="https://marketanalyticshubapp.azurewebsites.net/#team" class="mah-link text-gray-700 hover:text-blue-600">Team</a>
+        <a href="https://marketanalyticshubapp.azurewebsites.net/#pricing" class="mah-link text-gray-700 hover:text-blue-600">Pricing</a>
+        <a href="https://marketanalyticshubapp.azurewebsites.net/#faq" class="mah-link text-gray-700 hover:text-blue-600">FAQ</a>
+        <a href="https://marketanalyticshubapp.azurewebsites.net/#contact" class="mah-link text-gray-700 hover:text-blue-600">Contact Us</a>
+        <a href="https://marketanalyticshubapp.azurewebsites.net/#help" class="mah-link text-gray-700 hover:text-blue-600">Help Center</a>
+        <a href="https://nova-search-stock.netlify.app/sim.html" class="mah-link text-gray-700 hover:text-blue-600">Simulate Strategy</a>
       </nav>
-      <a href="https://marketanalyticshubapp.azurewebsites.net/Account/Login" target="_blank" rel="noopener" class="mah-cta"><span class="mah-cta-icon">↻</span> Login/Register</a>
-      <!-- PT | EN toggle -->
-      <div class="lang-switcher" id="langSwitcher">
-        <button data-lang="pt" class="active">PT</button>|
-        <button data-lang="en">EN</button>
+      <div class="flex items-center space-x-4">
+        <a href="https://marketanalyticshubapp.azurewebsites.net/Account/Login" target="_blank" rel="noopener" class="mah-cta px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+          <span class="mah-cta-icon">↻</span> Login/Register
+        </a>
+        <div class="lang-switcher flex items-center space-x-1 ml-4 text-sm">
+          <button data-lang="pt" class="active font-semibold underline">PT</button>
+          <span class="text-gray-400">|</span>
+          <button data-lang="en" class="text-gray-600">EN</button>
+        </div>
       </div>
     </div>
   </header>
 
-  <!-- Secondary navbar (unchanged) -->
-  <header class="mah-navbar">
-    <div class="mah-inner">
-      <nav class="mah-nav">
-        <a href="index.html" class="mah-link">Home</a>
-        <a href="zack.html" class="mah-link active">Zacks Analysis</a>
-        <a href="stocks.html" class="mah-link">Stocks List</a>
+  <!-- Secondary navbar -->
+  <header class="mah-navbar bg-gray-100">
+    <div class="mah-inner max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav class="mah-nav flex space-x-4 py-3">
+        <a href="index.html" class="mah-link text-gray-700 hover:text-blue-600">Home</a>
+        <a href="zack.html" class="mah-link text-blue-600 font-semibold">Zacks Analysis</a>
+        <a href="stocks.html" class="mah-link text-gray-700 hover:text-blue-600">Stocks List</a>
       </nav>
     </div>
   </header>
 
   <!-- Page heading -->
-  <div class="header">
-    <h2 id="mainTitle">📈 Análise Zacks</h2>
-    <p id="subTitle">Análise profissional de ações baseada no framework Zacks</p>
+  <div class="header max-w-3xl mx-auto p-6">
+    <h2 id="mainTitle" class="text-3xl font-bold">📈 Análise Zacks</h2>
+    <p id="subTitle" class="text-gray-600 mt-1">Análise profissional de ações baseada no framework Zacks</p>
   </div>
 
   <!-- Spinner overlay -->
-  <div class="loading-overlay" id="loadingOverlay"><div class="loading-spinner"></div></div>
+  <div class="loading-overlay fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50" id="loadingOverlay">
+    <div class="loading-spinner w-12 h-12 border-4 border-blue-600 border-dashed rounded-full animate-spin"></div>
+  </div>
 
   <!-- Core content -->
-  <div class="container">
-    <div class="content">
+  <main class="container max-w-3xl mx-auto p-6">
+    <div class="content space-y-6">
       <div class="input-section">
         <div class="form-group">
-          <label for="ticker" id="tickerLabel">🎯 Ticker da Ação</label>
-          <div class="input-wrapper">
-            <input type="text" id="ticker" placeholder="Digite o ticker (ex: AAPL, TSLA, VALE)" />
-            <button class="analyze-btn" id="analyzeBtn"><span class="spinner" id="spinner"></span><span id="btnText">Analisar</span></button>
+          <label for="ticker" id="tickerLabel" class="block text-lg font-medium">🎯 Ticker da Ação</label>
+          <div class="input-wrapper mt-2 flex">
+            <input type="text" id="ticker" placeholder="Digite o ticker (ex: AAPL, TSLA, VALE)" class="flex-1 border rounded-l px-3 py-2" />
+            <button class="analyze-btn bg-blue-600 text-white px-4 py-2 rounded-r hover:bg-blue-700 flex items-center" id="analyzeBtn">
+              <span class="spinner mr-2" id="spinner"></span>
+              <span id="btnText">Analisar</span>
+            </button>
           </div>
         </div>
       </div>
-      <div class="results" id="results">
-        <div class="results-header"><h2 id="resultsHeader">📊 Resultados da Análise</h2></div>
-        <div class="results-content">
-          <div class="metrics-grid">
-            <div class="metric-card"><div class="metric-label" id="lblPrice">💰 Preço Atual</div><div class="metric-value" id="price">-</div></div>
-            <div class="metric-card"><div class="metric-label" id="lblChange">📈 Variação %</div><div class="metric-value" id="changePercent">-</div></div>
-            <div class="metric-card"><div class="metric-label" id="lblVolume">📊 Volume</div><div class="metric-value" id="volume">-</div></div>
-            <div class="metric-card"><div class="metric-label" id="lblMarketCap">🏢 Market Cap</div><div class="metric-value" id="marketCap">-</div></div>
-            <div class="metric-card"><div class="metric-label" id="lblFPE">🔮 PE (Forward)</div><div class="metric-value" id="forwardPE">-</div></div>
-            <div class="metric-card"><div class="metric-label" id="lblFSales">💼 Sales (Forward)</div><div class="metric-value" id="forwardSales">-</div></div>
+
+      <div class="results bg-white rounded shadow p-6" id="results">
+        <div class="results-header mb-4">
+          <h2 id="resultsHeader" class="text-2xl font-semibold">📊 Resultados da Análise</h2>
+        </div>
+        <div class="results-content space-y-6">
+          <div class="metrics-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div class="metric-card bg-gray-50 p-4 rounded shadow">
+              <div class="metric-label font-medium" id="lblPrice">💰 Preço Atual</div>
+              <div class="metric-value text-xl font-bold mt-1" id="price">-</div>
+            </div>
+            <div class="metric-card bg-gray-50 p-4 rounded shadow">
+              <div class="metric-label font-medium" id="#lblChange">📈 Variação %</div>
+              <div class="metric-value text-xl font-bold mt-1" id="changePercent">-</div>
+            </div>
+            <div class="metric-card bg-gray-50 p-4 rounded shadow">
+              <div class="metric-label font-medium" id="lblVolume">📊 Volume</div>
+              <div class="metric-value text-xl font-bold mt-1" id="volume">-</div>
+            </div>
+            <div class="metric-card bg-gray-50 p-4 rounded shadow">
+              <div class="metric-label font-medium" id="lblMarketCap">🏢 Market Cap</div>
+              <div class="metric-value text-xl font-bold mt-1" id="#marketCap">-</div>
+            </div>
+            <div class="metric-card bg-gray-50 p-4 rounded shadow">
+              <div class="metric-label font-medium" id="lblFPE">🔮 PE (Forward)</div>
+              <div class="metric-value text-xl font-bold mt-1" id="forwardPE">-</div>
+            </div>
+            <div class="metric-card bg-gray-50 p-4 rounded shadow">
+              <div class="metric-label font-medium" id="lblFSales">💼 Sales (Forward)</div>
+              <div class="metric-value text-xl font-bold mt-1" id="forwardSales">-</div>
+            </div>
           </div>
-          <div class="zacks-rank" id="zacksRankCard">
-            <div class="rank-number" id="zacksRank">-</div>
-            <div class="rank-title" id="rankTitle">Zacks Rank</div>
-            <div class="rank-description" id="rankExplanation">-</div>
+
+          <div class="zacks-rank bg-white p-6 rounded shadow flex flex-col items-center text-center">
+            <div class="rank-number text-5xl font-bold text-blue-600 mb-2" id="zacksRank">-</div>
+            <div class="rank-title text-xl font-semibold" id="rankTitle">Zacks Rank</div>
+            <div class="rank-description text-gray-600 mt-2" id="rankExplanation">-</div>
           </div>
-          <div class="valuation">
-            <h3 id="valuationHeading">🎯 Análise de Valuation</h3>
-            <div class="valuation-text" id="valuation">-</div>
+
+          <div class="valuation bg-white p-6 rounded shadow">
+            <h3 id="valuationHeading" class="text-xl font-semibold mb-2">🎯 Análise de Valuation</h3>
+            <div class="valuation-text text-gray-700" id="valuation">-</div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-
+  </main>
+  <footer class="bg-white mt-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Footer content here... reuse Tailwind classes as needed -->
+      <p class="text-center text-gray-500">© <script>document.write(new Date().getFullYear());</script> cantinhodedotnet. Made with ❤️ for a better web.</p>
+    </div>
+  </footer>
   <!-- Translation + initialization script -->
   <script>
-    // 1. Translation dictionary
-    const t9n={
-      pt:{
-        mainTitle:"📈 Análise Zacks",
-        subTitle:"Análise profissional de ações baseada no framework Zacks",
-        tickerLabel:"🎯 Ticker da Ação",
-        tickerPlaceholder:"Digite o ticker (ex: AAPL, TSLA, VALE)",
-        analyzeBtn:"Analisar",
-        resultsHeader:"📊 Resultados da Análise",
-        metrics:{price:"💰 Preço Atual",change:"📈 Variação %",volume:"📊 Volume",mcap:"🏢 Market Cap",fpe:"🔮 PE (Forward)",fsales:"💼 Sales (Forward)"},
-        zacksRank:"Zacks Rank",
-        valuationHeading:"🎯 Análise de Valuation"
-      },
-      en:{
-        mainTitle:"📈 Zacks Analysis",
-        subTitle:"Professional stock analysis based on the Zacks framework",
-        tickerLabel:"🎯 Stock Ticker",
-        tickerPlaceholder:"Enter ticker (e.g. AAPL, TSLA, VALE)",
-        analyzeBtn:"Analyze",
-        resultsHeader:"📊 Analysis Results",
-        metrics:{price:"💰 Current Price",change:"📈 Change %",volume:"📊 Volume",mcap:"🏢 Market Cap",fpe:"🔮 Forward P/E",fsales:"💼 Forward Sales"},
-        zacksRank:"Zacks Rank",
-        valuationHeading:"🎯 Valuation Analysis"
-      }
-    };
-
-    // 2. State helpers
+    const t9n={ pt:{ mainTitle:"📈 Análise Zacks", subTitle:"Análise profissional de ações baseada no framework Zacks", tickerLabel:"🎯 Ticker da Ação", tickerPlaceholder:"Digite o ticker (ex: AAPL, TSLA, VALE)", analyzeBtn:"Analisar", resultsHeader:"📊 Resultados da Análise", metrics:{price:"💰 Preço Atual",change:"📈 Variação %",volume:"📊 Volume",mcap:"🏢 Market Cap",fpe:"🔮 PE (Forward)",fsales:"💼 Sales (Forward)"}, zacksRank:"Zacks Rank", valuationHeading:"🎯 Análise de Valuation" }, en:{ mainTitle:"📈 Zacks Analysis", subTitle:"Professional stock analysis based on the Zacks framework", tickerLabel:"🎯 Stock Ticker", tickerPlaceholder:"Enter ticker (e.g. AAPL, TSLA, VALE)", analyzeBtn:"Analyze", resultsHeader:"📊 Analysis Results", metrics:{price:"💰 Current Price",change:"📈 Change %",volume:"📊 Volume",mcap:"🏢 Market Cap",fpe:"🔮 Forward P/E",fsales:"💼 Forward Sales"}, zacksRank:"Zacks Rank", valuationHeading:"🎯 Valuation Analysis" } };
     let currentLang=localStorage.getItem("lang")||"pt";
     const qs=s=>document.querySelector(s);
-
-    function setLang(lang){
-      currentLang=lang;localStorage.setItem("lang",lang);document.documentElement.lang=lang;applyT9n();
-      document.querySelectorAll("#langSwitcher button").forEach(b=>b.classList.toggle("active",b.dataset.lang===lang));
-    }
-
-    // 3. Inject translations
-    function applyT9n(){
-      const t=t9n[currentLang];
-      qs("#mainTitle").textContent=t.mainTitle;
-      qs("#subTitle").textContent=t.subTitle;
-      qs("#tickerLabel").textContent=t.tickerLabel;
-      qs("#ticker").placeholder=t.tickerPlaceholder;
-      qs("#btnText").textContent=t.analyzeBtn;
-      qs("#resultsHeader").textContent=t.resultsHeader;
-      qs("#lblPrice").textContent=t.metrics.price;
-      qs("#lblChange").textContent=t.metrics.change;
-      qs("#lblVolume").textContent=t.metrics.volume;
-      qs("#lblMarketCap").textContent=t.metrics.mcap;
-      qs("#lblFPE").textContent=t.metrics.fpe;
-      qs("#lblFSales").textContent=t.metrics.fsales;
-      qs("#rankTitle").textContent=t.zacksRank;
-      qs("#valuationHeading").textContent=t.valuationHeading;
-    }
-
-    // 4. Setup language switcher once DOM is ready
-    document.addEventListener("DOMContentLoaded",()=>{
-      // hook lang buttons
-      document.querySelectorAll("#langSwitcher button").forEach(btn=>btn.addEventListener("click",()=>setLang(btn.dataset.lang)));
-      setLang(currentLang);
-    });
+    function setLang(lang){ currentLang=lang;localStorage.setItem("lang",lang);document.documentElement.lang=lang;applyT9n(); document.querySelectorAll(".lang-switcher button").forEach(b=>b.classList.toggle("active",b.dataset.lang===lang)); }
+    function applyT9n(){ const t=t9n[currentLang]; qs("#mainTitle").textContent=t.mainTitle; qs("#subTitle").textContent=t.subTitle; qs("#tickerLabel").textContent=t.tickerLabel; qs("#ticker").placeholder=t.tickerPlaceholder; qs("#btnText").textContent=t.analyzeBtn; qs("#resultsHeader").textContent=t.resultsHeader; qs("#lblPrice").textContent=t.metrics.price; qs("#lblChange").textContent=t.metrics.change; qs("#lblVolume").textContent=t.metrics.volume; qs("#lblMarketCap").textContent=t.metrics.mcap; qs("#lblFPE").textContent=t.metrics.fpe; qs("#lblFSales").textContent=t.metrics.fsales; qs("#rankTitle").textContent=t.zacksRank; qs("#valuationHeading").textContent=t.valuationHeading; }
+    document.addEventListener("DOMContentLoaded",()=>{ document.querySelectorAll(".lang-switcher button").forEach(btn=>btn.addEventListener("click",()=>setLang(btn.dataset.lang))); setLang(currentLang); });
   </script>
 
-  <!-- Your existing business logic (must run after translation init) -->
+  <!-- App logic -->
   <script src="app-zack.js"></script>
 </body>
 </html>
