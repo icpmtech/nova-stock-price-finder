@@ -3,71 +3,380 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Nova Stocks | Eventos</title>
+  <title>Nova Stocks | Análise de Mercado</title>
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
-      background: #0d1117;
+      background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
       color: white;
-      font-family: 'Segoe UI', sans-serif;
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 2rem;
+      padding: 1rem;
+      position: relative;
+      overflow-x: hidden;
     }
 
-    input {
-      padding: 1rem;
-      border-radius: 10px;
-      border: none;
-      font-size: 1rem;
-      width: 90%;
-      max-width: 500px;
-      margin-bottom: 1rem;
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 20% 20%, rgba(88, 166, 255, 0.1) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 80%, rgba(56, 189, 248, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 2rem;
+      position: relative;
+    }
+
+    .header h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #58a6ff, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 0 30px rgba(88, 166, 255, 0.3);
+    }
+
+    .header p {
+      color: #8b949e;
+      font-size: 1.1rem;
+      font-weight: 300;
+    }
+
+    .search-container {
+      position: relative;
+      width: 100%;
+      max-width: 600px;
+      margin-bottom: 2rem;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 1.25rem 1.5rem 1.25rem 3.5rem;
+      border-radius: 16px;
+      border: 2px solid #30363d;
+      background: rgba(22, 27, 34, 0.8);
+      backdrop-filter: blur(10px);
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: #58a6ff;
+      box-shadow: 0 0 0 4px rgba(88, 166, 255, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .search-input::placeholder {
+      color: #6e7681;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 1.2rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #6e7681;
+      font-size: 1.2rem;
+    }
+
+    .results-container {
+      width: 100%;
+      max-width: 1200px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1rem;
     }
 
     .card {
-      background: #161b22;
+      background: rgba(22, 27, 34, 0.9);
+      backdrop-filter: blur(20px);
       border: 1px solid #30363d;
-      border-radius: 12px;
-      padding: 1rem;
-      margin: 1rem;
-      width: 100%;
-      max-width: 600px;
+      border-radius: 20px;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #58a6ff, #38bdf8);
+      border-radius: 20px 20px 0 0;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      border-color: #58a6ff;
     }
 
     .card h2 {
-      margin: 0 0 0.5rem 0;
+      margin-bottom: 0.5rem;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #f0f6fc;
+    }
+
+    .card .symbol {
       color: #58a6ff;
+      font-weight: 700;
+      font-size: 1.1rem;
     }
 
-    .card span {
-      display: block;
-      margin-bottom: 0.25rem;
+    .card .exchange {
+      color: #8b949e;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      padding: 0.25rem 0.75rem;
+      background: rgba(48, 54, 61, 0.5);
+      border-radius: 20px;
+      display: inline-block;
     }
 
-    button {
-      padding: 0.5rem 1rem;
+    .btn {
+      padding: 0.75rem 1.5rem;
       margin-top: 1rem;
       border: none;
-      border-radius: 8px;
-      background: #238636;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #238636, #2ea043);
       color: white;
       cursor: pointer;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      width: 100%;
     }
 
-    button:hover {
-      background: #2ea043;
+    .btn:hover {
+      background: linear-gradient(135deg, #2ea043, #238636);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(35, 134, 54, 0.3);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-back {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      margin-bottom: 1rem;
+    }
+
+    .btn-back:hover {
+      background: linear-gradient(135deg, #8b5cf6, #6366f1);
+    }
+
+    .detail-card {
+      max-width: 800px;
+      margin: 0 auto;
+      grid-column: 1 / -1;
+    }
+
+    .price-section {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .price-item {
+      text-align: center;
+      padding: 1rem;
+      background: rgba(48, 54, 61, 0.3);
+      border-radius: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .price-item:hover {
+      background: rgba(48, 54, 61, 0.5);
+      transform: translateY(-2px);
+    }
+
+    .price-item .label {
+      color: #8b949e;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .price-item .value {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #f0f6fc;
+    }
+
+    .price-item .value.positive {
+      color: #56d364;
+    }
+
+    .price-item .value.negative {
+      color: #f85149;
+    }
+
+    .events-section {
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid #30363d;
+    }
+
+    .events-section h3 {
+      color: #58a6ff;
+      margin-bottom: 1rem;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .events-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .event-item {
+      background: rgba(48, 54, 61, 0.3);
+      padding: 1rem;
+      border-radius: 12px;
+      border-left: 3px solid #58a6ff;
+    }
+
+    .event-item .event-label {
+      color: #8b949e;
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+
+    .event-item .event-value {
+      color: #f0f6fc;
+      font-weight: 600;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 3rem;
+      color: #8b949e;
+      font-size: 1.1rem;
+    }
+
+    .loading::before {
+      content: '';
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #30363d;
+      border-top: 2px solid #58a6ff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 0.5rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .error {
+      text-align: center;
+      padding: 2rem;
+      color: #f85149;
+      background: rgba(248, 81, 73, 0.1);
+      border: 1px solid rgba(248, 81, 73, 0.3);
+      border-radius: 12px;
+      margin: 1rem 0;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: #8b949e;
+    }
+
+    .empty-state h3 {
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
     }
 
     ul {
-      padding-left: 1.2rem;
+      list-style: none;
+      padding: 0;
+    }
+
+    ul li {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid rgba(48, 54, 61, 0.5);
+      color: #f0f6fc;
+    }
+
+    ul li:last-child {
+      border-bottom: none;
+    }
+
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 2.5rem;
+      }
+      
+      .results-container {
+        grid-template-columns: 1fr;
+      }
+      
+      .price-section {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
   </style>
 </head>
 <body>
-  <h1>🔍 Nova Stocks</h1>
-  <input type="text" id="search" placeholder="Ex: Apple, Tesla, BCP..." />
-  <div id="results"></div>
+  <div class="header">
+    <h1>📈 Nova Stocks</h1>
+    <p>Análise completa de mercado em tempo real</p>
+  </div>
+
+  <div class="search-container">
+    <div class="search-icon">🔍</div>
+    <input 
+      type="text" 
+      id="search" 
+      class="search-input"
+      placeholder="Pesquisar ações... (ex: Apple, Tesla, BCP)"
+      autocomplete="off"
+    />
+  </div>
+
+  <div id="results" class="results-container"></div>
 
   <script>
     const API_BASE = 'https://nova-stock-price-finder.vercel.app/api/stocks';
@@ -75,80 +384,234 @@
     const results = document.getElementById('results');
 
     let debounce;
+    let currentView = 'search';
+
     input.addEventListener('input', () => {
       clearTimeout(debounce);
       const query = input.value.trim();
-      if (query.length < 2) return;
-      debounce = setTimeout(() => searchStocks(query), 400);
+      
+      if (query.length < 2) {
+        results.innerHTML = '';
+        return;
+      }
+      
+      debounce = setTimeout(() => searchStocks(query), 300);
+    });
+
+    // Add enter key support
+    input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        clearTimeout(debounce);
+        const query = input.value.trim();
+        if (query.length >= 2) {
+          searchStocks(query);
+        }
+      }
     });
 
     async function searchStocks(query) {
-      results.innerHTML = '🔄 A procurar...';
+      results.innerHTML = '<div class="loading">Procurando ações...</div>';
+      
       try {
         const res = await fetch(`${API_BASE}?query=${encodeURIComponent(query)}`);
+        if (!res.ok) throw new Error('Erro na pesquisa');
+        
         const data = await res.json();
+        
+        if (!Array.isArray(data) || data.length === 0) {
+          results.innerHTML = `
+            <div class="empty-state">
+              <h3>📭 Nenhuma ação encontrada</h3>
+              <p>Tente pesquisar com outros termos</p>
+            </div>
+          `;
+          return;
+        }
 
         results.innerHTML = '';
+        currentView = 'search';
+        
         data.forEach(stock => {
-          const div = document.createElement('div');
-          div.className = 'card';
-          div.innerHTML = `
-            <h2>${stock.symbol} - ${stock.name}</h2>
-            <span><strong>Exchange:</strong> ${stock.exchange}</span>
-            <button onclick="showDetails('${stock.symbol}')">Ver Detalhes</button>
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = `
+            <h2>
+              <span class="symbol">${stock.symbol}</span>
+              ${stock.name}
+            </h2>
+            <div class="exchange">${stock.exchange}</div>
+            <button class="btn" onclick="showDetails('${stock.symbol}')">
+              📊 Ver Análise Completa
+            </button>
           `;
-          results.appendChild(div);
+          results.appendChild(card);
         });
       } catch (err) {
-        results.innerHTML = '❌ Erro ao procurar ações';
-        console.error(err);
+        console.error('Search error:', err);
+        results.innerHTML = `
+          <div class="error">
+            ❌ Erro ao pesquisar ações. Tente novamente.
+          </div>
+        `;
       }
     }
 
     function formatDate(iso) {
-      if (!iso) return '—';
-      const d = new Date(iso);
-      return d.toLocaleDateString('pt-PT');
+      if (!iso) return 'Não disponível';
+      try {
+        const date = new Date(iso);
+        return date.toLocaleDateString('pt-PT', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        });
+      } catch {
+        return 'Data inválida';
+      }
+    }
+
+    function formatNumber(num) {
+      if (num === null || num === undefined) return '—';
+      if (typeof num !== 'number') return num;
+      
+      if (num >= 1e12) return (num / 1e12).toFixed(2) + 'T';
+      if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+      if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+      if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
+      
+      return num.toLocaleString('pt-PT', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    function formatPercentage(num) {
+      if (num === null || num === undefined) return '—';
+      const formatted = num.toFixed(2);
+      const sign = num >= 0 ? '+' : '';
+      return `${sign}${formatted}%`;
     }
 
     async function showDetails(symbol) {
-      results.innerHTML = '📊 A obter dados da ação...';
+      results.innerHTML = '<div class="loading">Carregando análise detalhada...</div>';
+      currentView = 'details';
+      
       try {
         const [quoteRes, eventRes] = await Promise.all([
           fetch(`${API_BASE}?symbol=${symbol}`),
           fetch(`${API_BASE}?symbol=${symbol}&events=1`)
         ]);
+
+        if (!quoteRes.ok || !eventRes.ok) {
+          throw new Error('Erro ao carregar dados');
+        }
+
         const quote = await quoteRes.json();
         const events = await eventRes.json();
 
+        const changeClass = quote.changePercent >= 0 ? 'positive' : 'negative';
+        
         const earningsList = Array.isArray(events.earningsDate)
-          ? events.earningsDate.map(e => `<li>${formatDate(e)}</li>`).join('')
-          : `<li>${formatDate(events.earningsDate)}</li>`;
+          ? events.earningsDate.map(date => `<li>${formatDate(date)}</li>`).join('')
+          : events.earningsDate 
+            ? `<li>${formatDate(events.earningsDate)}</li>`
+            : '<li>Sem datas disponíveis</li>';
 
         const card = document.createElement('div');
-        card.className = 'card';
+        card.className = 'card detail-card';
         card.innerHTML = `
-          <h2>${quote.name} (${quote.symbol})</h2>
-          <span><strong>Preço:</strong> $${quote.price}</span>
-          <span><strong>Variação:</strong> ${quote.changePercent.toFixed(2)}%</span>
-          <span><strong>Volume:</strong> ${quote.volume.toLocaleString()}</span>
-          <span><strong>Capitalização:</strong> ${quote.marketCap?.toLocaleString() ?? '-'}</span>
-          <span><strong>PE Futuro:</strong> ${quote.forwardPE ?? '-'}</span>
-          <span><strong>Preço/Vendas:</strong> ${quote.forwardSales ?? '-'}</span>
-          <hr>
-          <h3>📅 Eventos Financeiros</h3>
-          <span><strong>Próximos Earnings:</strong></span>
-          <ul>${earningsList || '<li>Sem datas disponíveis</li>'}</ul>
-          <span><strong>Ex-Dividendo:</strong> ${formatDate(events.exDividendDate)}</span>
-          <span><strong>Data de Pagamento:</strong> ${formatDate(events.dividendDate)}</span>
+          <button class="btn btn-back" onclick="goBack()">
+            ← Voltar à Pesquisa
+          </button>
+          
+          <h2>
+            <span class="symbol">${quote.symbol}</span>
+            ${quote.name}
+          </h2>
+          
+          <div class="price-section">
+            <div class="price-item">
+              <div class="label">Preço Atual</div>
+              <div class="value">$${formatNumber(quote.price)}</div>
+            </div>
+            <div class="price-item">
+              <div class="label">Variação</div>
+              <div class="value ${changeClass}">
+                ${formatPercentage(quote.changePercent)}
+              </div>
+            </div>
+            <div class="price-item">
+              <div class="label">Volume</div>
+              <div class="value">${formatNumber(quote.volume)}</div>
+            </div>
+            <div class="price-item">
+              <div class="label">Market Cap</div>
+              <div class="value">$${formatNumber(quote.marketCap)}</div>
+            </div>
+            <div class="price-item">
+              <div class="label">P/E Futuro</div>
+              <div class="value">${quote.forwardPE ?? '—'}</div>
+            </div>
+            <div class="price-item">
+              <div class="label">P/S Futuro</div>
+              <div class="value">${quote.forwardSales ?? '—'}</div>
+            </div>
+          </div>
+
+          <div class="events-section">
+            <h3>📅 Eventos Financeiros</h3>
+            <div class="events-grid">
+              <div class="event-item">
+                <div class="event-label">Próximos Earnings</div>
+                <div class="event-value">
+                  <ul>${earningsList}</ul>
+                </div>
+              </div>
+              <div class="event-item">
+                <div class="event-label">Ex-Dividendo</div>
+                <div class="event-value">${formatDate(events.exDividendDate)}</div>
+              </div>
+              <div class="event-item">
+                <div class="event-label">Pagamento Dividendo</div>
+                <div class="event-value">${formatDate(events.dividendDate)}</div>
+              </div>
+            </div>
+          </div>
         `;
+        
         results.innerHTML = '';
         results.appendChild(card);
+        
+        // Smooth scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        
       } catch (err) {
-        results.innerHTML = '❌ Erro ao obter detalhes';
-        console.error(err);
+        console.error('Details error:', err);
+        results.innerHTML = `
+          <div class="error">
+            ❌ Erro ao carregar detalhes da ação. Tente novamente.
+            <button class="btn btn-back" onclick="goBack()" style="margin-top: 1rem;">
+              ← Voltar à Pesquisa
+            </button>
+          </div>
+        `;
       }
     }
+
+    function goBack() {
+      currentView = 'search';
+      const query = input.value.trim();
+      if (query.length >= 2) {
+        searchStocks(query);
+      } else {
+        results.innerHTML = '';
+      }
+    }
+
+    // Focus on search input when page loads
+    window.addEventListener('load', () => {
+      input.focus();
+    });
   </script>
 </body>
 </html>
