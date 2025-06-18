@@ -1,79 +1,163 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Advanced Cheap Stocks Analyzer</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="app.css">
-<link rel="icon" href="/favicon.ico">
+  <meta charset="UTF-8">
+  <title>Advanced Cheap Stocks Analyzer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="app.css">
+  <style>
+    /* TikTok-style navigation */
+    .main-nav ul {
+      list-style: none;
+      display: flex;
+      gap: 1.5rem;
+      margin: 0;
+      padding: 0;
+      background: #000;
+      border-radius: 0.5rem;
+    }
+    .main-nav a {
+      display: block;
+      padding: 0.75rem 1.25rem;
+      color: #fff;
+      text-decoration: none;
+      font-weight: 600;
+      position: relative;
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+    .main-nav a:hover,
+    .main-nav a.active {
+      color: #69C9D0;
+      transform: scale(1.05);
+    }
+    .main-nav a::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      width: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #FE2C55, #69C9D0);
+      border-radius: 2px;
+      transition: width 0.3s ease, left 0.3s ease;
+    }
+    .main-nav a:hover::after,
+    .main-nav a.active::after {
+      width: 60%;
+      left: 20%;
+    }
+    header.header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: #fff;
+      border-bottom: 1px solid #e5e5e5;
+      border-radius: 0 0 1rem 1rem;
+      margin-bottom: 2rem;
+    }
+    .logo-title h1 {
+      margin: 0;
+      font-size: 2rem;
+      color: #111;
+    }
+    .logo-title p {
+      margin: 0.25rem 0 0;
+      color: #555;
+    }
+    @media (max-width: 768px) {
+      .main-nav ul {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      header.header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+    }
+  </style>
+  <link rel="icon" href="/favicon.ico">
 </head>
 <body>
-<div class="container">
-  <!-- Header -->
-  <div class="header">
-    <h1>📊 Advanced Cheap Stocks Analyzer</h1>
-    <p>Filter undervalued opportunities by price, exchange and fundamentals</p>
-  </div>
-
-  <div class="content">
-    <!-- Filters -->
-    <div class="controls-grid">
-      <div class="control-card">
-        <h3>💰 Price Range</h3>
-        <div class="row"><label>Max ($)</label><input type="range" id="maxPriceSlider" min="1" max="20" value="5" oninput="syncSlider()"><span id="maxPriceVal">5</span></div>
-        <div class="row"><label>Min ($)</label><input type="number" id="minPrice" value="0.10" min="0" step="0.01"></div>
+  <div class="container">
+    <!-- Header with Navigation Menu -->
+    <header class="header">
+      <div class="logo-title">
+        <h1>📊 Advanced Cheap Stocks Analyzer</h1>
+        <p>Filter undervalued opportunities by price, exchange and fundamentals</p>
       </div>
+      <nav class="main-nav">
+        <ul>
+          <li><a href="index.html" class="active">Home</a></li>
+          <li><a href="zack.html">Zack Analisys</a></li>
+          <li><a href="stocks.html">Stocks List</a></li>
+          <li><a href="stocks.html">Stock Analysis Tool</a></li>
+          <li><a href="#about">About</a></li>
+        </ul>
+      </nav>
+    </header>
 
-      <div class="control-card">
-        <h3>📈 Volume & Cap</h3>
-        <div class="row"><label>Min Vol</label><input type="number" id="minVolume" value="100000" step="1000"></div>
-        <div class="row"><label>Market Cap</label>
-          <select id="marketCap">
-            <option value="">All</option><option value="micro">Micro &lt;$300M</option>
-            <option value="small">Small $300M–$2B</option><option value="mid">Mid $2B–$10B</option>
-          </select>
+    <div class="content" id="filters">
+      <!-- Filters -->
+      <div class="controls-grid">
+        <div class="control-card">
+          <h3>💰 Price Range</h3>
+          <div class="row"><label>Max ($)</label><input type="range" id="maxPriceSlider" min="1" max="20" value="5" oninput="syncSlider()"><span id="maxPriceVal">5</span></div>
+          <div class="row"><label>Min ($)</label><input type="number" id="minPrice" value="0.10" min="0" step="0.01"></div>
         </div>
-      </div>
 
-      <div class="control-card">
-        <h3>🎯 Quality & Risk</h3>
-        <div class="row"><label>Min Score</label>
-          <select id="minScore">
-            <option value="0">All</option><option value="6">≥6</option><option value="7">≥7</option><option value="8">≥8</option>
-          </select>
+        <div class="control-card">
+          <h3>📈 Volume & Cap</h3>
+          <div class="row"><label>Min Vol</label><input type="number" id="minVolume" value="100000" step="1000"></div>
+          <div class="row"><label>Market Cap</label>
+            <select id="marketCap">
+              <option value="">All</option><option value="micro">Micro &lt;$300M</option>
+              <option value="small">Small $300M–$2B</option><option value="mid">Mid $2B–$10B</option>
+            </select>
+          </div>
         </div>
-        <div class="row"><label>Risk</label>
-          <select id="riskLevel">
-            <option value="">All</option><option value="Low">Low</option><option value="Medium">≤Medium</option>
-          </select>
-        </div>
-      </div>
 
-      <div class="control-card">
-        <h3>🌐 Exchange</h3>
-        <div class="row"><label>Market</label>
-          <select id="exchange">
-            <option value="">All</option><option value="Nasdaq">NASDAQ</option><option value="NYSE">NYSE</option>
-            <option value="NYSEArca">NYSE Arca</option><option value="AMEX">AMEX</option><option value="TSX">TSX</option>
-          </select>
+        <div class="control-card">
+          <h3>🎯 Quality & Risk</h3>
+          <div class="row"><label>Min Score</label>
+            <select id="minScore">
+              <option value="0">All</option><option value="6">≥6</option><option value="7">≥7</option><option value="8">≥8</option>
+            </select>
+          </div>
+          <div class="row"><label>Risk</label>
+            <select id="riskLevel">
+              <option value="">All</option><option value="Low">Low</option><option value="Medium">≤Medium</option>
+            </select>
+          </div>
         </div>
-        <div style="margin-top:1.3rem">
-          <button class="btn secondary" onclick="applyFilters()">Apply Filters</button>
-          <button class="btn primary" style="margin-left:.4rem" onclick="resetFilters()">Reset</button>
+
+        <div class="control-card">
+          <h3>🌐 Exchange</h3>
+          <div class="row"><label>Market</label>
+            <select id="exchange">
+              <option value="">All</option><option value="Nasdaq">NASDAQ</option><option value="NYSE">NYSE</option>
+              <option value="NYSEArca">NYSE Arca</option><option value="AMEX">AMEX</option><option value="TSX">TSX</option>
+            </select>
+          </div>
+          <div style="margin-top:1.3rem">
+            <button class="btn secondary" onclick="applyFilters()">Apply Filters</button>
+            <button class="btn primary" style="margin-left:.4rem" onclick="resetFilters()">Reset</button>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Stats -->
-    <div class="stats">
+    <section class="stats" id="stats">
       <div class="stat"><span class="stat-number" id="totalStocks">0</span><span class="stat-label">Matches</span></div>
       <div class="stat"><span class="stat-number" id="avgPrice">$0.00</span><span class="stat-label">Avg Price</span></div>
       <div class="stat"><span class="stat-number" id="avgScore">0.0</span><span class="stat-label">Avg Score</span></div>
       <div class="stat"><span class="stat-number" id="highQualityCount">0</span><span class="stat-label">Score ≥7</span></div>
-    </div>
+    </section>
 
     <!-- Table -->
-    <div class="table-wrap">
+    <div class="table-wrap" id="table">
       <table id="stocksTable">
         <thead>
           <tr>
@@ -91,9 +175,8 @@
         <tbody></tbody>
       </table>
     </div>
+
   </div>
-</div>
-<!-- ——— SCRIPT ——— -->
-<script src="app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
