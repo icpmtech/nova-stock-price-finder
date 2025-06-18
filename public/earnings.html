@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -14,6 +15,7 @@
       align-items: center;
       padding: 2rem;
     }
+
     input {
       padding: 1rem;
       border-radius: 10px;
@@ -23,6 +25,7 @@
       max-width: 500px;
       margin-bottom: 1rem;
     }
+
     .card {
       background: #161b22;
       border: 1px solid #30363d;
@@ -32,14 +35,17 @@
       width: 100%;
       max-width: 600px;
     }
+
     .card h2 {
       margin: 0 0 0.5rem 0;
       color: #58a6ff;
     }
+
     .card span {
       display: block;
       margin-bottom: 0.25rem;
     }
+
     button {
       padding: 0.5rem 1rem;
       margin-top: 1rem;
@@ -49,8 +55,13 @@
       color: white;
       cursor: pointer;
     }
+
     button:hover {
       background: #2ea043;
+    }
+
+    ul {
+      padding-left: 1.2rem;
     }
   </style>
 </head>
@@ -60,7 +71,7 @@
   <div id="results"></div>
 
   <script>
-    const API_BASE = '/api/stocks';
+    const API_BASE = 'https://nova-stock-price-finder.vercel.app/api/stocks';
     const input = document.getElementById('search');
     const results = document.getElementById('results');
 
@@ -95,6 +106,12 @@
       }
     }
 
+    function formatDate(iso) {
+      if (!iso) return '—';
+      const d = new Date(iso);
+      return d.toLocaleDateString('pt-PT');
+    }
+
     async function showDetails(symbol) {
       results.innerHTML = '📊 A obter dados da ação...';
       try {
@@ -104,6 +121,10 @@
         ]);
         const quote = await quoteRes.json();
         const events = await eventRes.json();
+
+        const earningsList = (events.earningsDate || [])
+          .map(e => `<li>${formatDate(e)}</li>`)
+          .join('');
 
         const card = document.createElement('div');
         card.className = 'card';
@@ -116,16 +137,11 @@
           <span><strong>PE Futuro:</strong> ${quote.forwardPE ?? '-'}</span>
           <span><strong>Preço/Vendas:</strong> ${quote.forwardSales ?? '-'}</span>
           <hr>
-          <h3>📅 Eventos</h3>
-          <span><strong>Próximo Earnings:</strong> ${
-            events.earningsDate?.[0]?.fmt ?? '—'
-          }</span>
-          <span><strong>Ex-Dividendo:</strong> ${
-            events.exDividendDate?.fmt ?? '—'
-          }</span>
-          <span><strong>Data de Pagamento:</strong> ${
-            events.dividendDate?.fmt ?? '—'
-          }</span>
+          <h3>📅 Eventos Financeiros</h3>
+          <span><strong>Próximos Earnings:</strong></span>
+          <ul>${earningsList || '<li>Sem datas disponíveis</li>'}</ul>
+          <span><strong>Ex-Dividendo:</strong> ${formatDate(events.exDividendDate)}</span>
+          <span><strong>Data de Pagamento:</strong> ${formatDate(events.dividendDate)}</span>
         `;
         results.innerHTML = '';
         results.appendChild(card);
