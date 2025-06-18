@@ -92,7 +92,7 @@
               <div class="metric-value text-xl font-bold mt-1" id="price">-</div>
             </div>
             <div class="metric-card bg-gray-50 p-4 rounded shadow">
-              <div class="metric-label font-medium" id="#lblChange">📈 Variação %</div>
+              <div class="metric-label font-medium" id="lblChange">📈 Variação %</div>
               <div class="metric-value text-xl font-bold mt-1" id="changePercent">-</div>
             </div>
             <div class="metric-card bg-gray-50 p-4 rounded shadow">
@@ -101,7 +101,7 @@
             </div>
             <div class="metric-card bg-gray-50 p-4 rounded shadow">
               <div class="metric-label font-medium" id="lblMarketCap">🏢 Market Cap</div>
-              <div class="metric-value text-xl font-bold mt-1" id="#marketCap">-</div>
+              <div class="metric-value text-xl font-bold mt-1" id="marketCap">-</div>
             </div>
             <div class="metric-card bg-gray-50 p-4 rounded shadow">
               <div class="metric-label font-medium" id="lblFPE">🔮 PE (Forward)</div>
@@ -127,19 +127,14 @@
       </div>
     </div>
   </main>
-  <footer class="bg-white mt-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <!-- Footer content here... reuse Tailwind classes as needed -->
-      <p class="text-center text-gray-500">© <script>document.write(new Date().getFullYear());</script> cantinhodedotnet. Made with ❤️ for a better web.</p>
-    </div>
-  </footer>
+
   <!-- Translation + initialization script -->
   <script>
     const t9n={ pt:{ mainTitle:"📈 Análise Zacks", subTitle:"Análise profissional de ações baseada no framework Zacks", tickerLabel:"🎯 Ticker da Ação", tickerPlaceholder:"Digite o ticker (ex: AAPL, TSLA, VALE)", analyzeBtn:"Analisar", resultsHeader:"📊 Resultados da Análise", metrics:{price:"💰 Preço Atual",change:"📈 Variação %",volume:"📊 Volume",mcap:"🏢 Market Cap",fpe:"🔮 PE (Forward)",fsales:"💼 Sales (Forward)"}, zacksRank:"Zacks Rank", valuationHeading:"🎯 Análise de Valuation" }, en:{ mainTitle:"📈 Zacks Analysis", subTitle:"Professional stock analysis based on the Zacks framework", tickerLabel:"🎯 Stock Ticker", tickerPlaceholder:"Enter ticker (e.g. AAPL, TSLA, VALE)", analyzeBtn:"Analyze", resultsHeader:"📊 Analysis Results", metrics:{price:"💰 Current Price",change:"📈 Change %",volume:"📊 Volume",mcap:"🏢 Market Cap",fpe:"🔮 Forward P/E",fsales:"💼 Forward Sales"}, zacksRank:"Zacks Rank", valuationHeading:"🎯 Valuation Analysis" } };
     let currentLang=localStorage.getItem("lang")||"pt";
     const qs=s=>document.querySelector(s);
     function setLang(lang){ currentLang=lang;localStorage.setItem("lang",lang);document.documentElement.lang=lang;applyT9n(); document.querySelectorAll(".lang-switcher button").forEach(b=>b.classList.toggle("active",b.dataset.lang===lang)); }
-    function applyT9n(){ const t=t9n[currentLang]; qs("#mainTitle").textContent=t.mainTitle; qs("#subTitle").textContent=t.subTitle; qs("#tickerLabel").textContent=t.tickerLabel; qs("#ticker").placeholder=t.tickerPlaceholder; qs("#btnText").textContent=t.analyzeBtn; qs("#resultsHeader").textContent=t.resultsHeader; qs("#lblPrice").textContent=t.metrics.price; qs("#lblChange").textContent=t.metrics.change; qs("#lblVolume").textContent=t.metrics.volume; qs("#lblMarketCap").textContent=t.metrics.mcap; qs("#lblFPE").textContent=t.metrics.fpe; qs("#lblFSales").textContent=t.metrics.fsales; qs("#rankTitle").textContent=t.zacksRank; qs("#valuationHeading").textContent=t.valuationHeading; }
+    function applyT9n(){ const t=t9n[currentLang]; qs("#mainTitle").textContent=t.mainTitle; qs("#subTitle").textContent=t.subTitle; qs("#tickerLabel").textContent=t.tickerLabel; qs("#ticker").placeholder=t.tickerPlaceholder; qs("#btnText").textContent=t.analyzeBtn; qs("#resultsHeader").textContent=t.resultsHeader; qs("#lblPrice").textContent=t.metrics.price; qs("#lblChange").textContent=t.metrics.change; qs("#lblVolume").textContent=t.metrics.volume; qs("#lblMarketCap").textContent=t.metrics.mcap; qs("#lblFPE").textContent=t.metrics.fpe; qs("#lblFSales").textContent=t.metrics.sales; qs("#rankTitle").textContent=t.zacksRank; qs("#valuationHeading`).textContent=t.valuationHeading; }
     document.addEventListener("DOMContentLoaded",()=>{ document.querySelectorAll(".lang-switcher button").forEach(btn=>btn.addEventListener("click",()=>setLang(btn.dataset.lang))); setLang(currentLang); });
   </script>
 
