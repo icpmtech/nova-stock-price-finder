@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -122,9 +121,9 @@
         const quote = await quoteRes.json();
         const events = await eventRes.json();
 
-        const earningsList = (events.earningsDate || [])
-          .map(e => `<li>${formatDate(e)}</li>`)
-          .join('');
+        const earningsList = Array.isArray(events.earningsDate)
+          ? events.earningsDate.map(e => `<li>${formatDate(e)}</li>`).join('')
+          : `<li>${formatDate(events.earningsDate)}</li>`;
 
         const card = document.createElement('div');
         card.className = 'card';
