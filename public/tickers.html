@@ -1,0 +1,88 @@
+<!DOCTYPE html><html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nova Stocks | Análise</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { background: #0d1117; color: white; font-family: 'Inter', sans-serif; padding: 2rem; }
+    h1 { color: #58a6ff; font-size: 2.5rem; text-align: center; margin-bottom: 2rem; }
+    input { width: 100%; max-width: 600px; padding: 1rem; border-radius: 12px; border: 1px solid #30363d; background: #161b22; color: white; font-size: 1rem; margin-bottom: 2rem; display: block; margin-left: auto; margin-right: auto; }
+    .card { background: #161b22; border: 1px solid #30363d; border-radius: 16px; padding: 1.5rem; margin: 1rem auto; max-width: 800px; }
+    .symbol { font-weight: bold; color: #58a6ff; font-size: 1.2rem; }
+    .logo { max-width: 80px; border-radius: 8px; margin-bottom: 1rem; }
+    .description { color: #8b949e; margin-bottom: 1rem; }
+    .stats, .events { margin-top: 1rem; }
+    .label { color: #8b949e; font-size: 0.9rem; }
+    .value { font-size: 1.1rem; font-weight: 600; }
+    ul { padding-left: 1.2rem; }
+    li { margin-bottom: 0.3rem; }
+  </style>
+</head>
+<body>
+  <h1>📈 Nova Stocks</h1>
+  <input type="text" id="search" placeholder="Pesquisar Ações (ex: Apple, Tesla, BCP)...">
+  <div id="result"></div>  <script>
+    const API_BASE = 'https://nova-stock-price-finder.vercel.app/api/stocks';
+    const result = document.getElementById('result');
+    const input = document.getElementById('search');
+
+    input.addEventListener('keypress', e => {
+      if (e.key === 'Enter') searchStock();
+    });
+
+    async function searchStock() {
+      const query = input.value.trim();
+      if (!query) return;
+      result.innerHTML = '🔄 A procurar...';
+
+      try {
+        const res = await fetch(`${API_BASE}?query=${encodeURIComponent(query)}`);
+        const data = await res.json();
+        if (!data.length) return result.innerHTML = '❌ Nenhuma ação encontrada';
+
+        const symbol = data[0].symbol;
+        const [quote, events] = await Promise.all([
+          fetch(`${API_BASE}?symbol=${symbol}`).then(r => r.json()),
+          fetch(`${API_BASE}?symbol=${symbol}&events=1`).then(r => r.json())
+        ]);
+
+        const wikiName = encodeURIComponent(quote.name.replace(/\s+/g, '_'));
+        const wiki = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${wikiName}`).then(r => r.ok ? r.json() : {});
+
+        const logo = wiki?.thumbnail?.source;
+        const desc = wiki?.extract || 'Descrição indisponível';
+
+        const earnings = Array.isArray(events.earningsDate)
+          ? events.earningsDate.map(e => `<li>${new Date(e).toLocaleDateString('pt-PT')}</li>`).join('')
+          : `<li>${new Date(events.earningsDate).toLocaleDateString('pt-PT')}</li>`;
+
+        result.innerHTML = `
+          <div class="card">
+            ${logo ? `<img class="logo" src="${logo}" alt="Logo">` : ''}
+            <div class="symbol">${quote.symbol} - ${quote.name}</div>
+            <div class="description">${desc}</div>
+            <div class="stats">
+              <div><span class="label">Preço:</span> <span class="value">$${quote.price}</span></div>
+              <div><span class="label">Variação:</span> <span class="value">${quote.changePercent.toFixed(2)}%</span></div>
+              <div><span class="label">Volume:</span> <span class="value">${quote.volume.toLocaleString()}</span></div>
+              <div><span class="label">Market Cap:</span> <span class="value">$${quote.marketCap.toLocaleString()}</span></div>
+            </div>
+            <div class="events">
+              <h3>📅 Eventos</h3>
+              <div><span class="label">Earnings:</span><ul>${earnings}</ul></div>
+              <div><span class="label">Ex-Dividendo:</span> <span class="value">${new Date(events.exDividendDate).toLocaleDateString('pt-PT')}</span></div>
+              <div><span class="label">Pagamento:</span> <span class="value">${new Date(events.dividendDate).toLocaleDateString('pt-PT')}</span></div>
+            </div>
+          </div>
+        `;
+
+      } catch (err) {
+        console.error(err);
+        result.innerHTML = '❌ Erro ao obter dados.';
+      }
+    }
+  </script></body>
+</html>
