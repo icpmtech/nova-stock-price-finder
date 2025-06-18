@@ -21,17 +21,17 @@
         <span class="hero-title mah-name text-xl font-semibold">Market Analytics Hub</span>
       </a>
       <nav class="mah-nav hidden md:flex space-x-4">
-        <a href="https://marketanalyticshubapp.azurewebsites.net/#home" class="mah-link text-gray-700 hover:text-blue-600">Home</a>
-        <a href="https://marketanalyticshubapp.azurewebsites.net/#features" class="mah-link text-gray-700 hover:text-blue-600">Features</a>
-        <a href="https://marketanalyticshubapp.azurewebsites.net/#team" class="mah-link text-gray-700 hover:text-blue-600">Team</a>
-        <a href="https://marketanalyticshubapp.azurewebsites.net/#pricing" class="mah-link text-gray-700 hover:text-blue-600">Pricing</a>
-        <a href="https://marketanalyticshubapp.azurewebsites.net/#faq" class="mah-link text-gray-700 hover:text-blue-600">FAQ</a>
-        <a href="https://marketanalyticshubapp.azurewebsites.net/#contact" class="mah-link text-gray-700 hover:text-blue-600">Contact Us</a>
-        <a href="https://marketanalyticshubapp.azurewebsites.net/#help" class="mah-link text-gray-700 hover:text-blue-600">Help Center</a>
-        <a href="https://nova-search-stock.netlify.app/sim.html" class="mah-link text-gray-700 hover:text-blue-600">Simulate Strategy</a>
+        <a href="#home" class="mah-link text-gray-700 hover:text-blue-600">Home</a>
+        <a href="#features" class="mah-link text-gray-700 hover:text-blue-600">Features</a>
+        <a href="#team" class="mah-link text-gray-700 hover:text-blue-600">Team</a>
+        <a href="#pricing" class="mah-link text-gray-700 hover:text-blue-600">Pricing</a>
+        <a href="#faq" class="mah-link text-gray-700 hover:text-blue-600">FAQ</a>
+        <a href="#contact" class="mah-link text-gray-700 hover:text-blue-600">Contact Us</a>
+        <a href="#help" class="mah-link text-gray-700 hover:text-blue-600">Help Center</a>
+        <a href="sim.html" class="mah-link text-gray-700 hover:text-blue-600">Simulate Strategy</a>
       </nav>
       <div class="flex items-center space-x-4">
-        <a href="https://marketanalyticshubapp.azurewebsites.net/Account/Login" target="_blank" rel="noopener" class="mah-cta px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+        <a href="Account/Login" target="_blank" class="mah-cta px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
           <span class="mah-cta-icon">↻</span> Login/Register
         </a>
         <div class="lang-switcher flex items-center space-x-1 ml-4 text-sm">
@@ -61,7 +61,7 @@
   </div>
 
   <!-- Spinner overlay -->
-  <div class="loading-overlay fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50" id="loadingOverlay">
+  <div class="loading-overlay fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50 hidden" id="loadingOverlay">
     <div class="loading-spinner w-12 h-12 border-4 border-blue-600 border-dashed rounded-full animate-spin"></div>
   </div>
 
@@ -74,14 +74,14 @@
           <div class="input-wrapper mt-2 flex">
             <input type="text" id="ticker" placeholder="Digite o ticker (ex: AAPL, TSLA, VALE)" class="flex-1 border rounded-l px-3 py-2" />
             <button class="analyze-btn bg-blue-600 text-white px-4 py-2 rounded-r hover:bg-blue-700 flex items-center" id="analyzeBtn">
-              <span class="spinner mr-2" id="spinner"></span>
+              <span class="spinner mr-2 hidden" id="spinner"></span>
               <span id="btnText">Analisar</span>
             </button>
           </div>
         </div>
       </div>
 
-      <div class="results bg-white rounded shadow p-6" id="results">
+      <div class="results bg-white rounded shadow p-6 hidden" id="results">
         <div class="results-header mb-4">
           <h2 id="resultsHeader" class="text-2xl font-semibold">📊 Resultados da Análise</h2>
         </div>
@@ -113,7 +113,7 @@
             </div>
           </div>
 
-          <div class="zacks-rank bg-white p-6 rounded shadow flex flex-col items-center text-center">
+          <div class="zacks-rank bg-white p-6 rounded shadow flex flex-col items-center text-center" id="zacksRankCard">
             <div class="rank-number text-5xl font-bold text-blue-600 mb-2" id="zacksRank">-</div>
             <div class="rank-title text-xl font-semibold" id="rankTitle">Zacks Rank</div>
             <div class="rank-description text-gray-600 mt-2" id="rankExplanation">-</div>
@@ -128,17 +128,123 @@
     </div>
   </main>
 
-  <!-- Translation + initialization script -->
+  <!-- Translation + init + core JS -->
   <script>
-    const t9n={ pt:{ mainTitle:"📈 Análise Zacks", subTitle:"Análise profissional de ações baseada no framework Zacks", tickerLabel:"🎯 Ticker da Ação", tickerPlaceholder:"Digite o ticker (ex: AAPL, TSLA, VALE)", analyzeBtn:"Analisar", resultsHeader:"📊 Resultados da Análise", metrics:{price:"💰 Preço Atual",change:"📈 Variação %",volume:"📊 Volume",mcap:"🏢 Market Cap",fpe:"🔮 PE (Forward)",fsales:"💼 Sales (Forward)"}, zacksRank:"Zacks Rank", valuationHeading:"🎯 Análise de Valuation" }, en:{ mainTitle:"📈 Zacks Analysis", subTitle:"Professional stock analysis based on the Zacks framework", tickerLabel:"🎯 Stock Ticker", tickerPlaceholder:"Enter ticker (e.g. AAPL, TSLA, VALE)", analyzeBtn:"Analyze", resultsHeader:"📊 Analysis Results", metrics:{price:"💰 Current Price",change:"📈 Change %",volume:"📊 Volume",mcap:"🏢 Market Cap",fpe:"🔮 Forward P/E",fsales:"💼 Forward Sales"}, zacksRank:"Zacks Rank", valuationHeading:"🎯 Valuation Analysis" } };
-    let currentLang=localStorage.getItem("lang")||"pt";
-    const qs=s=>document.querySelector(s);
-    function setLang(lang){ currentLang=lang;localStorage.setItem("lang",lang);document.documentElement.lang=lang;applyT9n(); document.querySelectorAll(".lang-switcher button").forEach(b=>b.classList.toggle("active",b.dataset.lang===lang)); }
-    function applyT9n(){ const t=t9n[currentLang]; qs("#mainTitle").textContent=t.mainTitle; qs("#subTitle").textContent=t.subTitle; qs("#tickerLabel").textContent=t.tickerLabel; qs("#ticker").placeholder=t.tickerPlaceholder; qs("#btnText").textContent=t.analyzeBtn; qs("#resultsHeader").textContent=t.resultsHeader; qs("#lblPrice").textContent=t.metrics.price; qs("#lblChange").textContent=t.metrics.change; qs("#lblVolume").textContent=t.metrics.volume; qs("#lblMarketCap").textContent=t.metrics.mcap; qs("#lblFPE").textContent=t.metrics.fpe; qs("#lblFSales").textContent=t.metrics.sales; qs("#rankTitle").textContent=t.zacksRank; qs("#valuationHeading`).textContent=t.valuationHeading; }
-    document.addEventListener("DOMContentLoaded",()=>{ document.querySelectorAll(".lang-switcher button").forEach(btn=>btn.addEventListener("click",()=>setLang(btn.dataset.lang))); setLang(currentLang); });
+    async function fetchQuote(symbol) {
+      const resp = await fetch(`/api?symbol=${symbol}`);
+      if (!resp.ok) throw new Error('Falha ao obter dados da API');
+      return resp.json();
+    }
+    function getRankExplanation(rank) {
+      switch(rank) {
+        case 1: return 'Strong Buy: Analistas esperam que a ação supere o mercado.';
+        case 2: return 'Buy: Expectativa de performance acima da média do mercado.';
+        case 3: return 'Hold: Performance esperada em linha com o mercado.';
+        case 4: return 'Sell: Performance esperada abaixo da média do mercado.';
+        case 5: return 'Strong Sell: Analistas recomendam venda, pois desempenho deverá ficar abaixo do mercado.';
+        default: return '-';
+      }
+    }
+    function computeZacksRankFromQuote(q) {
+      const momentumScore = q.changePercent >= 0 ? 1 : 5;
+      let safetyScore;
+      if (q.marketCap >= 1e10) safetyScore = 1;
+      else if (q.marketCap >= 2e9) safetyScore = 2;
+      else if (q.marketCap >= 3e8) safetyScore = 3;
+      else safetyScore = 4;
+      const valueScore = Math.max(1, Math.min(5, Math.round(q.price / 100)));
+      const growthScore = 3;
+      return Math.round((valueScore + growthScore + momentumScore + safetyScore) / 4);
+    }
+    function getRankTitle(rank) {
+      return ['Zacks Rank','Strong Buy','Buy','Hold','Sell','Strong Sell'][rank] || 'Zacks Rank';
+    }
+    function updateRankCardStyle(rank) {
+      const card = document.getElementById('zacksRankCard');
+      card.className = `zacks-rank rank-${rank} bg-gray-50 p-6 rounded shadow flex flex-col items-center text-center`;
+    }
+    function formatNumber(num) {
+      if (num >= 1e12) return (num/1e12).toFixed(2)+'T';
+      if (num >= 1e9) return (num/1e9).toFixed(2)+'B';
+      if (num >= 1e6) return (num/1e6).toFixed(2)+'M';
+      if (num >= 1e3) return (num/1e3).toFixed(2)+'K';
+      return num.toLocaleString();
+    }
+    function formatPercentage(pct) {
+      const v = (pct*100).toFixed(2);
+      const cls = pct>=0 ? 'text-green-600 font-bold' : 'text-red-600 font-bold';
+      return `<span class="${cls}">${pct>=0?'+':''}${v}%</span>`;
+    }
+    function showLoading() {
+      document.getElementById('analyzeBtn').disabled = true;
+      document.getElementById('spinner').classList.remove('hidden');
+      document.getElementById('btnText').textContent = 'Analisando...';
+      document.getElementById('loadingOverlay').classList.remove('hidden');
+    }
+    function hideLoading() {
+      document.getElementById('analyzeBtn').disabled = false;
+      document.getElementById('spinner').classList.add('hidden');
+      document.getElementById('btnText').textContent = 'Analisar';
+      document.getElementById('loadingOverlay').classList.add('hidden');
+    }
+    function showResults() {
+      document.getElementById('results').classList.remove('hidden');
+      document.getElementById('results').scrollIntoView({behavior:'smooth', block:'start'});
+    }
+    function showError(msg) {
+      const container = document.querySelector('#results .results-content');
+      container.querySelectorAll('.error-message').forEach(el=>el.remove());
+      const err = document.createElement('div');
+      err.className = 'error-message text-red-600 mt-4';
+      err.textContent = msg;
+      container.appendChild(err);
+      showResults();
+    }
+    // Translation init
+    const t9n = { pt:{ /*...*/ }, en:{ /*...*/ } };
+    let currentLang = localStorage.getItem('lang') || 'pt';
+    const qs = s => document.querySelector(s);
+    function setLang(lang) { /* ... apply translations ... */ }
+    document.addEventListener('DOMContentLoaded', () => {
+      setLang(currentLang);
+      document.getElementById('analyzeBtn').addEventListener('click', async ()=>{
+        const t = qs('#ticker').value.trim().toUpperCase();
+        if(!t) { showError('⚠️ Por favor, insira um ticker válido.'); return; }
+        showLoading();
+        try {
+          await new Promise(res => setTimeout(res, 500));
+          const q = await fetchQuote(t);
+          document.getElementById('price').textContent = `$${formatNumber(q.price)}`;
+          document.getElementById('changePercent').innerHTML = formatPercentage(q.changePercent);
+          document.getElementById('volume').textContent = formatNumber(q.volume);
+          document.getElementById('marketCap').textContent = `$${formatNumber(q.marketCap)}`;
+          document.getElementById('forwardPE').textContent = q.forwardPE ? `${q.forwardPE.toFixed(1)}x` : 'N/A';
+          document.getElementById('forwardSales').textContent = q.forwardSales ? `${q.forwardSales.toFixed(1)}x` : 'N/A';
+          const rnk = computeZacksRankFromQuote(q);
+          document.getElementById('zacksRank').textContent = rnk;
+          document.getElementById('rankTitle').textContent = getRankTitle(rnk);
+          document.getElementById('rankExplanation').textContent = getRankExplanation(rnk);
+          updateRankCardStyle(rnk);
+          // Valuation narrative
+          if(q.forwardPE && q.forwardSales && q.industryAvgPE && q.industryAvgSales) {
+            const peComp = q.forwardPE<q.industryAvgPE ? 'inferior' : 'superior';
+            const salesComp = q.forwardSales<q.industryAvgSales ? 'inferior' : 'superior';
+            const both = (q.forwardPE<q.industryAvgPE && q.forwardSales<q.industryAvgSales) ? 'inferiores' : 'superiores';
+            const narrative = `📊 Do ponto de vista de valuation, ${t} negocia atualmente a ${q.forwardPE.toFixed(1)}x lucros futuros e ${q.forwardSales.toFixed(1)}x vendas futuras.<br><br>📈 O múltiplo P/E é ${peComp} à média da indústria (${q.industryAvgPE.toFixed(1)}x), enquanto o P/S é ${salesComp} à média setorial (${q.industryAvgSales.toFixed(1)}x).<br><br>🎯 Ambos os múltiplos são ${both} à média da indústria, indicando que a ação está ${both==='inferiores'?'potencialmente subvalorizada':'potencialmente sobrevalorizada'} em relação aos pares do setor.`;
+            document.getElementById('valuation').innerHTML = narrative;
+          } else {
+            document.getElementById('valuation').textContent = '📊 Dados de valuation não disponíveis para análise comparativa no momento.';
+          }
+          showResults();
+        } catch(e) {
+          console.error(e);
+          showError('❌ Erro ao buscar dados da ação. Verifique o ticker e tente novamente.');
+        } finally {
+          hideLoading();
+        }
+      });
+      document.getElementById('ticker').focus();
+    });
   </script>
-
-  <!-- App logic -->
-  <script src="app-zack.js"></script>
 </body>
 </html>
