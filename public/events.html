@@ -3,103 +3,53 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Nova Stocks Register + Eventos</title>
+  <title>Registo de Eventos de Stocks</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 text-gray-800">
-  <!-- Navbar -->
-  <header class="bg-white shadow">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-      <a href="/" class="flex items-center space-x-2">
-        <span class="text-2xl">📈</span>
-        <span class="text-lg font-semibold">Market Analytics Hub</span>
-      </a>
-      <nav class="hidden md:flex space-x-4">
-        <a href="index.html" class="text-blue-600 font-semibold">Home</a>
-        <a href="zack.html" class="text-gray-700 hover:text-blue-600">Zacks Analysis</a>
-        <a href="stocks.html" class="text-gray-700 hover:text-blue-600">Stocks List</a>
-        <a href="https://nova-search-stock.netlify.app/" class="text-gray-700 hover:text-blue-600">Simulate Strategy</a>
-      </nav>
-      <div class="flex items-center space-x-4">
-        <a href="Account/Login" target="_blank" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Login/Register</a>
-      </div>
-    </div>
-  </header>
-
-  <main class="max-w-3xl mx-auto p-6">
-    <!-- Cabeçalho -->
-    <div class="mb-6">
-      <h1 class="text-3xl font-bold">🔍 Nova Stock Search + Registo + Eventos</h1>
-      <p class="text-gray-600">Pesquisa, regista e acompanha eventos importantes das ações.</p>
-    </div>
+  <main class="max-w-2xl mx-auto p-6">
+    <h1 class="text-3xl font-bold mb-4">📅 Registo de Eventos de Ações</h1>
 
     <!-- Pesquisa -->
     <div class="mb-6">
-      <label class="block text-lg font-medium mb-2">Pesquisar Ação:
-        <input type="text" id="searchInput" placeholder="Escreve o nome ou símbolo da ação..." class="mt-1 block w-full border rounded p-2" />
-      </label>
+      <label class="block text-lg font-medium mb-2">Pesquisar Ticker:</label>
+      <input type="text" id="searchInput" placeholder="Ex: SMCI, EDP, NVDA..." class="w-full border p-2 rounded" />
       <ul id="results" class="bg-white border rounded mt-1 shadow p-2"></ul>
     </div>
 
-    <!-- Formulário -->
-    <form id="stockForm" class="space-y-4 bg-white p-6 rounded shadow">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <input type="text" id="ticker" placeholder="Ticker" required readonly class="border p-2 rounded bg-gray-100" />
-        <select id="tipo" class="border p-2 rounded">
-          <option value="Compra">🟢 Compra</option>
-          <option value="Venda">🔴 Venda</option>
-        </select>
-        <input type="number" id="quantidade" placeholder="Quantidade" min="1" required class="border p-2 rounded" />
-        <input type="number" id="preco" placeholder="Preço (€)" step="0.01" required class="border p-2 rounded" />
-        <input type="number" id="comissao" placeholder="Comissão (€)" step="0.01" required class="border p-2 rounded" />
-        <input type="date" id="data" required class="border p-2 rounded" />
-        <input type="text" id="industria" placeholder="Indústria" required class="border p-2 rounded" />
-      </div>
-      <textarea id="obs" rows="2" placeholder="Observações" class="border p-2 rounded w-full"></textarea>
-      <button type="submit" class="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700">💾 Guardar Registo</button>
+    <!-- Registo de Evento -->
+    <form id="eventForm" class="bg-white p-4 rounded shadow space-y-4">
+      <input type="text" id="title" placeholder="Título do Evento" class="w-full border p-2 rounded" required />
+      <input type="text" id="symbol" placeholder="Ticker da Ação" class="w-full border p-2 rounded bg-gray-100" required readonly />
+      <input type="date" id="date" class="w-full border p-2 rounded" required />
+      <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">💾 Guardar Evento</button>
     </form>
 
-    <!-- Histórico -->
+    <!-- Lista de Eventos -->
     <section class="mt-8">
-      <h2 class="text-2xl font-semibold mb-4">📑 Histórico</h2>
-      <div id="cardsContainer" class="space-y-4"></div>
-    </section>
-
-    <!-- Eventos -->
-    <section class="mt-8">
-      <h2 class="text-2xl font-semibold mb-4">📅 Eventos de Ações</h2>
+      <h2 class="text-2xl font-semibold mb-4">📑 Eventos Guardados</h2>
       <ul id="eventList" class="space-y-2 bg-white p-4 rounded shadow"></ul>
     </section>
   </main>
 
-  <footer class="bg-white mt-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <p class="text-center text-gray-500">© <script>document.write(new Date().getFullYear());</script> cantinhodedotnet. Made with ❤️</p>
-    </div>
-  </footer>
-
   <script>
-    const form = document.getElementById('stockForm');
-    const cardsContainer = document.getElementById('cardsContainer');
-    const results = document.getElementById('results');
-    const searchInput = document.getElementById('searchInput');
+    const searchInput = document.getElementById("searchInput");
+    const results = document.getElementById("results");
+    const eventForm = document.getElementById("eventForm");
+    const eventList = document.getElementById("eventList");
 
-    // Eventos fixos
-    const events = [
-      { title: "Earnings Call SMCI", symbol: "SMCI", date: "2025-08-06" },
-      { title: "Dividendos EDP", symbol: "EDP.LS", date: "2025-07-15" }
-    ];
+    const mockTickers = ["SMCI", "EDP", "NVDA", "AAPL", "GOOGL", "TSLA", "MSFT", "BABA", "NIO", "SOFI", "KO", "PFE"];
 
     function renderEvents() {
-      const list = document.getElementById("eventList");
-      list.innerHTML = "";
+      const events = JSON.parse(localStorage.getItem("stockEvents") || "[]");
       const today = new Date().toISOString().split("T")[0];
+      eventList.innerHTML = "";
 
-      events.filter(e => e.date >= today).forEach(e => {
+      events.filter(e => e.date >= today).forEach((e, index) => {
         const li = document.createElement("li");
         li.className = "border-b py-2";
         li.textContent = `${e.date} - ${e.title} (${e.symbol})`;
-        list.appendChild(li);
+        eventList.appendChild(li);
         scheduleNotification(e.title, e.date);
       });
     }
@@ -111,7 +61,7 @@
 
       if ("Notification" in window && delay > 0 && delay < 86400000) {
         setTimeout(() => {
-          new Notification("📢 Evento de Ação", {
+          new Notification("📢 Evento de Stock", {
             body: title,
             icon: "https://cdn-icons-png.flaticon.com/512/1170/1170627.png"
           });
@@ -125,47 +75,18 @@
       }
     }
 
-    function loadCards() {
-      const records = JSON.parse(localStorage.getItem("stockRecords") || "[]");
-      cardsContainer.innerHTML = "";
-      records.forEach((r, i) => {
-        const card = document.createElement("div");
-        card.className = "bg-gray-100 p-4 rounded shadow";
-        card.innerHTML = `<strong>${r.ticker}</strong> (${r.tipo}) - ${r.quantidade} ações a €${r.preco} + €${r.comissao} em ${r.data}<br><em>${r.industria}</em><br>${r.obs || ''}`;
-        cardsContainer.appendChild(card);
-      });
-    }
-
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const record = {
-        ticker: document.getElementById("ticker").value,
-        tipo: document.getElementById("tipo").value,
-        quantidade: document.getElementById("quantidade").value,
-        preco: document.getElementById("preco").value,
-        comissao: document.getElementById("comissao").value,
-        data: document.getElementById("data").value,
-        industria: document.getElementById("industria").value,
-        obs: document.getElementById("obs").value,
-      };
-      const records = JSON.parse(localStorage.getItem("stockRecords") || "[]");
-      records.push(record);
-      localStorage.setItem("stockRecords", JSON.stringify(records));
-      loadCards();
-      form.reset();
-    });
-
     searchInput.addEventListener("input", () => {
-      const query = searchInput.value.trim().toUpperCase();
+      const query = searchInput.value.toUpperCase();
       results.innerHTML = "";
+
       if (query.length >= 2) {
-        const filtered = events.filter(e => e.symbol.includes(query) || e.title.toUpperCase().includes(query));
-        filtered.forEach(f => {
+        const matches = mockTickers.filter(t => t.includes(query));
+        matches.forEach(ticker => {
           const li = document.createElement("li");
           li.className = "p-1 hover:bg-blue-100 cursor-pointer";
-          li.textContent = `${f.symbol} - ${f.title}`;
+          li.textContent = ticker;
           li.onclick = () => {
-            document.getElementById("ticker").value = f.symbol;
+            document.getElementById("symbol").value = ticker;
             results.innerHTML = "";
           };
           results.appendChild(li);
@@ -173,8 +94,21 @@
       }
     });
 
+    eventForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const title = document.getElementById("title").value;
+      const symbol = document.getElementById("symbol").value;
+      const date = document.getElementById("date").value;
+
+      const events = JSON.parse(localStorage.getItem("stockEvents") || "[]");
+      events.push({ title, symbol, date });
+      localStorage.setItem("stockEvents", JSON.stringify(events));
+
+      eventForm.reset();
+      renderEvents();
+    });
+
     document.addEventListener("DOMContentLoaded", () => {
-      loadCards();
       renderEvents();
       requestNotificationPermission();
     });
