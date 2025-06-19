@@ -21,7 +21,7 @@
 
   // Configuração padrão
   const CONFIG = {
-    apiKey: (window.AdvisorFinanceiroConfig && window.AdvisorFinanceiroConfig.apiKey) || 'demo-mode',
+    apiKey: (window.AdvisorFinanceiroConfig && window.AdvisorFinanceiroConfig.apiKey) || 'sk-2d250f34f19f4a1ba9cee69d541085cc',
     apiUrl: 'https://api.deepseek.com/v1/chat/completions',
     position: 'bottom-right', // bottom-right, bottom-left, top-right, top-left
     theme: 'dark', // dark, light
