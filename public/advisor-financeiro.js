@@ -25,10 +25,10 @@
 
 (function() {
   'use strict';
-
+const DEEPSEEK_API_KEY = 'sk-2d250f34f19f4a1ba9cee69d541085cc';
   // Configuração padrão
   const CONFIG = {
-    apiKey: (window.AdvisorFinanceiroConfig && window.AdvisorFinanceiroConfig.apiKey) || 'demo-mode',
+    apiKey: (window.AdvisorFinanceiroConfig && window.AdvisorFinanceiroConfig.apiKey) || DEEPSEEK_API_KEY,
     apiUrl: 'https://api.deepseek.com/v1/chat/completions',
     position: 'bottom-right', // bottom-right, bottom-left, top-right, top-left
     theme: 'dark', // dark, light
