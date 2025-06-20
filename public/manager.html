@@ -1,22 +1,25 @@
+
 <!DOCTYPE html>
 <html lang="pt">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Carteira Financeira</title>
+
+  <!-- Tailwind & Plotly -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
 </head>
 <body class="bg-gray-100 text-gray-900 font-sans pb-24">
 
-  <!-- Header -->
+  <!-- Header ------------------------------------------------------------->
   <header class="bg-white p-4 shadow-md flex items-center justify-between">
     <input type="text" placeholder="Buscar no Yahoo Finanças"
       class="w-full max-w-sm px-4 py-2 border border-gray-300 rounded-md" />
     <span class="ml-4 text-sm text-gray-500">📶 96%</span>
   </header>
 
-  <!-- Indicadores -->
+  <!-- Indicadores -------------------------------------------------------->
   <section class="p-4 bg-white shadow mt-2 flex flex-wrap gap-4 justify-between">
     <div class="flex flex-col items-center text-green-600">
       <span class="text-sm font-semibold">HANG SENG</span>
@@ -35,7 +38,7 @@
     </div>
   </section>
 
-  <!-- Gráfico com Plotly -->
+  <!-- Gráfico com Plotly ------------------------------------------------->
   <section class="p-4 bg-white mt-2 shadow">
     <h2 class="text-xl font-bold mb-1">Total da Carteira</h2>
     <p class="text-2xl font-semibold text-green-700">€28 570,53</p>
@@ -44,73 +47,95 @@
     <div id="plotlyChart" class="mt-4 h-64"></div>
   </section>
 
-  <!-- Lista de Ações -->
+  <!-- Lista de Ações ----------------------------------------------------->
   <section class="p-4 bg-white mt-2 shadow">
     <div class="flex justify-between items-center mb-2">
       <h2 class="text-lg font-semibold">Carteira</h2>
-      <button onclick="toggleModal(true)" class="bg-green-600 text-white px-3 py-1 rounded">+ Adicionar</button>
+      <button onclick="toggleModal(true)"
+              class="bg-green-600 text-white px-3 py-1 rounded">+ Adicionar</button>
     </div>
     <p class="text-sm text-green-700 mb-4">€28 577,61 +239,38 (+0,84%)</p>
-    <div id="stockList" class="divide-y divide-gray-200">
-      <!-- Stocks renderizados aqui -->
-    </div>
+
+    <!-- Render aqui -->
+    <div id="stockList" class="divide-y divide-gray-200"></div>
   </section>
 
-  <!-- Modal -->
-  <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+  <!-- Modal ------------------------------------------------------------->
+  <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 hidden
+                        items-center justify-center z-50">
     <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
       <h3 class="text-lg font-bold mb-4">Adicionar Ação</h3>
       <form id="stockForm">
-        <input id="symbol" type="text" placeholder="Símbolo" required class="w-full mb-2 p-2 border rounded" />
-        <input id="name" type="text" placeholder="Nome" required class="w-full mb-2 p-2 border rounded" />
-        <input id="price" type="number" step="0.01" placeholder="Preço" required class="w-full mb-2 p-2 border rounded" />
-        <input id="change" type="number" step="0.01" placeholder="Variação" required class="w-full mb-4 p-2 border rounded" />
+        <input id="symbol" type="text" placeholder="Símbolo" required
+               class="w-full mb-2 p-2 border rounded" />
+        <input id="name" type="text" placeholder="Nome" required
+               class="w-full mb-2 p-2 border rounded" />
+        <input id="price" type="number" step="0.01" placeholder="Preço" required
+               class="w-full mb-2 p-2 border rounded" />
+        <input id="change" type="number" step="0.01" placeholder="Variação" required
+               class="w-full mb-4 p-2 border rounded" />
         <div class="flex justify-end gap-2">
-          <button type="button" onclick="toggleModal(false)" class="px-4 py-2 bg-gray-300 rounded">Cancelar</button>
-          <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded">Salvar</button>
+          <button type="button" onclick="toggleModal(false)"
+                  class="px-4 py-2 bg-gray-300 rounded">Cancelar</button>
+          <button type="submit"
+                  class="px-4 py-2 bg-green-600 text-white rounded">Salvar</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- Footer -->
-  <footer class="fixed bottom-0 w-full bg-white shadow-inner flex justify-around py-2 text-sm">
+  <!-- Footer ------------------------------------------------------------->
+  <footer class="fixed bottom-0 w-full bg-white shadow-inner flex
+                 justify-around py-2 text-sm">
     <span class="text-green-700 font-bold">🏠 Página inic...</span>
     <span>📰 Notícias</span>
     <span>🌐 Mercados</span>
     <span>👤 Conta</span>
   </footer>
 
-  <!-- JS -->
+  <!-- Scripts ------------------------------------------------------------>
   <script>
-    const stockList = document.getElementById("stockList");
-    const modal = document.getElementById("modal");
-    const stockForm = document.getElementById("stockForm");
+    const stockList = document.getElementById('stockList');
+    const modal      = document.getElementById('modal');
+    const stockForm  = document.getElementById('stockForm');
 
     let stocks = [
-      { symbol: "KO", name: "Coca-Cola", price: 69.21, change: -0.41 },
-      { symbol: "EGL.LS", name: "MOTA ENGIL", price: 3.632, change: 0.01 }
+      { symbol: 'KO',     name: 'Coca-Cola', price: 69.21,  change: -0.41 },
+      { symbol: 'EGL.LS', name: 'MOTA ENGIL', price: 3.632, change:  0.01 },
     ];
 
+    /* ── Modal helpers ─────────────────────────────── */
     function toggleModal(show) {
-      modal.classList.toggle("hidden", !show);
+      modal.classList.toggle('hidden', !show);
       if (show) stockForm.reset();
     }
 
+    /* ── Render da lista com navegação ─────────────── */
     function renderStocks() {
-      stockList.innerHTML = "";
+      stockList.innerHTML = '';
       stocks.forEach((stock, index) => {
-        const row = document.createElement("div");
-        row.className = "flex justify-between py-2 items-center";
+        const row = document.createElement('div');
+        row.className =
+          'flex justify-between py-2 items-center cursor-pointer hover:bg-gray-50';
+        row.addEventListener('click', () => {
+          // Abre a página de detalhes passando ?symbol=...
+          window.location.href =
+            `stock-details.html?symbol=${encodeURIComponent(stock.symbol)}`;
+        });
+
         row.innerHTML = `
           <div>
             <p class="font-medium">${stock.symbol}</p>
             <p class="text-sm text-gray-600">${stock.name}</p>
           </div>
-          <div class="text-right ${stock.change >= 0 ? 'text-green-700' : 'text-red-600'}">
+          <div class="text-right ${stock.change >= 0 ? 'text-green-700'
+                                                     : 'text-red-600'}">
             <p class="font-semibold">${stock.price.toFixed(2)}</p>
             <p class="text-sm">${stock.change >= 0 ? '+' : ''}${stock.change.toFixed(2)}</p>
-            <button onclick="deleteStock(${index})" class="text-xs text-red-500">Remover</button>
+            <button class="text-xs text-red-500"
+                    onclick="event.stopPropagation(); deleteStock(${index})">
+              Remover
+            </button>
           </div>`;
         stockList.appendChild(row);
       });
@@ -121,36 +146,37 @@
       renderStocks();
     }
 
-    stockForm.addEventListener("submit", (e) => {
+    /* ── Form submit ───────────────────────────────── */
+    stockForm.addEventListener('submit', (e) => {
       e.preventDefault();
       const newStock = {
         symbol: stockForm.symbol.value.toUpperCase(),
-        name: stockForm.name.value,
-        price: parseFloat(stockForm.price.value),
-        change: parseFloat(stockForm.change.value)
+        name:   stockForm.name.value,
+        price:  parseFloat(stockForm.price.value),
+        change: parseFloat(stockForm.change.value),
       };
       stocks.push(newStock);
       toggleModal(false);
       renderStocks();
     });
 
-    // Gráfico Plotly
+    /* ── Plotly chart ──────────────────────────────── */
     Plotly.newPlot('plotlyChart', [{
       x: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
       y: [22000, 23800, 24900, 25600, 26200, 28570],
       type: 'scatter',
       mode: 'lines+markers',
       marker: { color: 'green' },
-      line: { width: 3 }
+      line:   { width: 3 },
     }], {
       margin: { t: 10, r: 10, l: 40, b: 30 },
-      xaxis: { title: 'Mês' },
-      yaxis: { title: 'Valor (€)' },
+      xaxis:  { title: 'Mês' },
+      yaxis:  { title: 'Valor (€)' },
       paper_bgcolor: '#ffffff',
-      plot_bgcolor: '#f9fafb'
+      plot_bgcolor:  '#f9fafb',
     }, { responsive: true });
 
-    // Inicialização
+    /* ── Init ─────────────────────────────────────── */
     renderStocks();
   </script>
 </body>
