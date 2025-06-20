@@ -1,89 +1,76 @@
-// /api/stock.js – Vercel Serverless Function // Ex.: https://your-project.vercel.app/api/stock?symbol=NOS.LS // ---------------------------------------------------------------------
 
-// (Em runtimes Node 18+ do Vercel o fetch global já existe; se usar //  uma versão mais antiga, descomente a linha abaixo.) // import fetch from 'node-fetch';
+// /api/stock.js – Vercel Serverless Function usando yahoo-finance2 // Rotas: //   • /api/stock?query=apple          → autocomplete (lista símbolos) //   • /api/stock?symbol=AAPL          → detalhe + médias de setor //   • /api/stock?max=5&min=0&cap=mid → listagem filtrada // --------------------------------------------------------------------- // Requer pnpm add yahoo-finance2 (ou npm/yarn equivalente)
 
-export default async function handler(req, res) { const { symbol = 'NOS.LS' } = req.query; const respondError = (msg, code = 500) => res.status(code).json({ error: msg });
+import yahooFinance from 'yahoo-finance2';
 
-// Converte epoch (s) → YYYY-MM-DD const toDate = (unix) => new Date(unix * 1000).toISOString().split('T')[0];
+// Tickers default para compor médias de setor / exemplo de universo const DEFAULT_STOCKS = [ 'SNDL', 'NOK', 'SOFI', 'PLTR', 'NIO', 'F', 'WISH', 'BBD', 'ITUB', 'VALE', 'KO', 'PFE', 'BAC', 'GE', 'T' ];
 
-try { // 1) Resumo, perfil e targets -------------------------------------- const summaryURL = https://query1.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(symbol)} + ?modules=price,summaryDetail,defaultKeyStatistics,financialData,assetProfile;
+// Utilitário para parse numérico seguro const toNum = (v, def = null) => { const n = parseFloat(v); return Number.isFinite(n) ? n : def; };
 
-const summaryJson = await fetch(summaryURL).then((r) => r.json());
-const summary = summaryJson.quoteSummary?.result?.[0];
-if (!summary) throw new Error('Yahoo summary returned no data');
+// Mapeia quote → objeto compacto const mapQuote = (q) => { const summary = q.summaryDetail || {}; const fin     = q.financialData || {}; return { symbol:        q.symbol, name:          q.shortName || q.longName || '', exchange:      q.fullExchangeName || q.exchangeName || '', price:         toNum(q.regularMarketPrice, 0), changePercent: toNum(q.regularMarketChangePercent, 0), volume:        toNum(q.regularMarketVolume, 0), marketCap:     toNum(q.marketCap, 0), currency:      q.currency || 'USD', forwardPE:     toNum(summary.forwardPE?.raw, null), forwardSales:  toNum(fin.priceToSalesTrailing12Months, null) }; };
 
-const { price, summaryDetail, defaultKeyStatistics: stats, financialData, assetProfile: profile } = summary;
+export default async function handler(req, res) { const { symbol, max, min, exchange, minVolume, cap, query } = req.query;
 
-// 2) Histórico de preços (1 ano) -----------------------------------
-const chartURL =
-  `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}` +
-  `?range=1y&interval=1d&includePrePost=false`;
+// ── 1) Autocomplete -------------------------------------------------- if (query) { try { const results = await yahooFinance.search(query); const suggestions = (results?.quotes || []) .filter((q) => q.symbol && q.shortname) .map((q) => ({ symbol: q.symbol, name: q.shortname, exchange: q.exchange })); return res.status(200).json(suggestions); } catch (err) { console.error('Autocomplete error:', err); return res.status(500).json({ error: 'Failed to search for stock symbol' }); } }
 
-const chartJson = await fetch(chartURL).then((r) => r.json());
-const chart = chartJson.chart?.result?.[0];
-if (!chart) throw new Error('Yahoo chart returned no data');
+// ── 2) Detalhe por símbolo ------------------------------------------ if (symbol) { try { const q = await yahooFinance.quote(symbol.toUpperCase(), { modules: ['summaryDetail', 'financialData'] }); if (!q || q.regularMarketPrice == null) { return res.status(404).json({ error: 'Stock not found' }); }
 
-const dates = (chart.timestamp || []).map(toDate);
-const prices = chart.indicators?.quote?.[0]?.close || [];
+// Calcula médias de setor usando lista default
+  const industryData = await Promise.all(
+    DEFAULT_STOCKS.map((t) =>
+      yahooFinance
+        .quote(t, { modules: ['summaryDetail', 'financialData'] })
+        .catch(() => null)
+    )
+  );
 
-// 3) Income statements (4 anos) ------------------------------------
-const incomeURL =
-  `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(symbol)}` +
-  `?modules=incomeStatementHistory`;
+  const mappedPeers  = industryData.filter(Boolean).map(mapQuote);
+  const avgPEs       = mappedPeers.map((m) => m.forwardPE).filter((v) => v != null);
+  const avgSales     = mappedPeers.map((m) => m.forwardSales).filter((v) => v != null);
 
-const incomeJson = await fetch(incomeURL).then((r) => r.json());
-const incomeHist = incomeJson.quoteSummary?.result?.[0]?.incomeStatementHistory?.incomeStatementHistory || [];
+  const industryAvgPE    = avgPEs.length   ? avgPEs.reduce((a, b) => a + b, 0) / avgPEs.length   : null;
+  const industryAvgSales = avgSales.length ? avgSales.reduce((a, b) => a + b, 0) / avgSales.length : null;
 
-const years = [];
-const revenue = [];
-const earnings = [];
+  return res.status(200).json({
+    ...mapQuote(q),
+    industryAvgPE,
+    industryAvgSales
+  });
+} catch (err) {
+  console.error(err);
+  return res.status(500).json({ error: 'Failed to fetch stock data' });
+}
 
-[...incomeHist]
-  .sort((a, b) => a.endDate.raw - b.endDate.raw)
-  .slice(-4)
-  .forEach((item) => {
-    years.push(new Date(item.endDate.raw * 1000).getFullYear());
-    revenue.push(Math.round(item.totalRevenue.raw / 1e6)); // € milhões
-    earnings.push(Math.round(item.netIncome.raw / 1e6));   // € milhões
+}
+
+// ── 3) Listagem filtrada -------------------------------------------- try { const maxP   = toNum(max, 5); const minP   = toNum(min, 0); const minVol = toNum(minVolume, 0); const capKey = (cap || '').toLowerCase();
+
+const rawQuotes = await Promise.all(
+  DEFAULT_STOCKS.map((t) =>
+    yahooFinance
+      .quote(t, { modules: ['summaryDetail', 'financialData'] })
+      .catch(() => null)
+  )
+);
+
+const results = rawQuotes
+  .filter(Boolean)
+  .map(mapQuote)
+  .filter((M) => {
+    if (M.price == null || M.price > maxP || M.price < minP) return false;
+    if (M.volume < minVol) return false;
+    if (exchange && !M.exchange.toLowerCase().includes(exchange.toLowerCase())) return false;
+
+    switch (capKey) {
+      case 'micro': if (M.marketCap >= 3e8) return false; break;
+      case 'small': if (M.marketCap < 3e8 || M.marketCap >= 2e9) return false; break;
+      case 'mid':   if (M.marketCap < 2e9 || M.marketCap >= 1e10) return false; break;
+      case 'large': if (M.marketCap < 1e10) return false; break;
+    }
+    return true;
   });
 
-// 4) Monta payload --------------------------------------------------
-const data = {
-  symbol,
-  name: price.shortName ?? price.longName ?? symbol,
-  price: price.regularMarketPrice.raw,
-  priceChange: price.regularMarketChange.raw,
-  priceChangePercent: price.regularMarketChangePercent.raw,
-  previousClose: price.regularMarketPreviousClose.raw,
-  open: price.regularMarketOpen.raw,
-  volume: price.regularMarketVolume.raw,
-  avgVolume: stats.averageDailyVolume3Month?.raw ?? null,
-  marketCap: price.marketCap?.raw ?? null,
-  peRatio: stats.trailingPE?.raw ?? null,
-  beta: stats.beta?.raw ?? null,
-  dividendYield: summaryDetail.dividendYield?.raw ?? null,
-  week52Low: price.fiftyTwoWeekLow.raw,
-  week52High: price.fiftyTwoWeekHigh.raw,
-  sector: profile?.sector ?? null,
-  industry: profile?.industry ?? null,
-  employees: profile?.fullTimeEmployees ?? null,
-  description: profile?.longBusinessSummary ?? null,
+return res.status(200).json(results);
 
-  financials: { years, revenue, earnings },
-  history: { dates, prices },
-
-  analystTargets: {
-    low: financialData.targetLowPrice?.raw ?? null,
-    mean: financialData.targetMeanPrice?.raw ?? null,
-    high: financialData.targetHighPrice?.raw ?? null,
-  },
-
-  controversy: 1, // placeholder (0–5)
-};
-
-res.setHeader('Access-Control-Allow-Origin', '*');
-return res.status(200).json(data);
-
-} catch (err) { console.error(err); return respondError(err.message); } }
-
+} catch (err) { console.error(err); return res.status(500).json({ error: 'Failed to fetch stock data' }); } }
 
