@@ -2,34 +2,31 @@
 <html lang="pt">
 <head>
   <meta charset="UTF-8">
-  <title>Portefólio em Tempo Real</title>
+  <title>Portefólio Elasticsearch</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
+    body { font-family: sans-serif; padding: 20px; }
     h1 { text-align: center; }
     table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-    th { background-color: #f4f4f4; }
-    tr:nth-child(even) { background-color: #f9f9f9; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background-color: #f0f0f0; }
     .gain { color: green; font-weight: bold; }
     .loss { color: red; font-weight: bold; }
   </style>
 </head>
 <body>
-
   <h1>Portefólio do Utilizador</h1>
-
   <table>
     <thead>
       <tr>
         <th>Símbolo</th>
         <th>Operação</th>
-        <th>Quantidade</th>
+        <th>Qtd</th>
         <th>Preço Compra</th>
         <th>Preço Atual</th>
         <th>Comissão</th>
-        <th>Investimento Total</th>
-        <th>Valor Mercado</th>
-        <th>Lucro / Prejuízo</th>
+        <th>Investido</th>
+        <th>Mercado</th>
+        <th>Lucro/Prejuízo</th>
         <th>Sentimento</th>
       </tr>
     </thead>
@@ -38,59 +35,41 @@
 
   <script>
     async function fetchPortfolio() {
-      const url = "http://45.77.225.119:9200/user-id-f29384c9-3ae6-4d2a-a9d5-4ba4f30046cf-portfolio/_search";
-
-      const query = {
-        size: 100,
-        query: { match_all: {} }
-      };
-
       try {
-        const res = await fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(query)
+        const res = await fetch("/api/portfolio");
+        const json = await res.json();
+
+        const tbody = document.getElementById("portfolioTable");
+        tbody.innerHTML = "";
+
+        json.hits.hits.forEach(doc => {
+          const p = doc._source;
+          const diff = (p.currentMarketValue - p.totalInvestment).toFixed(2);
+          const diffClass = diff > 0 ? "gain" : diff < 0 ? "loss" : "";
+
+          const row = `
+            <tr>
+              <td>${p.symbol}</td>
+              <td>${p.operationType}</td>
+              <td>${p.quantity}</td>
+              <td>${p.purchasePrice?.toFixed(2) || '-'}</td>
+              <td>${p.currentPrice?.toFixed(2) || '-'}</td>
+              <td>${p.commission?.toFixed(2) || '0.00'}</td>
+              <td>${p.totalInvestment?.toFixed(2) || '0.00'}</td>
+              <td>${p.currentMarketValue?.toFixed(2) || '0.00'}</td>
+              <td class="${diffClass}">${diff} €</td>
+              <td>${(p.socialSentiment?.sentimentScore * 100).toFixed(0)}%</td>
+            </tr>`;
+          tbody.innerHTML += row;
         });
 
-        const json = await res.json();
-        const rows = json.hits.hits.map(doc => doc._source);
-        renderTable(rows);
-
-      } catch (err) {
-        console.error("Erro ao buscar dados:", err);
-        document.body.innerHTML += "<p>Falha ao carregar os dados.</p>";
+      } catch (e) {
+        console.error("Erro ao carregar dados:", e);
+        document.body.innerHTML += "<p>Erro ao carregar dados do portefólio.</p>";
       }
-    }
-
-    function renderTable(data) {
-      const tbody = document.getElementById('portfolioTable');
-      tbody.innerHTML = "";
-
-      data.forEach(item => {
-        const profitLoss = (item.currentMarketValue - item.totalInvestment).toFixed(2);
-        const profitClass = profitLoss > 0 ? 'gain' : (profitLoss < 0 ? 'loss' : '');
-
-        const row = `
-          <tr>
-            <td>${item.symbol}</td>
-            <td>${item.operationType}</td>
-            <td>${item.quantity}</td>
-            <td>${item.purchasePrice?.toFixed(2)}</td>
-            <td>${item.currentPrice?.toFixed(2)}</td>
-            <td>${item.commission?.toFixed(2)}</td>
-            <td>${item.totalInvestment?.toFixed(2)}</td>
-            <td>${item.currentMarketValue?.toFixed(2)}</td>
-            <td class="${profitClass}">${profitLoss} €</td>
-            <td>${(item.socialSentiment?.sentimentScore * 100).toFixed(0)}%</td>
-          </tr>
-        `;
-
-        tbody.innerHTML += row;
-      });
     }
 
     fetchPortfolio();
   </script>
-
 </body>
 </html>
