@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SMCI Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#0e0e0e] text-white font-sans p-4">
+
+  <!-- Título -->
+  <div class="mb-4">
+    <h1 class="text-xl font-bold text-white">SMCI</h1>
+    <p class="text-green-500 text-3xl font-bold">46.61 <span class="text-sm align-top">(+8.80%)</span></p>
+  </div>
+
+  <!-- Tabs (fake nav) -->
+  <div class="flex gap-4 mb-4 text-sm text-gray-400">
+    <span class="text-white border-b border-white pb-1">Visão geral</span>
+    <span class="cursor-pointer hover:text-white">Notícias</span>
+    <span class="cursor-pointer hover:text-white">Saúde 🔒</span>
+    <span class="cursor-pointer hover:text-white">Técnica</span>
+    <span class="cursor-pointer hover:text-white">Opções</span>
+    <span class="cursor-pointer hover:text-white">Análise</span>
+    <span class="cursor-pointer hover:text-white">Dados Históricos</span>
+  </div>
+
+  <!-- Preço-alvo e Upside -->
+  <div class="bg-gray-800 p-4 rounded-lg text-sm mb-4">
+    <p><strong>Preço-alvo dos analistas:</strong> <span class="text-white">42.93</span></p>
+    <p><strong>Upside/Downside:</strong> <span class="text-red-500">-7.88% de downside</span></p>
+  </div>
+
+  <!-- Técnica -->
+  <div class="bg-gray-800 p-4 rounded-lg text-sm mb-4">
+    <h2 class="text-lg font-semibold mb-2">📊 Técnica</h2>
+    <div class="grid grid-cols-3 gap-2 text-center mb-2">
+      <div class="bg-gray-700 p-2 rounded">5 Min 🔒<br><button class="bg-yellow-600 px-2 py-1 mt-1 rounded">Aceder</button></div>
+      <div class="bg-gray-700 p-2 rounded">15 Min 🔒<br><button class="bg-yellow-600 px-2 py-1 mt-1 rounded">Aceder</button></div>
+      <div class="bg-green-600 p-2 rounded font-bold">30 Min<br>Compra Forte</div>
+      <div class="bg-green-600 p-2 rounded font-bold">Hora<br>Compra Forte</div>
+      <div class="bg-green-600 p-2 rounded font-bold">Dia<br>Compra Forte</div>
+      <div class="bg-green-600 p-2 rounded font-bold">Semanal<br>Compra Forte</div>
+      <div class="bg-gray-600 p-2 rounded font-bold col-span-3">Mensal<br>Neutra</div>
+    </div>
+    <a href="#" class="text-blue-400 text-sm">MOSTRAR MAIS ➤</a>
+  </div>
+
+  <!-- Opiniões da comunidade -->
+  <div class="bg-gray-800 p-4 rounded-lg text-sm mb-4">
+    <h2 class="text-lg font-semibold mb-2">👥 Opiniões da comunidade</h2>
+    <div class="flex items-center gap-2 text-sm mb-1">
+      <span class="text-red-400">🐻 12%</span>
+      <div class="w-full bg-red-700 rounded h-2 relative">
+        <div class="absolute bg-green-600 h-2 left-[12%] rounded" style="width:88%"></div>
+      </div>
+      <span class="text-green-400">88% 🐂</span>
+    </div>
+  </div>
+
+  <!-- Botão operar -->
+  <div class="mb-6 text-center">
+    <button class="bg-green-500 hover:bg-green-600 w-full py-3 rounded text-black font-bold text-lg">Comece a operar</button>
+  </div>
+
+</body>
+</html>
