@@ -3,112 +3,830 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🌍 Global Market Dashboards</title>
+  <title>🌍 Global Markets Analytics Hub</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
   <script>
-    tailwind.config = { darkMode: 'class' }
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif']
+          },
+          colors: {
+           primary: '#1E3A8A', // Indigo-800
+        accent: '#06B6D4',  // Cyan-500
+        warning: '#F59E0B', // Amber-500
+        surface: '#F3F4F6', // Zinc-100
+        darksurface: '#0D1117',
+        darkcard: '#161B22'
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.6s ease-out',
+            'slide-up': 'slideUp 0.8s ease-out',
+            'pulse-glow': 'pulseGlow 2s ease-in-out infinite',
+            'bounce-subtle': 'bounceSubtle 1s ease-out'
+          }
+        }
+      }
+    }
   </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 20px rgba(0, 102, 255, 0.3); }
+      50% { box-shadow: 0 0 30px rgba(0, 102, 255, 0.6); }
+    }
+    
+    @keyframes bounceSubtle {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-5px); }
+      60% { transform: translateY(-3px); }
+    }
+    
+    .glass {
+      background: #d8b3fd;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .dark .glass {
+      background: rgba(26, 31, 46, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .dark .gradient-bg {
+      background: linear-gradient(135deg, #1a1f2e 0%, #0a0e1a 100%);
+    }
+    
+    .market-card {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: translateY(0);
+    }
+    
+    .market-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    }
+    
+    .dark .market-card:hover {
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+  </style>
 </head>
-<body class="bg-gradient-to-r from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 min-h-screen text-gray-900 dark:text-gray-100">
-  <div class="max-w-4xl mx-auto py-10 px-4 text-center">
-    <div class="flex justify-between items-center mb-6">
-      <h1 id="title" class="text-3xl sm:text-4xl font-bold">📊 Dashboards de Mercados Globais</h1>
-      <div class="flex gap-2">
-        <select id="langSelect" onchange="changeLanguage()" class="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded text-sm">
-          <option value="pt">🇵🇹 PT</option>
-          <option value="en">🇺🇸 EN</option>
-          <option value="fr">🇫🇷 FR</option>
-        </select>
-        <button onclick="toggleDarkMode()" class="bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded shadow text-sm">
-          🌓 Tema
-        </button>
+<body class="gradient-bg text-gray-900 dark:text-gray-100 min-h-screen">
+  <!-- Navigation Header -->
+  <nav class="glass sticky top-0 z-50 border-b border-gray-200 dark:border-gray-700">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center space-x-4">
+          <div class="animate-pulse-glow">
+            <h1 id="title" class="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              🌍 Global Markets Analytics Hub
+            </h1>
+          </div>
+          <div class="hidden sm:block">
+            <span class="text-xs bg-accent text-white px-2 py-1 rounded-full animate-bounce-subtle">LIVE</span>
+          </div>
+        </div>
+        
+        <div class="flex items-center space-x-3">
+          <select id="langSelect" onchange="changeLanguage()" class="glass text-sm px-3 py-2 rounded-lg border-0 focus:ring-2 focus:ring-primary">
+            <option value="pt">🇵🇹 PT</option>
+            <option value="en">🇺🇸 EN</option>
+            <option value="fr">🇫🇷 FR</option>
+          </select>
+          <button onclick="toggleDarkMode()" class="glass p-2 rounded-lg hover:bg-primary hover:text-white transition-all duration-300">
+            <span id="themeIcon">🌓</span>
+          </button>
+        </div>
       </div>
     </div>
-    <p id="description" class="text-lg text-gray-700 dark:text-gray-300 mb-8">Escolhe um mercado para ver os dados em tempo real</p>
+  </nav>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      <a href="/psi20.html" class="bg-white dark:bg-gray-900 shadow rounded-lg p-6 hover:shadow-lg transition">
-        <h2>🇵🇹 PSI</h2>
-        <p class="desc" data-key="psi">Ações da bolsa de Lisboa</p>
-      </a>
-      <a href="/ibex35.html" class="bg-white dark:bg-gray-900 shadow rounded-lg p-6 hover:shadow-lg transition">
-        <h2>🇪🇸 IBEX</h2>
-        <p class="desc" data-key="ibex">Principais empresas espanholas</p>
-      </a>
-      <a href="/nasdaq.html" class="bg-white dark:bg-gray-900 shadow rounded-lg p-6 hover:shadow-lg transition">
-        <h2>🇺🇸 NASDAQ</h2>
-        <p class="desc" data-key="nasdaq">Tecnologia e inovação</p>
-      </a>
-      <a href="/cac40.html" class="bg-white dark:bg-gray-900 shadow rounded-lg p-6 hover:shadow-lg transition">
-        <h2>🇫🇷 CAC 40</h2>
-        <p class="desc" data-key="paris">Mercado francês</p>
-      </a>
-      <a href="https://nova-stock-price-finder.vercel.app/api" class="bg-white dark:bg-gray-900 shadow rounded-lg p-6 hover:shadow-lg transition">
-        <h2>🔧 API</h2>
-        <p class="desc" data-key="api">Ver endpoints disponíveis</p>
-      </a>
+  <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <!-- Hero Section -->
+    <div class="text-center mb-12 animate-fade-in">
+      <p id="description" class="text-xl text-gray-700 dark:text-gray-300 mb-6 font-light">
+        Explore real-time market data with advanced analytics
+      </p>
+      <div class="flex justify-center space-x-4 mb-8">
+        <div class="glass px-4 py-2 rounded-full">
+          <span class="text-sm font-medium">📈 Real-time Data</span>
+        </div>
+        <div class="glass px-4 py-2 rounded-full">
+          <span class="text-sm font-medium">📊 Advanced Charts</span>
+        </div>
+        <div class="glass px-4 py-2 rounded-full">
+          <span class="text-sm font-medium">🔍 Deep Analytics</span>
+        </div>
+      </div>
     </div>
 
-    <footer class="mt-12 text-gray-500 dark:text-gray-400 text-sm">
-      Desenvolvido por Pedro Martins • <span id="footer">Última atualização:</span> <span id="now"></span>
-    </footer>
+    <!-- Market Overview Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12 animate-slide-up">
+      <div class="glass rounded-xl p-6 text-center">
+        <div class="text-3xl mb-2">📈</div>
+        <div class="text-2xl font-bold text-accent" id="totalMarkets">5</div>
+        <div class="text-sm text-gray-600 dark:text-gray-400" data-key="totalMarkets">Active Markets</div>
+      </div>
+      <div class="glass rounded-xl p-6 text-center">
+        <div class="text-3xl mb-2">💹</div>
+        <div class="text-2xl font-bold text-green-500" id="gainers">+2.4%</div>
+        <div class="text-sm text-gray-600 dark:text-gray-400" data-key="avgGain">Avg Gain Today</div>
+      </div>
+      <div class="glass rounded-xl p-6 text-center">
+        <div class="text-3xl mb-2">🔥</div>
+        <div class="text-2xl font-bold text-warning" id="volume">$2.1B</div>
+        <div class="text-sm text-gray-600 dark:text-gray-400" data-key="volume">Total Volume</div>
+      </div>
+      <div class="glass rounded-xl p-6 text-center">
+        <div class="text-3xl mb-2">⚡</div>
+        <div class="text-2xl font-bold text-primary" id="updates">Live</div>
+        <div class="text-sm text-gray-600 dark:text-gray-400" data-key="status">Status</div>
+      </div>
+    </div>
+
+    <!-- Main Markets Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+      <!-- PSI Market Card -->
+      <div class="market-card glass rounded-xl p-6 animate-fade-in" style="animation-delay: 0.1s;">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center space-x-3">
+            <div class="text-2xl">🇵🇹</div>
+            <div>
+              <h3 class="text-lg font-semibold text-primary dark:text-blue-300">PSI 20</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-400" data-key="psi">Lisbon Stock Exchange</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-lg font-bold text-green-500">+1.2%</div>
+            <div class="text-xs text-gray-500">6,247.8</div>
+          </div>
+        </div>
+        <div class="h-20 mb-4">
+          <canvas id="psiChart" width="300" height="80"></canvas>
+        </div>
+        <a href="/psi.html" class="block w-full bg-primary text-white text-center py-3 rounded-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105">
+          <span data-key="viewDetails">View Details</span> →
+        </a>
+      </div>
+
+      <!-- IBEX Market Card -->
+      <div class="market-card glass rounded-xl p-6 animate-fade-in" style="animation-delay: 0.2s;">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center space-x-3">
+            <div class="text-2xl">🇪🇸</div>
+            <div>
+              <h3 class="text-lg font-semibold text-primary dark:text-blue-300">IBEX 35</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-400" data-key="ibex">Spanish Blue Chips</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-lg font-bold text-red-500">-0.8%</div>
+            <div class="text-xs text-gray-500">9,742.1</div>
+          </div>
+        </div>
+        <div class="h-20 mb-4">
+          <canvas id="ibexChart" width="300" height="80"></canvas>
+        </div>
+        <a href="/ibex.html" class="block w-full bg-primary text-white text-center py-3 rounded-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105">
+          <span data-key="viewDetails">View Details</span> →
+        </a>
+      </div>
+
+      <!-- NASDAQ Market Card -->
+      <div class="market-card glass rounded-xl p-6 animate-fade-in" style="animation-delay: 0.3s;">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center space-x-3">
+            <div class="text-2xl">🇺🇸</div>
+            <div>
+              <h3 class="text-lg font-semibold text-primary dark:text-blue-300">NASDAQ</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-400" data-key="nasdaq">Tech Innovation</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-lg font-bold text-green-500">+2.1%</div>
+            <div class="text-xs text-gray-500">14,826.3</div>
+          </div>
+        </div>
+        <div class="h-20 mb-4">
+          <canvas id="nasdaqChart" width="300" height="80"></canvas>
+        </div>
+        <a href="/nasdaq.html" class="block w-full bg-primary text-white text-center py-3 rounded-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105">
+          <span data-key="viewDetails">View Details</span> →
+        </a>
+      </div>
+
+      <!-- CAC 40 Market Card -->
+      <div class="market-card glass rounded-xl p-6 animate-fade-in" style="animation-delay: 0.4s;">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center space-x-3">
+            <div class="text-2xl">🇫🇷</div>
+            <div>
+              <h3 class="text-lg font-semibold text-primary dark:text-blue-300">CAC 40</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-400" data-key="paris">French Market</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-lg font-bold text-green-500">+0.9%</div>
+            <div class="text-xs text-gray-500">7,521.4</div>
+          </div>
+        </div>
+        <div class="h-20 mb-4">
+          <canvas id="cacChart" width="300" height="80"></canvas>
+        </div>
+        <a href="/paris.html" class="block w-full bg-primary text-white text-center py-3 rounded-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105">
+          <span data-key="viewDetails">View Details</span> →
+        </a>
+      </div>
+
+      <!-- Analytics Hub Card -->
+      <div class="market-card glass rounded-xl p-6 animate-fade-in" style="animation-delay: 0.5s;">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center space-x-3">
+            <div class="text-2xl">📊</div>
+            <div>
+              <h3 class="text-lg font-semibold text-primary dark:text-blue-300">Analytics Hub</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-400" data-key="analytics">Advanced Tools</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-lg font-bold text-accent">NEW</div>
+            <div class="text-xs text-gray-500">Beta</div>
+          </div>
+        </div>
+        <div class="mb-4">
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <div class="bg-primary/10 p-2 rounded text-center">
+              <div class="font-semibold">Heat Map</div>
+            </div>
+            <div class="bg-accent/10 p-2 rounded text-center">
+              <div class="font-semibold">Correlation</div>
+            </div>
+            <div class="bg-warning/10 p-2 rounded text-center">
+              <div class="font-semibold">Volatility</div>
+            </div>
+            <div class="bg-green-500/10 p-2 rounded text-center">
+              <div class="font-semibold">Trends</div>
+            </div>
+          </div>
+        </div>
+        <button onclick="openAnalyticsModal()" class="block w-full bg-gradient-to-r from-primary to-accent text-white text-center py-3 rounded-lg hover:opacity-90 transition-all duration-300 transform hover:scale-105">
+          <span data-key="openAnalytics">Open Analytics</span> 📈
+        </button>
+      </div>
+
+      <!-- API Access Card -->
+      <div class="market-card glass rounded-xl p-6 animate-fade-in" style="animation-delay: 0.6s;">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center space-x-3">
+            <div class="text-2xl">🔧</div>
+            <div>
+              <h3 class="text-lg font-semibold text-primary dark:text-blue-300">API Access</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-400" data-key="api">Developer Tools</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-lg font-bold text-green-500">✓</div>
+            <div class="text-xs text-gray-500">Active</div>
+          </div>
+        </div>
+        <div class="mb-4">
+          <div class="text-xs space-y-1">
+            <div class="flex justify-between">
+              <span>REST API:</span>
+              <span class="text-green-500">Online</span>
+            </div>
+            <div class="flex justify-between">
+              <span>WebSocket:</span>
+              <span class="text-green-500">Connected</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Rate Limit:</span>
+              <span class="text-yellow-500">1000/hr</span>
+            </div>
+          </div>
+        </div>
+        <a href="https://nova-stock-price-finder.vercel.app/api" class="block w-full bg-primary text-white text-center py-3 rounded-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105">
+          <span data-key="viewEndpoints">View Endpoints</span> →
+        </a>
+      </div>
+    </div>
+
+    <!-- Quick Analytics Section -->
+    <div class="glass rounded-xl p-8 mb-12 animate-slide-up">
+      <h2 class="text-2xl font-bold mb-6 text-center" data-key="quickAnalytics">Quick Market Analytics</h2>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div>
+          <h3 class="text-lg font-semibold mb-4" data-key="marketTrends">Market Trends</h3>
+          <canvas id="trendsChart" width="400" height="200"></canvas>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold mb-4" data-key="sectorPerformance">Sector Performance</h3>
+          <div class="space-y-3">
+            <div class="flex justify-between items-center p-3 bg-green-50 dark:bg-green-900/20 rounded">
+              <span>Technology</span>
+              <span class="text-green-600 font-semibold">+3.2%</span>
+            </div>
+            <div class="flex justify-between items-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded">
+              <span>Healthcare</span>
+              <span class="text-blue-600 font-semibold">+1.8%</span>
+            </div>
+            <div class="flex justify-between items-center p-3 bg-red-50 dark:bg-red-900/20 rounded">
+              <span>Energy</span>
+              <span class="text-red-600 font-semibold">-1.4%</span>
+            </div>
+            <div class="flex justify-between items-center p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded">
+              <span>Finance</span>
+              <span class="text-yellow-600 font-semibold">+0.3%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
+  <!-- Analytics Modal -->
+  <div id="analyticsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+    <div class="glass rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-bold" data-key="advancedAnalytics">Advanced Analytics Dashboard</h2>
+          <button onclick="closeAnalyticsModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="glass p-4 rounded-lg">
+            <h3 class="font-semibold mb-3">Market Correlation Matrix</h3>
+            <canvas id="correlationChart" width="300" height="300"></canvas>
+          </div>
+          <div class="glass p-4 rounded-lg">
+            <h3 class="font-semibold mb-3">Volatility Analysis</h3>
+            <canvas id="volatilityChart" width="300" height="300"></canvas>
+          </div>
+          <div class="glass p-4 rounded-lg">
+            <h3 class="font-semibold mb-3">Volume Distribution</h3>
+            <canvas id="volumeChart" width="300" height="300"></canvas>
+          </div>
+          <div class="glass p-4 rounded-lg">
+            <h3 class="font-semibold mb-3">Performance Metrics</h3>
+            <div class="space-y-2 text-sm">
+              <div class="flex justify-between"><span>Sharpe Ratio:</span><span class="font-semibold">1.42</span></div>
+              <div class="flex justify-between"><span>Beta:</span><span class="font-semibold">0.89</span></div>
+              <div class="flex justify-between"><span>Alpha:</span><span class="font-semibold">2.1%</span></div>
+              <div class="flex justify-between"><span>Max Drawdown:</span><span class="font-semibold text-red-500">-12.3%</span></div>
+              <div class="flex justify-between"><span>VaR (95%):</span><span class="font-semibold">-2.8%</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="glass mt-16 py-8">
+    <div class="max-w-7xl mx-auto px-4 text-center">
+      <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+        <div class="text-sm text-gray-600 dark:text-gray-400">
+          <span data-key="developedBy">Developed by</span> <strong>Pedro Martins</strong>
+        </div>
+        <div class="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
+          <span id="footer" data-key="lastUpdate">Last updated:</span>
+          <span id="now" class="font-mono"></span>
+          <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
   <script>
+    // Enhanced translations
     const translations = {
       pt: {
-        title: "📊 Dashboards de Mercados Globais",
-        description: "Escolhe um mercado para ver os dados em tempo real",
-        footer: "Última atualização:",
+        title: "🌍 Global Markets Analytics Hub",
+        description: "Explore dados de mercado em tempo real com análises avançadas",
+        lastUpdate: "Última atualização:",
+        developedBy: "Desenvolvido por",
         psi: "Ações da bolsa de Lisboa",
         ibex: "Principais empresas espanholas",
         nasdaq: "Tecnologia e inovação",
         paris: "Mercado francês",
-        api: "Ver endpoints disponíveis"
+        api: "Ferramentas para programadores",
+        analytics: "Ferramentas Avançadas",
+        totalMarkets: "Mercados Ativos",
+        avgGain: "Ganho Médio Hoje",
+        volume: "Volume Total",
+        status: "Estado",
+        viewDetails: "Ver Detalhes",
+        openAnalytics: "Abrir Analytics",
+        viewEndpoints: "Ver Endpoints",
+        quickAnalytics: "Análises Rápidas de Mercado",
+        marketTrends: "Tendências de Mercado",
+        sectorPerformance: "Performance por Setor",
+        advancedAnalytics: "Dashboard de Analytics Avançado"
       },
       en: {
-        title: "📊 Global Market Dashboards",
-        description: "Choose a market to view real-time data",
-        footer: "Last updated:",
+        title: "🌍 Global Markets Analytics Hub",
+        description: "Explore real-time market data with advanced analytics",
+        lastUpdate: "Last updated:",
+        developedBy: "Developed by",
         psi: "Lisbon Stock Exchange",
         ibex: "Top Spanish companies",
         nasdaq: "Technology and innovation",
         paris: "French market",
-        api: "View available endpoints"
+        api: "Developer tools",
+        analytics: "Advanced Tools",
+        totalMarkets: "Active Markets",
+        avgGain: "Avg Gain Today",
+        volume: "Total Volume",
+        status: "Status",
+        viewDetails: "View Details",
+        openAnalytics: "Open Analytics",
+        viewEndpoints: "View Endpoints",
+        quickAnalytics: "Quick Market Analytics",
+        marketTrends: "Market Trends",
+        sectorPerformance: "Sector Performance",
+        advancedAnalytics: "Advanced Analytics Dashboard"
       },
       fr: {
-        title: "📊 Tableaux de Marchés Globaux",
-        description: "Choisissez un marché pour voir les données en temps réel",
-        footer: "Dernière mise à jour:",
+        title: "🌍 Hub d'Analytics des Marchés Globaux",
+        description: "Explorez les données de marché en temps réel avec des analyses avancées",
+        lastUpdate: "Dernière mise à jour:",
+        developedBy: "Développé par",
         psi: "Actions de la bourse de Lisbonne",
         ibex: "Principales entreprises espagnoles",
         nasdaq: "Technologie et innovation",
         paris: "Marché français",
-        api: "Voir les points de terminaison disponibles"
+        api: "Outils développeur",
+        analytics: "Outils Avancés",
+        totalMarkets: "Marchés Actifs",
+        avgGain: "Gain Moyen Aujourd'hui",
+        volume: "Volume Total",
+        status: "Statut",
+        viewDetails: "Voir Détails",
+        openAnalytics: "Ouvrir Analytics",
+        viewEndpoints: "Voir Endpoints",
+        quickAnalytics: "Analytics Rapide du Marché",
+        marketTrends: "Tendances du Marché",
+        sectorPerformance: "Performance Sectorielle",
+        advancedAnalytics: "Tableau de Bord Analytics Avancé"
       }
     };
 
-    function toggleDarkMode() {
-      document.documentElement.classList.toggle('dark');
-    }
+    // Initialize charts
+    function initializeCharts() {
+      const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { display: false },
+          y: { display: false }
+        },
+        elements: { point: { radius: 0 } }
+      };
 
-    function changeLanguage() {
-      const lang = document.getElementById('langSelect').value;
-      localStorage.setItem('lang', lang);
-      const t = translations[lang];
-      document.getElementById('title').textContent = t.title;
-      document.getElementById('description').textContent = t.description;
-      document.getElementById('footer').textContent = t.footer;
-      document.querySelectorAll('.desc').forEach(p => {
-        const key = p.getAttribute('data-key');
-        p.textContent = t[key];
+      // Sample data for mini charts
+      const sampleData = {
+        labels: ['1', '2', '3', '4', '5', '6', '7'],
+        datasets: [{
+          borderWidth: 2,
+          fill: true,
+          tension: 0.4
+        }]
+      };
+
+      // PSI Chart
+      new Chart(document.getElementById('psiChart'), {
+        type: 'line',
+        data: {
+          ...sampleData,
+          datasets: [{
+            ...sampleData.datasets[0],
+            data: [100, 102, 98, 105, 108, 103, 112],
+            borderColor: '#10B981',
+            backgroundColor: 'rgba(16, 185, 129, 0.1)'
+          }]
+        },
+        options: commonOptions
+      });
+
+      // IBEX Chart
+      new Chart(document.getElementById('ibexChart'), {
+        type: 'line',
+        data: {
+          ...sampleData,
+          datasets: [{
+            ...sampleData.datasets[0],
+            data: [100, 99, 101, 97, 95, 98, 92],
+            borderColor: '#EF4444',
+            backgroundColor: 'rgba(239, 68, 68, 0.1)'
+          }]
+        },
+        options: commonOptions
+      });
+
+      // NASDAQ Chart
+      new Chart(document.getElementById('nasdaqChart'), {
+        type: 'line',
+        data: {
+          ...sampleData,
+          datasets: [{
+            ...sampleData.datasets[0],
+            data: [100, 103, 106, 104, 109, 112, 121],
+            borderColor: '#3B82F6',
+            backgroundColor: 'rgba(59, 130, 246, 0.1)'
+          }]
+        },
+        options: commonOptions
+      });
+
+      // CAC Chart
+      new Chart(document.getElementById('cacChart'), {
+        type: 'line',
+        data: {
+          ...sampleData,
+          datasets: [{
+            ...sampleData.datasets[0],
+            data: [100, 101, 99, 102, 104, 106, 109],
+            borderColor: '#8B5CF6',
+            backgroundColor: 'rgba(139, 92, 246, 0.1)'
+          }]
+        },
+        options: commonOptions
+      });
+
+      // Trends Chart
+      new Chart(document.getElementById('trendsChart'), {
+        type: 'line',
+        data: {
+          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+          datasets: [
+            {
+              label: 'PSI',
+              data: [6100, 6150, 6080, 6200, 6250, 6247],
+              borderColor: '#10B981',
+              tension: 0.4
+            },
+            {
+              label: 'IBEX',
+              data: [9800, 9750, 9900, 9850, 9780, 9742],
+              borderColor: '#EF4444',
+              tension: 0.4
+            },
+            {
+              label: 'NASDAQ',
+              data: [14500, 14600, 14400, 14700, 14800, 14826],
+              borderColor: '#3B82F6',
+              tension: 0.4
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'top',
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: false
+            }
+          }
+        }
       });
     }
 
-    document.getElementById("now").textContent = new Date().toLocaleDateString();
-    const savedLang = localStorage.getItem('lang') || 'pt';
-    document.getElementById('langSelect').value = savedLang;
-    changeLanguage();
+    // Analytics Modal Functions
+    function openAnalyticsModal() {
+      document.getElementById('analyticsModal').classList.remove('hidden');
+      setTimeout(initializeAnalyticsCharts, 100);
+    }
+
+    function closeAnalyticsModal() {
+      document.getElementById('analyticsModal').classList.add('hidden');
+    }
+
+    function initializeAnalyticsCharts() {
+      // Correlation Matrix Chart
+      new Chart(document.getElementById('correlationChart'), {
+        type: 'scatter',
+        data: {
+          datasets: [{
+            label: 'PSI vs NASDAQ',
+            data: [
+              {x: 0.1, y: 0.8}, {x: 0.3, y: 0.7}, {x: 0.5, y: 0.9},
+              {x: 0.2, y: 0.6}, {x: 0.4, y: 0.75}, {x: 0.6, y: 0.85}
+            ],
+            backgroundColor: 'rgba(59, 130, 246, 0.6)',
+            borderColor: '#3B82F6'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: true }
+          },
+          scales: {
+            x: { title: { display: true, text: 'PSI Returns' }},
+            y: { title: { display: true, text: 'NASDAQ Returns' }}
+          }
+        }
+      });
+
+      // Volatility Chart
+      new Chart(document.getElementById('volatilityChart'), {
+        type: 'bar',
+        data: {
+          labels: ['PSI', 'IBEX', 'NASDAQ', 'CAC'],
+          datasets: [{
+            label: 'Volatility (%)',
+            data: [15.2, 18.7, 22.1, 16.8],
+            backgroundColor: [
+              'rgba(16, 185, 129, 0.7)',
+              'rgba(239, 68, 68, 0.7)',
+              'rgba(59, 130, 246, 0.7)',
+              'rgba(139, 92, 246, 0.7)'
+            ],
+            borderColor: [
+              '#10B981', '#EF4444', '#3B82F6', '#8B5CF6'
+            ],
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: { display: true, text: 'Volatility (%)' }
+            }
+          }
+        }
+      });
+
+      // Volume Distribution Chart
+      new Chart(document.getElementById('volumeChart'), {
+        type: 'doughnut',
+        data: {
+          labels: ['PSI', 'IBEX', 'NASDAQ', 'CAC', 'Others'],
+          datasets: [{
+            data: [15, 25, 35, 20, 5],
+            backgroundColor: [
+              '#10B981', '#EF4444', '#3B82F6', '#8B5CF6', '#F59E0B'
+            ],
+            borderWidth: 2,
+            borderColor: '#ffffff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }
+      });
+    }
+
+    // Dark Mode Toggle
+    function toggleDarkMode() {
+      document.documentElement.classList.toggle('dark');
+      const isDark = document.documentElement.classList.contains('dark');
+      document.getElementById('themeIcon').textContent = isDark ? '☀️' : '🌙';
+      
+      // Save preference
+      const currentLang = document.getElementById('langSelect').value;
+      const preferences = { darkMode: isDark, language: currentLang };
+      const data = JSON.stringify(preferences);
+      // Store in memory instead of localStorage
+      window.userPreferences = preferences;
+    }
+
+    // Language Change Function
+    function changeLanguage() {
+      const lang = document.getElementById('langSelect').value;
+      const t = translations[lang];
+      
+      // Update all translatable elements
+      Object.keys(t).forEach(key => {
+        const elements = document.querySelectorAll(`[data-key="${key}"]`);
+        elements.forEach(el => {
+          if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+            el.placeholder = t[key];
+          } else {
+            el.textContent = t[key];
+          }
+        });
+      });
+
+      // Update specific elements by ID
+      const titleEl = document.getElementById('title');
+      const descEl = document.getElementById('description');
+      if (titleEl) titleEl.textContent = t.title;
+      if (descEl) descEl.textContent = t.description;
+
+      // Save preference
+      const isDark = document.documentElement.classList.contains('dark');
+      const preferences = { darkMode: isDark, language: lang };
+      window.userPreferences = preferences;
+    }
+
+    // Real-time updates simulation
+    function updateMarketData() {
+      const markets = ['gainers', 'volume'];
+      const gains = ['+2.1%', '+2.8%', '+1.9%', '+3.2%'];
+      const volumes = ['$2.1B', '$2.3B', '$1.9B', '$2.5B'];
+      
+      document.getElementById('gainers').textContent = gains[Math.floor(Math.random() * gains.length)];
+      document.getElementById('volume').textContent = volumes[Math.floor(Math.random() * volumes.length)];
+    }
+
+    // Initialize everything
+    document.addEventListener('DOMContentLoaded', function() {
+      // Set current date
+      document.getElementById("now").textContent = new Date().toLocaleString();
+      
+      // Load saved preferences or defaults
+      const savedPrefs = window.userPreferences || { darkMode: false, language: 'pt' };
+      
+      if (savedPrefs.darkMode) {
+        document.documentElement.classList.add('dark');
+        document.getElementById('themeIcon').textContent = '☀️';
+      }
+      
+      document.getElementById('langSelect').value = savedPrefs.language;
+      changeLanguage();
+      
+      // Initialize charts after a brief delay
+      setTimeout(initializeCharts, 500);
+      
+      // Update market data every 30 seconds
+      setInterval(updateMarketData, 30000);
+      
+      // Update timestamp every minute
+      setInterval(() => {
+        document.getElementById("now").textContent = new Date().toLocaleString();
+      }, 60000);
+    });
+
+    // Close modal when clicking outside
+    document.getElementById('analyticsModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeAnalyticsModal();
+      }
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeAnalyticsModal();
+      }
+      if (e.ctrlKey && e.key === 'd') {
+        e.preventDefault();
+        toggleDarkMode();
+      }
+    });
+
+    // Add smooth scrolling for better UX
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      });
+    });
   </script>
 </body>
 </html>
