@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🌍 Global Market Dashboards</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' }
+  </script>
+</head>
+<body class="bg-gradient-to-r from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 min-h-screen text-gray-900 dark:text-gray-100">
+  <div class="max-w-4xl mx-auto py-10 px-4 text-center">
+    <div class="flex justify-between items-center mb-6">
+      <h1 id="title" class="text-3xl sm:text-4xl font-bold">📊 Dashboards de Mercados Globais</h1>
+      <div class="flex gap-2">
+        <select id="langSelect" onchange="changeLanguage()" class="bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded text-sm">
+          <option value="pt">🇵🇹 PT</option>
+          <option value="en">🇺🇸 EN</option>
+          <option value="fr">🇫🇷 FR</option>
+        </select>
+        <button onclick="toggleDarkMode()" class="bg-gray-200 dark:bg-gray-700 px-3 py-1 rounded shadow text-sm">
+          🌓 Tema
+        </button>
+      </div>
+    </div>
+    <p id="description" class="text-lg text-gray-700 dark:text-gray-300 mb-8">Escolhe um mercado para ver os dados em tempo real</p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <a href="/psi.html" class="bg-white dark:bg-gray-900 shadow rounded-lg p-6 hover:shadow-lg transition">
+        <h2>🇵🇹 PSI</h2>
+        <p class="desc" data-key="psi">Ações da bolsa de Lisboa</p>
+      </a>
+      <a href="/ibex.html" class="bg-white dark:bg-gray-900 shadow rounded-lg p-6 hover:shadow-lg transition">
+        <h2>🇪🇸 IBEX</h2>
+        <p class="desc" data-key="ibex">Principais empresas espanholas</p>
+      </a>
+      <a href="/nasdaq.html" class="bg-white dark:bg-gray-900 shadow rounded-lg p-6 hover:shadow-lg transition">
+        <h2>🇺🇸 NASDAQ</h2>
+        <p class="desc" data-key="nasdaq">Tecnologia e inovação</p>
+      </a>
+      <a href="/paris.html" class="bg-white dark:bg-gray-900 shadow rounded-lg p-6 hover:shadow-lg transition">
+        <h2>🇫🇷 CAC 40</h2>
+        <p class="desc" data-key="paris">Mercado francês</p>
+      </a>
+      <a href="https://nova-stock-price-finder.vercel.app/api" class="bg-white dark:bg-gray-900 shadow rounded-lg p-6 hover:shadow-lg transition">
+        <h2>🔧 API</h2>
+        <p class="desc" data-key="api">Ver endpoints disponíveis</p>
+      </a>
+    </div>
+
+    <footer class="mt-12 text-gray-500 dark:text-gray-400 text-sm">
+      Desenvolvido por Pedro Martins • <span id="footer">Última atualização:</span> <span id="now"></span>
+    </footer>
+  </div>
+
+  <script>
+    const translations = {
+      pt: {
+        title: "📊 Dashboards de Mercados Globais",
+        description: "Escolhe um mercado para ver os dados em tempo real",
+        footer: "Última atualização:",
+        psi: "Ações da bolsa de Lisboa",
+        ibex: "Principais empresas espanholas",
+        nasdaq: "Tecnologia e inovação",
+        paris: "Mercado francês",
+        api: "Ver endpoints disponíveis"
+      },
+      en: {
+        title: "📊 Global Market Dashboards",
+        description: "Choose a market to view real-time data",
+        footer: "Last updated:",
+        psi: "Lisbon Stock Exchange",
+        ibex: "Top Spanish companies",
+        nasdaq: "Technology and innovation",
+        paris: "French market",
+        api: "View available endpoints"
+      },
+      fr: {
+        title: "📊 Tableaux de Marchés Globaux",
+        description: "Choisissez un marché pour voir les données en temps réel",
+        footer: "Dernière mise à jour:",
+        psi: "Actions de la bourse de Lisbonne",
+        ibex: "Principales entreprises espagnoles",
+        nasdaq: "Technologie et innovation",
+        paris: "Marché français",
+        api: "Voir les points de terminaison disponibles"
+      }
+    };
+
+    function toggleDarkMode() {
+      document.documentElement.classList.toggle('dark');
+    }
+
+    function changeLanguage() {
+      const lang = document.getElementById('langSelect').value;
+      localStorage.setItem('lang', lang);
+      const t = translations[lang];
+      document.getElementById('title').textContent = t.title;
+      document.getElementById('description').textContent = t.description;
+      document.getElementById('footer').textContent = t.footer;
+      document.querySelectorAll('.desc').forEach(p => {
+        const key = p.getAttribute('data-key');
+        p.textContent = t[key];
+      });
+    }
+
+    document.getElementById("now").textContent = new Date().toLocaleDateString();
+    const savedLang = localStorage.getItem('lang') || 'pt';
+    document.getElementById('langSelect').value = savedLang;
+    changeLanguage();
+  </script>
+</body>
+</html>
