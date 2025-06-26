@@ -415,418 +415,342 @@
       </div>
     </div>
   </footer>
+<script type="module" src="/public/marketApis.js"></script>
 
-  <script>
-    // Enhanced translations
-    const translations = {
-      pt: {
-        title: "🌍 Global Markets Analytics Hub",
-        description: "Explore dados de mercado em tempo real com análises avançadas",
-        lastUpdate: "Última atualização:",
-        developedBy: "Desenvolvido por",
-        psi: "Ações da bolsa de Lisboa",
-        ibex: "Principais empresas espanholas",
-        nasdaq: "Tecnologia e inovação",
-        paris: "Mercado francês",
-        api: "Ferramentas para programadores",
-        analytics: "Ferramentas Avançadas",
-        totalMarkets: "Mercados Ativos",
-        avgGain: "Ganho Médio Hoje",
-        volume: "Volume Total",
-        status: "Estado",
-        viewDetails: "Ver Detalhes",
-        openAnalytics: "Abrir Analytics",
-        viewEndpoints: "Ver Endpoints",
-        quickAnalytics: "Análises Rápidas de Mercado",
-        marketTrends: "Tendências de Mercado",
-        sectorPerformance: "Performance por Setor",
-        advancedAnalytics: "Dashboard de Analytics Avançado"
-      },
-      en: {
-        title: "🌍 Global Markets Analytics Hub",
-        description: "Explore real-time market data with advanced analytics",
-        lastUpdate: "Last updated:",
-        developedBy: "Developed by",
-        psi: "Lisbon Stock Exchange",
-        ibex: "Top Spanish companies",
-        nasdaq: "Technology and innovation",
-        paris: "French market",
-        api: "Developer tools",
-        analytics: "Advanced Tools",
-        totalMarkets: "Active Markets",
-        avgGain: "Avg Gain Today",
-        volume: "Total Volume",
-        status: "Status",
-        viewDetails: "View Details",
-        openAnalytics: "Open Analytics",
-        viewEndpoints: "View Endpoints",
-        quickAnalytics: "Quick Market Analytics",
-        marketTrends: "Market Trends",
-        sectorPerformance: "Sector Performance",
-        advancedAnalytics: "Advanced Analytics Dashboard"
-      },
-      fr: {
-        title: "🌍 Hub d'Analytics des Marchés Globaux",
-        description: "Explorez les données de marché en temps réel avec des analyses avancées",
-        lastUpdate: "Dernière mise à jour:",
-        developedBy: "Développé par",
-        psi: "Actions de la bourse de Lisbonne",
-        ibex: "Principales entreprises espagnoles",
-        nasdaq: "Technologie et innovation",
-        paris: "Marché français",
-        api: "Outils développeur",
-        analytics: "Outils Avancés",
-        totalMarkets: "Marchés Actifs",
-        avgGain: "Gain Moyen Aujourd'hui",
-        volume: "Volume Total",
-        status: "Statut",
-        viewDetails: "Voir Détails",
-        openAnalytics: "Ouvrir Analytics",
-        viewEndpoints: "Voir Endpoints",
-        quickAnalytics: "Analytics Rapide du Marché",
-        marketTrends: "Tendances du Marché",
-        sectorPerformance: "Performance Sectorielle",
-        advancedAnalytics: "Tableau de Bord Analytics Avancé"
-      }
-    };
 
-    // Initialize charts
-    function initializeCharts() {
-      const commonOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          x: { display: false },
-          y: { display: false }
-        },
-        elements: { point: { radius: 0 } }
-      };
 
-      // Sample data for mini charts
-      const sampleData = {
-        labels: ['1', '2', '3', '4', '5', '6', '7'],
+<script type="module">
+import {
+  getPSIData,
+  getIBEXData,
+  getNASDAQData,
+  getParisData
+} from '/public/marketApis.js';
+
+// Translations object
+const translations = {
+  pt: {
+    title:             "🌍 Global Markets Analytics Hub",
+    description:       "Explore dados de mercado em tempo real com análises avançadas",
+    lastUpdate:        "Última atualização:",
+    developedBy:       "Desenvolvido por",
+    psi:               "Ações da bolsa de Lisboa",
+    ibex:              "Principais empresas espanholas",
+    nasdaq:            "Tecnologia e inovação",
+    paris:             "Mercado francês",
+    api:               "Ferramentas para programadores",
+    analytics:         "Ferramentas Avançadas",
+    totalMarkets:      "Mercados Ativos",
+    avgGain:           "Ganho Médio Hoje",
+    volume:            "Volume Total",
+    status:            "Estado",
+    viewDetails:       "Ver Detalhes",
+    openAnalytics:     "Abrir Analytics",
+    viewEndpoints:     "Ver Endpoints",
+    quickAnalytics:    "Análises Rápidas de Mercado",
+    marketTrends:      "Tendências de Mercado",
+    sectorPerformance: "Performance por Setor",
+    advancedAnalytics: "Dashboard de Analytics Avançado"
+  },
+  en: {
+    title:             "🌍 Global Markets Analytics Hub",
+    description:       "Explore real-time market data with advanced analytics",
+    lastUpdate:        "Last updated:",
+    developedBy:       "Developed by",
+    psi:               "Lisbon Stock Exchange",
+    ibex:              "Top Spanish companies",
+    nasdaq:            "Technology and innovation",
+    paris:             "French market",
+    api:               "Developer tools",
+    analytics:         "Advanced Tools",
+    totalMarkets:      "Active Markets",
+    avgGain:           "Avg Gain Today",
+    volume:            "Total Volume",
+    status:            "Status",
+    viewDetails:       "View Details",
+    openAnalytics:     "Open Analytics",
+    viewEndpoints:     "View Endpoints",
+    quickAnalytics:    "Quick Market Analytics",
+    marketTrends:      "Market Trends",
+    sectorPerformance: "Sector Performance",
+    advancedAnalytics: "Advanced Analytics Dashboard"
+  },
+  fr: {
+    title:             "🌍 Hub d'Analytics des Marchés Globaux",
+    description:       "Explorez les données de marché en temps réel avec des analyses avancées",
+    lastUpdate:        "Dernière mise à jour:",
+    developedBy:       "Développé par",
+    psi:               "Actions de la bourse de Lisbonne",
+    ibex:              "Principales entreprises espagnoles",
+    nasdaq:            "Technologie et innovation",
+    paris:             "Marché français",
+    api:               "Outils développeur",
+    analytics:         "Outils Avancés",
+    totalMarkets:      "Marchés Actifs",
+    avgGain:           "Gain Moyen Aujourd'hui",
+    volume:            "Volume Total",
+    status:            "Statut",
+    viewDetails:       "Voir Détails",
+    openAnalytics:     "Ouvrir Analytics",
+    viewEndpoints:     "Voir Endpoints",
+    quickAnalytics:    "Analytics Rapide du Marché",
+    marketTrends:      "Tendances du Marché",
+    sectorPerformance: "Performance Sectorielle",
+    advancedAnalytics: "Tableau de Bord Analytics Avancé"
+  }
+};
+
+// Chart.js colors and instances
+const primaryColors = {
+  psi:    '#10B981',
+  ibex:   '#EF4444',
+  nasdaq: '#3B82F6',
+  paris:  '#8B5CF6'
+};
+const charts = {};
+
+// Initialize a market card: value, percent change, mini-chart
+async function initMarket(key, fetchFn) {
+  const data = await fetchFn();
+  const prices = data.map(d => parseFloat(d.price));
+  const avgPct = (data.reduce((sum, d) => sum + parseFloat(d.percent), 0) / data.length).toFixed(2) + '%';
+  const lastPrice = prices[prices.length - 1].toFixed(2);
+
+  document.getElementById(key + 'Change').textContent = avgPct;
+  document.getElementById(key + 'Value').textContent = lastPrice;
+
+  if (charts[key]) {
+    charts[key].data.datasets[0].data = prices;
+    charts[key].update();
+  } else {
+    const ctx = document.getElementById(key + 'Chart').getContext('2d');
+    charts[key] = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: prices.map((_, i) => i),
         datasets: [{
-          borderWidth: 2,
-          fill: true,
-          tension: 0.4
+          data: prices,
+          borderColor: primaryColors[key],
+          fill: false,
+          pointRadius: 0
         }]
-      };
-
-      // PSI Chart
-      new Chart(document.getElementById('psiChart'), {
-        type: 'line',
-        data: {
-          ...sampleData,
-          datasets: [{
-            ...sampleData.datasets[0],
-            data: [100, 102, 98, 105, 108, 103, 112],
-            borderColor: '#10B981',
-            backgroundColor: 'rgba(16, 185, 129, 0.1)'
-          }]
-        },
-        options: commonOptions
-      });
-
-      // IBEX Chart
-      new Chart(document.getElementById('ibexChart'), {
-        type: 'line',
-        data: {
-          ...sampleData,
-          datasets: [{
-            ...sampleData.datasets[0],
-            data: [100, 99, 101, 97, 95, 98, 92],
-            borderColor: '#EF4444',
-            backgroundColor: 'rgba(239, 68, 68, 0.1)'
-          }]
-        },
-        options: commonOptions
-      });
-
-      // NASDAQ Chart
-      new Chart(document.getElementById('nasdaqChart'), {
-        type: 'line',
-        data: {
-          ...sampleData,
-          datasets: [{
-            ...sampleData.datasets[0],
-            data: [100, 103, 106, 104, 109, 112, 121],
-            borderColor: '#3B82F6',
-            backgroundColor: 'rgba(59, 130, 246, 0.1)'
-          }]
-        },
-        options: commonOptions
-      });
-
-      // CAC Chart
-      new Chart(document.getElementById('cacChart'), {
-        type: 'line',
-        data: {
-          ...sampleData,
-          datasets: [{
-            ...sampleData.datasets[0],
-            data: [100, 101, 99, 102, 104, 106, 109],
-            borderColor: '#8B5CF6',
-            backgroundColor: 'rgba(139, 92, 246, 0.1)'
-          }]
-        },
-        options: commonOptions
-      });
-
-      // Trends Chart
-      new Chart(document.getElementById('trendsChart'), {
-        type: 'line',
-        data: {
-          labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-          datasets: [
-            {
-              label: 'PSI',
-              data: [6100, 6150, 6080, 6200, 6250, 6247],
-              borderColor: '#10B981',
-              tension: 0.4
-            },
-            {
-              label: 'IBEX',
-              data: [9800, 9750, 9900, 9850, 9780, 9742],
-              borderColor: '#EF4444',
-              tension: 0.4
-            },
-            {
-              label: 'NASDAQ',
-              data: [14500, 14600, 14400, 14700, 14800, 14826],
-              borderColor: '#3B82F6',
-              tension: 0.4
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: 'top',
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: false
-            }
-          }
-        }
-      });
-    }
-
-    // Analytics Modal Functions
-    function openAnalyticsModal() {
-      document.getElementById('analyticsModal').classList.remove('hidden');
-      setTimeout(initializeAnalyticsCharts, 100);
-    }
-
-    function closeAnalyticsModal() {
-      document.getElementById('analyticsModal').classList.add('hidden');
-    }
-
-    function initializeAnalyticsCharts() {
-      // Correlation Matrix Chart
-      new Chart(document.getElementById('correlationChart'), {
-        type: 'scatter',
-        data: {
-          datasets: [{
-            label: 'PSI vs NASDAQ',
-            data: [
-              {x: 0.1, y: 0.8}, {x: 0.3, y: 0.7}, {x: 0.5, y: 0.9},
-              {x: 0.2, y: 0.6}, {x: 0.4, y: 0.75}, {x: 0.6, y: 0.85}
-            ],
-            backgroundColor: 'rgba(59, 130, 246, 0.6)',
-            borderColor: '#3B82F6'
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: true }
-          },
-          scales: {
-            x: { title: { display: true, text: 'PSI Returns' }},
-            y: { title: { display: true, text: 'NASDAQ Returns' }}
-          }
-        }
-      });
-
-      // Volatility Chart
-      new Chart(document.getElementById('volatilityChart'), {
-        type: 'bar',
-        data: {
-          labels: ['PSI', 'IBEX', 'NASDAQ', 'CAC'],
-          datasets: [{
-            label: 'Volatility (%)',
-            data: [15.2, 18.7, 22.1, 16.8],
-            backgroundColor: [
-              'rgba(16, 185, 129, 0.7)',
-              'rgba(239, 68, 68, 0.7)',
-              'rgba(59, 130, 246, 0.7)',
-              'rgba(139, 92, 246, 0.7)'
-            ],
-            borderColor: [
-              '#10B981', '#EF4444', '#3B82F6', '#8B5CF6'
-            ],
-            borderWidth: 2
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              title: { display: true, text: 'Volatility (%)' }
-            }
-          }
-        }
-      });
-
-      // Volume Distribution Chart
-      new Chart(document.getElementById('volumeChart'), {
-        type: 'doughnut',
-        data: {
-          labels: ['PSI', 'IBEX', 'NASDAQ', 'CAC', 'Others'],
-          datasets: [{
-            data: [15, 25, 35, 20, 5],
-            backgroundColor: [
-              '#10B981', '#EF4444', '#3B82F6', '#8B5CF6', '#F59E0B'
-            ],
-            borderWidth: 2,
-            borderColor: '#ffffff'
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: 'bottom'
-            }
-          }
-        }
-      });
-    }
-
-    // Dark Mode Toggle
-    function toggleDarkMode() {
-      document.documentElement.classList.toggle('dark');
-      const isDark = document.documentElement.classList.contains('dark');
-      document.getElementById('themeIcon').textContent = isDark ? '☀️' : '🌙';
-      
-      // Save preference
-      const currentLang = document.getElementById('langSelect').value;
-      const preferences = { darkMode: isDark, language: currentLang };
-      const data = JSON.stringify(preferences);
-      // Store in memory instead of localStorage
-      window.userPreferences = preferences;
-    }
-
-    // Language Change Function
-    function changeLanguage() {
-      const lang = document.getElementById('langSelect').value;
-      const t = translations[lang];
-      
-      // Update all translatable elements
-      Object.keys(t).forEach(key => {
-        const elements = document.querySelectorAll(`[data-key="${key}"]`);
-        elements.forEach(el => {
-          if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-            el.placeholder = t[key];
-          } else {
-            el.textContent = t[key];
-          }
-        });
-      });
-
-      // Update specific elements by ID
-      const titleEl = document.getElementById('title');
-      const descEl = document.getElementById('description');
-      if (titleEl) titleEl.textContent = t.title;
-      if (descEl) descEl.textContent = t.description;
-
-      // Save preference
-      const isDark = document.documentElement.classList.contains('dark');
-      const preferences = { darkMode: isDark, language: lang };
-      window.userPreferences = preferences;
-    }
-
-    // Real-time updates simulation
-    function updateMarketData() {
-      const markets = ['gainers', 'volume'];
-      const gains = ['+2.1%', '+2.8%', '+1.9%', '+3.2%'];
-      const volumes = ['$2.1B', '$2.3B', '$1.9B', '$2.5B'];
-      
-      document.getElementById('gainers').textContent = gains[Math.floor(Math.random() * gains.length)];
-      document.getElementById('volume').textContent = volumes[Math.floor(Math.random() * volumes.length)];
-    }
-
-    // Initialize everything
-    document.addEventListener('DOMContentLoaded', function() {
-      // Set current date
-      document.getElementById("now").textContent = new Date().toLocaleString();
-      
-      // Load saved preferences or defaults
-      const savedPrefs = window.userPreferences || { darkMode: false, language: 'pt' };
-      
-      if (savedPrefs.darkMode) {
-        document.documentElement.classList.add('dark');
-        document.getElementById('themeIcon').textContent = '☀️';
-      }
-      
-      document.getElementById('langSelect').value = savedPrefs.language;
-      changeLanguage();
-      
-      // Initialize charts after a brief delay
-      setTimeout(initializeCharts, 500);
-      
-      // Update market data every 30 seconds
-      setInterval(updateMarketData, 30000);
-      
-      // Update timestamp every minute
-      setInterval(() => {
-        document.getElementById("now").textContent = new Date().toLocaleString();
-      }, 60000);
-    });
-
-    // Close modal when clicking outside
-    document.getElementById('analyticsModal').addEventListener('click', function(e) {
-      if (e.target === this) {
-        closeAnalyticsModal();
+      },
+      options: {
+        responsive: true,
+        scales: { x: { display: false }, y: { display: false } },
+        plugins: { legend: { display: false } }
       }
     });
+  }
+}
 
-    // Keyboard shortcuts
-    document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') {
-        closeAnalyticsModal();
-      }
-      if (e.ctrlKey && e.key === 'd') {
-        e.preventDefault();
-        toggleDarkMode();
-      }
-    });
+// Refresh all market cards & header stats
+async function refreshAll() {
+  document.getElementById('totalMarkets').textContent = Object.keys(primaryColors).length;
+  await Promise.all([
+    initMarket('psi', getPSIData),
+    initMarket('ibex', getIBEXData),
+    initMarket('nasdaq', getNASDAQData),
+    initMarket('paris', getParisData)
+  ]);
+  // Simulated header stats
+  document.getElementById('avgGain').textContent = (Math.random() * 4 - 1).toFixed(2) + '%';
+  document.getElementById('volume').textContent  = '$' + (1 + Math.random() * 4).toFixed(1) + 'B';
+  document.getElementById('status').textContent  = 'Live';
+}
 
-    // Add smooth scrolling for better UX
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-          target.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-          });
-        }
-      });
+// Initialize the Quick Analytics Trends chart
+function initializeCharts() {
+  new Chart(document.getElementById('trendsChart'), {
+    type: 'line',
+    data: {
+      labels: ['Jan','Feb','Mar','Apr','May','Jun'],
+      datasets: [
+        { label: 'PSI',    data: [6100,6150,6080,6200,6250,6247], borderColor: '#10B981', tension: 0.4 },
+        { label: 'IBEX',   data: [9800,9750,9900,9850,9780,9742], borderColor: '#EF4444', tension: 0.4 },
+        { label: 'NASDAQ', data: [14500,14600,14400,14700,14800,14826], borderColor: '#3B82F6', tension: 0.4 }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'top' } },
+      scales: { y: { beginAtZero: false } }
+    }
+  });
+}
+
+// Advanced Analytics Modal charts
+function initializeAnalyticsCharts() {
+  // Correlation scatter
+  new Chart(document.getElementById('correlationChart'), {
+    type: 'scatter',
+    data: {
+      datasets: [{
+        label: 'PSI vs NASDAQ',
+        data: [
+          {x:0.1,y:0.8},{x:0.3,y:0.7},{x:0.5,y:0.9},
+          {x:0.2,y:0.6},{x:0.4,y:0.75},{x:0.6,y:0.85}
+        ],
+        backgroundColor: 'rgba(59, 130, 246, 0.6)',
+        borderColor: '#3B82F6'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: true } },
+      scales: {
+        x: { title: { display: true, text: 'PSI Returns' } },
+        y: { title: { display: true, text: 'NASDAQ Returns' } }
+      }
+    }
+  });
+
+  // Volatility bar
+  new Chart(document.getElementById('volatilityChart'), {
+    type: 'bar',
+    data: {
+      labels: ['PSI','IBEX','NASDAQ','CAC'],
+      datasets: [{
+        label: 'Volatility (%)',
+        data: [15.2,18.7,22.1,16.8],
+        backgroundColor: [
+          'rgba(16,185,129,0.7)',
+          'rgba(239,68,68,0.7)',
+          'rgba(59,130,246,0.7)',
+          'rgba(139,92,246,0.7)'
+        ],
+        borderColor: ['#10B981','#EF4444','#3B82F6','#8B5CF6'],
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, title: { display: true, text: 'Volatility (%)' } } }
+    }
+  });
+
+  // Volume distribution doughnut
+  new Chart(document.getElementById('volumeChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['PSI','IBEX','NASDAQ','CAC','Others'],
+      datasets: [{
+        data: [15,25,35,20,5],
+        backgroundColor: ['#10B981','#EF4444','#3B82F6','#8B5CF6','#F59E0B'],
+        borderColor: '#ffffff',
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom' } }
+    }
+  });
+}
+
+// Modal controls
+function openAnalyticsModal() {
+  document.getElementById('analyticsModal').classList.remove('hidden');
+  setTimeout(initializeAnalyticsCharts, 100);
+}
+function closeAnalyticsModal() {
+  document.getElementById('analyticsModal').classList.add('hidden');
+}
+
+// Dark mode toggle
+function toggleDarkMode() {
+  const isDark = document.documentElement.classList.toggle('dark');
+  document.getElementById('themeIcon').textContent = isDark ? '☀️' : '🌙';
+  window.userPreferences = { darkMode: isDark, language: window.userPreferences?.language || 'pt' };
+}
+
+// Language switch
+function changeLanguage() {
+  const lang = document.getElementById('langSelect').value;
+  const t = translations[lang];
+
+  // Atualiza todos os elementos com data-key
+  Object.keys(t).forEach(key => {
+    document.querySelectorAll(`[data-key="${key}"]`).forEach(el => {
+      el.textContent = t[key];
     });
-  </script>
+  });
+
+  // Atualiza elementos individuais, se existirem
+  const titleEl = document.getElementById('title');
+  if (titleEl) titleEl.textContent = t.title;
+
+  const descEl = document.getElementById('description');
+  if (descEl) descEl.textContent = t.description;
+
+  const footerEl = document.getElementById('footer');
+  if (footerEl) footerEl.textContent = t.lastUpdate;
+
+  // Persiste preferência
+  window.userPreferences = { 
+    darkMode: window.userPreferences?.darkMode || false, 
+    language: lang 
+  };
+}
+
+
+// Header stats simulation
+function updateMarketData() {
+  const gains   = ['+2.1%','+2.8%','+1.9%','+3.2%'];
+  const volumes = ['$2.1B','$2.3B','$1.9B','$2.5B'];
+  document.getElementById('gainers').textContent = gains[Math.floor(Math.random()*gains.length)];
+  document.getElementById('volume'). textContent = volumes[Math.floor(Math.random()*volumes.length)];
+}
+
+// On page load
+document.addEventListener('DOMContentLoaded', () => {
+  // Restore preferences
+  const prefs = window.userPreferences || { darkMode: false, language: 'pt' };
+  if (prefs.darkMode) toggleDarkMode();
+  document.getElementById('langSelect').value = prefs.language;
+  changeLanguage();
+
+  // Initialize
+  refreshAll();
+  initializeCharts();
+
+  // Intervals
+  setInterval(refreshAll, 20000);
+  setInterval(updateMarketData, 30000);
+  setInterval(() => {
+    document.getElementById('now').textContent = new Date().toLocaleString();
+  }, 60000);
+
+  // Close modal on outside click
+  document.getElementById('analyticsModal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeAnalyticsModal();
+  });
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeAnalyticsModal();
+    if (e.ctrlKey && e.key === 'd') {
+      e.preventDefault();
+      toggleDarkMode();
+    }
+  });
+
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      document.querySelector(a.getAttribute('href'))?.scrollIntoView({ behavior:'smooth' });
+    });
+  });
+});
+</script>
+
+
+
 </body>
 </html>
