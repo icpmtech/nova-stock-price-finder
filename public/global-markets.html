@@ -713,6 +713,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const prefs = window.userPreferences || { darkMode: false, language: 'pt' };
   if (prefs.darkMode) toggleDarkMode();
   document.getElementById('langSelect').value = prefs.language;
+  document.getElementById('analyticsBtn').addEventListener('click', openAnalyticsModal);
+
   changeLanguage();
 
   // Initialize
