@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -19,56 +18,101 @@
   </div>
 
   <!-- Tabs -->
-  <div class="flex gap-4 mb-4 text-sm text-gray-400">
-    <span class="text-white border-b border-white pb-1">Visão geral</span>
-    <span class="cursor-pointer hover:text-white">Notícias</span>
-    <span class="cursor-pointer hover:text-white">Saúde 🔒</span>
-    <span class="cursor-pointer hover:text-white">Técnica</span>
-    <span class="cursor-pointer hover:text-white">Opções</span>
-    <span class="cursor-pointer hover:text-white">Análise</span>
-    <span class="cursor-pointer hover:text-white">Histórico</span>
+  <div role="tablist" aria-label="Navegação de abas" class="flex gap-4 mb-4 text-sm">
+    <button data-tab="overview" class="tab-btn text-white border-b-2 border-white pb-1">Visão geral</button>
+    <button data-tab="news" class="tab-btn text-gray-400 hover:text-white">Notícias</button>
+    <button data-tab="saude" class="tab-btn text-gray-400 hover:text-white">Saúde 🔒</button>
+    <button data-tab="tecnica" class="tab-btn text-gray-400 hover:text-white">Técnica</button>
+    <button data-tab="opcoes" class="tab-btn text-gray-400 hover:text-white">Opções</button>
+    <button data-tab="analise" class="tab-btn text-gray-400 hover:text-white">Análise</button>
+    <button data-tab="historico" class="tab-btn text-gray-400 hover:text-white">Histórico</button>
   </div>
 
-  <!-- Preço-alvo e Upside -->
-  <div class="bg-gray-800 p-4 rounded-lg text-sm mb-4">
-    <p><strong>Preço-alvo dos analistas:</strong> <span id="targetPrice" class="text-white">--</span></p>
-    <p><strong>Upside/Downside:</strong> <span id="downside" class="text-red-500">--</span></p>
-  </div>
-
-  <!-- Técnica -->
-  <div class="bg-gray-800 p-4 rounded-lg text-sm mb-4">
-    <h2 class="text-lg font-semibold mb-2">📊 Técnica</h2>
-    <div class="grid grid-cols-3 gap-2 text-center mb-2">
-      <div class="bg-gray-700 p-2 rounded">5 Min 🔒<br><button class="bg-yellow-600 px-2 py-1 mt-1 rounded">Aceder</button></div>
-      <div class="bg-gray-700 p-2 rounded">15 Min 🔒<br><button class="bg-yellow-600 px-2 py-1 mt-1 rounded">Aceder</button></div>
-      <div class="bg-green-600 p-2 rounded font-bold">30 Min<br>Compra Forte</div>
-      <div class="bg-green-600 p-2 rounded font-bold">Hora<br>Compra Forte</div>
-      <div class="bg-green-600 p-2 rounded font-bold">Dia<br>Compra Forte</div>
-      <div class="bg-green-600 p-2 rounded font-bold">Semanal<br>Compra Forte</div>
-      <div class="bg-gray-600 p-2 rounded font-bold col-span-3">Mensal<br>Neutra</div>
+  <!-- Painéis de conteúdo -->
+  <div id="overview" class="tab-content">
+    <!-- Preço-alvo e Upside -->
+    <div class="bg-gray-800 p-4 rounded-lg text-sm mb-4">
+      <p><strong>Preço-alvo dos analistas:</strong> <span id="targetPrice" class="text-white">--</span></p>
+      <p><strong>Upside/Downside:</strong> <span id="downside" class="text-red-500">--</span></p>
     </div>
-    <a href="#" class="text-blue-400 text-sm">MOSTRAR MAIS ➤</a>
-  </div>
 
-  <!-- Opiniões da comunidade -->
-  <div class="bg-gray-800 p-4 rounded-lg text-sm mb-4">
-    <h2 class="text-lg font-semibold mb-2">👥 Opiniões da comunidade</h2>
-    <div class="flex items-center gap-2 text-sm mb-1">
-      <span class="text-red-400">🐻 12%</span>
-      <div class="w-full bg-red-700 rounded h-2 relative">
-        <div class="absolute bg-green-600 h-2 left-[12%] rounded" style="width:88%"></div>
+    <!-- Opiniões da comunidade -->
+    <div class="bg-gray-800 p-4 rounded-lg text-sm mb-4">
+      <h2 class="text-lg font-semibold mb-2">👥 Opiniões da comunidade</h2>
+      <div class="flex items-center gap-2 text-sm mb-1">
+        <span class="text-red-400">🐻 12%</span>
+        <div class="w-full bg-red-700 rounded h-2 relative">
+          <div class="absolute bg-green-600 h-2 left-[12%] rounded" style="width:88%"></div>
+        </div>
+        <span class="text-green-400">88% 🐂</span>
       </div>
-      <span class="text-green-400">88% 🐂</span>
+    </div>
+
+    <!-- Botão operar -->
+    <div class="text-center mb-6">
+      <button class="bg-green-500 hover:bg-green-600 w-full py-3 rounded text-black font-bold text-lg">Comece a operar</button>
     </div>
   </div>
 
-  <!-- Botão operar -->
-  <div class="mb-6 text-center">
-    <button class="bg-green-500 hover:bg-green-600 w-full py-3 rounded text-black font-bold text-lg">Comece a operar</button>
+  <div id="news" class="tab-content hidden">
+    <p class="text-gray-400 italic">Seção de notícias em breve...</p>
   </div>
 
-  <!-- Script para buscar dados -->
+  <div id="saude" class="tab-content hidden">
+    <p class="text-gray-400 italic">Conteúdo de saúde protegido 🔒</p>
+  </div>
+
+  <div id="tecnica" class="tab-content hidden">
+    <!-- Técnica -->
+    <div class="bg-gray-800 p-4 rounded-lg text-sm mb-4">
+      <h2 class="text-lg font-semibold mb-2">📊 Técnica</h2>
+      <div class="grid grid-cols-3 gap-2 text-center mb-2">
+        <div class="bg-gray-700 p-2 rounded">5 Min 🔒<br><button class="bg-yellow-600 px-2 py-1 mt-1 rounded">Aceder</button></div>
+        <div class="bg-gray-700 p-2 rounded">15 Min 🔒<br><button class="bg-yellow-600 px-2 py-1 mt-1 rounded">Aceder</button></div>
+        <div class="bg-green-600 p-2 rounded font-bold">30 Min<br>Compra Forte</div>
+        <div class="bg-green-600 p-2 rounded font-bold">Hora<br>Compra Forte</div>
+        <div class="bg-green-600 p-2 rounded font-bold">Dia<br>Compra Forte</div>
+        <div class="bg-green-600 p-2 rounded font-bold">Semanal<br>Compra Forte</div>
+        <div class="bg-gray-600 p-2 rounded font-bold col-span-3">Mensal<br>Neutra</div>
+      </div>
+      <a href="#" class="text-blue-400 text-sm">MOSTRAR MAIS ➤</a>
+    </div>
+  </div>
+
+  <div id="opcoes" class="tab-content hidden">
+    <p class="text-gray-400 italic">Seção de opções em breve...</p>
+  </div>
+
+  <div id="analise" class="tab-content hidden">
+    <p class="text-gray-400 italic">Seção de análise em breve...</p>
+  </div>
+
+  <div id="historico" class="tab-content hidden">
+    <p class="text-gray-400 italic">Seção de histórico em breve...</p>
+  </div>
+
+  <!-- Script para tabs e dados -->
   <script>
+    // Função para manipular abas
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.getAttribute('data-tab');
+        // Atualiza botões ativos
+        document.querySelectorAll('.tab-btn').forEach(b => {
+          b.classList.remove('text-white', 'border-b-2', 'border-white');
+          b.classList.add('text-gray-400');
+        });
+        btn.classList.remove('text-gray-400');
+        btn.classList.add('text-white', 'border-b-2', 'border-white');
+        // Exibe painel selecionado
+        document.querySelectorAll('.tab-content').forEach(panel => {
+          panel.classList.add('hidden');
+        });
+        document.getElementById(target).classList.remove('hidden');
+      });
+    });
+
+    // Fetch dados do ticker
     function getQueryParam(param) {
       const url = new URL(window.location.href);
       return url.searchParams.get(param);
