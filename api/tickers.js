@@ -1,4 +1,4 @@
-import axios from 'axios';
+import yahooFinance from 'yahoo-finance2';
 
 const tickers = {
   "EDP": "EDP.LS",
@@ -12,15 +12,13 @@ const tickers = {
 };
 
 export default async function handler(req, res) {
-  const results = [];
+  try {
+    const results = [];
 
-  for (const [name, symbol] of Object.entries(tickers)) {
-    try {
-      const url = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?range=1d&interval=1d`;
-      const response = await axios.get(url);
-      const meta = response.data.chart.result[0].meta;
-      const price = meta.regularMarketPrice;
-      const previous = meta.chartPreviousClose;
+    for (const [name, symbol] of Object.entries(tickers)) {
+      const quote = await yahooFinance.quote(symbol);
+      const price = quote.regularMarketPrice;
+      const previous = quote.regularMarketPreviousClose;
       const diff = price - previous;
       const percent = (diff / previous) * 100;
 
@@ -31,11 +29,12 @@ export default async function handler(req, res) {
         diff: diff.toFixed(2),
         percent: percent.toFixed(2)
       });
-    } catch (err) {
-      results.push({ name, symbol, error: 'Erro ao obter dados' });
     }
-  }
 
-  res.setHeader('Cache-Control', 's-maxage=300');
-  res.status(200).json(results);
+    res.setHeader('Cache-Control', 's-maxage=300');
+    res.status(200).json(results);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erro ao obter dados dos tickers.' });
+  }
 }
