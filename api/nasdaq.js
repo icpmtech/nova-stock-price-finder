@@ -1,4 +1,4 @@
-import yahooFinance from 'yahoo‑finance2';
+import yahooFinance from 'yahoo-finance2';
 
 const nasdaqTickers = {
   "Adobe": "ADBE",
