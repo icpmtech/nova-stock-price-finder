@@ -1,0 +1,195 @@
+
+<!DOCTYPE html><html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CAC 40 - Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100 text-gray-900 p-6">
+  <div class="max-w-6xl mx-auto space-y-10"><h1 class="text-3xl font-bold text-center">📈 Tickers CAC 40 - France</h1>
+<p class="text-center text-sm text-gray-600">🔄 Mise à jour automatique toutes les 20 secondes</p>
+
+<div class="flex flex-wrap justify-between items-center text-center gap-4">
+  <div>
+    <label for="languageSelect" class="mr-2 font-medium">🌍 Langue:</label>
+    <select id="languageSelect" class="border p-2 rounded" onchange="changeLanguage()">
+      <option value="fr">Français</option>
+      <option value="en">English</option>
+    </select>
+  </div>
+  <div>
+    <label for="themeToggle" class="mr-2 font-medium">🌓 Thème:</label>
+    <button onclick="toggleTheme()" id="themeToggle" class="px-3 py-1 bg-gray-200 rounded">🌞 Clair</button>
+  </div>
+</div>
+
+<div class="flex flex-wrap justify-center gap-4 mt-4">
+  <button onclick="exportToCSV()" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700">
+    📤 Exporter CSV
+  </button>
+  <button onclick="generateAIAnalysis()" class="bg-green-600 text-white px-4 py-2 rounded shadow hover:bg-green-700">
+    🧠 Analyse IA
+  </button>
+</div>
+
+<div class="text-center">
+  <input id="searchInput" type="text" placeholder="🔍 Rechercher une entreprise..." class="border p-2 rounded w-80 shadow focus:outline-none focus:ring" oninput="filterAndRender()" />
+</div>
+
+<div class="overflow-x-auto shadow">
+  <table class="min-w-full bg-white rounded">
+    <thead class="bg-gray-200 text-left text-sm uppercase tracking-wider">
+      <tr>
+        <th class="py-3 px-4">Entreprise</th>
+        <th class="py-3 px-4 text-right">Prix (€)</th>
+        <th class="py-3 px-4 text-right">Variation</th>
+      </tr>
+    </thead>
+    <tbody id="tickersTable" class="text-sm"></tbody>
+  </table>
+</div>
+
+<div class="bg-white p-4 rounded shadow">
+  <h2 class="text-xl font-semibold mb-4">📊 Graphique des Prix</h2>
+  <canvas id="priceChart" height="100"></canvas>
+</div>
+
+<div class="bg-white p-4 rounded shadow">
+  <h2 class="text-xl font-semibold mb-4">📋 Résumé Statistique</h2>
+  <ul id="summaryStats" class="list-disc pl-6 space-y-1 text-gray-700"></ul>
+</div>
+
+<div class="bg-white p-4 rounded shadow">
+  <h2 class="text-xl font-semibold mb-4">🧠 Analyse avec IA</h2>
+  <div id="aiAnalysis" class="text-gray-700 whitespace-pre-wrap"></div>
+</div>
+
+  </div>  <script>
+    const API_URL = 'https://nova-stock-price-finder.vercel.app/api/paris';
+    let chartInstance = null;
+    let allData = [];
+
+    async function loadTickers() {
+      try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+        allData = data;
+        filterAndRender();
+      } catch (error) {
+        console.error('Erreur lors du chargement des données:', error);
+      }
+    }
+
+    function filterAndRender() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = allData.filter(t => t.name.toLowerCase().includes(search));
+      renderTable(filtered);
+      renderChart(filtered);
+      renderStats(filtered);
+    }
+
+    function renderTable(data) {
+      const tbody = document.getElementById('tickersTable');
+      tbody.innerHTML = '';
+      data.forEach(ticker => {
+        const isPositive = parseFloat(ticker.diff) >= 0;
+        const arrow = isPositive ? '▲' : '▼';
+        const color = isPositive ? 'text-green-600' : 'text-red-600';
+        tbody.innerHTML += `
+          <tr class="border-t">
+            <td class="py-3 px-4 font-medium">${ticker.name}</td>
+            <td class="py-3 px-4 text-right">€${ticker.price}</td>
+            <td class="py-3 px-4 text-right ${color}">${arrow} ${ticker.diff} (${ticker.percent}%)</td>
+          </tr>`;
+      });
+    }
+
+    function renderChart(data) {
+      const ctx = document.getElementById('priceChart').getContext('2d');
+      const labels = data.map(d => d.name);
+      const prices = data.map(d => parseFloat(d.price));
+      if (chartInstance) chartInstance.destroy();
+      chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{ label: 'Prix (€)', data: prices, borderWidth: 1 }]
+        },
+        options: {
+          responsive: true,
+          animation: false,
+          scales: { y: { beginAtZero: false } }
+        }
+      });
+    }
+
+    function renderStats(data) {
+      const prices = data.map(d => parseFloat(d.price));
+      const positive = data.filter(d => parseFloat(d.diff) > 0).length;
+      const negative = data.length - positive;
+      const avg = prices.reduce((a, b) => a + b, 0) / prices.length;
+      const max = Math.max(...prices);
+      const min = Math.min(...prices);
+      const ul = document.getElementById('summaryStats');
+      ul.innerHTML = `
+        <li>📌 Entreprises affichées: <strong>${data.length}</strong></li>
+        <li>📈 Hausses: <span class="text-green-600">${positive}</span> | 📉 Baisses: <span class="text-red-600">${negative}</span></li>
+        <li>💰 Prix moyen: <strong>€${avg.toFixed(2)}</strong></li>
+        <li>🔼 Maximum: <strong>€${max.toFixed(2)}</strong></li>
+        <li>🔽 Minimum: <strong>€${min.toFixed(2)}</strong></li>`;
+    }
+
+    function exportToCSV() {
+      const headers = ['Entreprise', 'Prix (€)', 'Variation (€)', 'Variation (%)'];
+      const rows = allData.map(t => [t.name, t.price, t.diff, t.percent]);
+      let csvContent = 'data:text/csv;charset=utf-8,';
+      csvContent += headers.join(',') + '\n';
+      rows.forEach(row => { csvContent += row.join(',') + '\n'; });
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "tickers_cac40.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    async function generateAIAnalysis() {
+      const aiBox = document.getElementById('aiAnalysis');
+      aiBox.textContent = '🔄 Génération de l’analyse IA...';
+
+      const prompt = `Voici les données actuelles du CAC 40:\n\n` +
+        allData.map(t => `${t.name}: €${t.price} (${t.percent}%)`).join("\n") +
+        `\n\nRédige une synthèse de 3 observations clés en français.`;
+
+      try {
+        const res = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer SEU_TOKEN_OPENAI_AQUI"
+          },
+          body: JSON.stringify({
+            model: "gpt-3.5-turbo",
+            messages: [
+              { role: "system", content: "Tu es un analyste financier." },
+              { role: "user", content: prompt }
+            ]
+          })
+        });
+        const json = await res.json();
+        aiBox.textContent = json.choices[0].message.content;
+      } catch (err) {
+        aiBox.textContent = '❌ Erreur lors de l’analyse IA.';
+      }
+    }
+
+    function changeLanguage() {}
+    function toggleTheme() {}
+
+    loadTickers();
+    setInterval(loadTickers, 20000);
+  </script></body>
+</html>
