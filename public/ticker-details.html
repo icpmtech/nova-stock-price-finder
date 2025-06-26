@@ -1,20 +1,24 @@
+
 <!DOCTYPE html>
 <html lang="pt">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SMCI Dashboard</title>
+  <title>Dashboard Bolsa</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-[#0e0e0e] text-white font-sans p-4">
 
   <!-- Título -->
   <div class="mb-4">
-    <h1 class="text-xl font-bold text-white">SMCI</h1>
-    <p class="text-green-500 text-3xl font-bold">46.61 <span class="text-sm align-top">(+8.80%)</span></p>
+    <h1 id="tickerName" class="text-xl font-bold text-white">Ticker</h1>
+    <p class="text-3xl font-bold">
+      <span id="price" class="text-green-500">--</span>
+      <span id="variation" class="text-sm align-top text-green-500"></span>
+    </p>
   </div>
 
-  <!-- Tabs (fake nav) -->
+  <!-- Tabs -->
   <div class="flex gap-4 mb-4 text-sm text-gray-400">
     <span class="text-white border-b border-white pb-1">Visão geral</span>
     <span class="cursor-pointer hover:text-white">Notícias</span>
@@ -22,13 +26,13 @@
     <span class="cursor-pointer hover:text-white">Técnica</span>
     <span class="cursor-pointer hover:text-white">Opções</span>
     <span class="cursor-pointer hover:text-white">Análise</span>
-    <span class="cursor-pointer hover:text-white">Dados Históricos</span>
+    <span class="cursor-pointer hover:text-white">Histórico</span>
   </div>
 
   <!-- Preço-alvo e Upside -->
   <div class="bg-gray-800 p-4 rounded-lg text-sm mb-4">
-    <p><strong>Preço-alvo dos analistas:</strong> <span class="text-white">42.93</span></p>
-    <p><strong>Upside/Downside:</strong> <span class="text-red-500">-7.88% de downside</span></p>
+    <p><strong>Preço-alvo dos analistas:</strong> <span id="targetPrice" class="text-white">--</span></p>
+    <p><strong>Upside/Downside:</strong> <span id="downside" class="text-red-500">--</span></p>
   </div>
 
   <!-- Técnica -->
@@ -63,5 +67,47 @@
     <button class="bg-green-500 hover:bg-green-600 w-full py-3 rounded text-black font-bold text-lg">Comece a operar</button>
   </div>
 
+  <!-- Script para buscar dados -->
+  <script>
+    function getQueryParam(param) {
+      const url = new URL(window.location.href);
+      return url.searchParams.get(param);
+    }
+
+    async function fetchTickerData(ticker) {
+      try {
+        const res = await fetch(`/api/tickerdetails?ticker=${ticker}`);
+        const data = await res.json();
+
+        document.querySelector('#tickerName').textContent = data.name || ticker;
+        document.querySelector('#price').textContent = data.price;
+
+        const variation = document.querySelector('#variation');
+        variation.textContent = ` (${data.percent}%)`;
+        variation.classList.remove('text-green-500', 'text-red-500');
+        variation.classList.add(parseFloat(data.percent) >= 0 ? 'text-green-500' : 'text-red-500');
+
+        document.querySelector('#targetPrice').textContent = data.targetPrice || 'N/D';
+
+        const downside = data.targetPrice
+          ? ((data.targetPrice - data.price) / data.price * 100).toFixed(2)
+          : null;
+
+        const downsideEl = document.querySelector('#downside');
+        downsideEl.textContent = downside
+          ? `${Math.abs(downside)}% de ${downside > 0 ? 'upside' : 'downside'}`
+          : 'N/D';
+
+        downsideEl.classList.remove('text-green-500', 'text-red-500');
+        downsideEl.classList.add(downside > 0 ? 'text-green-500' : 'text-red-500');
+      } catch (err) {
+        console.error('Erro ao carregar dados:', err);
+        document.querySelector('#tickerName').textContent = 'Erro ao carregar ticker';
+      }
+    }
+
+    const ticker = getQueryParam('ticker') || 'SMCI';
+    fetchTickerData(ticker);
+  </script>
 </body>
 </html>
