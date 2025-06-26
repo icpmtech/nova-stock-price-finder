@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -28,43 +29,25 @@
     <span class="cursor-pointer hover:text-white">Histórico</span>
   </div>
 
-  <!-- Preço-alvo e Upside/Downside -->
+  <!-- Preço-alvo e Upside -->
   <div class="bg-gray-800 p-4 rounded-lg text-sm mb-4">
-    <p>
-      <strong>Preço-alvo dos analistas:</strong>
-      <span id="targetPrice" class="text-white">--</span>
-    </p>
-    <p>
-      <strong>Upside/Downside:</strong>
-      <span id="downside" class="text-red-500">--</span>
-    </p>
+    <p><strong>Preço-alvo dos analistas:</strong> <span id="targetPrice" class="text-white">--</span></p>
+    <p><strong>Upside/Downside:</strong> <span id="downside" class="text-red-500">--</span></p>
   </div>
 
-  <!-- Análise Técnica -->
+  <!-- Técnica -->
   <div class="bg-gray-800 p-4 rounded-lg text-sm mb-4">
-    <h2 class="text-lg font-semibold mb-2">📊 Análise Técnica</h2>
-    <div id="recTrend" class="grid grid-cols-5 gap-2 text-center">
-      <div class="bg-gray-700 p-2 rounded">
-        <span class="block font-bold">🟢 Strong Buy</span>
-        <span id="rec-strongBuy">--</span>
-      </div>
-      <div class="bg-gray-700 p-2 rounded">
-        <span class="block font-bold">🟩 Buy</span>
-        <span id="rec-buy">--</span>
-      </div>
-      <div class="bg-gray-700 p-2 rounded">
-        <span class="block font-bold">🟨 Hold</span>
-        <span id="rec-hold">--</span>
-      </div>
-      <div class="bg-gray-700 p-2 rounded">
-        <span class="block font-bold">🟥 Sell</span>
-        <span id="rec-sell">--</span>
-      </div>
-      <div class="bg-gray-700 p-2 rounded">
-        <span class="block font-bold">🔴 Strong Sell</span>
-        <span id="rec-strongSell">--</span>
-      </div>
+    <h2 class="text-lg font-semibold mb-2">📊 Técnica</h2>
+    <div class="grid grid-cols-3 gap-2 text-center mb-2">
+      <div class="bg-gray-700 p-2 rounded">5 Min 🔒<br><button class="bg-yellow-600 px-2 py-1 mt-1 rounded">Aceder</button></div>
+      <div class="bg-gray-700 p-2 rounded">15 Min 🔒<br><button class="bg-yellow-600 px-2 py-1 mt-1 rounded">Aceder</button></div>
+      <div class="bg-green-600 p-2 rounded font-bold">30 Min<br>Compra Forte</div>
+      <div class="bg-green-600 p-2 rounded font-bold">Hora<br>Compra Forte</div>
+      <div class="bg-green-600 p-2 rounded font-bold">Dia<br>Compra Forte</div>
+      <div class="bg-green-600 p-2 rounded font-bold">Semanal<br>Compra Forte</div>
+      <div class="bg-gray-600 p-2 rounded font-bold col-span-3">Mensal<br>Neutra</div>
     </div>
+    <a href="#" class="text-blue-400 text-sm">MOSTRAR MAIS ➤</a>
   </div>
 
   <!-- Opiniões da comunidade -->
@@ -73,7 +56,7 @@
     <div class="flex items-center gap-2 text-sm mb-1">
       <span class="text-red-400">🐻 12%</span>
       <div class="w-full bg-red-700 rounded h-2 relative">
-        <div class="absolute bg-green-600 h-2 left-[12%] rounded" style="width:88%;"></div>
+        <div class="absolute bg-green-600 h-2 left-[12%] rounded" style="width:88%"></div>
       </div>
       <span class="text-green-400">88% 🐂</span>
     </div>
@@ -81,61 +64,50 @@
 
   <!-- Botão operar -->
   <div class="mb-6 text-center">
-    <button class="bg-green-500 hover:bg-green-600 w-full py-3 rounded text-black font-bold text-lg">
-      Comece a operar
-    </button>
+    <button class="bg-green-500 hover:bg-green-600 w-full py-3 rounded text-black font-bold text-lg">Comece a operar</button>
   </div>
 
   <!-- Script para buscar dados -->
   <script>
     function getQueryParam(param) {
-      return new URL(window.location.href).searchParams.get(param);
+      const url = new URL(window.location.href);
+      return url.searchParams.get(param);
     }
 
     async function fetchTickerData(ticker) {
       try {
-        const res  = await fetch(`/api/tickerdetails?ticker=${ticker}`);
+        const res = await fetch(`/api/tickerdetails?ticker=${ticker}`);
         const data = await res.json();
 
-        // Título e preço
-        document.getElementById('tickerName').textContent = data.name || ticker;
-        document.getElementById('price').textContent      = data.price;
-        const varEl = document.getElementById('variation');
-        varEl.textContent = ` (${data.percent}%)`;
-        varEl.classList.toggle('text-green-500', parseFloat(data.percent) >= 0);
-        varEl.classList.toggle('text-red-500',   parseFloat(data.percent) <  0);
+        document.querySelector('#tickerName').textContent = data.name || ticker;
+        document.querySelector('#price').textContent = data.price;
 
-        // Preço-alvo e Upside/Downside
-        document.getElementById('targetPrice').textContent = data.targetPrice || 'N/D';
-        const down = data.targetPrice
+        const variation = document.querySelector('#variation');
+        variation.textContent = ` (${data.percent}%)`;
+        variation.classList.remove('text-green-500', 'text-red-500');
+        variation.classList.add(parseFloat(data.percent) >= 0 ? 'text-green-500' : 'text-red-500');
+
+        document.querySelector('#targetPrice').textContent = data.targetPrice || 'N/D';
+
+        const downside = data.targetPrice
           ? ((data.targetPrice - data.price) / data.price * 100).toFixed(2)
           : null;
-        const downEl = document.getElementById('downside');
-        downEl.textContent = down
-          ? `${Math.abs(down)}% de ${down > 0 ? 'upside' : 'downside'}`
+
+        const downsideEl = document.querySelector('#downside');
+        downsideEl.textContent = downside
+          ? `${Math.abs(downside)}% de ${downside > 0 ? 'upside' : 'downside'}`
           : 'N/D';
-        downEl.classList.toggle('text-green-500', down > 0);
-        downEl.classList.toggle('text-red-500',   down <= 0);
 
-        // Análise Técnica (recommendationTrend)
-        if (data.recSummary) {
-          document.getElementById('rec-strongBuy').textContent  = data.recSummary.strongBuy;
-          document.getElementById('rec-buy').textContent        = data.recSummary.buy;
-          document.getElementById('rec-hold').textContent       = data.recSummary.hold;
-          document.getElementById('rec-sell').textContent       = data.recSummary.sell;
-          document.getElementById('rec-strongSell').textContent = data.recSummary.strongSell;
-        }
-
+        downsideEl.classList.remove('text-green-500', 'text-red-500');
+        downsideEl.classList.add(downside > 0 ? 'text-green-500' : 'text-red-500');
       } catch (err) {
         console.error('Erro ao carregar dados:', err);
-        document.getElementById('tickerName').textContent = 'Erro ao carregar ticker';
+        document.querySelector('#tickerName').textContent = 'Erro ao carregar ticker';
       }
     }
 
-    // Obtém o ticker da query string ou usa 'SMCI' por defeito
     const ticker = getQueryParam('ticker') || 'SMCI';
     fetchTickerData(ticker);
   </script>
 </body>
 </html>
-
