@@ -97,20 +97,30 @@
     }
 
     function renderTable(data) {
-      const tbody = document.getElementById('tickersTable');
-      tbody.innerHTML = '';
-      data.forEach(ticker => {
-        const isPositive = parseFloat(ticker.diff) >= 0;
-        const arrow = isPositive ? '▲' : '▼';
-        const color = isPositive ? 'text-green-600' : 'text-red-600';
-        tbody.innerHTML += `
-          <tr class="border-t">
-            <td class="py-3 px-4 font-medium">${ticker.name}</td>
-            <td class="py-3 px-4 text-right">€${ticker.price}</td>
-            <td class="py-3 px-4 text-right ${color}">${arrow} ${ticker.diff} (${ticker.percent}%)</td>
-          </tr>`;
-      });
-    }
+  const tbody = document.getElementById('tickersTable');
+  tbody.innerHTML = '';
+  data.forEach(ticker => {
+    const isPositive = parseFloat(ticker.diff) >= 0;
+    const arrow = isPositive ? '▲' : '▼';
+    const color = isPositive ? 'text-green-600' : 'text-red-600';
+
+    // Cria a linha e adiciona evento de clique
+    const row = document.createElement('tr');
+    row.className = 'border-t cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-800 transition';
+    row.onclick = () => {
+      // Navega para ticker-details.html passando o símbolo
+      window.location.href = `ticker-details.html?ticker=${encodeURIComponent(ticker.symbol)}`;
+    };
+
+    // Preenche o HTML da linha
+    row.innerHTML = `
+      <td class="py-3 px-4 font-medium">${ticker.name}</td>
+      <td class="py-3 px-4 text-right">€${ticker.price}</td>
+      <td class="py-3 px-4 text-right ${color}">${arrow} ${ticker.diff} (${ticker.percent}%)</td>
+    `;
+    tbody.appendChild(row);
+  });
+}
 
     function renderChart(data) {
       const ctx = document.getElementById('priceChart').getContext('2d');
