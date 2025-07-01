@@ -9,11 +9,13 @@
   <div class="max-w-4xl mx-auto">
     <h1 class="text-3xl font-bold mb-6">📈 Transações de Ações</h1>
 
+    <!-- Input de utilizador -->
     <div class="mb-4">
       <label class="block text-sm mb-1">Utilizador</label>
       <input id="userInput" value="pedro" class="p-2 rounded bg-gray-700 w-full" />
     </div>
 
+    <!-- Formulário de criação/edição -->
     <form id="transactionForm" class="space-y-4 bg-gray-800 p-4 rounded">
       <input type="hidden" id="transactionId" />
       <div class="flex gap-4">
@@ -31,6 +33,7 @@
       <button type="submit" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded">Guardar</button>
     </form>
 
+    <!-- Lista de transações -->
     <div id="transactionList" class="mt-8 space-y-2"></div>
   </div>
 
@@ -38,6 +41,7 @@
     const userInput = document.getElementById('userInput');
     const listEl = document.getElementById('transactionList');
     const form = document.getElementById('transactionForm');
+    const submitBtn = form.querySelector('button');
 
     function getAPI() {
       const user = userInput.value.trim() || 'default';
@@ -45,23 +49,27 @@
     }
 
     async function fetchTransactions() {
-      const res = await fetch(getAPI());
-      const data = await res.json();
-      listEl.innerHTML = '';
-      data.forEach(t => {
-        const div = document.createElement('div');
-        div.className = 'bg-gray-800 p-4 rounded flex justify-between items-center';
-        div.innerHTML = `
-          <div>
-            <strong>${t.symbol}</strong> • ${t.operation} • ${t.amount} x €${t.price} • ${t.date}
-          </div>
-          <div class="space-x-2">
-            <button onclick='editTransaction(${JSON.stringify(t)})' class="text-yellow-400">✏️</button>
-            <button onclick='deleteTransaction("${t.id}")' class="text-red-500">🗑️</button>
-          </div>
-        `;
-        listEl.appendChild(div);
-      });
+      try {
+        const res = await fetch(getAPI());
+        const data = await res.json();
+        listEl.innerHTML = '';
+        data.forEach(t => {
+          const div = document.createElement('div');
+          div.className = 'bg-gray-800 p-4 rounded flex justify-between items-center';
+          div.innerHTML = `
+            <div>
+              <strong>${t.symbol}</strong> • ${t.operation} • ${t.amount} x €${t.price} • ${t.date}
+            </div>
+            <div class="space-x-2">
+              <button onclick='editTransaction(${JSON.stringify(t)})' class="text-yellow-400">✏️</button>
+              <button onclick='deleteTransaction("${t.id}")' class="text-red-500">🗑️</button>
+            </div>
+          `;
+          listEl.appendChild(div);
+        });
+      } catch (err) {
+        alert('Erro ao carregar transações.');
+      }
     }
 
     function editTransaction(t) {
@@ -74,29 +82,53 @@
     }
 
     async function deleteTransaction(id) {
-      await fetch(`${getAPI()}&id=${id}`, { method: 'DELETE' });
-      fetchTransactions();
+      try {
+        await fetch(`${getAPI()}&id=${id}`, { method: 'DELETE' });
+        fetchTransactions();
+      } catch (err) {
+        alert('Erro ao eliminar transação.');
+      }
     }
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+
       const id = document.getElementById('transactionId').value;
-      const data = {
-        symbol: document.getElementById('symbol').value,
-        operation: document.getElementById('operation').value,
-        amount: parseFloat(document.getElementById('amount').value),
-        price: parseFloat(document.getElementById('price').value),
-        date: document.getElementById('date').value,
-      };
+      const symbol = document.getElementById('symbol').value.trim();
+      const operation = document.getElementById('operation').value;
+      const amount = parseFloat(document.getElementById('amount').value);
+      const price = parseFloat(document.getElementById('price').value);
+      const date = document.getElementById('date').value;
+
+      // Validações
+      if (!symbol) return alert('O símbolo da ação é obrigatório.');
+      if (!operation) return alert('Selecione uma operação.');
+      if (!amount || amount <= 0) return alert('Quantidade inválida.');
+      if (!price || price <= 0) return alert('Preço inválido.');
+      if (!date) return alert('Data obrigatória.');
+
+      // Desativa botão e indica progresso
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'A guardar...';
+
+      const data = { symbol, operation, amount, price, date };
       const method = id ? 'PUT' : 'POST';
       const url = id ? `${getAPI()}&id=${id}` : getAPI();
-      await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      form.reset();
-      fetchTransactions();
+
+      try {
+        await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        form.reset();
+        fetchTransactions();
+      } catch (err) {
+        alert('Erro ao guardar a transação.');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Guardar';
+      }
     });
 
     userInput.addEventListener('change', () => {
@@ -104,7 +136,9 @@
       fetchTransactions();
     });
 
+    // Carrega inicial
     fetchTransactions();
   </script>
 </body>
 </html>
+
