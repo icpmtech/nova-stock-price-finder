@@ -1,8 +1,11 @@
 export default async function handler(req, res) {
-  const ELASTIC_URL = process.env.ELASTIC_URL || 'http://45.77.225.119:9200/'; // Replace with your Elasticsearch URL or use env var
+  // Normalize base URL (strip any trailing slash)
+  const rawUrl = process.env.ELASTIC_URL || 'http://45.77.225.119:9200/';
+  const ELASTIC_URL = rawUrl.replace(/\/+$/, '');  // no trailing slash
+
   const { method, query, body } = req;
   const user = query.user || 'default';
-  const id = query.id || '';
+  const id   = query.id   || '';
   const index = `stocks-${user}`;
 
   const fetchElastic = async (url, method = 'GET', data = null) => {
@@ -23,18 +26,17 @@ export default async function handler(req, res) {
     const existsUrl = `${ELASTIC_URL}/${index}`;
     const existsResponse = await fetch(existsUrl, { method: 'HEAD' });
     if (existsResponse.status === 404) {
-      // Define your mappings/settings here if needed
       const createUrl = `${ELASTIC_URL}/${index}`;
       const settings = {
         settings: {
-          number_of_shards: 1,
-          number_of_replicas: 1
+          number_of_shards:   1,
+          number_of_replicas: 1,
         },
         mappings: {
           properties: {
-            symbol: { type: 'keyword' },
-            price: { type: 'float' },
-            timestamp: { type: 'date' }
+            symbol:    { type: 'keyword' },
+            price:     { type: 'float'   },
+            timestamp: { type: 'date'    },
             // add other fields as needed
           }
         }
@@ -44,7 +46,6 @@ export default async function handler(req, res) {
   };
 
   try {
-    // Create index if it doesn't exist
     await ensureIndex();
 
     if (method === 'GET') {
@@ -54,8 +55,14 @@ export default async function handler(req, res) {
         return res.status(200).json(result._source || {});
       } else {
         const url = `${ELASTIC_URL}/${index}/_search`;
-        const result = await fetchElastic(url, 'POST', { size: 1000, query: { match_all: {} } });
-        const data = result.hits?.hits.map(hit => ({ id: hit._id, ...hit._source })) || [];
+        const result = await fetchElastic(url, 'POST', {
+          size: 1000,
+          query: { match_all: {} }
+        });
+        const data = (result.hits?.hits || []).map(hit => ({
+          id:   hit._id,
+          ...hit._source
+        }));
         return res.status(200).json(data);
       }
     }
@@ -67,23 +74,28 @@ export default async function handler(req, res) {
     }
 
     if (method === 'PUT') {
-      if (!id) return res.status(400).json({ error: 'Missing id for update' });
+      if (!id) {
+        return res.status(400).json({ error: 'Missing id for update' });
+      }
       const url = `${ELASTIC_URL}/${index}/_doc/${id}`;
       const result = await fetchElastic(url, 'PUT', body);
       return res.status(200).json({ success: true, result });
     }
 
     if (method === 'DELETE') {
-      if (!id) return res.status(400).json({ error: 'Missing id for delete' });
+      if (!id) {
+        return res.status(400).json({ error: 'Missing id for delete' });
+      }
       const url = `${ELASTIC_URL}/${index}/_doc/${id}`;
       const result = await fetchElastic(url, 'DELETE');
       return res.status(200).json({ success: true, result });
     }
 
+    // Method not allowed
     res.setHeader('Allow', ['GET', 'POST', 'PUT', 'DELETE']);
-    res.status(405).end(`Method ${method} Not Allowed`);
+    return res.status(405).end(`Method ${method} Not Allowed`);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: error.message });
   }
 }

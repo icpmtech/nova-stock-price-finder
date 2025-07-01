@@ -4,11 +4,18 @@
   "type": "module",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "dev":      "next dev",
+    "build":    "next build",
+    "vercel:dev":   "vercel dev",
+    "vercel:build": "vercel build"
+
   },
   "dependencies": {
-    "express": "^4.18.2",
     "cors": "^2.8.5",
+    "express": "^4.18.2",
     "yahoo-finance2": "^2.0.0"
+  },
+  "devDependencies": {
+    "vercel": "^44.2.8"
   }
 }
