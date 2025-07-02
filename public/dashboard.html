@@ -30,63 +30,38 @@
     <div id="content" class="max-w-3xl mx-auto bg-white rounded-lg shadow p-6 text-gray-700">
       <p class="italic text-gray-500">A carregar…</p>
     </div>
-     <h1>Portefólio do Utilizador</h1>
-  <table>
-    <thead>
-      <tr>
-        <th>Símbolo</th>
-        <th>Operação</th>
-        <th>Qtd</th>
-        <th>Preço Compra</th>
-        <th>Preço Atual</th>
-        <th>Comissão</th>
-        <th>Investido</th>
-        <th>Mercado</th>
-        <th>Lucro/Prejuízo</th>
-        <th>Sentimento</th>
-      </tr>
-    </thead>
-    <tbody id="portfolioTable"></tbody>
-  </table>
+    <div class="max-w-4xl mx-auto">
+    <h1 class="text-3xl font-bold mb-6">📈 Transações de Ações</h1>
 
-  <script>
-    async function fetchPortfolio() {
-      try {
-        const res = await fetch("/api/portfolio");
-        const json = await res.json();
+    <!-- Input de utilizador -->
+    <div class="mb-4">
+      <label class="block text-sm mb-1">Utilizador</label>
+      <input id="userInput" value="pedro" class="p-2 rounded bg-gray-700 w-full" />
+    </div>
 
-        const tbody = document.getElementById("portfolioTable");
-        tbody.innerHTML = "";
+    <!-- Formulário de criação/edição -->
+    <form id="transactionForm" class="space-y-4 bg-gray-800 p-4 rounded">
+      <input type="hidden" id="transactionId" />
+      <div class="flex gap-4">
+        <input id="symbol" placeholder="Símbolo" class="p-2 rounded bg-gray-700 w-full" required />
+        <select id="operation" class="p-2 rounded bg-gray-700">
+          <option value="buy">Compra</option>
+          <option value="sell">Venda</option>
+        </select>
+      </div>
+      <div class="flex gap-4">
+        <input type="number" id="amount" placeholder="Quantidade" class="p-2 rounded bg-gray-700 w-full" required />
+        <input type="number" id="price" placeholder="Preço" class="p-2 rounded bg-gray-700 w-full" required step="0.0001" min="0" />
+        <input type="date" id="date" class="p-2 rounded bg-gray-700 w-full" required />
+      </div>
+      <button type="submit" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded">Guardar</button>
+    </form>
 
-        json.hits.hits.forEach(doc => {
-          const p = doc._source;
-          const diff = (p.currentMarketValue - p.totalInvestment).toFixed(2);
-          const diffClass = diff > 0 ? "gain" : diff < 0 ? "loss" : "";
+    <!-- Lista de transações -->
+    <div id="transactionList" class="mt-8 space-y-2"></div>
+  </div>
 
-          const row = `
-            <tr>
-              <td>${p.symbol}</td>
-              <td>${p.operationType}</td>
-              <td>${p.quantity}</td>
-              <td>${p.purchasePrice?.toFixed(2) || '-'}</td>
-              <td>${p.currentPrice?.toFixed(2) || '-'}</td>
-              <td>${p.commission?.toFixed(2) || '0.00'}</td>
-              <td>${p.totalInvestment?.toFixed(2) || '0.00'}</td>
-              <td>${p.currentMarketValue?.toFixed(2) || '0.00'}</td>
-              <td class="${diffClass}">${diff} €</td>
-              <td>${(p.socialSentiment?.sentimentScore * 100).toFixed(0)}%</td>
-            </tr>`;
-          tbody.innerHTML += row;
-        });
-
-      } catch (e) {
-        console.error("Erro ao carregar dados:", e);
-        document.body.innerHTML += "<p>Erro ao carregar dados do portefólio.</p>";
-      }
-    }
-
-    fetchPortfolio();
-  </script>
+  
   </main>
 
   <!-- Rodapé opcional -->
@@ -94,35 +69,150 @@
     © 2025 novamarketshub
   </footer>
 
-  <!-- Firebase + Autenticação -->
   <script type="module">
-     import { auth } from './firebase-init.js';
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
+    // ← Substitui pelos teus dados do Firebase
+    const firebaseConfig = {
+      apiKey: "TUA_API_KEY",
+      authDomain: "TUA_APP.firebaseapp.com",
+      projectId: "TUA_PROJECT_ID",
+      appId: "TUA_APP_ID"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
+    // DOM Elements
     const contentEl = document.getElementById('content');
     const signOutBtn = document.getElementById('signOutBtn');
 
-    // Verifica estado de autenticação
+    const userInput = document.getElementById('userInput');
+    const listEl = document.getElementById('transactionList');
+    const form = document.getElementById('transactionForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+
+    // Auth guard
     onAuthStateChanged(auth, user => {
       if (!user) {
-        // Redireciona se não autenticado
         window.location.href = '/login.html';
       } else {
-        // Exibe conteúdo protegido
-        contentEl.innerHTML = `
-          <h2 class="text-xl font-medium mb-4">Olá, ${user.email}</h2>
-          <p>Bem-vindo à tua área protegida! Aqui podes colocar gráficos, listas de dados, ou o que precisares.</p>
-        `;
+        contentEl.classList.remove('opacity-50', 'pointer-events-none');
+        fetchTransactions();
       }
     });
 
-    // Botão de Sair
+    // Sign out
     signOutBtn.addEventListener('click', async () => {
       await signOut(auth);
       window.location.href = '/login.html';
     });
-  </script>
 
+    // Build API URL
+    function getAPI() {
+      const user = encodeURIComponent(userInput.value.trim() || 'default');
+      return `/api/transactions?user=${user}`;
+    }
+
+    // Fetch & render transactions
+    async function fetchTransactions() {
+      try {
+        const res = await fetch(getAPI());
+        const data = await res.json();
+        listEl.innerHTML = '';
+        data.forEach(t => {
+          const el = document.createElement('div');
+          el.className = 'bg-gray-800 text-white p-4 rounded flex justify-between items-center';
+          el.innerHTML = `
+            <div>
+              <strong>${t.symbol}</strong> • ${t.operation} • ${t.amount} × €${t.price} • ${t.date}
+            </div>
+            <div class="space-x-2">
+              <button data-t='${encodeURIComponent(JSON.stringify(t))}' class="edit-btn text-yellow-400">✏️</button>
+              <button data-id='${t.id}' class="del-btn text-red-500">🗑️</button>
+            </div>
+          `;
+          listEl.appendChild(el);
+        });
+      } catch {
+        alert('Erro ao carregar transações.');
+      }
+    }
+
+    // Edit & delete handlers
+    listEl.addEventListener('click', e => {
+      if (e.target.matches('.edit-btn')) {
+        const t = JSON.parse(decodeURIComponent(e.target.dataset.t));
+        form.transactionId.value = t.id;
+        form.symbol.value = t.symbol;
+        form.operation.value = t.operation;
+        form.amount.value = t.amount;
+        form.price.value = t.price;
+        form.date.value = t.date;
+      }
+      if (e.target.matches('.del-btn')) {
+        deleteTransaction(e.target.dataset.id);
+      }
+    });
+
+    async function deleteTransaction(id) {
+      try {
+        await fetch(`${getAPI()}&id=${id}`, { method: 'DELETE' });
+        fetchTransactions();
+      } catch {
+        alert('Erro ao eliminar transação.');
+      }
+    }
+
+    // Form submit
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const id        = form.transactionId.value;
+      const symbol    = form.symbol.value.trim();
+      const operation = form.operation.value;
+      const amount    = parseFloat(form.amount.value);
+      const price     = parseFloat(form.price.value);
+      const date      = form.date.value;
+
+      if (!symbol)    return alert('Símbolo obrigatório.');
+      if (!operation) return alert('Selecione operação.');
+      if (!amount || amount <= 0) return alert('Quantidade inválida.');
+      if (!price  || price  <= 0) return alert('Preço inválido.');
+      if (!date)      return alert('Data obrigatória.');
+
+      submitBtn.disabled = true;
+      btnText.textContent = 'A guardar...';
+
+      const payload = { symbol, operation, amount, price, date };
+      const method  = id ? 'PUT' : 'POST';
+      const url     = id ? `${getAPI()}&id=${id}` : getAPI();
+
+      try {
+        await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        form.reset();
+        fetchTransactions();
+      } catch {
+        alert('Erro ao guardar a transação.');
+      } finally {
+        submitBtn.disabled = false;
+        btnText.textContent = 'Guardar';
+      }
+    });
+
+    // Refresh on user change
+    userInput.addEventListener('change', () => {
+      form.reset();
+      fetchTransactions();
+    });
+  </script>
 </body>
 </html>
