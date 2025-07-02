@@ -5,6 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard - Área Protegida</title>
   <script src="https://cdn.tailwindcss.com"></script>
+   <style>
+    body { font-family: sans-serif; padding: 20px; }
+    h1 { text-align: center; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background-color: #f0f0f0; }
+    .gain { color: green; font-weight: bold; }
+    .loss { color: red; font-weight: bold; }
+  </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
 
@@ -21,11 +30,68 @@
     <div id="content" class="max-w-3xl mx-auto bg-white rounded-lg shadow p-6 text-gray-700">
       <p class="italic text-gray-500">A carregar…</p>
     </div>
+     <h1>Portefólio do Utilizador</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Símbolo</th>
+        <th>Operação</th>
+        <th>Qtd</th>
+        <th>Preço Compra</th>
+        <th>Preço Atual</th>
+        <th>Comissão</th>
+        <th>Investido</th>
+        <th>Mercado</th>
+        <th>Lucro/Prejuízo</th>
+        <th>Sentimento</th>
+      </tr>
+    </thead>
+    <tbody id="portfolioTable"></tbody>
+  </table>
+
+  <script>
+    async function fetchPortfolio() {
+      try {
+        const res = await fetch("/api/portfolio");
+        const json = await res.json();
+
+        const tbody = document.getElementById("portfolioTable");
+        tbody.innerHTML = "";
+
+        json.hits.hits.forEach(doc => {
+          const p = doc._source;
+          const diff = (p.currentMarketValue - p.totalInvestment).toFixed(2);
+          const diffClass = diff > 0 ? "gain" : diff < 0 ? "loss" : "";
+
+          const row = `
+            <tr>
+              <td>${p.symbol}</td>
+              <td>${p.operationType}</td>
+              <td>${p.quantity}</td>
+              <td>${p.purchasePrice?.toFixed(2) || '-'}</td>
+              <td>${p.currentPrice?.toFixed(2) || '-'}</td>
+              <td>${p.commission?.toFixed(2) || '0.00'}</td>
+              <td>${p.totalInvestment?.toFixed(2) || '0.00'}</td>
+              <td>${p.currentMarketValue?.toFixed(2) || '0.00'}</td>
+              <td class="${diffClass}">${diff} €</td>
+              <td>${(p.socialSentiment?.sentimentScore * 100).toFixed(0)}%</td>
+            </tr>`;
+          tbody.innerHTML += row;
+        });
+
+      } catch (e) {
+        console.error("Erro ao carregar dados:", e);
+        document.body.innerHTML += "<p>Erro ao carregar dados do portefólio.</p>";
+      }
+    }
+
+    fetchPortfolio();
+  </script>
   </main>
 
   <!-- Rodapé opcional -->
   <footer class="bg-white text-center p-4 text-sm text-gray-500">
-    © 2025 A tua novamarketshub
+    © 2025 novamarketshub
   </footer>
 
   <!-- Firebase + Autenticação -->
