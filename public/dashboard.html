@@ -3,71 +3,118 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard - Área Protegida</title>
+  <title>Dashboard - novamarketshub</title>
   <script src="https://cdn.tailwindcss.com"></script>
-   <style>
-    body { font-family: sans-serif; padding: 20px; }
-    h1 { text-align: center; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-    th { background-color: #f0f0f0; }
-    .gain { color: green; font-weight: bold; }
-    .loss { color: red; font-weight: bold; }
+  <style>
+    body { font-family: 'Inter', sans-serif; }
   </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex flex-col">
+<body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col">
 
-  <!-- Header -->
-  <header class="bg-white shadow p-4 flex justify-between items-center">
-    <h1 class="text-2xl font-semibold text-gray-800">Dashboard</h1>
-    <button id="signOutBtn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md transition">
-      Sair
-    </button>
-  </header>
+  <!-- Sidebar + Header Container -->
+  <div class="flex flex-1 overflow-hidden">
+    <!-- Sidebar -->
+    <aside class="bg-white w-64 border-r p-6 hidden md:flex flex-col">
+      <h2 class="text-2xl font-bold mb-6">novaHub</h2>
+      <nav class="flex-1 space-y-4">
+        <a href="#" class="block py-2 px-4 rounded hover:bg-gray-100 font-medium">📊 Dashboard</a>
+        <a href="#" class="block py-2 px-4 rounded hover:bg-gray-100 font-medium">💼 Transações</a>
+        <a href="#" class="block py-2 px-4 rounded hover:bg-gray-100 font-medium">📈 Relatórios</a>
+        <a href="#" class="block py-2 px-4 rounded hover:bg-gray-100 font-medium">⚙️ Definições</a>
+      </nav>
+      <button id="signOutBtn" class="mt-auto bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded transition"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7"/></svg>Sair</button>
+    </aside>
 
-  <!-- Main Content -->
-  <main class="flex-grow p-6">
-    <div id="content" class="max-w-3xl mx-auto bg-white rounded-lg shadow p-6 text-gray-700">
-      <p class="italic text-gray-500">A carregar…</p>
-    </div>
-    <div class="max-w-4xl mx-auto">
-    <h1 class="text-3xl font-bold mb-6">📈 Transações de Ações</h1>
-
-    <!-- Input de utilizador -->
-    <div class="mb-4">
-      <label class="block text-sm mb-1">Utilizador</label>
-      <input id="userInput" readonly class="p-2 rounded bg-gray-700 w-full" />
-    </div>
-
-    <!-- Formulário de criação/edição -->
-    <form id="transactionForm" class="space-y-4 bg-gray-800 p-4 rounded">
-      <input type="hidden" id="transactionId" />
-      <div class="flex gap-4">
-        <input id="symbol" placeholder="Símbolo" class="p-2 rounded bg-gray-700 w-full" required />
-        <select id="operation" class="p-2 rounded bg-gray-700">
-          <option value="buy">Compra</option>
-          <option value="sell">Venda</option>
-        </select>
+    <!-- Main Content -->
+    <main class="flex-1 overflow-auto p-6">
+      <!-- Header for mobile -->
+      <div class="md:hidden flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-semibold">Dashboard</h1>
+        <button id="mobileMenuBtn" class="p-2 text-gray-600 hover:text-gray-800">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
       </div>
-      <div class="flex gap-4">
-        <input type="number" id="amount" placeholder="Quantidade" class="p-2 rounded bg-gray-700 w-full" required />
-        <input type="number" id="price" placeholder="Preço" class="p-2 rounded bg-gray-700 w-full" required step="0.0001" min="0" />
-        <input type="date" id="date" class="p-2 rounded bg-gray-700 w-full" required />
-      </div>
-      <button type="submit" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded">Guardar</button>
-    </form>
 
-    <!-- Lista de transações -->
-    <div id="transactionList" class="mt-8 space-y-2"></div>
+      <!-- Welcome Card -->
+      <section class="bg-white rounded-2xl shadow p-6 mb-8">
+        <h2 class="text-xl font-semibold mb-2">Bem-vindo, <span id="userName" class="text-indigo-600">Utilizador</span>!</h2>
+        <p class="text-gray-500">Aqui está um resumo das suas atividades mais recentes.</p>
+      </section>
+
+      <!-- Transactions Section -->
+      <section>
+        <h2 class="text-2xl font-bold mb-4 flex items-center"><span class="mr-2">📈</span>Transações de Ações</h2>
+        <!-- Form & List Container -->
+        <div class="grid md:grid-cols-3 gap-6">
+          <!-- Form -->
+          <form id="transactionForm" class="md:col-span-1 bg-white rounded-2xl shadow p-6 space-y-4">
+            <input type="hidden" id="transactionId" />
+            <div>
+              <label class="block text-sm font-medium mb-1">Símbolo</label>
+              <input id="symbol" placeholder="Ex: AAPL" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" required />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Operação</label>
+              <select id="operation" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+                <option value="buy">Compra</option>
+                <option value="sell">Venda</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Quantidade</label>
+              <input type="number" id="amount" placeholder="0" min="1" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" required />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Preço (€)</label>
+              <input type="number" id="price" placeholder="0.00" step="0.0001" min="0" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" required />
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Data</label>
+              <input type="date" id="date" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" required />
+            </div>
+            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded transition">Guardar</button>
+          </form>
+          
+          <!-- Transactions Table -->
+          <div id="transactionList" class="md:col-span-2 overflow-auto bg-white rounded-2xl shadow p-6">
+            <table class="w-full table-auto">
+              <thead>
+                <tr class="text-left">
+                  <th class="px-4 py-2">Símbolo</th>
+                  <th class="px-4 py-2">Operação</th>
+                  <th class="px-4 py-2">Quantidade</th>
+                  <th class="px-4 py-2">Preço (€)</th>
+                  <th class="px-4 py-2">Data</th>
+                  <th class="px-4 py-2">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="transactionsBody">
+                <!-- Dynamically populated -->
+                <tr><td colspan="6" class="text-center text-gray-400 py-8">Sem transações registadas.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
   </div>
 
-  
-  </main>
-
-  <!-- Rodapé opcional -->
+  <!-- Footer -->
   <footer class="bg-white text-center p-4 text-sm text-gray-500">
     © 2025 novamarketshub
   </footer>
+
+  <!-- Optional: Mobile Sidebar Toggle Script -->
+  <script>
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const sidebar = document.querySelector('aside');
+    mobileMenuBtn?.addEventListener('click', () => {
+      sidebar.classList.toggle('hidden');
+    });
+  </script>
 
   <script type="module">
      import { auth } from './firebase-init.js';
