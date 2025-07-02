@@ -74,7 +74,7 @@
               <label class="block text-sm font-medium mb-1">Data</label>
               <input type="date" id="date" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" required />
             </div>
-            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded transition">Guardar</button>
+            <button id="submitBtn" type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded transition">Guardar</button>
           </form>
           
           <!-- Transactions Table -->
@@ -129,7 +129,6 @@
     // DOM Elements
     const contentEl = document.getElementById('content');
     const signOutBtn = document.getElementById('signOutBtn');
-    const userInput = document.getElementById('userInput');
     const listEl = document.getElementById('transactionList');
     const form = document.getElementById('transactionForm');
     const submitBtn = document.getElementById('submitBtn');
@@ -143,7 +142,6 @@
         contentEl.classList.remove('opacity-50', 'pointer-events-none');
         fetchTransactions(user.email);
            // Exibe conteúdo protegido
-        userInput.value = user.email;
         contentEl.innerHTML = `
           <div>
             <h2 class="text-xl font-medium mb-4">Olá, ${user.email}</h2>
@@ -232,7 +230,7 @@
       if (!date)      return alert('Data obrigatória.');
 
       submitBtn.disabled = true;
-      btnText.textContent = 'A guardar...';
+      submitBtn.textContent = 'A guardar...';
 
       const payload = { symbol, operation, amount, price, date };
       const method  = id ? 'PUT' : 'POST';
@@ -250,15 +248,11 @@
         alert('Erro ao guardar a transação.');
       } finally {
         submitBtn.disabled = false;
-        btnText.textContent = 'Guardar';
+        submitBtn.textContent = 'Guardar';
       }
     });
 
-    // Refresh on user change
-    userInput.addEventListener('change', () => {
-      form.reset();
-      fetchTransactions();
-    });
+   
   </script>
 </body>
 </html>
