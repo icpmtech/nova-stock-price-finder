@@ -70,22 +70,14 @@
   </footer>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+     import { auth } from './firebase-init.js';
     import {
       getAuth,
       onAuthStateChanged,
       signOut
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-    // ← Substitui pelos teus dados do Firebase
-    const firebaseConfig = {
-      apiKey: "TUA_API_KEY",
-      authDomain: "TUA_APP.firebaseapp.com",
-      projectId: "TUA_PROJECT_ID",
-      appId: "TUA_APP_ID"
-    };
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+  
 
     // DOM Elements
     const contentEl = document.getElementById('content');
