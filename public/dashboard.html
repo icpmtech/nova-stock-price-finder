@@ -133,14 +133,15 @@
     const form = document.getElementById('transactionForm');
     const submitBtn = document.getElementById('submitBtn');
     const btnText = document.getElementById('btnText');
-
+    let currentUserEmail = '';
     // Auth guard
     onAuthStateChanged(auth, user => {
       if (!user) {
         window.location.href = '/login.html';
       } else {
+        currentUserEmail = user.email;
         contentEl.classList.remove('opacity-50', 'pointer-events-none');
-        fetchTransactions(user.email);
+        fetchTransactions();
            // Exibe conteúdo protegido
         contentEl.innerHTML = `
           <div>
@@ -158,15 +159,15 @@
     });
 
     // Build API URL
-    function getAPI(user) {
-      const userMail = encodeURIComponent(user.trim() || 'default');
+    function getAPI() {
+      const userMail = encodeURIComponent((currentUserEmail || '').trim() || 'default');
       return `/api/transactions?user=${userMail}`;
     }
 
     // Fetch & render transactions
-    async function fetchTransactions(user) {
+    async function fetchTransactions() {
       try {
-        const res = await fetch(getAPI(user));
+        const res = await fetch(getAPI());
         const data = await res.json();
         listEl.innerHTML = '';
         data.forEach(t => {
