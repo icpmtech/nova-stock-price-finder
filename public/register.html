@@ -10,217 +10,135 @@
       from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
-    @keyframes shake {
-      0%, 100% { transform: translateX(0); }
-      25% { transform: translateX(-5px); }
-      75% { transform: translateX(5px); }
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
     .slide-in { animation: slideIn 0.6s ease-out; }
-    .shake { animation: shake 0.5s ease-in-out; }
-    .pulse { animation: pulse 2s infinite; }
-    .gradient-bg {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
+    .strength-bar { height: 4px; border-radius: 2px; transition: all 0.3s ease; }
     .glass-effect {
       backdrop-filter: blur(10px);
       background: rgba(31, 41, 55, 0.8);
       border: 1px solid rgba(255, 255, 255, 0.1);
     }
-    .input-focus:focus {
-      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
-      transform: translateY(-1px);
-      transition: all 0.2s ease;
-    }
-    .btn-hover:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
-    }
-    .strength-bar {
-      height: 4px;
-      border-radius: 2px;
-      transition: all 0.3s ease;
-    }
   </style>
 </head>
-<body class="gradient-bg min-h-screen flex items-center justify-center p-4">
+<body class="bg-gradient-to-br from-purple-700 to-blue-600 min-h-screen flex items-center justify-center p-4 text-white">
+
   <div class="w-full max-w-md">
-    <!-- Logo/Brand Area -->
     <div class="text-center mb-8 slide-in">
-      <div class="w-16 h-16 bg-green-600 rounded-full mx-auto mb-4 flex items-center justify-center">
-        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
-        </svg>
-      </div>
-      <h1 class="text-3xl font-bold text-white mb-2">Criar Conta</h1>
-      <p class="text-gray-300">Junte-se a nós hoje mesmo</p>
+      <h1 class="text-3xl font-bold">Criar Conta</h1>
+      <p class="text-gray-300">Junte-se à nossa comunidade</p>
     </div>
 
-    <!-- Registration Form -->
-    <div class="glass-effect rounded-2xl shadow-2xl p-8 slide-in">
+    <div class="glass-effect p-8 rounded-xl shadow-xl slide-in">
       <form id="registerForm" class="space-y-6">
-        <!-- Name Fields -->
-        <div class="grid grid-cols-2 gap-4">
-          <div class="space-y-2">
-            <label for="firstName" class="block text-sm font-medium text-gray-300">Nome</label>
-            <input 
-              type="text" 
-              id="firstName" 
-              name="firstName"
-              placeholder="João" 
-              required 
-              autocomplete="given-name"
-              class="input-focus w-full px-3 py-3 rounded-lg bg-gray-700/50 text-white placeholder-gray-400 border border-gray-600 focus:outline-none focus:border-blue-500 transition-all duration-200"
-            >
-          </div>
-          <div class="space-y-2">
-            <label for="lastName" class="block text-sm font-medium text-gray-300">Apelido</label>
-            <input 
-              type="text" 
-              id="lastName" 
-              name="lastName"
-              placeholder="Silva" 
-              required 
-              autocomplete="family-name"
-              class="input-focus w-full px-3 py-3 rounded-lg bg-gray-700/50 text-white placeholder-gray-400 border border-gray-600 focus:outline-none focus:border-blue-500 transition-all duration-200"
-            >
-          </div>
+        <div>
+          <label for="email" class="block text-sm">Email</label>
+          <input id="email" type="email" required class="w-full mt-1 px-3 py-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring focus:ring-blue-500" />
         </div>
 
-        <!-- Email Field -->
-        <div class="space-y-2">
-          <label for="email" class="block text-sm font-medium text-gray-300">Email</label>
-          <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path>
-              </svg>
-            </div>
-            <input 
-              type="email" 
-              id="email" 
-              name="email"
-              placeholder="seu@email.com" 
-              required 
-              autocomplete="email"
-              class="input-focus w-full pl-10 pr-4 py-3 rounded-lg bg-gray-700/50 text-white placeholder-gray-400 border border-gray-600 focus:outline-none focus:border-blue-500 transition-all duration-200"
-            >
-            <div id="emailValidation" class="absolute inset-y-0 right-0 pr-3 flex items-center hidden">
-              <svg class="h-5 w-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-              </svg>
-            </div>
+        <div>
+          <label for="password" class="block text-sm">Palavra-passe</label>
+          <input id="password" type="password" required class="w-full mt-1 px-3 py-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring focus:ring-blue-500" />
+          <div class="mt-2 flex space-x-1">
+            <div id="bar1" class="flex-1 strength-bar bg-gray-600"></div>
+            <div id="bar2" class="flex-1 strength-bar bg-gray-600"></div>
+            <div id="bar3" class="flex-1 strength-bar bg-gray-600"></div>
+            <div id="bar4" class="flex-1 strength-bar bg-gray-600"></div>
           </div>
+          <p id="strengthText" class="text-xs mt-1 text-gray-300">Força da password</p>
         </div>
 
-        <!-- Password Field -->
-        <div class="space-y-2">
-          <label for="password" class="block text-sm font-medium text-gray-300">Palavra-passe</label>
-          <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-              </svg>
-            </div>
-            <input 
-              type="password" 
-              id="password" 
-              name="password"
-              placeholder="••••••••" 
-              required 
-              autocomplete="new-password"
-              class="input-focus w-full pl-10 pr-12 py-3 rounded-lg bg-gray-700/50 text-white placeholder-gray-400 border border-gray-600 focus:outline-none focus:border-blue-500 transition-all duration-200"
-            >
-            <button 
-              type="button" 
-              id="togglePassword"
-              class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-white transition-colors"
-            >
-              <svg id="eyeOpen" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-              </svg>
-              <svg id="eyeClosed" class="h-5 w-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"></path>
-              </svg>
-            </button>
-          </div>
-          
-          <!-- Password Strength Indicator -->
-          <div class="mt-2">
-            <div class="flex space-x-1">
-              <div id="strength1" class="flex-1 strength-bar bg-gray-600"></div>
-              <div id="strength2" class="flex-1 strength-bar bg-gray-600"></div>
-              <div id="strength3" class="flex-1 strength-bar bg-gray-600"></div>
-              <div id="strength4" class="flex-1 strength-bar bg-gray-600"></div>
-            </div>
-            <p id="strengthText" class="text-xs text-gray-400 mt-1">Insira uma palavra-passe</p>
-          </div>
+        <div>
+          <label for="confirmPassword" class="block text-sm">Confirmar Palavra-passe</label>
+          <input id="confirmPassword" type="password" required class="w-full mt-1 px-3 py-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring focus:ring-blue-500" />
         </div>
 
-        <!-- Confirm Password Field -->
-        <div class="space-y-2">
-          <label for="confirmPassword" class="block text-sm font-medium text-gray-300">Confirmar Palavra-passe</label>
-          <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-            </div>
-            <input 
-              type="password" 
-              id="confirmPassword" 
-              name="confirmPassword"
-              placeholder="••••••••" 
-              required 
-              autocomplete="new-password"
-              class="input-focus w-full pl-10 pr-12 py-3 rounded-lg bg-gray-700/50 text-white placeholder-gray-400 border border-gray-600 focus:outline-none focus:border-blue-500 transition-all duration-200"
-            >
-            <div id="confirmValidation" class="absolute inset-y-0 right-0 pr-3 flex items-center hidden">
-              <svg class="h-5 w-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-              </svg>
-            </div>
-          </div>
-          <p id="confirmText" class="text-xs text-gray-400 mt-1 hidden">As palavras-passe coincidem</p>
+        <div class="flex items-center">
+          <input type="checkbox" id="terms" required class="mr-2 text-blue-600 focus:ring-blue-500" />
+          <label for="terms" class="text-sm">Aceito os <a href="#" class="underline">Termos</a></label>
         </div>
 
-        <!-- Terms and Conditions -->
-        <div class="flex items-start space-x-3">
-          <input 
-            type="checkbox" 
-            id="terms" 
-            required
-            class="mt-1 w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
-          >
-          <label for="terms" class="text-sm text-gray-300 leading-5">
-            Aceito os 
-            <a href="#" class="text-blue-400 hover:text-blue-300 hover:underline">Termos de Serviço</a> 
-            e a 
-            <a href="#" class="text-blue-400 hover:text-blue-300 hover:underline">Política de Privacidade</a>
-          </label>
-        </div>
-
-        <!-- Newsletter Subscription -->
-        <div class="flex items-center space-x-3">
-          <input 
-            type="checkbox" 
-            id="newsletter"
-            class="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500"
-          >
-          <label for="newsletter" class="text-sm text-gray-300">
-            Quero receber novidades e ofertas por email
-          </label>
-        </div>
-
-        <!-- Submit Button -->
-        <button 
-          type="submit" 
-          id="submitBtn"
-          class="btn-hover w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800"
-        >
+        <button id="submitBtn" type="submit" class="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded-lg font-semibold transition-all">
           <span id="btnText">Criar Conta</span>
-          <div id="btnSpinner" class="hidden inline-block w-4 h-4
+          <svg id="btnSpinner" class="hidden animate-spin h-5 w-5 inline ml-2 text-white" viewBox="0 0 24 24" fill="none">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+          </svg>
+        </button>
+
+        <div id="message" class="text-sm text-center mt-4"></div>
+
+        <p class="text-sm text-center mt-4">Já tens conta? <a href="/login.html" class="text-blue-300 underline">Entrar</a></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- Firebase + Script -->
+  <script type="module">
+    import { auth } from './firebase-init.js';
+       import { createUserWithEmailAndPassword  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+
+    const form = document.getElementById('registerForm');
+    const btnText = document.getElementById('btnText');
+    const btnSpinner = document.getElementById('btnSpinner');
+    const message = document.getElementById('message');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+
+      if (password !== confirmPassword) {
+        showMessage("As palavras-passe não coincidem.", "text-red-400");
+        return;
+      }
+
+      // Loading UI
+      btnText.textContent = "A criar conta...";
+      btnSpinner.classList.remove("hidden");
+
+      try {
+        const result = await createUserWithEmailAndPassword(auth, email, password);
+        const token = await result.user.getIdToken();
+        localStorage.setItem("token", token);
+        showMessage("Conta criada com sucesso! A redirecionar...", "text-green-400");
+
+        setTimeout(() => {
+          window.location.href = "/dashboard.html";
+        }, 1500);
+      } catch (err) {
+        showMessage("Erro: " + err.message, "text-red-400");
+      } finally {
+        btnText.textContent = "Criar Conta";
+        btnSpinner.classList.add("hidden");
+      }
+    });
+
+    function showMessage(text, className) {
+      message.textContent = text;
+      message.className = "mt-4 " + className;
+    }
+
+    // Password strength meter
+    const passwordInput = document.getElementById('password');
+    const bars = [bar1, bar2, bar3, bar4];
+    const strengthText = document.getElementById('strengthText');
+
+    passwordInput.addEventListener('input', () => {
+      const val = passwordInput.value;
+      let strength = 0;
+      if (val.length >= 6) strength++;
+      if (/[A-Z]/.test(val)) strength++;
+      if (/[0-9]/.test(val)) strength++;
+      if (/[\W]/.test(val)) strength++;
+
+      bars.forEach((bar, i) => {
+        bar.className = "flex-1 strength-bar " + (i < strength ? "bg-green-500" : "bg-gray-600");
+      });
+
+      const texts = ["Muito fraca", "Fraca", "Média", "Forte"];
+      strengthText.textContent = val ? texts[strength - 1] || "Muito fraca" : "Força da password";
+    });
+  </script>
+</body>
+</html>
