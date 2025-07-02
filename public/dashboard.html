@@ -36,7 +36,7 @@
     <!-- Input de utilizador -->
     <div class="mb-4">
       <label class="block text-sm mb-1">Utilizador</label>
-      <input id="userInput" value="pedro" class="p-2 rounded bg-gray-700 w-full" />
+      <input id="userInput" readonly class="p-2 rounded bg-gray-700 w-full" />
     </div>
 
     <!-- Formulário de criação/edição -->
@@ -82,7 +82,6 @@
     // DOM Elements
     const contentEl = document.getElementById('content');
     const signOutBtn = document.getElementById('signOutBtn');
-
     const userInput = document.getElementById('userInput');
     const listEl = document.getElementById('transactionList');
     const form = document.getElementById('transactionForm');
@@ -95,7 +94,15 @@
         window.location.href = '/login.html';
       } else {
         contentEl.classList.remove('opacity-50', 'pointer-events-none');
-        fetchTransactions();
+        fetchTransactions(user.email);
+           // Exibe conteúdo protegido
+        userInput.value = user.email;
+        contentEl.innerHTML = `
+          <div>
+            <h2 class="text-xl font-medium mb-4">Olá, ${user.email}</h2>
+            <p>Bem-vindo à tua área protegida! Aqui podes colocar gráficos, listas de dados, ou o que precisares.</p>
+          </div>
+        `;
       }
     });
 
@@ -106,15 +113,15 @@
     });
 
     // Build API URL
-    function getAPI() {
-      const user = encodeURIComponent(userInput.value.trim() || 'default');
+    function getAPI(user) {
+      const user = encodeURIComponent(user.trim() || 'default');
       return `/api/transactions?user=${user}`;
     }
 
     // Fetch & render transactions
-    async function fetchTransactions() {
+    async function fetchTransactions(user) {
       try {
-        const res = await fetch(getAPI());
+        const res = await fetch(getAPI(user));
         const data = await res.json();
         listEl.innerHTML = '';
         data.forEach(t => {
