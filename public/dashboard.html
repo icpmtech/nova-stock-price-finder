@@ -114,8 +114,8 @@
 
     // Build API URL
     function getAPI(user) {
-      const user = encodeURIComponent(user.trim() || 'default');
-      return `/api/transactions?user=${user}`;
+      const userMail = encodeURIComponent(user.trim() || 'default');
+      return `/api/transactions?user=${userMail}`;
     }
 
     // Fetch & render transactions
