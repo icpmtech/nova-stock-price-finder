@@ -5,7 +5,7 @@ const urlsToCache = [
   '/manifest.json',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
-  '/api/stock?symbol=AAPL'
+  '/api/stocks?symbol=AAPL'
 ];
 
 self.addEventListener('install', (event) => {
