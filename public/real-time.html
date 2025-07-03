@@ -36,6 +36,8 @@
       align-items: center;
       box-shadow: 0 4px 20px rgba(14, 165, 233, 0.3);
       backdrop-filter: blur(10px);
+      position: relative;
+      z-index: 1000;
     }
 
     .logo {
@@ -57,6 +59,136 @@
       50% { transform: scale(1.05); }
     }
 
+    /* Enhanced Navigation Menu */
+    .nav-container {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .desktop-nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-link {
+      color: white;
+      text-decoration: none;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .nav-link::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .nav-link:hover::before {
+      left: 100%;
+    }
+
+    .nav-link:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .nav-link.active {
+      background: rgba(255, 255, 255, 0.2);
+      font-weight: 600;
+    }
+
+    .mobile-menu-toggle {
+      display: none;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: all 0.3s ease;
+    }
+
+    .mobile-menu-toggle:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: scale(1.05);
+    }
+
+    .mobile-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: rgba(14, 165, 233, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .mobile-menu.active {
+      display: block;
+    }
+
+    .mobile-nav-link {
+      display: block;
+      color: white;
+      text-decoration: none;
+      padding: 16px 24px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      position: relative;
+    }
+
+    .mobile-nav-link:hover {
+      background: rgba(255, 255, 255, 0.1);
+      padding-left: 32px;
+    }
+
+    .mobile-nav-link:last-child {
+      border-bottom: none;
+    }
+
+    .mobile-nav-link::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: white;
+      transform: scaleY(0);
+      transition: transform 0.3s ease;
+    }
+
+    .mobile-nav-link:hover::before {
+      transform: scaleY(1);
+    }
+
     .theme-toggle {
       background: rgba(255, 255, 255, 0.1);
       border: 1px solid rgba(255, 255, 255, 0.2);
@@ -72,6 +204,50 @@
     .theme-toggle:hover {
       background: rgba(255, 255, 255, 0.2);
       transform: translateY(-2px);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .desktop-nav {
+        display: none;
+      }
+
+      .mobile-menu-toggle {
+        display: block;
+      }
+
+      .nav-container {
+        gap: 12px;
+      }
+
+      .theme-toggle {
+        padding: 10px 12px;
+        font-size: 0.9rem;
+      }
+
+      header {
+        padding: 16px 20px;
+      }
+
+      .logo {
+        font-size: 1.3rem;
+      }
+
+      .logo-icon {
+        font-size: 1.8rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .theme-toggle {
+        padding: 8px 10px;
+        font-size: 0.8rem;
+      }
+
+      .mobile-nav-link {
+        padding: 14px 20px;
+        font-size: 0.9rem;
+      }
     }
 
     .controls {
@@ -461,14 +637,33 @@
     <span class="logo-icon">📈</span>
     <span>Nova Stocks</span>
   </div>
-  <div id="mobileMenu" class="px-4 pb-4 space-y-2 bg-gray-50">
-      <a href="index.html" class="block py-2 text-gray-700 hover:text-blue-600">Início</a>
-      <a href="zack.html" class="block py-2 text-gray-700 hover:text-blue-600">Análise</a>
-      <a href="stocks.html" class="block py-2 text-gray-700 hover:text-blue-600">As Minhas Ações</a>
-      <a href="real-time.html" class="block py-2 text-gray-700 hover:text-blue-600">Acompanhar</a>
-      <a href="https://nova-search-stock.netlify.app/" class="block py-2 text-gray-700 hover:text-blue-600">Simular Estratégia</a>
-    </div>
-  <button class="theme-toggle" onclick="toggleTheme()">🌓 Tema</button>
+  
+  <div class="nav-container">
+    <!-- Desktop Navigation -->
+    <nav class="desktop-nav">
+      <a href="index.html" class="nav-link active">Início</a>
+      <a href="zack.html" class="nav-link">Análise</a>
+      <a href="stocks.html" class="nav-link">As Minhas Ações</a>
+      <a href="real-time.html" class="nav-link">Acompanhar</a>
+      <a href="https://nova-search-stock.netlify.app/" class="nav-link">Simular Estratégia</a>
+    </nav>
+
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+      <span id="menuIcon">☰</span>
+    </button>
+
+    <button class="theme-toggle" onclick="toggleTheme()">🌓 Tema</button>
+  </div>
+
+  <!-- Mobile Navigation Menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="index.html" class="mobile-nav-link">🏠 Início</a>
+    <a href="zack.html" class="mobile-nav-link">📊 Análise</a>
+    <a href="stocks.html" class="mobile-nav-link">💼 As Minhas Ações</a>
+    <a href="real-time.html" class="mobile-nav-link">📡 Acompanhar</a>
+    <a href="https://nova-search-stock.netlify.app/" class="mobile-nav-link">🎯 Simular Estratégia</a>
+  </div>
 </header>
 
 <div class="controls">
@@ -503,6 +698,35 @@
 <div id="statusIndicator" class="status-indicator">
   <span id="statusText">Atualizado</span>
 </div>
+
+<script>
+// Mobile menu toggle functionality
+function toggleMobileMenu() {
+  const mobileMenu = document.getElementById('mobileMenu');
+  const menuIcon = document.getElementById('menuIcon');
+  
+  mobileMenu.classList.toggle('active');
+  menuIcon.textContent = mobileMenu.classList.contains('active') ? '✕' : '☰';
+}
+
+// Close mobile menu when clicking outside
+document.addEventListener('click', (e) => {
+  const mobileMenu = document.getElementById('mobileMenu');
+  const menuToggle = document.querySelector('.mobile-menu-toggle');
+  
+  if (!mobileMenu.contains(e.target) && !menuToggle.contains(e.target)) {
+    mobileMenu.classList.remove('active');
+    document.getElementById('menuIcon').textContent = '☰';
+  }
+});
+
+// Close mobile menu when clicking on a link
+document.querySelectorAll('.mobile-nav-link').forEach(link => {
+  link.addEventListener('click', () => {
+    document.getElementById('mobileMenu').classList.remove('active');
+    document.getElementById('menuIcon').textContent = '☰';
+  })
+    </script>
   <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
