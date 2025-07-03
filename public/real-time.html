@@ -1,242 +1,722 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Stocks em Tempo Real</title>
+  <title>Dashboard Stocks</title>
   <style>
-    body {
-      font-family: sans-serif;
-      background: #111;
-      color: #fff;
-      padding: 20px;
+    * {
+      box-sizing: border-box;
     }
 
-    h1 {
-      text-align: center;
-      color: #0ea5e9;
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+      color: #fff;
+      transition: all 0.3s ease;
+      min-height: 100vh;
+    }
+
+    .light-mode {
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      color: #1a202c;
+    }
+
+    header {
+      padding: 20px 24px;
+      background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 20px rgba(14, 165, 233, 0.3);
+      backdrop-filter: blur(10px);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .logo-icon {
+      font-size: 2rem;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .theme-toggle {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 12px 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .theme-toggle:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
     }
 
     .controls {
+      padding: 24px;
       display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
       justify-content: center;
-      margin: 20px 0;
-      gap: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .light-mode .controls {
+      background: rgba(255, 255, 255, 0.8);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .input-group {
+      position: relative;
+      display: flex;
+      align-items: center;
     }
 
     input, button {
-      padding: 10px;
-      font-size: 1rem;
-      border-radius: 6px;
+      padding: 14px 18px;
+      border-radius: 12px;
       border: none;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      outline: none;
     }
 
     input {
-      width: 180px;
+      width: 200px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      backdrop-filter: blur(10px);
+    }
+
+    .light-mode input {
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px solid rgba(0, 0, 0, 0.1);
+      color: #1a202c;
+    }
+
+    input::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .light-mode input::placeholder {
+      color: rgba(26, 32, 44, 0.6);
+    }
+
+    input:focus {
+      border-color: #0ea5e9;
+      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.3);
+    }
+
+    button {
+      background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+      color: white;
+      cursor: pointer;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    button:hover::before {
+      left: 100%;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(14, 165, 233, 0.4);
     }
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+      padding: 24px;
+      max-width: 1400px;
+      margin: 0 auto;
     }
 
     .card {
-      background: #1a1a1a;
-      border: 2px solid #0ea5e9;
-      border-radius: 8px;
-      padding: 16px;
-      text-align: center;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 24px;
       position: relative;
+      text-align: center;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .light-mode .card {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(14, 165, 233, 0.2);
+      border-color: #0ea5e9;
     }
 
     .symbol {
-      font-size: 1.4em;
-      font-weight: bold;
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #0ea5e9;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
     .price {
-      font-size: 1.8em;
-      margin-top: 6px;
+      font-size: 2.2rem;
+      font-weight: 800;
+      margin: 12px 0;
+      background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
     }
 
     .change {
-      font-size: 1em;
-      margin-top: 4px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-top: 8px;
+      padding: 8px 16px;
+      border-radius: 20px;
+      display: inline-block;
     }
 
-    .positive { color: #22c55e; }
-    .negative { color: #ef4444; }
+    .positive { 
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: white;
+    }
+
+    .negative { 
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: white;
+    }
 
     .remove-btn {
       position: absolute;
-      top: 4px;
-      right: 6px;
-      color: #888;
-      background: none;
-      border: none;
+      top: 12px;
+      right: 12px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #ef4444;
+      font-size: 18px;
       cursor: pointer;
-      font-size: 1.1em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .remove-btn:hover {
+      background: #ef4444;
+      color: white;
+      transform: scale(1.1);
+    }
+
+    .table-container {
+      margin: 24px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .light-mode .table-container {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 16px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .light-mode th, .light-mode td {
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    th {
+      background: linear-gradient(135deg, #0ea5e9, #0284c7);
+      color: white;
+      cursor: pointer;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      position: relative;
+      transition: all 0.3s ease;
+    }
+
+    th:hover {
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+    }
+
+    th::after {
+      content: '↕';
+      position: absolute;
+      right: 16px;
+      opacity: 0.6;
     }
 
     .suggestions {
-      background: #222;
-      border: 1px solid #0ea5e9;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       position: absolute;
-      top: 40px;
+      top: 100%;
+      left: 0;
+      right: 0;
       z-index: 1000;
-      width: 180px;
-      border-radius: 4px;
-      max-height: 150px;
+      border-radius: 12px;
+      max-height: 200px;
       overflow-y: auto;
+      backdrop-filter: blur(10px);
+      margin-top: 8px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    .light-mode .suggestions {
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(0, 0, 0, 0.1);
     }
 
     .suggestions div {
-      padding: 8px;
+      padding: 12px 16px;
       cursor: pointer;
+      transition: all 0.2s ease;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .light-mode .suggestions div {
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     }
 
     .suggestions div:hover {
-      background-color: #333;
+      background: rgba(14, 165, 233, 0.2);
+      transform: translateX(4px);
+    }
+
+    .suggestions div:last-child {
+      border-bottom: none;
+    }
+
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #0ea5e9;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .status-indicator {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: rgba(34, 197, 94, 0.9);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 24px;
+      font-weight: 600;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      transform: translateY(100px);
+      transition: all 0.3s ease;
+    }
+
+    .status-indicator.show {
+      transform: translateY(0);
+    }
+
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+        padding: 16px;
+      }
+      
+      .controls {
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+      }
+      
+      input {
+        width: 100%;
+        max-width: 300px;
+      }
+      
+      .table-container {
+        margin: 16px;
+        overflow-x: auto;
+      }
+      
+      th, td {
+        padding: 12px 8px;
+        font-size: 0.9rem;
+      }
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(14, 165, 233, 0.6);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(14, 165, 233, 0.8);
+    }
+
+    /* Entry animations */
+    .card {
+      animation: slideInUp 0.5s ease;
+    }
+
+    @keyframes slideInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
   </style>
 </head>
 <body>
 
-<h1>Stocks em Tempo Real</h1>
+<header>
+  <div class="logo">
+    <span class="logo-icon">📈</span>
+    <span>Nova Stocks</span>
+  </div>
+  <button class="theme-toggle" onclick="toggleTheme()">🌓 Tema</button>
+</header>
 
 <div class="controls">
-  <div style="position: relative;">
-    <input id="inputSymbol" placeholder="Pesquisar ticker..." autocomplete="off" />
+  <div class="input-group">
+    <input id="inputSymbol" placeholder="Pesquisar ticker..." />
     <div id="suggestions" class="suggestions" style="display: none;"></div>
   </div>
-  <button onclick="addStock()">Adicionar</button>
+  <button onclick="addStock()">✨ Adicionar</button>
+  <button onclick="exportList()">📤 Exportar</button>
+  <input type="file" id="fileInput" accept=".json,.csv" style="display:none;" />
+  <button onclick="document.getElementById('fileInput').click()">📥 Importar</button>
+  <button onclick="refreshAll()">🔄 Atualizar</button>
 </div>
 
 <div class="grid" id="stockGrid"></div>
 
+<div class="table-container">
+  <table id="stockTable">
+    <thead>
+      <tr>
+        <th onclick="sortTable(0)">Ticker</th>
+        <th onclick="sortTable(1)">Preço</th>
+        <th onclick="sortTable(2)">Variação</th>
+        <th onclick="sortTable(3)">Volume</th>
+        <th onclick="sortTable(4)">Cap. Mercado</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<div id="statusIndicator" class="status-indicator">
+  <span id="statusText">Atualizado</span>
+</div>
 <script>
-  const grid = document.getElementById('stockGrid');
-  const input = document.getElementById('inputSymbol');
-  const suggestionsBox = document.getElementById('suggestions');
+const symbols = new Set(JSON.parse(localStorage.getItem('watchlist') || '["AAPL","TSLA","MSFT"]'));
+const grid = document.getElementById('stockGrid');
+const tableBody = document.querySelector('#stockTable tbody');
+const input = document.getElementById('inputSymbol');
+const suggestions = document.getElementById('suggestions');
+const statusIndicator = document.getElementById('statusIndicator');
+const statusText = document.getElementById('statusText');
+let dark = true;
 
-  const saved = JSON.parse(localStorage.getItem('watchlist') || '["AAPL","MSFT","TSLA"]');
-  const symbols = new Set(saved);
+function toggleTheme() {
+  dark = !dark;
+  document.body.classList.toggle('light-mode', !dark);
+  localStorage.setItem('theme', dark ? 'dark' : 'light');
+}
 
-  function saveSymbols() {
-    localStorage.setItem('watchlist', JSON.stringify([...symbols]));
+function saveList() {
+  localStorage.setItem('watchlist', JSON.stringify([...symbols]));
+}
+
+function showStatus(message, type = 'success') {
+  statusText.textContent = message;
+  statusIndicator.className = `status-indicator show ${type}`;
+  setTimeout(() => {
+    statusIndicator.classList.remove('show');
+  }, 3000);
+}
+
+function createCard(symbol) {
+  const div = document.createElement('div');
+  div.className = 'card';
+  div.id = `card-${symbol}`;
+  div.innerHTML = `
+    <button class="remove-btn" onclick="removeStock('${symbol}')" title="Remover ${symbol}">×</button>
+    <div class="symbol">${symbol}</div>
+    <div class="price" id="price-${symbol}">
+      <span class="loading"></span>
+    </div>
+    <div class="change" id="change-${symbol}">Carregando...</div>
+  `;
+  grid.appendChild(div);
+}
+
+function updateCard(symbol, data) {
+  const priceEl = document.getElementById(`price-${symbol}`);
+  const changeEl = document.getElementById(`change-${symbol}`);
+  
+  if (priceEl && changeEl) {
+    priceEl.textContent = `€${(data.price || 0).toFixed(2)}`;
+    const c = data.changePercent || 0;
+    changeEl.textContent = `${c >= 0 ? '+' : ''}${c.toFixed(2)}%`;
+    changeEl.className = 'change ' + (c >= 0 ? 'positive' : 'negative');
   }
+}
 
-  function createCard(symbol) {
-    const div = document.createElement('div');
-    div.className = 'card';
-    div.id = `card-${symbol}`;
-    div.innerHTML = `
-      <button class="remove-btn" onclick="removeStock('${symbol}')">×</button>
-      <div class="symbol">${symbol}</div>
-      <div class="price" id="price-${symbol}">€...</div>
-      <div class="change" id="change-${symbol}">...</div>
-    `;
-    grid.appendChild(div);
+function updateTableRow(symbol, data) {
+  const row = document.getElementById(`row-${symbol}`) || tableBody.insertRow();
+  row.id = `row-${symbol}`;
+  const changeClass = (data.changePercent || 0) >= 0 ? 'positive' : 'negative';
+  row.innerHTML = `
+    <td><strong>${symbol}</strong></td>
+    <td>€${(data.price || 0).toFixed(2)}</td>
+    <td><span class="change ${changeClass}">${((data.changePercent || 0) >= 0 ? '+' : '')}${(data.changePercent || 0).toFixed(2)}%</span></td>
+    <td>${data.volume ? data.volume.toLocaleString() : '-'}</td>
+    <td>${data.marketCap ? (data.marketCap/1e9).toFixed(1) + 'B' : '-'}</td>
+  `;
+}
+
+async function fetchStock(symbol) {
+  try {
+    const res = await fetch(`/api/stock?symbol=${symbol}`);
+    const data = await res.json();
+    if (!data || !data.price) throw new Error("Dados inválidos");
+
+    updateCard(symbol, data);
+    updateTableRow(symbol, data);
+  } catch (err) {
+    console.error(`Erro ao buscar ${symbol}:`, err);
+    showStatus(`Erro ao carregar ${symbol}`, 'error');
   }
+}
 
-  function updateCard(symbol, data) {
-    const priceEl = document.getElementById(`price-${symbol}`);
-    const changeEl = document.getElementById(`change-${symbol}`);
+function refreshAll() {
+  showStatus('Atualizando preços...', 'info');
+  let completed = 0;
+  const total = symbols.size;
+  
+  symbols.forEach(sym => {
+    fetchStock(sym).then(() => {
+      completed++;
+      if (completed === total) {
+        showStatus('Preços atualizados!');
+      }
+    });
+  });
+}
 
-    if (!priceEl || !changeEl) return;
-
-    if (!data || !data.price) {
-      priceEl.textContent = 'Erro';
-      changeEl.textContent = 'Sem dados';
-      return;
-    }
-
-    priceEl.textContent = `€${data.price.toFixed(2)}`;
-    const change = data.changePercent ?? 0;
-    changeEl.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
-    changeEl.className = 'change ' + (change >= 0 ? 'positive' : 'negative');
+function addStock() {
+  const sym = input.value.trim().toUpperCase();
+  if (sym && !symbols.has(sym)) {
+    symbols.add(sym);
+    createCard(sym);
+    fetchStock(sym);
+    saveList();
+    showStatus(`${sym} adicionado!`);
+  } else if (symbols.has(sym)) {
+    showStatus(`${sym} já está na lista`, 'warning');
   }
+  input.value = '';
+  suggestions.style.display = 'none';
+}
 
-  async function fetchStock(symbol) {
-    try {
-      const res = await fetch(`/api/stock?symbol=${symbol}`);
-      const data = await res.json();
-      updateCard(symbol, data);
-    } catch (err) {
-      console.error('Erro ao obter', symbol, err);
-    }
-  }
+function removeStock(sym) {
+  symbols.delete(sym);
+  document.getElementById(`card-${sym}`)?.remove();
+  document.getElementById(`row-${sym}`)?.remove();
+  saveList();
+  showStatus(`${sym} removido`);
+}
 
-  function refreshAll() {
-    symbols.forEach(sym => fetchStock(sym));
-  }
+function sortTable(col) {
+  const rows = Array.from(tableBody.rows);
+  const sorted = rows.sort((a, b) => {
+    let va = a.cells[col].textContent.replace(/[€%BM]/g, '');
+    let vb = b.cells[col].textContent.replace(/[€%BM]/g, '');
+    return col === 0 ? va.localeCompare(vb) : parseFloat(vb) - parseFloat(va);
+  });
+  tableBody.innerHTML = '';
+  sorted.forEach(r => tableBody.appendChild(r));
+  showStatus('Tabela ordenada!');
+}
 
-  function addStock() {
-    const sym = input.value.trim().toUpperCase();
-    if (sym && !symbols.has(sym)) {
-      symbols.add(sym);
-      createCard(sym);
-      fetchStock(sym);
-      saveSymbols();
-    }
-    input.value = '';
-    suggestionsBox.style.display = 'none';
-  }
+input.addEventListener('input', async () => {
+  const q = input.value.trim();
+  if (!q) return suggestions.style.display = 'none';
 
-  function removeStock(symbol) {
-    symbols.delete(symbol);
-    const el = document.getElementById(`card-${symbol}`);
-    if (el) el.remove();
-    saveSymbols();
-  }
+  try {
+    const res = await fetch(`/api/stock?query=${q}`);
+    const results = await res.json();
 
-  async function autocompleteSearch(query) {
-    try {
-      const res = await fetch(`/api/stock?query=${query}`);
-      const data = await res.json();
-      return Array.isArray(data) ? data.slice(0, 8) : [];
-    } catch {
-      return [];
-    }
-  }
-
-  input.addEventListener('input', async () => {
-    const q = input.value.trim();
-    if (!q) {
-      suggestionsBox.style.display = 'none';
-      return;
-    }
-
-    const results = await autocompleteSearch(q);
-    suggestionsBox.innerHTML = '';
+    suggestions.innerHTML = '';
     results.forEach(({ symbol, name }) => {
       const div = document.createElement('div');
-      div.textContent = `${symbol} - ${name}`;
+      div.innerHTML = `<strong>${symbol}</strong> - ${name}`;
       div.onclick = () => {
         input.value = symbol;
-        suggestionsBox.style.display = 'none';
+        suggestions.style.display = 'none';
       };
-      suggestionsBox.appendChild(div);
+      suggestions.appendChild(div);
     });
 
-    suggestionsBox.style.display = results.length ? 'block' : 'none';
-  });
+    suggestions.style.display = results.length > 0 ? 'block' : 'none';
+  } catch {
+    suggestions.style.display = 'none';
+  }
+});
 
-  document.addEventListener('click', (e) => {
-    if (!suggestionsBox.contains(e.target) && e.target !== input) {
-      suggestionsBox.style.display = 'none';
-    }
-  });
+document.addEventListener('click', e => {
+  if (!suggestions.contains(e.target) && e.target !== input)
+    suggestions.style.display = 'none';
+});
 
-  // Inicializar
-  symbols.forEach((sym) => {
+input.addEventListener('keypress', e => {
+  if (e.key === 'Enter') addStock();
+});
+
+function exportList() {
+  const json = JSON.stringify([...symbols], null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `watchlist_${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showStatus('Exportado com sucesso!');
+}
+
+document.getElementById('fileInput').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  try {
+    const text = await file.text();
+    const list = file.name.endsWith('.csv')
+      ? text.split(',').map(s => s.trim().toUpperCase())
+      : JSON.parse(text);
+
+    let added = 0;
+    list.forEach(sym => {
+      if (!symbols.has(sym)) {
+        symbols.add(sym);
+        createCard(sym);
+        fetchStock(sym);
+        added++;
+      }
+    });
+
+    saveList();
+    showStatus(`${added} adicionados da lista!`);
+  } catch (err) {
+    console.error('Erro ao importar:', err);
+    showStatus('Erro ao importar ficheiro', 'error');
+  }
+});
+
+function init() {
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme === 'light') {
+    dark = false;
+    document.body.classList.add('light-mode');
+  }
+
+  symbols.forEach(sym => {
     createCard(sym);
     fetchStock(sym);
   });
 
-  setInterval(refreshAll, 10000); // Atualiza a cada 10s
-</script>
+  setInterval(refreshAll, 30000);
+  showStatus('Dashboard carregado!');
+}
+
+init();
+        </script>
 
 </body>
 </html>
