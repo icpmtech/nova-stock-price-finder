@@ -630,7 +630,7 @@ input.addEventListener('input', async () => {
   if (!q) return suggestions.style.display = 'none';
 
   try {
-    const res = await fetch(`/api/stock?query=${q}`);
+    const res = await fetch(`/api/stocks?query=${q}`);
     const results = await res.json();
 
     suggestions.innerHTML = '';
