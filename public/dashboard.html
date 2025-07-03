@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -5,36 +6,199 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard - novamarketshub</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e'
+            }
+          },
+          animation: {
+            'slide-in': 'slideIn 0.3s ease-out',
+            'fade-in': 'fadeIn 0.5s ease-out',
+            'pulse-soft': 'pulseSoft 2s infinite',
+            'bounce-soft': 'bounceSoft 0.6s ease-out'
+          }
+        }
+      }
+    }
+  </script>
   <style>
-    body { font-family: 'Inter', sans-serif; }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    
+    body { 
+      font-family: 'Inter', sans-serif; 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    
+    .glass-morphism {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .card-hover {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .card-hover:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    
+    .input-glow:focus {
+      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.3);
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(14, 165, 233, 0.3);
+    }
+    
+    .btn-danger {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      transition: all 0.3s ease;
+    }
+    
+    .btn-danger:hover {
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.3);
+    }
+    
+    .sidebar-gradient {
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    }
+    
+    .transaction-row {
+      transition: all 0.2s ease;
+    }
+    
+    .transaction-row:hover {
+      background: linear-gradient(90deg, #f8fafc 0%, #e2e8f0 100%);
+      transform: scale(1.01);
+    }
+    
+    .operation-buy {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+    
+    .operation-sell {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+    
+    .loading-spinner {
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes slideIn {
+      from { transform: translateX(-100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes pulseSoft {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
+    }
+    
+    @keyframes bounceSoft {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-10px); }
+      60% { transform: translateY(-5px); }
+    }
+    
+    .mobile-sidebar {
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+    }
+    
+    .mobile-sidebar.active {
+      transform: translateX(0);
+    }
+    
+    .overlay {
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
   </style>
 </head>
-<body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col">
+<body class="text-gray-800 min-h-screen flex flex-col">
+
+  <!-- Mobile Overlay -->
+  <div id="overlay" class="overlay fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"></div>
 
   <!-- Sidebar + Header Container -->
   <div class="flex flex-1 overflow-hidden">
     <!-- Sidebar -->
-    <aside class="bg-white w-64 border-r p-6 hidden md:flex flex-col">
-      <h2 class="text-2xl font-bold mb-6">novaHub</h2>
-      <nav class="flex-1 space-y-4">
-        <a href="#" class="block py-2 px-4 rounded hover:bg-gray-100 font-medium">📊 Dashboard</a>
-        <a href="#" class="block py-2 px-4 rounded hover:bg-gray-100 font-medium">💼 Transações</a>
-        <a href="#" class="block py-2 px-4 rounded hover:bg-gray-100 font-medium">📈 Relatórios</a>
-        <a href="#" class="block py-2 px-4 rounded hover:bg-gray-100 font-medium">⚙️ Definições</a>
+    <aside id="sidebar" class="sidebar-gradient w-64 border-r border-gray-200 shadow-xl p-6 hidden md:flex flex-col mobile-sidebar md:relative fixed inset-y-0 left-0 z-50 md:z-auto">
+      <div class="flex items-center justify-between mb-8">
+        <h2 class="text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">novaHub</h2>
+        <button id="closeSidebarBtn" class="md:hidden p-2 rounded-lg hover:bg-gray-100 transition">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      
+      <nav class="flex-1 space-y-2">
+        <a href="#" class="flex items-center space-x-3 py-3 px-4 rounded-xl hover:bg-primary-50 font-medium text-primary-700 bg-primary-50 transition group">
+          <span class="text-xl group-hover:scale-110 transition-transform">📊</span>
+          <span>Dashboard</span>
+        </a>
+        <a href="#" class="flex items-center space-x-3 py-3 px-4 rounded-xl hover:bg-gray-100 font-medium text-gray-700 transition group">
+          <span class="text-xl group-hover:scale-110 transition-transform">💼</span>
+          <span>Transações</span>
+        </a>
+        <a href="#" class="flex items-center space-x-3 py-3 px-4 rounded-xl hover:bg-gray-100 font-medium text-gray-700 transition group">
+          <span class="text-xl group-hover:scale-110 transition-transform">📈</span>
+          <span>Relatórios</span>
+        </a>
+        <a href="#" class="flex items-center space-x-3 py-3 px-4 rounded-xl hover:bg-gray-100 font-medium text-gray-700 transition group">
+          <span class="text-xl group-hover:scale-110 transition-transform">⚙️</span>
+          <span>Definições</span>
+        </a>
       </nav>
-      <button id="signOutBtn" class="mt-auto bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded transition">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      
+      <button id="signOutBtn" class="mt-auto btn-danger text-white px-4 py-3 rounded-xl transition flex items-center justify-center space-x-2 font-medium">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7"/>
-        </svg>Sair
+        </svg>
+        <span>Sair</span>
       </button>
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 overflow-auto p-6">
+    <main class="flex-1 overflow-auto p-4 md:p-6">
       <!-- Header for mobile -->
-      <div class="md:hidden flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-semibold">Dashboard</h1>
-        <button id="mobileMenuBtn" class="p-2 text-gray-600 hover:text-gray-800">
+      <div class="md:hidden flex justify-between items-center mb-6 bg-white rounded-2xl p-4 shadow-lg">
+        <h1 class="text-2xl font-bold text-gray-800">Dashboard</h1>
+        <button id="mobileMenuBtn" class="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
@@ -42,62 +206,163 @@
       </div>
 
       <!-- Welcome Card -->
-      <section id="content" class="bg-white rounded-2xl shadow p-6 mb-8 opacity-50 pointer-events-none">
-        <h2 class="text-xl font-semibold mb-2">Bem-vindo, <span id="userName" class="text-indigo-600">Utilizador</span>!</h2>
-        <p class="text-gray-500">Aqui está um resumo das suas atividades mais recentes.</p>
+      <section id="content" class="bg-white rounded-2xl shadow-xl p-6 mb-8 opacity-50 pointer-events-none card-hover animate-fade-in">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-2xl font-bold mb-2 text-gray-800">
+              Bem-vindo, <span id="userName" class="text-primary-600 animate-pulse-soft">Utilizador</span>! 👋
+            </h2>
+            <p class="text-gray-600">Aqui está um resumo das suas atividades mais recentes.</p>
+          </div>
+          <div class="hidden md:block">
+            <div class="w-20 h-20 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center">
+              <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+              </svg>
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- Transactions Section -->
-      <section>
-        <h2 class="text-2xl font-bold mb-4 flex items-center"><span class="mr-2">📈</span>Transações de Ações</h2>
+      <section class="animate-fade-in">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-3xl font-bold text-gray-800 flex items-center">
+            <span class="mr-3 text-4xl animate-bounce-soft">📈</span>
+            Transações de Ações
+          </h2>
+          <div class="hidden md:flex items-center space-x-2 text-sm text-gray-500">
+            <div class="flex items-center space-x-1">
+              <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+              <span>Compra</span>
+            </div>
+            <div class="flex items-center space-x-1">
+              <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+              <span>Venda</span>
+            </div>
+          </div>
+        </div>
+        
         <!-- Form & List Container -->
-        <div class="grid md:grid-cols-3 gap-6">
+        <div class="grid lg:grid-cols-3 gap-6">
           <!-- Form -->
-          <form id="transactionForm" class="md:col-span-1 bg-white rounded-2xl shadow p-6 space-y-4">
-            <input type="hidden" id="transactionId" />
-            <div>
-              <label class="block text-sm font-medium mb-1">Símbolo</label>
-              <input id="symbol" placeholder="Ex: AAPL" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" required />
+          <div class="lg:col-span-1">
+            <div class="bg-white rounded-2xl shadow-xl p-6 card-hover">
+              <h3 class="text-xl font-semibold mb-4 text-gray-800 flex items-center">
+                <span class="mr-2">✨</span>
+                Nova Transação
+              </h3>
+              <form id="transactionForm" class="space-y-4">
+                <input type="hidden" id="transactionId" />
+                
+                <div class="space-y-2">
+                  <label class="block text-sm font-medium text-gray-700">Símbolo da Ação</label>
+                  <input 
+                    id="symbol" 
+                    placeholder="Ex: AAPL, GOOGL, TSLA" 
+                    class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent input-glow transition text-gray-800 font-medium uppercase" 
+                    required 
+                  />
+                </div>
+                
+                <div class="space-y-2">
+                  <label class="block text-sm font-medium text-gray-700">Tipo de Operação</label>
+                  <select id="operation" class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent input-glow transition text-gray-800 font-medium">
+                    <option value="buy">🟢 Compra</option>
+                    <option value="sell">🔴 Venda</option>
+                  </select>
+                </div>
+                
+                <div class="space-y-2">
+                  <label class="block text-sm font-medium text-gray-700">Quantidade</label>
+                  <input 
+                    type="number" 
+                    id="amount" 
+                    placeholder="Número de ações" 
+                    min="1" 
+                    class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent input-glow transition text-gray-800 font-medium" 
+                    required 
+                  />
+                </div>
+                
+                <div class="space-y-2">
+                  <label class="block text-sm font-medium text-gray-700">Preço por Ação (€)</label>
+                  <input 
+                    type="number" 
+                    id="price" 
+                    placeholder="0.00" 
+                    step="0.0001" 
+                    min="0" 
+                    class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent input-glow transition text-gray-800 font-medium" 
+                    required 
+                  />
+                </div>
+                
+                <div class="space-y-2">
+                  <label class="block text-sm font-medium text-gray-700">Data da Transação</label>
+                  <input 
+                    type="date" 
+                    id="date" 
+                    class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent input-glow transition text-gray-800 font-medium" 
+                    required 
+                  />
+                </div>
+                
+                <button 
+                  id="submitBtn" 
+                  type="submit" 
+                  class="w-full btn-primary text-white font-semibold py-3 rounded-xl transition flex items-center justify-center space-x-2"
+                >
+                  <span id="submitText">💾 Guardar Transação</span>
+                  <svg id="loadingSpinner" class="hidden w-5 h-5 text-white loading-spinner" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                  </svg>
+                </button>
+              </form>
             </div>
-            <div>
-              <label class="block text-sm font-medium mb-1">Operação</label>
-              <select id="operation" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400">
-                <option value="buy">Compra</option>
-                <option value="sell">Venda</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-sm font-medium mb-1">Quantidade</label>
-              <input type="number" id="amount" placeholder="0" min="1" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" required />
-            </div>
-            <div>
-              <label class="block text-sm font-medium mb-1">Preço (€)</label>
-              <input type="number" id="price" placeholder="0.00" step="0.0001" min="0" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" required />
-            </div>
-            <div>
-              <label class="block text-sm font-medium mb-1">Data</label>
-              <input type="date" id="date" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400" required />
-            </div>
-            <button id="submitBtn" type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 rounded transition">Guardar</button>
-          </form>
+          </div>
           
           <!-- Transactions Table -->
-          <div class="md:col-span-2 overflow-auto bg-white rounded-2xl shadow p-6">
-            <table class="w-full table-auto">
-              <thead>
-                <tr class="text-left">
-                  <th class="px-4 py-2">Símbolo</th>
-                  <th class="px-4 py-2">Operação</th>
-                  <th class="px-4 py-2">Quantidade</th>
-                  <th class="px-4 py-2">Preço (€)</th>
-                  <th class="px-4 py-2">Data</th>
-                  <th class="px-4 py-2">Ações</th>
-                </tr>
-              </thead>
-              <tbody id="transactionsBody">
-                <tr><td colspan="6" class="text-center text-gray-400 py-8">Sem transações registadas.</td></tr>
-              </tbody>
-            </table>
+          <div class="lg:col-span-2">
+            <div class="bg-white rounded-2xl shadow-xl p-6 card-hover">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-semibold text-gray-800 flex items-center">
+                  <span class="mr-2">📋</span>
+                  Histórico de Transações
+                </h3>
+                <div class="text-sm text-gray-500">
+                  Total: <span id="totalTransactions" class="font-semibold text-primary-600">0</span>
+                </div>
+              </div>
+              
+              <div class="overflow-auto max-h-96">
+                <table class="w-full table-auto">
+                  <thead class="bg-gray-50 sticky top-0">
+                    <tr class="text-left">
+                      <th class="px-4 py-3 font-semibold text-gray-700 rounded-tl-lg">Símbolo</th>
+                      <th class="px-4 py-3 font-semibold text-gray-700">Operação</th>
+                      <th class="px-4 py-3 font-semibold text-gray-700">Quantidade</th>
+                      <th class="px-4 py-3 font-semibold text-gray-700">Preço (€)</th>
+                      <th class="px-4 py-3 font-semibold text-gray-700">Data</th>
+                      <th class="px-4 py-3 font-semibold text-gray-700 rounded-tr-lg">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody id="transactionsBody">
+                    <tr>
+                      <td colspan="6" class="text-center text-gray-400 py-12">
+                        <div class="flex flex-col items-center space-y-2">
+                          <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                          </svg>
+                          <span class="text-lg font-medium">Sem transações registadas</span>
+                          <span class="text-sm">Adicione a sua primeira transação!</span>
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -106,15 +371,37 @@
   </div>
 
   <!-- Footer -->
-  <footer class="bg-white text-center p-4 text-sm text-gray-500">
-    © 2025 novamarketshub
+  <footer class="bg-white text-center p-4 text-sm text-gray-500 border-t border-gray-200">
+    <div class="flex items-center justify-center space-x-2">
+      <span>© 2025 novamarketshub</span>
+      <span class="text-gray-300">|</span>
+      <span class="text-primary-600">Powered by Innovation</span>
+    </div>
   </footer>
 
-  <!-- Optional: Mobile Sidebar Toggle Script -->
+  <!-- Mobile Sidebar Toggle Script -->
   <script>
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-    const sidebar = document.querySelector('aside');
-    mobileMenuBtn.addEventListener('click', () => sidebar.classList.toggle('hidden'));
+    const closeSidebarBtn = document.getElementById('closeSidebarBtn');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+
+    function toggleSidebar() {
+      sidebar.classList.toggle('active');
+      overlay.classList.toggle('active');
+    }
+
+    mobileMenuBtn.addEventListener('click', toggleSidebar);
+    closeSidebarBtn.addEventListener('click', toggleSidebar);
+    overlay.addEventListener('click', toggleSidebar);
+
+    // Close sidebar on window resize
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 768) {
+        sidebar.classList.remove('active');
+        overlay.classList.remove('active');
+      }
+    });
   </script>
 
   <script type="module">
@@ -126,8 +413,11 @@
     const signOutBtn = document.getElementById('signOutBtn');
     const form = document.getElementById('transactionForm');
     const submitBtn = document.getElementById('submitBtn');
+    const submitText = document.getElementById('submitText');
+    const loadingSpinner = document.getElementById('loadingSpinner');
     const tbodyEl = document.getElementById('transactionsBody');
     const userNameEl = document.getElementById('userName');
+    const totalTransactionsEl = document.getElementById('totalTransactions');
 
     let currentUserEmail = '';
 
@@ -137,16 +427,27 @@
         window.location.href = '/login.html';
       } else {
         currentUserEmail = user.email;
-        userNameEl.textContent = currentUserEmail;
+        userNameEl.textContent = user.displayName || currentUserEmail.split('@')[0];
         contentEl.classList.remove('opacity-50', 'pointer-events-none');
+        contentEl.classList.add('animate-fade-in');
         fetchTransactions();
       }
     });
 
     // Sign out
     signOutBtn.addEventListener('click', async () => {
+      submitBtn.disabled = true;
+      submitText.textContent = 'A sair...';
       await signOut(auth);
       window.location.href = '/login.html';
+    });
+
+    // Set today's date as default
+    document.getElementById('date').valueAsDate = new Date();
+
+    // Auto-format symbol input
+    document.getElementById('symbol').addEventListener('input', function(e) {
+      this.value = this.value.toUpperCase();
     });
 
     // Build API URL
@@ -162,47 +463,126 @@
         const data = await res.json();
         renderTable(data);
       } catch (err) {
-        alert('Erro ao carregar transações.');
+        showNotification('Erro ao carregar transações.', 'error');
         console.error(err);
       }
     }
 
     function renderTable(data) {
       tbodyEl.innerHTML = '';
+      totalTransactionsEl.textContent = data.length;
+      
       if (!data.length) {
-        tbodyEl.innerHTML = '<tr><td colspan="6" class="text-center text-gray-400 py-8">Sem transações registadas.</td></tr>';
+        tbodyEl.innerHTML = `
+          <tr>
+            <td colspan="6" class="text-center text-gray-400 py-12">
+              <div class="flex flex-col items-center space-y-2">
+                <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <span class="text-lg font-medium">Sem transações registadas</span>
+                <span class="text-sm">Adicione a sua primeira transação!</span>
+              </div>
+            </td>
+          </tr>
+        `;
         return;
       }
-      data.forEach(t => {
+      
+      data.forEach((t, index) => {
         const row = document.createElement('tr');
+        row.className = 'transaction-row border-b border-gray-100 hover:bg-gray-50';
+        row.style.animationDelay = `${index * 0.1}s`;
+        
+        const operationClass = t.operation === 'buy' ? 'operation-buy' : 'operation-sell';
+        const operationText = t.operation === 'buy' ? '🟢 Compra' : '🔴 Venda';
+        
         row.innerHTML = `
-          <td class="px-4 py-2">${t.symbol}</td>
-          <td class="px-4 py-2 capitalize">${t.operation}</td>
-          <td class="px-4 py-2">${t.amount}</td>
-          <td class="px-4 py-2">€${t.price.toFixed(4)}</td>
-          <td class="px-4 py-2">${t.date}</td>
-          <td class="px-4 py-2 space-x-2">
-            <button data-t='${encodeURIComponent(JSON.stringify(t))}' class="edit-btn text-yellow-400">✏️</button>
-            <button data-id='${t.id}' class="del-btn text-red-500">🗑️</button>
+          <td class="px-4 py-4">
+            <div class="font-semibold text-gray-800 text-lg">${t.symbol}</div>
+          </td>
+          <td class="px-4 py-4">
+            <span class="inline-flex px-3 py-1 rounded-full text-xs font-medium text-white ${operationClass}">
+              ${operationText}
+            </span>
+          </td>
+          <td class="px-4 py-4">
+            <div class="font-medium text-gray-700">${t.amount.toLocaleString()}</div>
+          </td>
+          <td class="px-4 py-4">
+            <div class="font-semibold text-gray-800">€${t.price.toFixed(4)}</div>
+          </td>
+          <td class="px-4 py-4">
+            <div class="text-gray-600">${formatDate(t.date)}</div>
+          </td>
+          <td class="px-4 py-4">
+            <div class="flex items-center space-x-2">
+              <button data-t='${encodeURIComponent(JSON.stringify(t))}' class="edit-btn p-2 text-yellow-600 hover:text-yellow-800 hover:bg-yellow-50 rounded-lg transition" title="Editar">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+              </button>
+              <button data-id='${t.id}' class="del-btn p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-lg transition" title="Eliminar">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+              </button>
+            </div>
           </td>
         `;
         tbodyEl.appendChild(row);
       });
     }
 
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('pt-PT', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+    }
+
+    // Show notification
+    function showNotification(message, type = 'info') {
+      const notification = document.createElement('div');
+      notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg text-white font-medium animate-bounce-soft ${
+        type === 'error' ? 'bg-red-500' : type === 'success' ? 'bg-green-500' : 'bg-blue-500'
+      }`;
+      notification.textContent = message;
+      
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.remove();
+      }, 3000);
+    }
+
     // Edit & delete handlers
     tbodyEl.addEventListener('click', e => {
-      if (e.target.matches('.edit-btn')) {
-        const t = JSON.parse(decodeURIComponent(e.target.dataset.t));
+      if (e.target.closest('.edit-btn')) {
+        const t = JSON.parse(decodeURIComponent(e.target.closest('.edit-btn').dataset.t));
         form.transactionId.value = t.id;
         form.symbol.value = t.symbol;
         form.operation.value = t.operation;
         form.amount.value = t.amount;
         form.price.value = t.price;
         form.date.value = t.date;
+        
+        submitText.textContent = '✏️ Atualizar Transação';
+        showNotification('Transação carregada para edição', 'info');
+        
+        // Scroll to form on mobile
+        if (window.innerWidth < 1024) {
+          form.scrollIntoView({ behavior: 'smooth' });
+        }
       }
-      if (e.target.matches('.del-btn')) {
-        deleteTransaction(e.target.dataset.id);
+      
+      if (e.target.closest('.del-btn')) {
+        const id = e.target.closest('.del-btn').dataset.id;
+        if (confirm('Tem certeza que deseja eliminar esta transação?')) {
+          deleteTransaction(id);
+        }
       }
     });
 
@@ -210,8 +590,9 @@
       try {
         await fetch(`${getAPI()}&id=${id}`, { method: 'DELETE' });
         fetchTransactions();
+        showNotification('Transação eliminada com sucesso!', 'success');
       } catch (err) {
-        alert('Erro ao eliminar transação.');
+        showNotification('Erro ao eliminar transação.', 'error');
         console.error(err);
       }
     }
@@ -226,15 +607,15 @@
       const price     = parseFloat(form.price.value);
       const date      = form.date.value;
 
-      if (!symbol)    return alert('Símbolo obrigatório.');
-      if (!operation) return alert('Selecione operação.');
-      if (!amount || amount <= 0) return alert('Quantidade inválida.');
-      if (!price  || price  <= 0) return alert('Preço inválido.');
-      if (!date)      return alert('Data obrigatória.');
+      if (!symbol)    return showNotification('Símbolo obrigatório.', 'error');
+      if (!operation) return showNotification('Selecione operação.', 'error');
+      if (!amount || amount <= 0) return showNotification('Quantidade inválida.', 'error');
+      if (!price  || price  <= 0) return showNotification('Preço inválido.', 'error');
+      if (!date)      return showNotification('Data obrigatória.', 'error');
 
       submitBtn.disabled = true;
-      const originalText = submitBtn.textContent;
-      submitBtn.textContent = 'A guardar...';
+      submitText.classList.add('hidden');
+      loadingSpinner.classList.remove('hidden');
 
       const payload = { symbol, operation, amount, price, date };
       const method  = id ? 'PUT' : 'POST';
@@ -246,14 +627,45 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
+        
         form.reset();
+        document.getElementById('date').valueAsDate = new Date(); // Reset to today
         fetchTransactions();
+        
+        const message = id ? 'Transação atualizada com sucesso!' : 'Transação adicionada com sucesso!';
+        showNotification(message, 'success');
+        
+        submitText.textContent = '💾 Guardar Transação';
       } catch (err) {
-        alert('Erro ao guardar a transação.');
+        showNotification('Erro ao guardar a transação.', 'error');
         console.error(err);
       } finally {
         submitBtn.disabled = false;
-        submitBtn.textContent = originalText;
+        submitText.classList.remove('hidden');
+        loadingSpinner.classList.add('hidden');
+      }
+    });
+
+    // Reset form when clicking outside or pressing escape
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        form.reset();
+        document.getElementById('date').valueAsDate = new Date();
+        submitText.textContent = '💾 Guardar Transação';
+      }
+    });
+
+    // Add some keyboard shortcuts
+    document.addEventListener('keydown', e => {
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key === 'n') {
+          e.preventDefault();
+          document.getElementById('symbol').focus();
+        }
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          form.dispatchEvent(new Event('submit'));
+        }
       }
     });
 
