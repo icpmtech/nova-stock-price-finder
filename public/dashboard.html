@@ -378,9 +378,7 @@
       <span class="text-primary-600">Powered by Innovation</span>
     </div>
   </footer>
-
-  <!-- Mobile Sidebar Toggle Script -->
-  <script>
+<script>
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
     const closeSidebarBtn = document.getElementById('closeSidebarBtn');
     const sidebar = document.getElementById('sidebar');
@@ -395,7 +393,6 @@
     closeSidebarBtn.addEventListener('click', toggleSidebar);
     overlay.addEventListener('click', toggleSidebar);
 
-    // Close sidebar on window resize
     window.addEventListener('resize', () => {
       if (window.innerWidth >= 768) {
         sidebar.classList.remove('active');
@@ -403,6 +400,8 @@
       }
     });
   </script>
+  
+  
 
   <script type="module">
     import { auth } from './firebase-init.js';
