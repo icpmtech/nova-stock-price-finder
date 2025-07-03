@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -9,22 +8,20 @@
   <link rel="icon" href="/favicon.ico">
 </head>
 <body class="bg-gray-50 text-gray-800">
-  <!-- Navbar Principal -->
+
+  <!-- NAVBAR COMPLETA -->
   <header class="bg-white shadow">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-      <button id="burger" class="text-2xl md:hidden">☰</button>
+      <button id="burger" class="text-2xl md:hidden focus:outline-none">☰</button>
       <a href="/" class="flex items-center space-x-2">
         <span class="text-2xl">📈</span>
         <span class="text-xl font-semibold">Nova Stocks</span>
       </a>
       <nav class="hidden md:flex space-x-4">
-        <a href="https://marketanalyticshubapp.azurewebsites.net/#home" class="text-gray-700 hover:text-blue-600">Início</a>
-        <a href="https://marketanalyticshubapp.azurewebsites.net/#features" class="text-gray-700 hover:text-blue-600">Funcionalidades</a>
-        <a href="https://marketanalyticshubapp.azurewebsites.net/#team" class="text-gray-700 hover:text-blue-600">Equipa</a>
-        <a href="https://marketanalyticshubapp.azurewebsites.net/#pricing" class="text-gray-700 hover:text-blue-600">Preços</a>
-        <a href="https://marketanalyticshubapp.azurewebsites.net/#faq" class="text-gray-700 hover:text-blue-600">Perguntas Frequentes</a>
-        <a href="https://marketanalyticshubapp.azurewebsites.net/#contact" class="text-gray-700 hover:text-blue-600">Contacto</a>
-        <a href="https://marketanalyticshubapp.azurewebsites.net/#help" class="text-gray-700 hover:text-blue-600">Ajuda</a>
+        <a href="index.html" class="text-gray-700 hover:text-blue-600">Início</a>
+        <a href="zack.html" class="text-gray-700 hover:text-blue-600">Análise</a>
+        <a href="stocks.html" class="text-gray-700 hover:text-blue-600">As Minhas Ações</a>
+        <a href="real-time.html" class="text-gray-700 hover:text-blue-600">Acompanhar</a>
         <a href="https://nova-search-stock.netlify.app/" class="text-gray-700 hover:text-blue-600">Simular Estratégia</a>
       </nav>
       <div class="flex items-center space-x-4">
@@ -36,22 +33,25 @@
         </div>
       </div>
     </div>
-  </header>
-
-  <!-- Navbar Secundária -->
-  <header class="bg-gray-100">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <nav class="flex space-x-4">
-        <a href="index.html" class="py-2 px-3 hover:text-blue-600">Início</a>
-        <a href="zack.html" class="py-2 px-3 text-blue-600 font-semibold">Análise</a>
-        <a href="stocks.html" class="py-2 px-3 hover:text-blue-600">As Minhas Ações</a>
-        <a href="real-time.html" class="py-2 px-3 hover:text-blue-600">Acompanhar</a>
-      </nav>
+    <div id="mobileMenu" class="md:hidden hidden px-4 pb-4 space-y-2 bg-gray-50">
+      <a href="index.html" class="block py-2 text-gray-700 hover:text-blue-600">Início</a>
+      <a href="zack.html" class="block py-2 text-gray-700 hover:text-blue-600">Análise</a>
+      <a href="stocks.html" class="block py-2 text-gray-700 hover:text-blue-600">As Minhas Ações</a>
+      <a href="real-time.html" class="block py-2 text-gray-700 hover:text-blue-600">Acompanhar</a>
+      <a href="https://nova-search-stock.netlify.app/" class="block py-2 text-gray-700 hover:text-blue-600">Simular Estratégia</a>
     </div>
   </header>
 
+  <script>
+    const burger = document.getElementById('burger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    burger.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+  </script>
+
+  <!-- CONTEÚDO -->
   <div class="max-w-7xl mx-auto p-6">
-    <!-- Cabeçalho -->
     <header class="mb-6">
       <h1 class="text-3xl font-bold">📊 Analisador de Ações Baratas</h1>
       <p class="text-gray-600">Filtra oportunidades subvalorizadas por preço, bolsa e fundamentais</p>
@@ -161,15 +161,15 @@
       <table id="stocksTable" class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
           <tr>
-            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer">Símbolo</th>
-            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer">Empresa</th>
-            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer">Bolsa</th>
-            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer">Preço</th>
-            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer">Δ 24h</th>
-            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer">Volume</th>
-            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer">Cap. Mercado</th>
-            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer">Pontuação</th>
-            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer">Risco</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Símbolo</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Empresa</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Bolsa</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Preço</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Δ 24h</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Volume</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Cap. Mercado</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Pontuação</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Risco</th>
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200"></tbody>
@@ -184,6 +184,7 @@
     </div>
   </footer>
 
+  <!-- Scripts -->
   <script src="app.js"></script>
   <script src="advisor-financeiro.js"></script>
   <script>
@@ -191,5 +192,6 @@
       apiKey: 'sk-2d250f34f19f4a1ba9cee69d541085cc'
     };
   </script>
+
 </body>
 </html>
