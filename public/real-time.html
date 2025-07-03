@@ -563,7 +563,7 @@ function updateTableRow(symbol, data) {
 
 async function fetchStock(symbol) {
   try {
-    const res = await fetch(`/api/stock?symbol=${symbol}`);
+    const res = await fetch(`/api/stocks?symbol=${symbol}`);
     const data = await res.json();
     if (!data || !data.price) throw new Error("Dados inválidos");
 
