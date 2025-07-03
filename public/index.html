@@ -1,15 +1,15 @@
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 <head>
   <meta charset="UTF-8">
-  <title>Nova Stocks - Stocks Analyzer</title>
+  <title>Nova Stocks - Analisador de Ações</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Remove custom CSS links and add Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="icon" href="/favicon.ico">
 </head>
 <body class="bg-gray-50 text-gray-800">
-  <!-- Primary navbar -->
+  <!-- Navbar Principal -->
   <header class="bg-white shadow">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
       <button id="burger" class="text-2xl md:hidden">☰</button>
@@ -18,17 +18,17 @@
         <span class="text-xl font-semibold">Nova Stocks</span>
       </a>
       <nav class="hidden md:flex space-x-4">
-        <a href="https://marketanalyticshubapp.azurewebsites.net/#home" class="text-gray-700 hover:text-blue-600">Home</a>
-        <a href="https://marketanalyticshubapp.azurewebsites.net/#features" class="text-gray-700 hover:text-blue-600">Features</a>
-        <a href="https://marketanalyticshubapp.azurewebsites.net/#team" class="text-gray-700 hover:text-blue-600">Team</a>
-        <a href="https://marketanalyticshubapp.azurewebsites.net/#pricing" class="text-gray-700 hover:text-blue-600">Pricing</a>
-        <a href="https://marketanalyticshubapp.azurewebsites.net/#faq" class="text-gray-700 hover:text-blue-600">FAQ</a>
-        <a href="https://marketanalyticshubapp.azurewebsites.net/#contact" class="text-gray-700 hover:text-blue-600">Contact Us</a>
-        <a href="https://marketanalyticshubapp.azurewebsites.net/#help" class="text-gray-700 hover:text-blue-600">Help Center</a>
-        <a href="https://nova-search-stock.netlify.app/" class="text-gray-700 hover:text-blue-600">Simulate Strategy</a>
+        <a href="https://marketanalyticshubapp.azurewebsites.net/#home" class="text-gray-700 hover:text-blue-600">Início</a>
+        <a href="https://marketanalyticshubapp.azurewebsites.net/#features" class="text-gray-700 hover:text-blue-600">Funcionalidades</a>
+        <a href="https://marketanalyticshubapp.azurewebsites.net/#team" class="text-gray-700 hover:text-blue-600">Equipa</a>
+        <a href="https://marketanalyticshubapp.azurewebsites.net/#pricing" class="text-gray-700 hover:text-blue-600">Preços</a>
+        <a href="https://marketanalyticshubapp.azurewebsites.net/#faq" class="text-gray-700 hover:text-blue-600">Perguntas Frequentes</a>
+        <a href="https://marketanalyticshubapp.azurewebsites.net/#contact" class="text-gray-700 hover:text-blue-600">Contacto</a>
+        <a href="https://marketanalyticshubapp.azurewebsites.net/#help" class="text-gray-700 hover:text-blue-600">Ajuda</a>
+        <a href="https://nova-search-stock.netlify.app/" class="text-gray-700 hover:text-blue-600">Simular Estratégia</a>
       </nav>
       <div class="flex items-center space-x-4">
-        <a href="login.html" target="_blank" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Login/Register</a>
+        <a href="login.html" target="_blank" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Entrar / Registar</a>
         <div class="flex items-center space-x-1">
           <button data-lang="pt" class="text-sm font-medium text-blue-600">PT</button>
           <span class="text-gray-400">|</span>
@@ -38,86 +38,89 @@
     </div>
   </header>
 
-  <!-- Secondary navbar -->
+  <!-- Navbar Secundária -->
   <header class="bg-gray-100">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <nav class="flex space-x-4">
-        <a href="index.html" class="py-2 px-3 hover:text-blue-600">Home</a>
-        <a href="zack.html" class="py-2 px-3 text-blue-600 font-semibold">Analise</a>
-        <a href="stocks.html" class="py-2 px-3 hover:text-blue-600">Meus Stocks</a>
+        <a href="index.html" class="py-2 px-3 hover:text-blue-600">Início</a>
+        <a href="zack.html" class="py-2 px-3 text-blue-600 font-semibold">Análise</a>
+        <a href="stocks.html" class="py-2 px-3 hover:text-blue-600">As Minhas Ações</a>
         <a href="real-time.html" class="py-2 px-3 hover:text-blue-600">Acompanhar</a>
       </nav>
     </div>
   </header>
 
   <div class="max-w-7xl mx-auto p-6">
-    <!-- Header -->
+    <!-- Cabeçalho -->
     <header class="mb-6">
-      <h1 class="text-3xl font-bold">📊 Cheap Stocks Analyzer</h1>
-      <p class="text-gray-600">Filter undervalued opportunities by price, exchange and fundamentals</p>
+      <h1 class="text-3xl font-bold">📊 Analisador de Ações Baratas</h1>
+      <p class="text-gray-600">Filtra oportunidades subvalorizadas por preço, bolsa e fundamentais</p>
     </header>
 
-    <!-- Filters -->
+    <!-- Filtros -->
     <section id="filters" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-      <!-- Price Range -->
+      <!-- Intervalo de Preço -->
       <div class="bg-white p-4 rounded shadow">
-        <h3 class="text-xl font-semibold mb-2">💰 Price Range</h3>
+        <h3 class="text-xl font-semibold mb-2">💰 Intervalo de Preço</h3>
         <div class="flex items-center mb-2">
-          <label class="w-20">Max ($)</label>
+          <label class="w-20">Máx. ($)</label>
           <input type="range" id="maxPriceSlider" min="1" max="20" value="5" oninput="syncSlider()" class="flex-1" />
           <span id="maxPriceVal" class="w-12 text-right">5</span>
         </div>
         <div class="flex items-center">
-          <label class="w-20">Min ($)</label>
+          <label class="w-20">Mín. ($)</label>
           <input type="number" id="minPrice" value="0.10" min="0" step="0.01" class="flex-1 border rounded p-1" />
         </div>
       </div>
-      <!-- Volume & Cap -->
+
+      <!-- Volume e Capitalização -->
       <div class="bg-white p-4 rounded shadow">
-        <h3 class="text-xl font-semibold mb-2">📈 Volume & Cap</h3>
+        <h3 class="text-xl font-semibold mb-2">📈 Volume & Capitalização</h3>
         <div class="mb-2 flex items-center">
-          <label class="w-20">Min Vol</label>
+          <label class="w-20">Vol. Mín.</label>
           <input type="number" id="minVolume" value="100000" step="1000" class="flex-1 border rounded p-1" />
         </div>
         <div class="flex items-center">
-          <label class="w-20">Market Cap</label>
+          <label class="w-20">Cap. Mercado</label>
           <select id="marketCap" class="flex-1 border rounded p-1">
-            <option value="">All</option>
+            <option value="">Todas</option>
             <option value="micro">Micro &lt;$300M</option>
-            <option value="small">Small $300M–$2B</option>
-            <option value="mid">Mid $2B–$10B</option>
+            <option value="small">Pequena $300M–$2B</option>
+            <option value="mid">Média $2B–$10B</option>
           </select>
         </div>
       </div>
-      <!-- Quality & Risk -->
+
+      <!-- Qualidade e Risco -->
       <div class="bg-white p-4 rounded shadow">
-        <h3 class="text-xl font-semibold mb-2">🎯 Quality & Risk</h3>
+        <h3 class="text-xl font-semibold mb-2">🎯 Qualidade & Risco</h3>
         <div class="mb-2 flex items-center">
-          <label class="w-20">Min Score</label>
+          <label class="w-20">Pontuação Mín.</label>
           <select id="minScore" class="flex-1 border rounded p-1">
-            <option value="0">All</option>
+            <option value="0">Todas</option>
             <option value="6">≥6</option>
             <option value="7">≥7</option>
             <option value="8">≥8</option>
           </select>
         </div>
         <div class="flex items-center">
-          <label class="w-20">Risk</label>
+          <label class="w-20">Risco</label>
           <select id="riskLevel" class="flex-1 border rounded p-1">
-            <option value="">All</option>
-            <option value="Low">Low</option>
-            <option value="Medium">≤Medium</option>
+            <option value="">Todos</option>
+            <option value="Low">Baixo</option>
+            <option value="Medium">≤Médio</option>
           </select>
         </div>
       </div>
-      <!-- Exchange -->
+
+      <!-- Bolsa -->
       <div class="bg-white p-4 rounded shadow flex flex-col justify-between">
         <div>
-          <h3 class="text-xl font-semibold mb-2">🌐 Exchange</h3>
+          <h3 class="text-xl font-semibold mb-2">🌐 Bolsa</h3>
           <div class="flex items-center">
-            <label class="w-20">Market</label>
+            <label class="w-20">Mercado</label>
             <select id="exchange" class="flex-1 border rounded p-1">
-              <option value="">All</option>
+              <option value="">Todos</option>
               <option value="Nasdaq">NASDAQ</option>
               <option value="NYSE">NYSE</option>
               <option value="NYSEArca">NYSE Arca</option>
@@ -127,66 +130,66 @@
           </div>
         </div>
         <div class="mt-4 flex space-x-2">
-          <button onclick="applyFilters()" class="flex-1 py-2 bg-gray-200 rounded hover:bg-gray-300">Apply Filters</button>
-          <button onclick="resetFilters()" class="flex-1 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Reset</button>
+          <button onclick="applyFilters()" class="flex-1 py-2 bg-gray-200 rounded hover:bg-gray-300">Aplicar</button>
+          <button onclick="resetFilters()" class="flex-1 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Limpar</button>
         </div>
       </div>
     </section>
 
-    <!-- Stats -->
+    <!-- Estatísticas -->
     <section class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6 text-center">
       <div class="bg-white p-4 rounded shadow">
         <span id="totalStocks" class="text-2xl font-bold">0</span>
-        <div class="text-gray-500">Matches</div>
+        <div class="text-gray-500">Resultados</div>
       </div>
       <div class="bg-white p-4 rounded shadow">
-        <span id="avgPrice" class="text-2xl font-bold">$0.00</span>
-        <div class="text-gray-500">Avg Price</div>
+        <span id="avgPrice" class="text-2xl font-bold">€0.00</span>
+        <div class="text-gray-500">Preço Médio</div>
       </div>
       <div class="bg-white p-4 rounded shadow">
         <span id="avgScore" class="text-2xl font-bold">0.0</span>
-        <div class="text-gray-500">Avg Score</div>
+        <div class="text-gray-500">Pontuação Média</div>
       </div>
       <div class="bg-white p-4 rounded shadow">
         <span id="highQualityCount" class="text-2xl font-bold">0</span>
-        <div class="text-gray-500">Score ≥7</div>
+        <div class="text-gray-500">Pontuação ≥7</div>
       </div>
     </section>
 
-    <!-- Table -->
+    <!-- Tabela -->
     <div class="overflow-x-auto bg-white rounded shadow">
       <table id="stocksTable" class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
           <tr>
-            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer">Symbol</th>
-            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer">Company</th>
-            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer">Exchange</th>
-            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer">Price</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer">Símbolo</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer">Empresa</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer">Bolsa</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer">Preço</th>
             <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer">Δ 24h</th>
             <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer">Volume</th>
-            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer">Mkt Cap</th>
-            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer">Score</th>
-            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer">Risk</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer">Cap. Mercado</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer">Pontuação</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer">Risco</th>
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200"></tbody>
       </table>
     </div>
   </div>
+
+  <!-- Rodapé -->
   <footer class="bg-white mt-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <!-- Footer content here... reuse Tailwind classes as needed -->
-      <p class="text-center text-gray-500">© <script>document.write(new Date().getFullYear());</script> cantinhodedotnet. Made with ❤️ for a better web.</p>
+      <p class="text-center text-gray-500">© <script>document.write(new Date().getFullYear());</script> cantinhodedotnet. Feito com ❤️ para uma web melhor.</p>
     </div>
   </footer>
+
   <script src="app.js"></script>
   <script src="advisor-financeiro.js"></script>
-   <script>
-   window.AdvisorFinanceiroConfig = {
-  apiKey: 'sk-2d250f34f19f4a1ba9cee69d541085cc'
-       };
-     
-    </script>
-    
+  <script>
+    window.AdvisorFinanceiroConfig = {
+      apiKey: 'sk-2d250f34f19f4a1ba9cee69d541085cc'
+    };
+  </script>
 </body>
 </html>
