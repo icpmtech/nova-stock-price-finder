@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stocks em Tempo Real</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #111;
+      color: #fff;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #0ea5e9;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+      gap: 10px;
+    }
+
+    input, button {
+      padding: 10px;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: none;
+    }
+
+    input {
+      width: 180px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: #1a1a1a;
+      border: 2px solid #0ea5e9;
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+      position: relative;
+    }
+
+    .symbol {
+      font-size: 1.4em;
+      font-weight: bold;
+    }
+
+    .price {
+      font-size: 1.8em;
+      margin-top: 6px;
+    }
+
+    .change {
+      font-size: 1em;
+      margin-top: 4px;
+    }
+
+    .positive { color: #22c55e; }
+    .negative { color: #ef4444; }
+
+    .remove-btn {
+      position: absolute;
+      top: 4px;
+      right: 6px;
+      color: #888;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.1em;
+    }
+
+    .suggestions {
+      background: #222;
+      border: 1px solid #0ea5e9;
+      position: absolute;
+      top: 40px;
+      z-index: 1000;
+      width: 180px;
+      border-radius: 4px;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+
+    .suggestions div {
+      padding: 8px;
+      cursor: pointer;
+    }
+
+    .suggestions div:hover {
+      background-color: #333;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Stocks em Tempo Real</h1>
+
+<div class="controls">
+  <div style="position: relative;">
+    <input id="inputSymbol" placeholder="Pesquisar ticker..." autocomplete="off" />
+    <div id="suggestions" class="suggestions" style="display: none;"></div>
+  </div>
+  <button onclick="addStock()">Adicionar</button>
+</div>
+
+<div class="grid" id="stockGrid"></div>
+
+<script>
+  const grid = document.getElementById('stockGrid');
+  const input = document.getElementById('inputSymbol');
+  const suggestionsBox = document.getElementById('suggestions');
+
+  const saved = JSON.parse(localStorage.getItem('watchlist') || '["AAPL","MSFT","TSLA"]');
+  const symbols = new Set(saved);
+
+  function saveSymbols() {
+    localStorage.setItem('watchlist', JSON.stringify([...symbols]));
+  }
+
+  function createCard(symbol) {
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.id = `card-${symbol}`;
+    div.innerHTML = `
+      <button class="remove-btn" onclick="removeStock('${symbol}')">×</button>
+      <div class="symbol">${symbol}</div>
+      <div class="price" id="price-${symbol}">€...</div>
+      <div class="change" id="change-${symbol}">...</div>
+    `;
+    grid.appendChild(div);
+  }
+
+  function updateCard(symbol, data) {
+    const priceEl = document.getElementById(`price-${symbol}`);
+    const changeEl = document.getElementById(`change-${symbol}`);
+
+    if (!priceEl || !changeEl) return;
+
+    if (!data || !data.price) {
+      priceEl.textContent = 'Erro';
+      changeEl.textContent = 'Sem dados';
+      return;
+    }
+
+    priceEl.textContent = `€${data.price.toFixed(2)}`;
+    const change = data.changePercent ?? 0;
+    changeEl.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
+    changeEl.className = 'change ' + (change >= 0 ? 'positive' : 'negative');
+  }
+
+  async function fetchStock(symbol) {
+    try {
+      const res = await fetch(`/api/stock?symbol=${symbol}`);
+      const data = await res.json();
+      updateCard(symbol, data);
+    } catch (err) {
+      console.error('Erro ao obter', symbol, err);
+    }
+  }
+
+  function refreshAll() {
+    symbols.forEach(sym => fetchStock(sym));
+  }
+
+  function addStock() {
+    const sym = input.value.trim().toUpperCase();
+    if (sym && !symbols.has(sym)) {
+      symbols.add(sym);
+      createCard(sym);
+      fetchStock(sym);
+      saveSymbols();
+    }
+    input.value = '';
+    suggestionsBox.style.display = 'none';
+  }
+
+  function removeStock(symbol) {
+    symbols.delete(symbol);
+    const el = document.getElementById(`card-${symbol}`);
+    if (el) el.remove();
+    saveSymbols();
+  }
+
+  async function autocompleteSearch(query) {
+    try {
+      const res = await fetch(`/api/stock?query=${query}`);
+      const data = await res.json();
+      return Array.isArray(data) ? data.slice(0, 8) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  input.addEventListener('input', async () => {
+    const q = input.value.trim();
+    if (!q) {
+      suggestionsBox.style.display = 'none';
+      return;
+    }
+
+    const results = await autocompleteSearch(q);
+    suggestionsBox.innerHTML = '';
+    results.forEach(({ symbol, name }) => {
+      const div = document.createElement('div');
+      div.textContent = `${symbol} - ${name}`;
+      div.onclick = () => {
+        input.value = symbol;
+        suggestionsBox.style.display = 'none';
+      };
+      suggestionsBox.appendChild(div);
+    });
+
+    suggestionsBox.style.display = results.length ? 'block' : 'none';
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!suggestionsBox.contains(e.target) && e.target !== input) {
+      suggestionsBox.style.display = 'none';
+    }
+  });
+
+  // Inicializar
+  symbols.forEach((sym) => {
+    createCard(sym);
+    fetchStock(sym);
+  });
+
+  setInterval(refreshAll, 10000); // Atualiza a cada 10s
+</script>
+
+</body>
+</html>
