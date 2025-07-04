@@ -1,33 +1,46 @@
-<!DOCTYPE html>
-<html lang="pt">
+<!DOCTYPE html><html lang="pt">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Mini-CMS NovaStocks</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 p-6">
-  <div class="max-w-3xl mx-auto bg-white p-6 rounded shadow">
-    <h1 class="text-2xl font-bold mb-4">Editor de Páginas</h1>
+<body class="bg-gray-100 p-6">  <div id="header-widget"></div>
+  <script type="module" src="header.js"></script>  <div class="max-w-3xl mx-auto bg-white p-6 rounded shadow">
+    <h1 class="text-2xl font-bold mb-4">Editor de Páginas</h1><label class="block mb-2">Slug (URL)</label>
+<input id="slug" class="w-full border p-2 rounded mb-4" placeholder="ex: sobre, termos" />
 
-    <label class="block mb-2">Slug (URL)</label>
-    <input id="slug" class="w-full border p-2 rounded mb-4" placeholder="ex: sobre, termos" />
+<label class="block mb-2">Conteúdo HTML</label>
+<textarea id="content" rows="10" class="w-full border p-2 rounded mb-4"></textarea>
 
-    <label class="block mb-2">Conteúdo HTML</label>
-    <textarea id="content" rows="10" class="w-full border p-2 rounded mb-4"></textarea>
+<button id="saveBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Salvar Página</button>
 
-    <button id="saveBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Salvar Página</button>
+<h2 class="text-xl font-semibold mt-6 mb-2">Páginas Publicadas</h2>
+<ul id="list" class="list-disc pl-5 space-y-1"></ul>
 
-    <h2 class="text-xl font-semibold mt-6 mb-2">Páginas Publicadas</h2>
-    <ul id="list" class="list-disc pl-5 space-y-1"></ul>
-  </div>
+  </div>  <div id="footer-widget"></div>
+  <script type="module" src="footer.js"></script>  <script type="module">
+    import { auth } from './firebase-init.js';
+    import { getAuth, onAuthStateChanged, signInWithRedirect, GoogleAuthProvider } from
+      'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
-  <script>
+    const provider = new GoogleAuthProvider();
+    const loginPage = '/login.html';
+    const adminEmail = 'mourao.martins@gmail.com';
+
+    onAuthStateChanged(auth, user => {
+      if (!user) {
+        signInWithRedirect(auth, provider);
+      } else if (user.email !== adminEmail) {
+        window.location.href = loginPage;
+      }
+    });
+
     async function listPages() {
       const res = await fetch('/api/list');
       const slugs = await res.json();
       const ul = document.getElementById('list');
-      ul.innerHTML = slugs.map(s => 
+      ul.innerHTML = slugs.map(s =>
         `<li><a href="/${s}" target="_blank" class="text-blue-600 hover:underline">${s}</a></li>`
       ).join('');
     }
@@ -46,6 +59,5 @@
     };
 
     window.addEventListener('DOMContentLoaded', listPages);
-  </script>
-</body>
+  </script></body>
 </html>
