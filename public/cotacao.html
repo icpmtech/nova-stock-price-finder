@@ -13,7 +13,6 @@
 <body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col">
   <div id="header-widget"></div>
   <script type="module" src="header.js"></script>
-
   <main class="flex-grow container mx-auto p-4">
     <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
       <div class="flex space-x-2">
@@ -22,7 +21,6 @@
       </div>
       <div id="timer" class="text-sm text-gray-600">Próxima atualização em 5s</div>
     </div>
-
     <div id="card" class="mt-6 bg-white rounded-xl shadow-lg p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
       <div>
         <h2 id="info" class="text-xl font-semibold text-gray-800"></h2>
@@ -35,53 +33,62 @@
         <div><span class="font-medium">Market Cap:</span> <span id="marketCap"></span></div>
       </div>
     </div>
-
     <div id="chart" class="mt-6 bg-white rounded-xl shadow-lg p-4 h-96"></div>
   </main>
-
   <div id="footer-widget"></div>
   <script type="module" src="footer.js"></script>
-
   <script>
+    window.addEventListener('error', e => {
+      console.error('Unhandled error:', e.error);
+      document.getElementById('info').textContent = 'Erro inesperado';
+    });
     let symbol = '';
     let updateInterval, countdownInterval, secondsRemaining = 5;
     const layout = { margin: { t: 40, b: 40 }, xaxis: { title: 'Hora', type: 'date' }, yaxis: { title: 'Preço (USD)' } };
     const trace = { x: [], y: [], mode: 'lines', line: { color: '#2563eb', width: 2 }, name: 'Preço' };
-
-    function initChart() {
-      Plotly.newPlot('chart', [trace], layout, { responsive: true, displaylogo: false });
-    }
-
+    function initChart() { Plotly.newPlot('chart', [trace], layout, { responsive: true, displaylogo: false }); }
     async function fetchData(sym) {
-      const resp = await fetch(`https://marketanalyticshubapp.azurewebsites.net/api/YahooFinance/price/${sym}`);
-      return await resp.json();
+      try {
+        const resp = await fetch(`https://marketanalyticshubapp.azurewebsites.net/api/YahooFinance/price/${sym}`);
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        return await resp.json();
+      } catch (err) {
+        console.error('Fetch error:', err);
+        throw err;
+      }
     }
-
     function updateCard(data) {
+      if (data.price == null) {
+        document.getElementById('info').textContent = 'Preço indisponível';
+        document.getElementById('description').textContent = '';
+        return;
+      }
       document.getElementById('info').textContent = `${data.name} (${data.symbol})`;
       document.getElementById('description').textContent = `Último preço: ${data.price.toFixed(2)} ${data.currency}`;
       document.getElementById('price').textContent = `${data.price.toFixed(2)} ${data.currency}`;
       document.getElementById('change').textContent = `${(data.changePercent*100).toFixed(2)}%`;
       document.getElementById('volume').textContent = data.volume.toLocaleString();
-      document.getElementById('marketCap').textContent = `€${(data.marketCap/1e9).toFixed(2)}B`;
+      document.getElementById('marketCap').textContent = data.marketCap ? `€${(data.marketCap/1e9).toFixed(2)}B` : 'N/A';
     }
-
     async function update() {
       try {
         const data = await fetchData(symbol);
         updateCard(data);
-        const now = new Date();
-        trace.x.push(now);
-        trace.y.push(data.price);
-        if (trace.x.length > 30) { trace.x.shift(); trace.y.shift(); }
-        Plotly.update('chart', { x: [trace.x], y: [trace.y] });
+        if (data.price != null) {
+          const now = new Date();
+          trace.x.push(now);
+          trace.y.push(data.price);
+          if (trace.x.length > 30) { trace.x.shift(); trace.y.shift(); }
+          Plotly.update('chart', { x: [trace.x], y: [trace.y] });
+        }
       } catch (e) {
-        console.error('Erro:', e);
+        console.error('Update error:', e);
+        document.getElementById('info').textContent = 'Erro ao atualizar dados';
       }
     }
-
     function startAutoUpdate() {
-      clearInterval(updateInterval); clearInterval(countdownInterval);
+      clearInterval(updateInterval);
+      clearInterval(countdownInterval);
       secondsRemaining = 5;
       document.getElementById('timer').textContent = `Próxima atualização em ${secondsRemaining}s`;
       countdownInterval = setInterval(() => {
@@ -90,15 +97,16 @@
       }, 1000);
       updateInterval = setInterval(update, 5000);
     }
-
     document.getElementById('loadBtn').addEventListener('click', async () => {
       const val = document.getElementById('symbolInput').value.trim().toUpperCase();
       if (!val) return;
       symbol = val;
-      trace.x = []; trace.y = [];
-      initChart(); await update(); startAutoUpdate();
+      trace.x = [];
+      trace.y = [];
+      initChart();
+      await update();
+      startAutoUpdate();
     });
-
     initChart();
   </script>
 </body>
