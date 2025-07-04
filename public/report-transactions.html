@@ -7,43 +7,69 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- jsPDF (para PDF) -->
+  <!-- jsPDF (para PDF) e autoTable -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
-  <div class="container my-5">
-    <h1 class="mb-4">Relatórios de Transações</h1>
-    <div class="row mb-3">
-      <div class="col-md-3">
-        <label for="startDate" class="form-label">Data Início</label>
-        <input type="date" id="startDate" class="form-control">
+  <div class="container my-5 opacity-50 pointer-events-none" id="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1>Relatórios de Transações</h1>
+      <div>
+        <span id="userName" class="me-3"></span>
+        <button id="signOutBtn" class="btn btn-outline-danger">Sair</button>
       </div>
-      <div class="col-md-3">
-        <label for="endDate" class="form-label">Data Fim</label>
-        <input type="date" id="endDate" class="form-control">
-      </div>
-      <div class="col-md-2 align-self-end">
-        <button id="btnGenerate" class="btn btn-primary w-100">Gerar Relatório</button>
-      </div>
-      <div class="col-md-2 align-self-end">
-        <button id="btnExportCSV" class="btn btn-outline-secondary w-100">Exportar CSV</button>
-      </div>
-      <div class="col-md-2 align-self-end">
-        <button id="btnExportPDF" class="btn btn-outline-secondary w-100">Exportar PDF</button>
-      </div>
-    </div><div class="card mb-4">
+    </div><!-- Entrada de usuário -->
+<div class="row mb-3">
+  <div class="col-md-4">
+    <label for="userInput" class="form-label">Usuário</label>
+    <input type="text" id="userInput" class="form-control" placeholder="Digite o usuário">
+  </div>
+</div>
+
+<!-- Formulário de filtros e ações -->
+<form id="transactionForm">
+  <div class="row mb-3">
+    <div class="col-md-3">
+      <label for="startDate" class="form-label">Data Início</label>
+      <input type="date" id="startDate" class="form-control">
+    </div>
+    <div class="col-md-3">
+      <label for="endDate" class="form-label">Data Fim</label>
+      <input type="date" id="endDate" class="form-control">
+    </div>
+    <div class="col-md-2 align-self-end">
+      <button type="button" id="submitBtn" class="btn btn-primary w-100">
+        <span id="submitText">Gerar Relatório</span>
+        <span id="loadingSpinner" class="spinner-border spinner-border-sm ms-2 d-none"></span>
+      </button>
+    </div>
+    <div class="col-md-2 align-self-end">
+      <button type="button" id="btnExportCSV" class="btn btn-outline-secondary w-100">Exportar CSV</button>
+    </div>
+    <div class="col-md-2 align-self-end">
+      <button type="button" id="btnExportPDF" class="btn btn-outline-secondary w-100">Exportar PDF</button>
+    </div>
+  </div>
+</form>
+
+<!-- Lista alternativa de transações -->
+<ul id="transactionList" class="list-group mb-4"></ul>
+
+<div class="card mb-4">
   <div class="card-header">Resumo</div>
   <div class="card-body">
     <p>Total Compras: <span id="totalBuy">0</span></p>
     <p>Total Vendas: <span id="totalSell">0</span></p>
     <p>Volume (€): <span id="totalVolume">0.00</span></p>
+    <p>Total Transações: <span id="totalTransactions">0</span></p>
   </div>
 </div>
 
 <div class="card mb-5">
   <div class="card-header">Histórico de Transações</div>
   <div class="card-body p-0">
-    <table class="table table-striped mb-0" id="txTable">
+    <table class="table table-striped mb-0">
       <thead>
         <tr>
           <th>Símbolo</th>
@@ -53,9 +79,7 @@
           <th>Data</th>
         </tr>
       </thead>
-      <tbody>
-        <!-- Linhas serão inseridas via JS -->
-      </tbody>
+      <tbody id="transactionsBody"></tbody>
     </table>
   </div>
 </div>
@@ -67,24 +91,45 @@
   </div>
 </div>
 
-  </div>  <script>
+  </div>  <script type="module">
+    import { auth } from './firebase-init.js';
+    import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+    // DOM Elements
+    const contentEl = document.getElementById('content');
+    const signOutBtn = document.getElementById('signOutBtn');
+    const form = document.getElementById('transactionForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const submitText = document.getElementById('submitText');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const listEl = document.getElementById('transactionList');
+    const tbodyEl = document.getElementById('transactionsBody');
+    const userInput = document.getElementById('userInput');
+    const userNameEl = document.getElementById('userName');
+    const totalTransactionsEl = document.getElementById('totalTransactions');
+
     let reportData = [];
+    let currentUserEmail = '';
 
-    document.getElementById('btnGenerate').addEventListener('click', async () => {
-      const start = document.getElementById('startDate').value;
-      const end = document.getElementById('endDate').value;
-      if (!start || !end) return alert('Selecione o intervalo de datas.');
-      
-      const res = await fetch(`/api/transactions?start=${start}&end=${end}`);
-      const data = await res.json();
-      reportData = data;
+    function getAPI() {
+      const user = userInput.value.trim() || 'default';
+      return `/api/transactions?user=${encodeURIComponent(user)}`;
+    }
 
-      const tbody = document.querySelector('#txTable tbody');
-      tbody.innerHTML = '';
+    function renderData(data) {
+      listEl.innerHTML = '';
+      tbodyEl.innerHTML = '';
       let totalBuy = 0, totalSell = 0, totalVol = 0;
       const volumesByDate = {};
 
       data.forEach(tx => {
+        // Lista
+        const li = document.createElement('li');
+        li.className = 'list-group-item';
+        li.textContent = `${tx.date} - ${tx.symbol} (${tx.operation}) x${tx.quantity} @ €${tx.price.toFixed(4)}`;
+        listEl.appendChild(li);
+
+        // Tabela
         const row = document.createElement('tr');
         row.innerHTML = `
           <td>${tx.symbol}</td>
@@ -93,19 +138,21 @@
           <td>€${tx.price.toFixed(4)}</td>
           <td>${tx.date}</td>
         `;
-        tbody.appendChild(row);
+        tbodyEl.appendChild(row);
 
+        // Resumo
         if (tx.operation.toLowerCase() === 'compra') totalBuy += tx.quantity;
         if (tx.operation.toLowerCase() === 'venda') totalSell += tx.quantity;
         totalVol += tx.price * tx.quantity;
-
         volumesByDate[tx.date] = (volumesByDate[tx.date] || 0) + tx.price * tx.quantity;
       });
 
       document.getElementById('totalBuy').textContent = totalBuy;
       document.getElementById('totalSell').textContent = totalSell;
       document.getElementById('totalVolume').textContent = totalVol.toFixed(2);
+      totalTransactionsEl.textContent = data.length;
 
+      // Gráfico
       const ctx = document.getElementById('volumeChart').getContext('2d');
       if (window.volChart) window.volChart.destroy();
       window.volChart = new Chart(ctx, {
@@ -116,36 +163,68 @@
         },
         options: { responsive: true }
       });
-    });
+    }
 
-    // Export CSV
-    document.getElementById('btnExportCSV').addEventListener('click', () => {
-      if (!reportData.length) return alert('Gere o relatório antes de exportar.');
+    // Export helpers
+    function exportCSV(data) {
       const header = ['Símbolo', 'Operação', 'Quantidade', 'Preço (€)', 'Data'];
-      const rows = reportData.map(tx => [tx.symbol, tx.operation, tx.quantity, tx.price.toFixed(4), tx.date]);
+      const rows = data.map(tx => [tx.symbol, tx.operation, tx.quantity, tx.price.toFixed(4), tx.date]);
       let csv = header.join(',') + '\n';
       rows.forEach(r => { csv += r.join(',') + '\n'; });
-
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
       link.download = `relatorio_${Date.now()}.csv`;
       link.click();
-    });
+    }
 
-    // Export PDF
-    document.getElementById('btnExportPDF').addEventListener('click', async () => {
-      if (!reportData.length) return alert('Gere o relatório antes de exportar.');
+    function exportPDF(data) {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
       doc.setFontSize(12);
       doc.text('Relatório de Transações', 14, 20);
-
       const cols = ['Símbolo', 'Operação', 'Quantidade', 'Preço (€)', 'Data'];
-      const rows = reportData.map(tx => [tx.symbol, tx.operation, tx.quantity.toString(), tx.price.toFixed(4), tx.date]);
-      
+      const rows = data.map(tx => [tx.symbol, tx.operation, tx.quantity.toString(), tx.price.toFixed(4), tx.date]);
       doc.autoTable({ startY: 30, head: [cols], body: rows });
       doc.save(`relatorio_${Date.now()}.pdf`);
+    }
+
+    // Auth guard e inicialização
+    onAuthStateChanged(auth, user => {
+      if (!user) {
+        window.location.href = '/login.html';
+      } else {
+        currentUserEmail = user.email;
+        userNameEl.textContent = user.displayName || currentUserEmail.split('@')[0];
+        contentEl.classList.remove('opacity-50', 'pointer-events-none');
+        fetchTransactions();
+      }
     });
+
+    // Função para buscar e renderizar
+    async function fetchTransactions() {
+      loadingSpinner.classList.remove('d-none');
+      submitText.textContent = 'Carregando...';
+      try {
+        const start = document.getElementById('startDate').value;
+        const end = document.getElementById('endDate').value;
+        const url = `${getAPI()}${start && end ? `&start=${start}&end=${end}` : ''}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        reportData = data;
+        renderData(data);
+      } catch (err) {
+        alert('Erro ao carregar transações');
+      } finally {
+        loadingSpinner.classList.add('d-none');
+        submitText.textContent = 'Gerar Relatório';
+      }
+    }
+
+    // Eventos
+    submitBtn.addEventListener('click', fetchTransactions);
+    document.getElementById('btnExportCSV').addEventListener('click', () => reportData.length ? exportCSV(reportData) : alert('Gere o relatório antes.'));
+    document.getElementById('btnExportPDF').addEventListener('click', () => reportData.length ? exportPDF(reportData) : alert('Gere o relatório antes.'));
+    signOutBtn.addEventListener('click', () => signOut(auth));
   </script></body>
 </html>
