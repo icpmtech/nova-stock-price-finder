@@ -95,5 +95,3 @@ document.addEventListener('DOMContentLoaded', () => {
   init(config);
 });
 
-// Expose on window
-window.MobileHeaderWidget = { init };
