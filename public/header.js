@@ -3,18 +3,12 @@
 const defaultConfig = {
   containerId: 'header-widget',
   title: 'NovaStocks',
+  logoUrl: '/assets/logo.png', // caminho para o logo
   links: [
-    { icon: '📊', label: 'Dashboard', href: '#' },
-    { icon: '💼', label: 'Transações', href: '#' },
-    { icon: '📈', label: 'Relatórios', href: 'report-transactions.html' },
-    { icon: '🏠', label: 'Painel', href: 'watchlist.html' },
-    { icon: '📂', label: 'Carteira', href: 'transactions.html' },
-    { icon: '📉', label: 'Performance', href: 'report-transactions.html' },
-    { icon: '🔔', label: 'Alertas', href: 'events.html' },
-    { icon: '⭐', label: 'Favoritos', href: 'watchlist.html' },
-    { icon: '⚖️', label: 'Mercados', href: 'global-markets.html' },
-    { icon: '📤', label: 'Exportar', href: 'report-transactions.html' },
-    { icon: '⚙️', label: 'Definições', href: 'settings.html' }
+    { icon: '📊', label: 'Home', href: '#' },
+    { icon: '💼', label: 'Conta', href: '#' },
+    { icon: '', label: 'Registo', href: 'report-transactions.html' },
+    { icon: '', label: 'Contactos', href: 'report-transactions.html' },
   ]
 };
 
@@ -24,7 +18,7 @@ function buildHeader(cfg) {
 
   // Root header
   const header = document.createElement('div');
-  header.className = 'flex justify-between items-center  bg-white p-4 shadow-lg relative';
+  header.className = 'flex justify-between items-center mb-6 bg-white p-4 shadow-lg relative';
 
   // Sidebar toggle (left)
   const btnMenu = document.createElement('button');
@@ -39,10 +33,22 @@ function buildHeader(cfg) {
     document.body.classList.toggle('sidebar-open');
   });
 
-  // Title (center)
+  // Logo + Title (center)
+  const titleWrap = document.createElement('div');
+  titleWrap.className = 'flex items-center space-x-2';
+
+  // Logo
+  const logo = document.createElement('img');
+  logo.src = cfg.logoUrl;
+  logo.alt = cfg.title + ' logo';
+  logo.className = 'h-8 w-auto';
+  titleWrap.appendChild(logo);
+
+  // Title
   const h1 = document.createElement('h1');
   h1.className = 'text-2xl font-bold text-gray-800';
   h1.textContent = cfg.title;
+  titleWrap.appendChild(h1);
 
   // Dropdown wrapper (right)
   const dropdownWrap = document.createElement('div');
@@ -81,10 +87,11 @@ function buildHeader(cfg) {
   // Evita fechar se clicar dentro do menu
   menu.addEventListener('click', e => e.stopPropagation());
 
+  // Monta o header
+  header.appendChild(btnMenu);
+  header.appendChild(titleWrap);
   dropdownWrap.appendChild(btnMore);
   dropdownWrap.appendChild(menu);
-  header.appendChild(btnMenu);
-  header.appendChild(h1);
   header.appendChild(dropdownWrap);
   container.appendChild(header);
 }
