@@ -293,7 +293,7 @@
       }
 
       try {
-        const res = await fetch(`/api/stocks?query=${encodeURIComponent(q)}`);
+        const res = await fetch(`/api/analises?query=${encodeURIComponent(q)}`);
         const data = await res.json();
 
         list.innerHTML = '';
@@ -361,7 +361,7 @@
 
       try {
         for (let tipo of types) {
-          const res = await fetch(`/api/stocks?symbol=${encodeURIComponent(symbol)}&tipo=${tipo}`);
+          const res = await fetch(`/api/analises?symbol=${encodeURIComponent(symbol)}&tipo=${tipo}`);
           const data = await res.json();
 
           // Show latest summary with improved styling
