@@ -6,79 +6,121 @@
   <meta name="description" content="Guia completo de uso, referência de API e exemplos para a plataforma NovaStocks. Aprenda a integrar e utilizar nossos recursos.">
   <meta name="keywords" content="NovaStocks, documentação, API, guia de uso, exemplos, referência">
   <meta name="robots" content="index, follow">
-  <link rel="canonical" href="https://novastocks.vercel.app/documentacao.html">  <!-- Open Graph -->  <meta property="og:title" content="Documentação - NovaStocks">
+  <link rel="canonical" href="https://novastocks.vercel.app/documentacao.html">
+  <!-- Open Graph -->
+  <meta property="og:title" content="Documentação - NovaStocks">
   <meta property="og:description" content="Explore a documentação oficial da NovaStocks: APIs, guias de início rápido e exemplos de integração.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://novastocks.vercel.app/documentacao.html">
-  <meta property="og:image" content="https://novastocks.vercel.app/assets/og-docs.png">  <!-- Twitter Card -->  <meta name="twitter:card" content="summary_large_image">
+  <meta property="og:image" content="https://novastocks.vercel.app/assets/og-docs.png">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Documentação - NovaStocks">
   <meta name="twitter:description" content="Guia completo de uso, referência de API e exemplos para a plataforma NovaStocks.">
-  <meta name="twitter:image" content="https://novastocks.vercel.app/assets/twitter-docs.png">  <!-- JSON-LD WebPage -->  <script type="application/ld+json">
+  <meta name="twitter:image" content="https://novastocks.vercel.app/assets/twitter-docs.png">
+  <!-- JSON-LD WebPage -->
+  <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "WebPage",
     "name": "Documentação NovaStocks",
     "description": "Documentação oficial da NovaStocks com guias de uso, referência de API e exemplos.",
     "url": "https://novastocks.vercel.app/documentacao.html",
-    "publisher": {
-      "@type": "Organization",
-      "name": "NovaStocks",
-      "url": "https://novastocks.vercel.app"
-    }
+    "publisher": { "@type": "Organization", "name": "NovaStocks", "url": "https://novastocks.vercel.app" }
   }
-  </script>  <script src="https://cdn.tailwindcss.com"></script></head>
-<body class="bg-gray-50 text-gray-800">  <div id="header-widget"></div>
-  <script type="module" src="header.js"></script>  <main class="max-w-5xl mx-auto px-4 py-12 space-y-12">
-    <header class="text-center">
-      <h1 class="text-4xl font-bold mb-2">Documentação</h1>
-      <p class="text-lg text-gray-600">Guia completo de uso e referência da plataforma NovaStocks</p>
-    </header><section id="overview" class="space-y-4">
-  <h2 class="text-2xl font-semibold">1. Visão Geral</h2>
-  <p>A NovaStocks oferece ferramentas avançadas para análise de ações, notificações de eventos e geração de relatórios. Nesta documentação você encontrará guias de uso, referência de API e melhores práticas.</p>
-</section>
-
-<section id="getting-started" class="space-y-4">
-  <h2 class="text-2xl font-semibold">2. Guia de Início Rápido</h2>
-  <ol class="list-decimal list-inside space-y-2">
-    <li>Cadastre-se em <a href="/signup.html" class="text-blue-600 hover:underline">signup.html</a>.</li>
-    <li>Faça login em <a href="/login.html" class="text-blue-600 hover:underline">login.html</a>.</li>
-    <li>Acesse o painel e configure seus alertas de ações.</li>
-    <li>Explore a API pública em <code>/api</code> para buscar cotações e indicadores.</li>
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { primary: '#2563eb', secondary: '#1e40af', accent: '#3b82f6' } } } };
+  </script>
+</head>
+<body class="bg-gradient-to-br from-slate-50 to-blue-50 text-gray-800 min-h-screen">
+  <div id="header-widget"></div>
+  <script type="module" src="header.js"></script>  <!-- Floating TOC -->  <div id="toc" class="fixed left-4 top-1/2 transform -translate-y-1/2 hidden lg:block">
+    <div class="bg-white/90 backdrop-blur rounded-xl shadow-lg border border-gray-200 p-4 w-48">
+      <h3 class="text-sm font-semibold text-gray-700 mb-3">Índice</h3>
+      <nav class="space-y-2 text-xs">
+        <a href="#overview" class="block hover:text-primary transition">Visão Geral</a>
+        <a href="#getting-started" class="block hover:text-primary transition">Início Rápido</a>
+        <a href="#api-reference" class="block hover:text-primary transition">Referência de API</a>
+        <a href="#usage-examples" class="block hover:text-primary transition">Exemplos</a>
+        <a href="#faq" class="block hover:text-primary transition">FAQ</a>
+      </nav>
+    </div>
+  </div>  <main class="max-w-6xl mx-auto px-4 py-12 space-y-16">
+    <!-- Overview -->
+    <section id="overview" class="space-y-6">
+      <header class="text-center">
+        <h1 class="text-4xl font-bold text-gray-900">Documentação NovaStocks</h1>
+        <p class="text-lg text-gray-600">Guia completo de uso e referência da plataforma NovaStocks</p>
+      </header>
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="bg-white p-6 rounded-2xl shadow border border-gray-200">
+          <h3 class="font-semibold text-lg text-secondary mb-2">Análise Avançada</h3>
+          <p class="text-gray-700 text-sm">Ferramentas para análise técnica e fundamentalista em tempo real.</p>
+        </div>
+        <div class="bg-white p-6 rounded-2xl shadow border border-gray-200">
+          <h3 class="font-semibold text-lg text-secondary mb-2">Notificações</h3>
+          <p class="text-gray-700 text-sm">Alertas em tempo real para eventos e preços de ações.</p>
+        </div>
+        <div class="bg-white p-6 rounded-2xl shadow border border-gray-200">
+          <h3 class="font-semibold text-lg text-secondary mb-2">Relatórios</h3>
+          <p class="text-gray-700 text-sm">Exportação em PDF e CSV para análises detalhadas.</p>
+        </div>
+      </div>
+    </section><!-- Getting Started -->
+<section id="getting-started" class="space-y-6">
+  <h2 class="text-3xl font-bold text-gray-900">Início Rápido</h2>
+  <ol class="list-decimal list-inside space-y-2 text-gray-700">
+    <li>Cadastre-se em <a href="/signup.html" class="text-primary hover:underline">signup.html</a>.</li>
+    <li>Faça login em <a href="/login.html" class="text-primary hover:underline">login.html</a>.</li>
+    <li>Configure seus alertas em <a href="/events.html" class="text-primary hover:underline">Alertas</a>.</li>
+    <li>Consuma nossa API: <code class="bg-gray-100 px-1 rounded">GET /api/stock?symbol=NVDA</code>.</li>
   </ol>
 </section>
 
-<section id="api-reference" class="space-y-4">
-  <h2 class="text-2xl font-semibold">3. Referência de API</h2>
-  <h3 class="text-xl font-medium">3.1 Buscar Cotações</h3>
-  <pre class="bg-gray-100 p-4 rounded"><code>GET /api/stock?symbol={ticker}</code></pre>
-  <p>Retorna o preço atual e indicadores básicos para o ticker informado.</p>
-  <h3 class="text-xl font-medium">3.2 Listar Páginas CMS</h3>
-  <pre class="bg-gray-100 p-4 rounded"><code>GET /api/webhook?cms=list</code></pre>
-  <p>Retorna lista de slugs das páginas HTML publicadas via CMS.</p>
-  <h3 class="text-xl font-medium">3.3 Salvar Página CMS</h3>
-  <pre class="bg-gray-100 p-4 rounded"><code>POST /api/webhook?cms=save
+<!-- API Reference -->
+<section id="api-reference" class="space-y-6">
+  <h2 class="text-3xl font-bold text-gray-900">Referência de API</h2>
+  <div class="space-y-4 text-gray-700">
+    <div>
+      <h3 class="font-semibold">GET /api/stock?symbol={ticker}</h3>
+      <p>Retorna preço e indicadores básicos.</p>
+    </div>
+    <div>
+      <h3 class="font-semibold">GET /api/webhook?cms=list</h3>
+      <p>Lista slugs de páginas publicadas via CMS.</p>
+    </div>
+    <div>
+      <h3 class="font-semibold">POST /api/webhook?cms=save</h3>
+      <pre class="bg-gray-100 p-4 rounded text-sm"><code>{ "slug": "exemplo", "content": "<h1>Olá</h1>" }</code></pre>
+    </div>
+  </div>
+</section>
 
-Content-Type: application/json
+<!-- Examples -->
+<section id="usage-examples" class="space-y-6">
+  <h2 class="text-3xl font-bold text-gray-900">Exemplos de Uso</h2>
+  <pre class="bg-gray-100 p-4 rounded text-sm text-gray-700"><code>fetch('/api/stock?symbol=AAPL')
 
-{ "slug": "exemplo", "content": "<h1>Olá</h1>" }</code></pre> </section>
+.then(r => r.json()) .then(data => console.log(data));</code></pre> </section>
 
-<section id="usage-examples" class="space-y-4">
-  <h2 class="text-2xl font-semibold">4. Exemplos de Uso</h2>
-  <p>Exemplo de fetch em JavaScript para buscar cotações:</p>
-  <pre class="bg-gray-100 p-4 rounded"><code>fetch('/api/stock?symbol=NVDA')
-
-.then(res => res.json()) .then(data => console.log(data));</code></pre> </section>
-
-<section id="faq" class="space-y-4">
-  <h2 class="text-2xl font-semibold">5. Perguntas Frequentes</h2>
-  <dl class="space-y-2">
-    <dt class="font-medium">Posso usar a API gratuitamente?</dt>
-    <dd>Sim, o Plano Básico oferece chamadas de API ilimitadas para indicadores básicos.</dd>
-    <dt class="font-medium">Como configuro notificações?</dt>
-    <dd>No painel de usuário, vá em "Alertas" e defina eventos de data ou preço para cada ticker.</dd>
+<!-- FAQ -->
+<section id="faq" class="space-y-6">
+  <h2 class="text-3xl font-bold text-gray-900">Perguntas Frequentes</h2>
+  <dl class="space-y-4 text-gray-700">
+    <div>
+      <dt class="font-semibold">API é gratuita?</dt>
+      <dd>Sim, ilimitada no Plano Básico para indicadores essenciais.</dd>
+    </div>
+    <div>
+      <dt class="font-semibold">Como ativar notificações?</dt>
+      <dd>No painel, acesse Alertas e configure eventos de data ou preço.</dd>
+    </div>
   </dl>
 </section>
 
   </main>  <div id="footer-widget"></div>
-  <script type="module" src="footer.js"></script></body>
+  <script type="module" src="footer.js"></script>
+</body>
 </html>
