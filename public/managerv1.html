@@ -240,308 +240,399 @@
   </nav>
 
   <!-- Script -->
-    <script type="module">
-    import { auth } from './firebase-init.js';
-    import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-let currentUserEmail = '';
+  <script type="module">
+  import { auth } from './firebase-init.js';
+  import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
-    // Auth guard
-    onAuthStateChanged(auth, user => {
-      if (!user) {
-        window.location.href = '/login.html';
-      } else {
-        currentUserEmail = user.email;
-        userNameEl.textContent = user.displayName || currentUserEmail.split('@')[0];
-        contentEl.classList.remove('opacity-50', 'pointer-events-none');
-        contentEl.classList.add('animate-fade-in');
-        fetchTransactions();
-      }
-    });
+  // —— AUTH & TRANSACTIONS ——
+  let currentUserEmail = '';
+  const userNameEl = document.getElementById('userName');
+  const contentEl   = document.getElementById('content');
+  const signOutBtn  = document.getElementById('signOutBtn');
+  const submitBtn   = document.getElementById('submitBtn');
+  const submitText  = document.getElementById('submitText');
 
-    // Sign out
-    signOutBtn.addEventListener('click', async () => {
-      submitBtn.disabled = true;
-      submitText.textContent = 'A sair...';
-      await signOut(auth);
+  onAuthStateChanged(auth, user => {
+    if (!user) {
       window.location.href = '/login.html';
-    });
-     // Build API URL
-    function getAPI() {
-      const userMail = encodeURIComponent((currentUserEmail || '').trim() || 'default');
-      return `/api/transactions?user=${userMail}`;
+    } else {
+      currentUserEmail = user.email;
+      userNameEl.textContent = user.displayName || currentUserEmail.split('@')[0];
+      contentEl.classList.remove('opacity-50', 'pointer-events-none');
+      contentEl.classList.add('animate-fade-in');
+      fetchTransactions();
     }
-function renderTable(data) {
-      transactions = data;
-      renderStocks();
-      updateChart();
-      updateSummary();
-    }
-    // Fetch & render transactions
-    async function fetchTransactions() {
-      try {
-        const res = await fetch(getAPI());
-        const data = await res.json();
-        renderTable(data);
-      }
-      catch (err) {
-        showNotification('Erro ao carregar transações.', 'error');
-        console.error(err);
-      }
-    }
+  });
 
-    const stockList = document.getElementById("stockList");
-    const modal = document.getElementById("modal");
-    const stockForm = document.getElementById("stockForm");
-    const filterType = document.getElementById("filterType");
-    const chartType = document.getElementById("chartType");
+  signOutBtn.addEventListener('click', async () => {
+    submitBtn.disabled = true;
+    submitText.textContent = 'A sair...';
+    await signOut(auth);
+    window.location.href = '/login.html';
+  });
 
-    let transactions = [];
-    let editIndex = null;
+  function getAPI() {
+    const userMail = encodeURIComponent((currentUserEmail || '').trim() || 'default');
+    return `/api/transactions?user=${userMail}`;
+  }
 
-    // Set default date to today
-    document.getElementById('date').valueAsDate = new Date();
-
-    function openModal(index = null) {
-      modal.classList.remove("hidden");
-      modal.classList.add("flex");
-      stockForm.reset();
-      document.getElementById('date').valueAsDate = new Date();
-      editIndex = index;
-
-      if (index !== null) {
-        const tx = transactions[index];
-        document.getElementById("modalTitle").textContent = "Editar Transação";
-        stockForm.symbol.value = tx.symbol;
-        stockForm.name.value = tx.name;
-        stockForm.type.value = tx.type;
-        stockForm.price.value = tx.price;
-        stockForm.shares.value = tx.shares;
-        stockForm.fee.value = tx.fee || 0;
-        stockForm.date.value = tx.date || new Date().toISOString().split('T')[0];
-      } else {
-        document.getElementById("modalTitle").textContent = "Nova Transação";
-      }
-      updateTotalPreview();
-    }
-
-    function closeModal() {
-      modal.classList.add("hidden");
-      modal.classList.remove("flex");
-      editIndex = null;
-    }
-
-    function updateTotalPreview() {
-      const price = parseFloat(stockForm.price.value) || 0;
-      const shares = parseInt(stockForm.shares.value) || 0;
-      const fee = parseFloat(stockForm.fee.value) || 0;
-      const total = (price * shares + fee).toFixed(2);
-      document.getElementById('totalPreview').textContent = `€${total}`;
-    }
-
-    function getTypeIcon(type) {
-      return type === 'Compra' 
-        ? '<span class="text-green-600">↗</span>' 
-        : '<span class="text-red-600">↘</span>';
-    }
-
-    function getTypeColor(type) {
-      return type === 'Compra' ? 'text-green-600' : 'text-red-600';
-    }
-
-    function renderStocks() {
-      const filteredTx = filterType.value 
-        ? transactions.filter(tx => tx.type === filterType.value)
-        : transactions;
-
-      if (filteredTx.length === 0) {
-        stockList.innerHTML = `
-          <div class="px-4 py-8 text-center text-gray-500">
-            <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-            </svg>
-            <p>${filterType.value ? `Nenhuma ${filterType.value.toLowerCase()} encontrada` : 'Nenhuma transação ainda'}</p>
-            <p class="text-sm">Adicione sua primeira transação</p>
-          </div>
-        `;
-        return;
-      }
-
-      stockList.innerHTML = "";
-      filteredTx.forEach((tx, originalIndex) => {
-        const index = transactions.indexOf(tx);
-        const total = (tx.price * tx.shares + (tx.fee || 0)).toFixed(2);
-        const date = tx.date ? new Date(tx.date).toLocaleDateString('pt-PT') : 'N/A';
-        
-        const row = document.createElement("div");
-        row.className = "px-4 py-3 hover:bg-gray-50 transition-colors";
-        row.innerHTML = `
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-3 flex-1">
-              <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <span class="text-blue-600 font-bold text-sm">${tx.symbol.slice(0, 2)}</span>
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center space-x-2">
-                  <span class="font-medium text-gray-900">${tx.symbol}</span>
-                  ${getTypeIcon(tx.type)}
-                  <span class="text-sm ${getTypeColor(tx.type)}">${tx.type}</span>
-                </div>
-                <div class="text-sm text-gray-600 truncate">${tx.name}</div>
-                <div class="text-xs text-gray-500">${date} • ${tx.shares} ações • €${tx.price.toFixed(2)}/ação</div>
-              </div>
-            </div>
-            <div class="text-right flex-shrink-0 ml-4">
-              <div class="font-semibold text-gray-900">€${total}</div>
-              <div class="flex space-x-2 mt-1">
-                <button onclick="openModal(${index})" class="text-blue-600 text-xs hover:text-blue-800 touch-manipulation">
-                  Editar
-                </button>
-                <button onclick="deleteTx(${index})" class="text-red-600 text-xs hover:text-red-800 touch-manipulation">
-                  Remover
-                </button>
-              </div>
-            </div>
-          </div>
-        `;
-        stockList.appendChild(row);
-      });
-    }
-
-    function deleteTx(index) {
-      if (confirm('Tem certeza que deseja remover esta transação?')) {
-        transactions.splice(index, 1);
-        renderStocks();
-        updateChart();
-        updateSummary();
-      }
-    }
-
-    function updateSummary() {
-      const totalInvested = transactions.reduce((sum, tx) => sum + (tx.price * tx.shares), 0);
-      const totalFees = transactions.reduce((sum, tx) => sum + (tx.fee || 0), 0);
-      
-      document.getElementById('totalInvested').textContent = `€${totalInvested.toFixed(2)}`;
-      document.getElementById('totalFees').textContent = `€${totalFees.toFixed(2)}`;
-      document.getElementById('portfolioSummary').textContent = `${transactions.length} transação${transactions.length !== 1 ? 'ões' : ''}`;
-    }
-
-    stockForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const tx = {
-        symbol: stockForm.symbol.value.toUpperCase(),
-        name: stockForm.name.value,
-        type: stockForm.type.value,
-        price: parseFloat(stockForm.price.value),
-        shares: parseInt(stockForm.shares.value),
-        fee: parseFloat(stockForm.fee.value) || 0,
-        date: stockForm.date.value
-      };
-
-      if (editIndex !== null) {
-        transactions[editIndex] = tx;
-      } else {
-        transactions.push(tx);
-      }
-
-      closeModal();
-      renderStocks();
-      updateChart();
-      updateSummary();
-    });
-
-    function updateChart() {
-      if (transactions.length === 0) {
-        Plotly.newPlot('plotlyChart', [], {
-          margin: { t: 20, r: 20, l: 50, b: 40 },
-          paper_bgcolor: 'rgba(0,0,0,0)',
-          plot_bgcolor: 'rgba(0,0,0,0)',
-          xaxis: { title: 'Sem dados' },
-          yaxis: { title: 'Total (€)' }
-        }, { responsive: true, displayModeBar: false });
-        return;
-      }
-
-      const sortedTx = [...transactions].sort((a, b) => new Date(a.date) - new Date(b.date));
-      
-      if (chartType.value === 'cumulative') {
-        let cumulative = 0;
-        const x = sortedTx.map((tx, i) => `${tx.date || i+1}`);
-        const y = sortedTx.map(tx => {
-          cumulative += tx.price * tx.shares + (tx.fee || 0);
-          return cumulative;
-        });
-        
-        Plotly.newPlot('plotlyChart', [{
-          x,
-          y,
-          type: 'scatter',
-          mode: 'lines+markers',
-          marker: { color: '#3b82f6', size: 6 },
-          line: { color: '#3b82f6', width: 3 },
-          fill: 'tonexty',
-          fillcolor: 'rgba(59, 130, 246, 0.1)'
-        }], {
-          margin: { t: 20, r: 20, l: 50, b: 40 },
-          xaxis: { title: 'Data', tickangle: -45 },
-          yaxis: { title: 'Total Cumulativo (€)', tickformat: '€,.0f' },
-          paper_bgcolor: 'rgba(0,0,0,0)',
-          plot_bgcolor: 'rgba(0,0,0,0)',
-          font: { family: 'system-ui, -apple-system, sans-serif' },
-          showlegend: false
-        }, { responsive: true, displayModeBar: false });
-      } else {
-        const x = sortedTx.map((tx, i) => `${tx.symbol}`);
-        const y = sortedTx.map(tx => tx.price * tx.shares + (tx.fee || 0));
-        
-        Plotly.newPlot('plotlyChart', [{
-          x,
-          y,
-          type: 'bar',
-          marker: { 
-            color: sortedTx.map(tx => tx.type === 'Compra' ? '#10b981' : '#ef4444'),
-            opacity: 0.8
-          }
-        }], {
-          margin: { t: 20, r: 20, l: 50, b: 40 },
-          xaxis: { title: 'Transações' },
-          yaxis: { title: 'Total (€)', tickformat: '€,.0f' },
-          paper_bgcolor: 'rgba(0,0,0,0)',
-          plot_bgcolor: 'rgba(0,0,0,0)',
-          font: { family: 'system-ui, -apple-system, sans-serif' },
-          showlegend: false
-        }, { responsive: true, displayModeBar: false });
-      }
-    }
-
-    // Event listeners
-    filterType.addEventListener('change', renderStocks);
-    chartType.addEventListener('change', updateChart);
-    
-    // Update total preview on input change
-    ['price', 'shares', 'fee'].forEach(id => {
-      document.getElementById(id).addEventListener('input', updateTotalPreview);
-    });
-
-    // Close modal on backdrop click
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        closeModal();
-      }
-    });
-
-    // Handle orientation changes
-    window.addEventListener('orientationchange', function() {
-      setTimeout(() => {
-        if (document.getElementById('plotlyChart')) {
-          Plotly.Plots.resize('plotlyChart');
-        }
-      }, 100);
-    });
-
-    // Initialize
+  let transactions = [];
+  function renderTable(data) {
+    transactions = data;
+    renderStocks();
     updateChart();
     updateSummary();
+  }
+
+  async function fetchTransactions() {
+    try {
+      const res  = await fetch(getAPI());
+      const data = await res.json();
+      renderTable(data);
+    } catch (err) {
+      showNotification('Erro ao carregar transações.', 'error');
+      console.error(err);
+    }
+  }
+
+  // —— PORTFOLIO UI —— (your existing renderStocks, updateChart, etc.)
+  const stockList  = document.getElementById("stockList");
+  const modal      = document.getElementById("modal");
+  const stockForm  = document.getElementById("stockForm");
+  const filterType = document.getElementById("filterType");
+  const chartType  = document.getElementById("chartType");
+  let editIndex    = null;
+
+  document.getElementById('date').valueAsDate = new Date();
+
+  function openModal(index = null) {
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+    stockForm.reset();
+    document.getElementById('date').valueAsDate = new Date();
+    editIndex = index;
+    document.getElementById("modalTitle").textContent = index !== null ? "Editar Transação" : "Nova Transação";
+    if (index !== null) {
+      const tx = transactions[index];
+      stockForm.symbol.value = tx.symbol;
+      stockForm.name.value   = tx.name;
+      stockForm.type.value   = tx.type;
+      stockForm.price.value  = tx.price;
+      stockForm.shares.value = tx.shares;
+      stockForm.fee.value    = tx.fee || 0;
+      stockForm.date.value   = tx.date || new Date().toISOString().split('T')[0];
+    }
+    updateTotalPreview();
+  }
+
+  function closeModal() {
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+    editIndex = null;
+  }
+
+  function updateTotalPreview() {
+    const price  = parseFloat(stockForm.price.value) || 0;
+    const shares = parseInt(stockForm.shares.value)   || 0;
+    const fee    = parseFloat(stockForm.fee.value)   || 0;
+    const total  = (price * shares + fee).toFixed(2);
+    document.getElementById('totalPreview').textContent = `€${total}`;
+  }
+
+  function getTypeIcon(type)  { return type === 'Compra' ? '<span class="text-green-600">↗</span>' : '<span class="text-red-600">↘</span>'; }
+  function getTypeColor(type) { return type === 'Compra' ? 'text-green-600' : 'text-red-600'; }
+
+  function renderStocks() {
+    const filtered = filterType.value
+      ? transactions.filter(tx => tx.type === filterType.value)
+      : transactions;
+
+    if (filtered.length === 0) {
+      stockList.innerHTML = `
+        <div class="px-4 py-8 text-center text-gray-500">
+          <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+            </path>
+          </svg>
+          <p>${filterType.value ? `Nenhuma ${filterType.value.toLowerCase()} encontrada` : 'Nenhuma transação ainda'}</p>
+          <p class="text-sm">Adicione sua primeira transação</p>
+        </div>`;
+      return;
+    }
+
+    stockList.innerHTML = "";
+    filtered.forEach(tx => {
+      const idx   = transactions.indexOf(tx);
+      const total = (tx.price * tx.shares + (tx.fee || 0)).toFixed(2);
+      const date  = tx.date ? new Date(tx.date).toLocaleDateString('pt-PT') : 'N/A';
+
+      const row = document.createElement("div");
+      row.className = "px-4 py-3 hover:bg-gray-50 transition-colors";
+      row.innerHTML = `
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-3 flex-1">
+            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+              <span class="text-blue-600 font-bold text-sm">${tx.symbol.slice(0, 2)}</span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center space-x-2">
+                <span class="font-medium text-gray-900">${tx.symbol}</span>
+                ${getTypeIcon(tx.type)}
+                <span class="text-sm ${getTypeColor(tx.type)}">${tx.type}</span>
+              </div>
+              <div class="text-sm text-gray-600 truncate">${tx.name}</div>
+              <div class="text-xs text-gray-500">${date} • ${tx.shares} ações • €${tx.price.toFixed(2)}/ação</div>
+            </div>
+          </div>
+          <div class="text-right flex-shrink-0 ml-4">
+            <div class="font-semibold text-gray-900">€${total}</div>
+            <div class="flex space-x-2 mt-1">
+              <button onclick="openModal(${idx})" class="text-blue-600 text-xs hover:text-blue-800">Editar</button>
+              <button onclick="deleteTx(${idx})" class="text-red-600 text-xs hover:text-red-800">Remover</button>
+            </div>
+          </div>
+        </div>`;
+      stockList.appendChild(row);
+    });
+  }
+
+  function deleteTx(i) {
+    if (confirm('Tem certeza que deseja remover esta transação?')) {
+      transactions.splice(i,1);
+      renderStocks();
+      updateChart();
+      updateSummary();
+    }
+  }
+
+  function updateSummary() {
+    const totalInvested = transactions.reduce((s,tx)=>s + tx.price*tx.shares,0);
+    const totalFees     = transactions.reduce((s,tx)=>s + (tx.fee||0),0);
+    document.getElementById('totalInvested').textContent = `€${totalInvested.toFixed(2)}`;
+    document.getElementById('totalFees').textContent      = `€${totalFees.toFixed(2)}`;
+    document.getElementById('portfolioSummary').textContent =
+      `${transactions.length} transação${transactions.length!==1?'ões':''}`;
+  }
+
+  function updateChart() {
+    /* your existing Plotly logic here... */
+  }
+
+  stockForm.addEventListener("submit", e => {
+    e.preventDefault();
+    const tx = {
+      symbol: stockForm.symbol.value.toUpperCase(),
+      name:   stockForm.name.value,
+      type:   stockForm.type.value,
+      price:  parseFloat(stockForm.price.value),
+      shares: parseInt(stockForm.shares.value),
+      fee:    parseFloat(stockForm.fee.value)||0,
+      date:   stockForm.date.value
+    };
+    if (editIndex!==null) transactions[editIndex]=tx;
+    else transactions.push(tx);
+    closeModal();
     renderStocks();
-  </script>
+    updateChart();
+    updateSummary();
+  });
+
+  filterType.addEventListener('change', renderStocks);
+  chartType.addEventListener('change', updateChart);
+  ['price','shares','fee'].forEach(id=>
+    document.getElementById(id).addEventListener('input',updateTotalPreview)
+  );
+
+  // —— WATCHLIST GRID & TABLE ——
+  const symbols        = new Set(JSON.parse(localStorage.getItem('watchlist') || '["AAPL","TSLA","MSFT"]'));
+  const grid           = document.getElementById('stockGrid');
+  const tableBody      = document.querySelector('#stockTable tbody');
+  const input          = document.getElementById('inputSymbol');
+  const suggestions    = document.getElementById('suggestions');
+  const statusIndicator= document.getElementById('statusIndicator');
+  const statusText     = document.getElementById('statusText');
+  let dark             = true;
+
+  function toggleTheme() {
+    dark = !dark;
+    document.body.classList.toggle('light-mode', !dark);
+    localStorage.setItem('theme', dark ? 'dark' : 'light');
+  }
+
+  function saveList() {
+    localStorage.setItem('watchlist', JSON.stringify([...symbols]));
+  }
+
+  function showStatus(message, type='success') {
+    statusText.textContent = message;
+    statusIndicator.className = `status-indicator show ${type}`;
+    setTimeout(()=> statusIndicator.classList.remove('show'), 3000);
+  }
+
+  function createCard(symbol) {
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.id        = `card-${symbol}`;
+    div.innerHTML = `
+      <button class="remove-btn" onclick="removeStock('${symbol}')" title="Remover ${symbol}">×</button>
+      <div class="symbol">${symbol}</div>
+      <div class="price" id="price-${symbol}"><span class="loading"></span></div>
+      <div class="change" id="change-${symbol}">Carregando...</div>
+    `;
+    grid.appendChild(div);
+  }
+
+  function updateCard(symbol,data) {
+    const priceEl  = document.getElementById(`price-${symbol}`);
+    const changeEl = document.getElementById(`change-${symbol}`);
+    if (!priceEl||!changeEl) return;
+    priceEl.textContent  = `€${(data.price||0).toFixed(2)}`;
+    const c = data.changePercent||0;
+    changeEl.textContent= `${c>=0?'+':''}${c.toFixed(2)}%`;
+    changeEl.className  = 'change ' + (c>=0?'positive':'negative');
+  }
+
+  function updateTableRow(symbol,data) {
+    let row = document.getElementById(`row-${symbol}`);
+    if (!row) row = tableBody.insertRow(), row.id = `row-${symbol}`;
+    const cp = data.changePercent||0;
+    const cls= cp>=0?'positive':'negative';
+    row.innerHTML = `
+      <td><strong>${symbol}</strong></td>
+      <td>€${(data.price||0).toFixed(2)}</td>
+      <td><span class="change ${cls}">${cp>=0?'+':''}${cp.toFixed(2)}%</span></td>
+      <td>${data.volume?data.volume.toLocaleString():'-'}</td>
+      <td>${data.marketCap? (data.marketCap/1e9).toFixed(1)+'B' : '-'}</td>
+    `;
+  }
+
+  async function fetchStock(symbol) {
+    try {
+      const res  = await fetch(`/api/stocks?symbol=${symbol}`);
+      const data = await res.json();
+      if (!data?.price) throw new Error('Dados inválidos');
+      updateCard(symbol,data);
+      updateTableRow(symbol,data);
+    } catch (err) {
+      console.error(`Erro ao buscar ${symbol}:`,err);
+      showStatus(`Erro ao carregar ${symbol}`,'error');
+    }
+  }
+
+  function refreshAll() {
+    showStatus('Atualizando preços...','info');
+    let done=0, total=symbols.size;
+    symbols.forEach(sym=> {
+      fetchStock(sym).then(()=>{
+        if (++done===total) showStatus('Preços atualizados!');
+      });
+    });
+  }
+
+  function addStock() {
+    const sym = input.value.trim().toUpperCase();
+    input.value = '';
+    if (!sym) return;
+    if (symbols.has(sym)) { showStatus(`${sym} já está na lista`,'warning'); return; }
+    symbols.add(sym);
+    createCard(sym);
+    fetchStock(sym);
+    saveList();
+    showStatus(`${sym} adicionado!`);
+  }
+
+  function removeStock(sym) {
+    symbols.delete(sym);
+    document.getElementById(`card-${sym}`)?.remove();
+    document.getElementById(`row-${sym}`)?.remove();
+    saveList();
+    showStatus(`${sym} removido`);
+  }
+
+  function sortTable(col) {
+    const rows = Array.from(tableBody.rows);
+    rows.sort((a,b)=>{
+      let va=a.cells[col].textContent.replace(/[€%BM]/g,''),
+          vb=b.cells[col].textContent.replace(/[€%BM]/g,'');
+      return col===0 ? va.localeCompare(vb) : parseFloat(vb)-parseFloat(va);
+    });
+    tableBody.innerHTML = '';
+    rows.forEach(r=>tableBody.appendChild(r));
+    showStatus('Tabela ordenada!');
+  }
+
+  input.addEventListener('input', async()=>{
+    const q=input.value.trim();
+    if (!q) return suggestions.style.display='none';
+    try {
+      const res = await fetch(`/api/stocks?query=${q}`);
+      const results = await res.json();
+      suggestions.innerHTML='';
+      results.forEach(({symbol,name})=>{
+        const div = document.createElement('div');
+        div.innerHTML = `<strong>${symbol}</strong> - ${name}`;
+        div.onclick = ()=> { input.value=symbol; suggestions.style.display='none'; };
+        suggestions.appendChild(div);
+      });
+      suggestions.style.display = results.length? 'block':'none';
+    } catch { suggestions.style.display='none'; }
+  });
+
+  document.addEventListener('click', e=>{
+    if (!suggestions.contains(e.target) && e.target!==input) suggestions.style.display='none';
+  });
+  input.addEventListener('keypress', e=> { if(e.key==='Enter') addStock(); });
+  document.getElementById('fileInput').addEventListener('change', async e=>{
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const list = file.name.endsWith('.csv')
+        ? text.split(',').map(s=>s.trim().toUpperCase())
+        : JSON.parse(text);
+      let added=0;
+      list.forEach(sym=>{
+        if (!symbols.has(sym)) {
+          symbols.add(sym);
+          createCard(sym);
+          fetchStock(sym);
+          added++;
+        }
+      });
+      if (added) saveList(), showStatus(`${added} adicionados da lista!`);
+    } catch(err){ console.error(err); showStatus('Erro ao importar ficheiro','error'); }
+  });
+
+  function exportList() {
+    const json = JSON.stringify([...symbols],null,2);
+    const blob = new Blob([json],{type:'application/json'});
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href        = url;
+    a.download    = `watchlist_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showStatus('Exportado com sucesso!');
+  }
+
+  function init() {
+    if (localStorage.getItem('theme')==='light') {
+      dark=false;
+      document.body.classList.add('light-mode');
+    }
+    symbols.forEach(sym=>{ createCard(sym); fetchStock(sym); });
+    setInterval(refreshAll,30000);
+    showStatus('Dashboard carregado!');
+  }
+
+  // wire up any extra buttons:
+  document.getElementById('addBtn').onclick    = addStock;
+  document.getElementById('exportBtn').onclick = exportList;
+  document.getElementById('toggleTheme').onclick = toggleTheme;
+
+  init();
+</script>
+
 </body>
 </html>
