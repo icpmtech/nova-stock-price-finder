@@ -25,37 +25,20 @@ function buildHeader(cfg) {
 
   // Root header
   const header = document.createElement('div');
-  header.className = 'flex justify-between items-center  bg-white p-4 shadow-lg relative';
+  header.className = 'flex justify-between items-center mb-6 bg-white p-4 shadow-lg relative';
 
-  // Sidebar toggle (left)
+  // Logo/Button (left)
   const btnMenu = document.createElement('button');
-  btnMenu.className = 'p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition';
-  btnMenu.innerHTML = `
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-         stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M4 6h16M4 12h16M4 18h16"/>
-    </svg>`;
+  btnMenu.className = 'p-1 rounded-lg transition';
+  btnMenu.innerHTML = `<img src="${cfg.logoUrl}" alt="${cfg.title} logo" class="h-8 w-auto"/>`;
   btnMenu.addEventListener('click', () => {
     document.body.classList.toggle('sidebar-open');
   });
 
-  // Logo + Title (center)
-  const titleWrap = document.createElement('div');
-  titleWrap.className = 'flex items-center space-x-2';
-
-  // Logo
-  const logo = document.createElement('img');
-  logo.src = cfg.logoUrl;
-  logo.alt = cfg.title + ' logo';
-  logo.className = 'h-8 w-auto';
-  titleWrap.appendChild(logo);
-
-  // Title
+  // Title (center)
   const h1 = document.createElement('h1');
   h1.className = 'text-2xl font-bold text-gray-800';
   h1.textContent = cfg.title;
-  titleWrap.appendChild(h1);
 
   // Dropdown wrapper (right)
   const dropdownWrap = document.createElement('div');
@@ -96,7 +79,7 @@ function buildHeader(cfg) {
 
   // Monta o header
   header.appendChild(btnMenu);
-  header.appendChild(titleWrap);
+  header.appendChild(h1);
   dropdownWrap.appendChild(btnMore);
   dropdownWrap.appendChild(menu);
   header.appendChild(dropdownWrap);
