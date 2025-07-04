@@ -1,0 +1,151 @@
+<!DOCTYPE html><html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Relatórios de Transações</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- jsPDF (para PDF) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+  <div class="container my-5">
+    <h1 class="mb-4">Relatórios de Transações</h1>
+    <div class="row mb-3">
+      <div class="col-md-3">
+        <label for="startDate" class="form-label">Data Início</label>
+        <input type="date" id="startDate" class="form-control">
+      </div>
+      <div class="col-md-3">
+        <label for="endDate" class="form-label">Data Fim</label>
+        <input type="date" id="endDate" class="form-control">
+      </div>
+      <div class="col-md-2 align-self-end">
+        <button id="btnGenerate" class="btn btn-primary w-100">Gerar Relatório</button>
+      </div>
+      <div class="col-md-2 align-self-end">
+        <button id="btnExportCSV" class="btn btn-outline-secondary w-100">Exportar CSV</button>
+      </div>
+      <div class="col-md-2 align-self-end">
+        <button id="btnExportPDF" class="btn btn-outline-secondary w-100">Exportar PDF</button>
+      </div>
+    </div><div class="card mb-4">
+  <div class="card-header">Resumo</div>
+  <div class="card-body">
+    <p>Total Compras: <span id="totalBuy">0</span></p>
+    <p>Total Vendas: <span id="totalSell">0</span></p>
+    <p>Volume (€): <span id="totalVolume">0.00</span></p>
+  </div>
+</div>
+
+<div class="card mb-5">
+  <div class="card-header">Histórico de Transações</div>
+  <div class="card-body p-0">
+    <table class="table table-striped mb-0" id="txTable">
+      <thead>
+        <tr>
+          <th>Símbolo</th>
+          <th>Operação</th>
+          <th>Quantidade</th>
+          <th>Preço (€)</th>
+          <th>Data</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Linhas serão inseridas via JS -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">Gráfico de Volumes por Dia</div>
+  <div class="card-body">
+    <canvas id="volumeChart" height="100"></canvas>
+  </div>
+</div>
+
+  </div>  <script>
+    let reportData = [];
+
+    document.getElementById('btnGenerate').addEventListener('click', async () => {
+      const start = document.getElementById('startDate').value;
+      const end = document.getElementById('endDate').value;
+      if (!start || !end) return alert('Selecione o intervalo de datas.');
+      
+      const res = await fetch(`/api/transactions?start=${start}&end=${end}`);
+      const data = await res.json();
+      reportData = data;
+
+      const tbody = document.querySelector('#txTable tbody');
+      tbody.innerHTML = '';
+      let totalBuy = 0, totalSell = 0, totalVol = 0;
+      const volumesByDate = {};
+
+      data.forEach(tx => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${tx.symbol}</td>
+          <td>${tx.operation}</td>
+          <td>${tx.quantity}</td>
+          <td>€${tx.price.toFixed(4)}</td>
+          <td>${tx.date}</td>
+        `;
+        tbody.appendChild(row);
+
+        if (tx.operation.toLowerCase() === 'compra') totalBuy += tx.quantity;
+        if (tx.operation.toLowerCase() === 'venda') totalSell += tx.quantity;
+        totalVol += tx.price * tx.quantity;
+
+        volumesByDate[tx.date] = (volumesByDate[tx.date] || 0) + tx.price * tx.quantity;
+      });
+
+      document.getElementById('totalBuy').textContent = totalBuy;
+      document.getElementById('totalSell').textContent = totalSell;
+      document.getElementById('totalVolume').textContent = totalVol.toFixed(2);
+
+      const ctx = document.getElementById('volumeChart').getContext('2d');
+      if (window.volChart) window.volChart.destroy();
+      window.volChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(volumesByDate).sort(),
+          datasets: [{ label: 'Volume (€)', data: Object.keys(volumesByDate).sort().map(d => volumesByDate[d]) }]
+        },
+        options: { responsive: true }
+      });
+    });
+
+    // Export CSV
+    document.getElementById('btnExportCSV').addEventListener('click', () => {
+      if (!reportData.length) return alert('Gere o relatório antes de exportar.');
+      const header = ['Símbolo', 'Operação', 'Quantidade', 'Preço (€)', 'Data'];
+      const rows = reportData.map(tx => [tx.symbol, tx.operation, tx.quantity, tx.price.toFixed(4), tx.date]);
+      let csv = header.join(',') + '\n';
+      rows.forEach(r => { csv += r.join(',') + '\n'; });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `relatorio_${Date.now()}.csv`;
+      link.click();
+    });
+
+    // Export PDF
+    document.getElementById('btnExportPDF').addEventListener('click', async () => {
+      if (!reportData.length) return alert('Gere o relatório antes de exportar.');
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.setFontSize(12);
+      doc.text('Relatório de Transações', 14, 20);
+
+      const cols = ['Símbolo', 'Operação', 'Quantidade', 'Preço (€)', 'Data'];
+      const rows = reportData.map(tx => [tx.symbol, tx.operation, tx.quantity.toString(), tx.price.toFixed(4), tx.date]);
+      
+      doc.autoTable({ startY: 30, head: [cols], body: rows });
+      doc.save(`relatorio_${Date.now()}.pdf`);
+    });
+  </script></body>
+</html>
