@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Planos — NovaStocks</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- PayPal SDK -->
+  <script src="https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&currency=EUR"></script>
+  <!-- Stripe.js -->
+  <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body class="bg-gray-50 text-gray-900 font-sans antialiased">
+  <!-- Header -->
+  <header class="bg-white shadow safe-area">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="index.html" class="flex items-center space-x-2">
+        <img src="/assets/logo.png" alt="NovaStocks" class="h-8" />
+        <span class="text-xl font-bold">NovaStocks</span>
+      </a>
+      <nav class="hidden md:flex space-x-6">
+        <a href="index.html" class="hover:text-blue-600">Início</a>
+        <a href="plans.html" class="text-blue-600 font-semibold">Planos</a>
+        <a href="portfolio.html" class="hover:text-blue-600">Carteira</a>
+        <a href="contact.html" class="hover:text-blue-600">Contactos</a>
+      </nav>
+      <button id="btnMenu" class="md:hidden p-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Planos -->
+  <main class="max-w-5xl mx-auto px-6 py-12">
+    <h1 class="text-4xl font-bold text-center mb-10">Escolha seu Plano</h1>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <!-- Plano Básico -->
+      <div class="bg-white rounded-lg shadow p-6 flex flex-col">
+        <h2 class="text-2xl font-semibold mb-2">Básico</h2>
+        <p class="text-4xl font-bold mb-4">€9<span class="text-lg">/mês</span></p>
+        <ul class="space-y-2 mb-6 flex-1 text-sm">
+          <li>✅ Relatórios básicos</li>
+          <li>✅ Simulações limitadas</li>
+          <li>✅ Suporte via email</li>
+        </ul>
+        <!-- MB WAY -->
+        <button id="mbway-basic" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded mb-2">Pagar com MB WAY</button>
+        <!-- PayPal -->
+        <div id="paypal-basic" class="mb-2"></div>
+        <!-- Stripe (Cartão) -->
+        <button id="stripe-basic" class="w-full bg-gray-800 hover:bg-gray-900 text-white py-2 rounded mb-2">Pagar com Cartão</button>
+      </div>
+      <!-- Plano Pro -->
+      <div class="bg-white rounded-lg shadow p-6 flex flex-col border-2 border-blue-500">
+        <h2 class="text-2xl font-semibold mb-2">Pro</h2>
+        <p class="text-4xl font-bold mb-4">€19<span class="text-lg">/mês</span></p>
+        <ul class="space-y-2 mb-6 flex-1 text-sm">
+          <li>✅ Tudo do Básico</li>
+          <li>✅ Relatórios avançados</li>
+          <li>✅ Simulações ilimitadas</li>
+          <li>✅ Suporte prioritário</li>
+        </ul>
+        <button id="mbway-pro" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded mb-2">Pagar com MB WAY</button>
+        <div id="paypal-pro" class="mb-2"></div>
+        <button id="stripe-pro" class="w-full bg-gray-800 hover:bg-gray-900 text-white py-2 rounded mb-2">Pagar com Cartão</button>
+      </div>
+      <!-- Plano Premium -->
+      <div class="bg-white rounded-lg shadow p-6 flex flex-col">
+        <h2 class="text-2xl font-semibold mb-2">Premium</h2>
+        <p class="text-4xl font-bold mb-4">€29<span class="text-lg">/mês</span></p>
+        <ul class="space-y-2 mb-6 flex-1 text-sm">
+          <li>✅ Tudo do Pro</li>
+          <li>✅ Dados em tempo real</li>
+          <li>✅ Relatórios fiscais completos</li>
+          <li>✅ Suporte VIP 24/7</li>
+        </ul>
+        <button id="mbway-premium" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded mb-2">Pagar com MB WAY</button>
+        <div id="paypal-premium" class="mb-2"></div>
+        <button id="stripe-premium" class="w-full bg-gray-800 hover:bg-gray-900 text-white py-2 rounded mb-2">Pagar com Cartão</button>
+      </div>
+    </div>
+  </main>
+
+  <footer class="bg-gray-800 text-gray-400 py-6 text-center">
+    &copy; 2025 NovaStocks. Todos os direitos reservados.
+  </footer>
+
+  <script>
+    // MB WAY
+    document.getElementById('mbway-basic').onclick = ()=> window.location.href = '/api/pay/mbway?plan=basic';
+    document.getElementById('mbway-pro').onclick   = ()=> window.location.href = '/api/pay/mbway?plan=pro';
+    document.getElementById('mbway-premium').onclick = ()=> window.location.href = '/api/pay/mbway?plan=premium';
+
+    // PayPal Buttons
+    ['basic','pro','premium'].forEach(plan=>{
+      paypal.Buttons({
+        createOrder: (data,actions)=> actions.order.create({
+          purchase_units:[{description: plan+' plan', amount:{value: plan==='basic'?9:plan==='pro'?19:29}}]
+        }),
+        onApprove: (data,actions)=> actions.order.capture().then(details=>{
+          alert('Pagamento '+plan+' via PayPal concluído!');
+        })
+      }).render('#paypal-'+plan);
+    });
+
+    // Stripe Checkout
+    const stripe = Stripe('YOUR_STRIPE_PUBLISHABLE_KEY');
+    document.getElementById('stripe-basic').onclick = async ()=>{
+      const res = await fetch('/api/pay/stripe',{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({plan:'basic'})
+      }); const {id} = await res.json(); stripe.redirectToCheckout({sessionId:id});
+    };
+    document.getElementById('stripe-pro').onclick = async ()=>{
+      const res = await fetch('/api/pay/stripe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({plan:'pro'})});
+      const {id} = await res.json(); stripe.redirectToCheckout({sessionId:id});
+    };
+    document.getElementById('stripe-premium').onclick = async ()=>{
+      const res = await fetch('/api/pay/stripe',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({plan:'premium'})});
+      const {id} = await res.json(); stripe.redirectToCheckout({sessionId:id});
+    };
+  </script>
+</body>
+</html>
