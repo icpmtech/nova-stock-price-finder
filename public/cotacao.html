@@ -1,113 +1,128 @@
-<!DOCTYPE html>
-<html lang="pt">
+<!DOCTYPE html><html lang="pt">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Gráfico em Tempo Real - NovaStocks</title>
-  <meta name="description" content="Acompanhe o preço em tempo real de ações na NovaStocks. Gráfico interativo e painel de informações dinâmico.">
+  <meta name="description" content="Acompanhe o preço em tempo real de ações na NovaStocks com interface tabulada.">
   <meta name="keywords" content="tempo real, ações, gráfico, NovaStocks, mercado, ticker">
-  <link rel="canonical" href="https://novastocks.vercel.app/realtime.html">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.plot.ly/plotly-2.29.0.min.js"></script>
-</head>
+  <link rel="canonical" href="https://novastocks.vercel.app/realtime.html">  <script src="https://cdn.tailwindcss.com"></script>  <script src="https://cdn.plot.ly/plotly-2.29.0.min.js"></script></head>
 <body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col">
   <div id="header-widget"></div>
   <script type="module" src="header.js"></script>
   <main class="flex-grow container mx-auto p-4">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
       <div class="flex space-x-2">
-        <input id="symbolInput" type="text" placeholder="Ticker (ex: INTC)" class="border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-        <button id="loadBtn" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition">Carregar</button>
+        <input id="symbolInput" type="text" placeholder="Ticker (ex: INTC)"
+               class="border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+        <button id="loadBtn" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition">
+          Carregar
+        </button>
       </div>
       <div id="timer" class="text-sm text-gray-600">Próxima atualização em 5s</div>
+    </div><div class="mb-6">
+  <nav class="flex space-x-4 border-b">
+    <button data-tab="chart" class="py-2 px-4 -mb-px font-medium text-blue-600 border-b-2 border-blue-600 focus:outline-none">Gráfico</button>
+    <button data-tab="details" class="py-2 px-4 text-gray-600 hover:text-gray-800 focus:outline-none">Detalhes</button>
+  </nav>
+</div>
+
+<section id="chart" class="tab-content">
+  <div id="chart-container" class="bg-white rounded-xl shadow-lg p-4 h-96"></div>
+</section>
+
+<section id="details" class="tab-content hidden">
+  <div id="card" class="bg-white rounded-xl shadow-lg p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div>
+      <h2 id="info" class="text-xl font-semibold text-gray-800"></h2>
+      <p id="description" class="text-gray-600 mt-2"></p>
     </div>
-    <div id="card" class="mt-6 bg-white rounded-xl shadow-lg p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div>
-        <h2 id="info" class="text-xl font-semibold text-gray-800"></h2>
-        <p id="description" class="text-gray-600 mt-2"></p>
-      </div>
-      <div class="grid grid-cols-2 gap-4 text-sm text-gray-600">
-        <div><span class="font-medium">Preço:</span> <span id="price"></span></div>
-        <div><span class="font-medium">Variação:</span> <span id="change"></span></div>
-        <div><span class="font-medium">Volume:</span> <span id="volume"></span></div>
-        <div><span class="font-medium">Market Cap:</span> <span id="marketCap"></span></div>
-      </div>
+    <div class="grid grid-cols-2 md:grid-cols-1 gap-4 text-sm text-gray-600" id="card-details">
+      <!-- propriedades inseridas aqui -->
     </div>
-    <div id="chart" class="mt-6 bg-white rounded-xl shadow-lg p-4 h-96"></div>
+  </div>
+</section>
+
   </main>
   <div id="footer-widget"></div>
-  <script type="module" src="footer.js"></script>
-  <script>
-    window.addEventListener('error', e => {
-      console.error('Unhandled error:', e.error);
-      document.getElementById('info').textContent = 'Erro inesperado';
+  <script type="module" src="footer.js"></script>  <script>
+    // Tab switching
+    document.querySelectorAll('[data-tab]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-content').forEach(sec => sec.classList.add('hidden'));
+        document.querySelectorAll('[data-tab]').forEach(b => b.classList.remove('border-blue-600', 'text-blue-600'));
+        const sel = btn.getAttribute('data-tab');
+        document.getElementById(sel).classList.remove('hidden');
+        btn.classList.add('border-blue-600', 'text-blue-600');
+      });
     });
+
+    // Default to chart tab
+    document.querySelector('[data-tab="chart"]').click();
+
     let symbol = '';
     let updateInterval, countdownInterval, secondsRemaining = 5;
-    const layout = { margin: { t: 40, b: 40 }, xaxis: { title: 'Hora', type: 'date' }, yaxis: { title: 'Preço (USD)' } };
+    const layout = { margin: { t: 20, b: 40 }, xaxis: { title: 'Hora', type: 'date' }, yaxis: { title: 'Preço' } };
     const trace = { x: [], y: [], mode: 'lines', line: { color: '#2563eb', width: 2 }, name: 'Preço' };
-    function initChart() { Plotly.newPlot('chart', [trace], layout, { responsive: true, displaylogo: false }); }
+
+    function initChart() {
+      Plotly.newPlot('chart-container', [trace], layout, { responsive: true, displaylogo: false });
+    }
+
     async function fetchData(sym) {
-      try {
-        const resp = await fetch(`https://marketanalyticshubapp.azurewebsites.net/api/YahooFinance/price/${sym}`);
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-        return await resp.json();
-      } catch (err) {
-        console.error('Fetch error:', err);
-        throw err;
+      const resp = await fetch(`https://marketanalyticshubapp.azurewebsites.net/api/YahooFinance/price/${sym}`);
+      const arr = await resp.json();
+      return Array.isArray(arr) && arr.length ? arr[0] : {};
+    }
+
+    function updateCardAll(data) {
+      const details = document.getElementById('card-details');
+      details.innerHTML = '';
+      for (const [k, v] of Object.entries(data)) {
+        const div = document.createElement('div');
+        div.innerHTML = `<span class='font-medium'>${k.replace(/([A-Z])/g,' $1')}:</span> ${v}`;
+        details.appendChild(div);
       }
     }
-    function updateCard(data) {
-      if (data.price == null) {
-        document.getElementById('info').textContent = 'Preço indisponível';
-        document.getElementById('description').textContent = '';
-        return;
-      }
-      document.getElementById('info').textContent = `${data.name} (${data.symbol})`;
-      document.getElementById('description').textContent = `Último preço: ${data.price.toFixed(2)} ${data.currency}`;
-      document.getElementById('price').textContent = `${data.price.toFixed(2)} ${data.currency}`;
-      document.getElementById('change').textContent = `${(data.changePercent*100).toFixed(2)}%`;
-      document.getElementById('volume').textContent = data.volume.toLocaleString();
-      document.getElementById('marketCap').textContent = data.marketCap ? `€${(data.marketCap/1e9).toFixed(2)}B` : 'N/A';
+
+    function updatePriceOnly(data) {
+      document.getElementById('info').textContent = `${data.shortName || data.symbol} (${data.symbol})`;
+      document.getElementById('description').textContent = `Preço: €${data.regularMarketPrice?.toFixed(2) || 'N/A'}`;
+      const now = new Date();
+      trace.x.push(now);
+      trace.y.push(data.regularMarketPrice);
+      if (trace.x.length > 30) { trace.x.shift(); trace.y.shift(); }
+      Plotly.update('chart-container',{ x:[trace.x], y:[trace.y] });
     }
+
     async function update() {
       try {
         const data = await fetchData(symbol);
-        updateCard(data);
-        if (data.price != null) {
-          const now = new Date();
-          trace.x.push(now);
-          trace.y.push(data.price);
-          if (trace.x.length > 30) { trace.x.shift(); trace.y.shift(); }
-          Plotly.update('chart', { x: [trace.x], y: [trace.y] });
-        }
-      } catch (e) {
-        console.error('Update error:', e);
-        document.getElementById('info').textContent = 'Erro ao atualizar dados';
-      }
+        updatePriceOnly(data);
+      } catch (e) { console.error(e); }
     }
+
     function startAutoUpdate() {
-      clearInterval(updateInterval);
-      clearInterval(countdownInterval);
+      clearInterval(updateInterval); clearInterval(countdownInterval);
       secondsRemaining = 5;
       document.getElementById('timer').textContent = `Próxima atualização em ${secondsRemaining}s`;
       countdownInterval = setInterval(() => {
-        secondsRemaining = secondsRemaining > 1 ? secondsRemaining - 1 : 5;
+        secondsRemaining = secondsRemaining>1?secondsRemaining-1:5;
         document.getElementById('timer').textContent = `Próxima atualização em ${secondsRemaining}s`;
-      }, 1000);
+      },1000);
       updateInterval = setInterval(update, 5000);
     }
+
     document.getElementById('loadBtn').addEventListener('click', async () => {
       const val = document.getElementById('symbolInput').value.trim().toUpperCase();
       if (!val) return;
-      symbol = val;
-      trace.x = [];
-      trace.y = [];
+      symbol = val; trace.x=[]; trace.y=[];
       initChart();
-      await update();
+      const data = await fetchData(symbol);
+      updateCardAll(data);
+      updatePriceOnly(data);
       startAutoUpdate();
     });
+
     initChart();
-  </script>
-</body>
+  </script></body>
 </html>
