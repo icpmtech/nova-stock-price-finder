@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Preço em Tempo Real - NovaStocks</title>
+  <meta name="description" content="Acompanhe o preço em tempo real de ações com gráfico dinâmico. Insira o ticker e veja as variações em tempo real.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+  <div id="header-widget"></div>
+  <script type="module" src="header.js"></script>
+
+  <main class="flex-grow max-w-4xl mx-auto w-full p-4">
+    <div class="mb-6 flex items-center space-x-2">
+      <input id="symbolInput" type="text" placeholder="Ex: NVDA" class="border rounded px-3 py-2 w-32">
+      <button id="loadBtn" class="bg-blue-600 text-white px-4 py-2 rounded">Carregar</button>
+    </div>
+    <div>
+      <canvas id="priceChart" class="bg-white rounded shadow"></canvas>
+    </div>
+  </main>
+
+  <div id="footer-widget"></div>
+  <script type="module" src="footer.js"></script>
+
+  <script>
+    const ctx = document.getElementById('priceChart').getContext('2d');
+    const chart = new Chart(ctx, {
+      type: 'line',
+      data: { labels: [], datasets: [{ label: 'Preço', data: [], fill: false, tension: 0.1 }] },
+      options: { scales: { x: { type: 'time', time: { unit: 'second', displayFormats: { second: 'HH:mm:ss' } } }, y: { beginAtZero: false } } }
+    });
+
+    let timer;
+    async function update(symbol) {
+      const res = await fetch(`/api/stocks?symbol=${symbol}`);
+      const json = await res.json();
+      const price = json.currentPrice || json.price || 0;
+      const now = new Date();
+      chart.data.labels.push(now);
+      chart.data.datasets[0].data.push(price);
+      if (chart.data.labels.length > 30) {
+        chart.data.labels.shift();
+        chart.data.datasets[0].data.shift();
+      }
+      chart.update();
+    }
+
+    document.getElementById('loadBtn').addEventListener('click', () => {
+      const sym = document.getElementById('symbolInput').value.trim().toUpperCase();
+      if (!sym) return;
+      clearInterval(timer);
+      chart.data.labels = [];
+      chart.data.datasets[0].data = [];
+      update(sym);
+      timer = setInterval(() => update(sym), 5000);
+    });
+  </script>
+</body>
+</html>
