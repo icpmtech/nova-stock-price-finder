@@ -7,15 +7,15 @@ const defaultConfig = {
     { icon: '📊', label: 'Dashboard', href: '#' },
     { icon: '💼', label: 'Transações', href: '#' },
     { icon: '📈', label: 'Relatórios', href: 'report-transactions.html' },
-    {icon: '🏠', label: 'Painel', href: 'dashboard.html' },         // Painel geral
-  { icon: '📂', label: 'Carteira', href: 'transactions.html' },    // Ativos comprados
-  { icon: '📉', label: 'Performance', href: 'report-transactions.html' }, // Gráficos
-  { icon: '🔔', label: 'Alertas', href: 'events.html' },           // Notificações
-  { icon: '⭐', label: 'Favoritos', href: 'watchlist.html' },      // Ações em observação
-  { icon: '⚖️', label: 'Comparar', href: 'compare.html' },         // Comparação de ativos
-  { icon: '📤', label: 'Exportar', href: 'export.html' },          // CSV/Excel
-  { icon: '⚙️', label: 'Definições', href: 'settings.html' }       // Preferências
-];
+    { icon: '🏠', label: 'Painel', href: 'dashboard.html' },
+    { icon: '📂', label: 'Carteira', href: 'transactions.html' },
+    { icon: '📉', label: 'Performance', href: 'report-transactions.html' },
+    { icon: '🔔', label: 'Alertas', href: 'events.html' },
+    { icon: '⭐', label: 'Favoritos', href: 'watchlist.html' },
+    { icon: '⚖️', label: 'Comparar', href: 'compare.html' },
+    { icon: '📤', label: 'Exportar', href: 'export.html' },
+    { icon: '⚙️', label: 'Definições', href: 'settings.html' }
+  ]
 };
 
 function buildHeader(cfg) {
@@ -59,7 +59,7 @@ function buildHeader(cfg) {
 
   const menu = document.createElement('div');
   menu.id = cfg.containerId + '-menu';
-  menu.className = 'hidden absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 divide-y divide-gray-100';
+  menu.className = 'hidden absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 z-50';
   menu.innerHTML = `<div class="py-1">
     ${cfg.links.map(link =>
       `<a href="${link.href}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
@@ -72,7 +72,14 @@ function buildHeader(cfg) {
     e.stopPropagation();
     menu.classList.toggle('hidden');
   });
-  document.addEventListener('click', () => menu.classList.add('hidden'));
+
+  // Fecha o menu ao clicar fora
+  document.addEventListener('click', () => {
+    menu.classList.add('hidden');
+  });
+
+  // Evita fechar se clicar dentro do menu
+  menu.addEventListener('click', e => e.stopPropagation());
 
   dropdownWrap.appendChild(btnMore);
   dropdownWrap.appendChild(menu);
@@ -88,7 +95,7 @@ function init(config = {}) {
   buildHeader(finalConfig);
 }
 
-// Auto-initialize on DOMContentLoaded, reading optional JSON from data-config
+// Auto-initialize on DOMContentLoaded
 document.addEventListener('DOMContentLoaded', () => {
   const container = document.getElementById(defaultConfig.containerId);
   let config = {};
@@ -101,4 +108,3 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   init(config);
 });
-
