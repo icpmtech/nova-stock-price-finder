@@ -7,13 +7,13 @@ const defaultConfig = {
     { icon: '📊', label: 'Dashboard', href: '#' },
     { icon: '💼', label: 'Transações', href: '#' },
     { icon: '📈', label: 'Relatórios', href: 'report-transactions.html' },
-    { icon: '🏠', label: 'Painel', href: 'managerv1.html' },
+    { icon: '🏠', label: 'Painel', href: 'watchlist.html' },
     { icon: '📂', label: 'Carteira', href: 'transactions.html' },
     { icon: '📉', label: 'Performance', href: 'report-transactions.html' },
     { icon: '🔔', label: 'Alertas', href: 'events.html' },
     { icon: '⭐', label: 'Favoritos', href: 'watchlist.html' },
     { icon: '⚖️', label: 'Mercados', href: 'global-markets.html' },
-    { icon: '📤', label: 'Exportar', href: 'export.html' },
+    { icon: '📤', label: 'Exportar', href: 'report-transactions.html' },
     { icon: '⚙️', label: 'Definições', href: 'settings.html' }
   ]
 };
