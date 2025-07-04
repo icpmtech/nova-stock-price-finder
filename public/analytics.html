@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Analytics - NovaStocks</title>
+  <link rel="canonical" href="https://novastocks.vercel.app/analytics.html">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.plot.ly/plotly-2.29.0.min.js"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col">
+  <div id="header-widget"></div>
+  <script type="module" src="header.js"></script>
+
+  <main class="flex-grow container mx-auto p-4 space-y-8">
+    <h1 class="text-2xl font-bold">Dashboard Analítico de Transações</h1>
+
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="bg-white p-4 rounded-xl shadow text-center">
+        <h2 class="text-lg font-semibold">Total de Transações</h2>
+        <div id="totalTx" class="text-3xl mt-2 text-blue-600"></div>
+      </div>
+      <div class="bg-white p-4 rounded-xl shadow text-center">
+        <h2 class="text-lg font-semibold">Total Diário</h2>
+        <div id="dailyTotal" class="text-3xl mt-2 text-green-600"></div>
+      </div>
+      <div class="bg-white p-4 rounded-xl shadow text-center">
+        <h2 class="text-lg font-semibold">Média por Symbol</h2>
+        <div id="avgSymbol" class="text-3xl mt-2 text-purple-600"></div>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="text-xl font-semibold mb-4">Transações por Dia</h2>
+      <div id="chartDaily" class="bg-white rounded-xl shadow p-4 h-80"></div>
+    </section>
+
+    <section>
+      <h2 class="text-xl font-semibold mb-4">Distribuição por Symbol</h2>
+      <div id="chartSymbol" class="bg-white rounded-xl shadow p-4 h-80"></div>
+    </section>
+
+  </main>
+
+  <div id="footer-widget"></div>
+  <script type="module" src="footer.js"></script>
+
+  <script>
+    async function fetchTx() {
+      const res = await fetch('/api/transactions');
+      return await res.json();
+    }
+
+    function formatCurrency(v) {
+      return '€' + v.toLocaleString('pt-PT', { minimumFractionDigits:2 });
+    }
+
+    async function render() {
+      const tx = await fetchTx();
+      const total = tx.length;
+      document.getElementById('totalTx').textContent = total;
+
+      const dailyMap = {};
+      const symbolMap = {};
+      tx.forEach(t => {
+        const d = new Date(t.date).toLocaleDateString('pt-PT');
+        dailyMap[d] = (dailyMap[d]||0) + t.amount;
+        symbolMap[t.symbol] = (symbolMap[t.symbol]||0) + 1;
+      });
+      const days = Object.keys(dailyMap).sort();
+      const dailyValues = days.map(d=>dailyMap[d]);
+      const avg = (dailyValues.reduce((a,b)=>a+b,0)/Object.keys(symbolMap).length).toFixed(2);
+      document.getElementById('dailyTotal').textContent = formatCurrency(dailyValues.reduce((a,b)=>a+b,0));
+      document.getElementById('avgSymbol').textContent = formatCurrency(avg);
+
+      Plotly.newPlot('chartDaily', [{ x: days, y: dailyValues, type:'bar', marker:{color:'#2563eb'} }], { margin:{t:0}, xaxis:{title:'Data'}, yaxis:{title:'Total (€)'} });
+
+      const symbols = Object.keys(symbolMap);
+      const counts = symbols.map(s=>symbolMap[s]);
+      Plotly.newPlot('chartSymbol', [{ labels:symbols, values:counts, type:'pie', hole:0.4 }], { margin:{t:0} });
+    }
+
+    render();
+  </script>
+</body>
+</html>
