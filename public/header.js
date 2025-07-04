@@ -95,7 +95,7 @@ function buildHeader(cfg) {
   menu.addEventListener('click', e => e.stopPropagation());
 
   // Monta o header
-  header.appendChild(btnMenu);
+  //header.appendChild(btnMenu);
   header.appendChild(titleWrap);
   dropdownWrap.appendChild(btnMore);
   dropdownWrap.appendChild(menu);
