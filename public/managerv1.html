@@ -265,6 +265,30 @@ let currentUserEmail = '';
       await signOut(auth);
       window.location.href = '/login.html';
     });
+     // Build API URL
+    function getAPI() {
+      const userMail = encodeURIComponent((currentUserEmail || '').trim() || 'default');
+      return `/api/transactions?user=${userMail}`;
+    }
+function renderTable(data) {
+      transactions = data;
+      renderStocks();
+      updateChart();
+      updateSummary();
+    }
+    // Fetch & render transactions
+    async function fetchTransactions() {
+      try {
+        const res = await fetch(getAPI());
+        const data = await res.json();
+        renderTable(data);
+      }
+      catch (err) {
+        showNotification('Erro ao carregar transações.', 'error');
+        console.error(err);
+      }
+    }
+
     const stockList = document.getElementById("stockList");
     const modal = document.getElementById("modal");
     const stockForm = document.getElementById("stockForm");
