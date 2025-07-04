@@ -1,161 +1,161 @@
 <!DOCTYPE html><html lang="pt">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Relatório Fiscal & Simulação - NovaStocks</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Plotly JS -->
+  <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
+  <style>
+    .safe-area { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+    .fade-in { animation: fadeIn 0.2s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .status-indicator { position: fixed; top: 1rem; right: 1rem; z-index:50; padding:0.5rem 1rem; border-radius:0.375rem; opacity:0; pointer-events:none; transition:opacity .3s; }
+    .status-indicator.show { opacity:1; pointer-events:auto; }
+    .status-indicator.success { background:#d1fae5; color:#065f46; }
+    .status-indicator.error   { background:#fee2e2; color:#991b1b; }
+    .status-indicator.info    { background:#bfdbfe; color:#1e40af; }
+    .status-indicator.warning { background:#fef3c7; color:#92400e; }
+    .light-mode { background:#fff; color:#1f2937; }
+  </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="bg-gray-50 text-gray-900 font-sans antialiased">
   <!-- Header Dinâmico -->
-  <div id="header-widget" data-config='{"title":"NovaStocks","logoUrl":"/assets/logo.png","links":[{"icon":"🏠","label":"Home","href":"index.html"},{"icon":"💼","label":"Conta","href":"settings.html"},{"icon":"📋","label":"Relatórios","href":"report-transactions.html"},{"icon":"✉️","label":"Contactos","href":"contact.html"}]}'></div>
-  <script type="module" src="header.js"></script>  <main class="max-w-6xl mx-auto py-12 px-6 space-y-16">
-    <!-- Seção: Relatório Fiscal -->
-    <section id="fiscal-report">
-      <h2 class="text-3xl font-semibold mb-6 text-center">Relatório Fiscal</h2>
-      <div class="bg-white rounded-lg shadow p-8">
+  <div id="header-widget" data-config='{"title":"NovaStocks","logoUrl":"/assets/logo.png","links":[{"icon":"🏠","label":"Início","href":"index.html"},{"icon":"📋","label":"Relatórios","href":"report-transactions.html"},{"icon":"📊","label":"Carteira","href":"portfolio.html"},{"icon":"✉️","label":"Contactos","href":"contact.html"}]}'></div>
+  <script type="module" src="header.js"></script>  <!-- Sign Out Button --><button id="signOutBtn" class="absolute top-4 right-4 text-red-600 hover:text-red-800 font-medium">Sair</button>
+
+  <!-- Notification -->  <div id="statusIndicator" class="status-indicator"><span id="statusText"></span></div>  <main id="content" class="max-w-4xl mx-auto py-12 px-6 opacity-50 pointer-events-none">
+    <!-- Relatório Fiscal -->
+    <section class="mb-16">
+      <h2 class="text-3xl font-semibold text-center mb-6">Relatório Fiscal</h2>
+      <div class="bg-white rounded-lg shadow p-6">
         <form id="fiscalForm" class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
           <div>
             <label for="year" class="block mb-1 font-medium">Ano Fiscal</label>
-            <select id="year" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
-              <option value="2023">2023</option>
-              <option value="2024">2024</option>
-              <option value="2025" selected>2025</option>
+            <select id="year" class="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-400">
+              <option>2023</option><option>2024</option><option selected>2025</option>
             </select>
           </div>
           <div>
             <label for="format" class="block mb-1 font-medium">Formato</label>
-            <select id="format" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
-              <option value="pdf">PDF</option>
-              <option value="csv">CSV</option>
+            <select id="format" class="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-blue-400">
+              <option value="pdf">PDF</option><option value="csv">CSV</option>
             </select>
           </div>
-          <button type="button" id="generateFiscal" class="col-span-1 md:col-span-1 bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition">
+          <button id="generateFiscal" type="button" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg">
             Gerar Relatório
           </button>
         </form>
       </div>
-    </section><!-- Seção: Simulação de Impostos -->
-<section id="tax-sim">
-  <h2 class="text-3xl font-semibold mb-6 text-center">Simulação de Impostos</h2>
-  <div class="bg-white rounded-lg shadow p-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
-    <!-- Formulário Simulação -->
-    <div>
-      <form id="simForm" class="space-y-4">
-        <div>
-          <label for="gain" class="block mb-1 font-medium">Ganho de Capital (€)</label>
-          <input type="number" id="gain" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Ex: 10000" />
-        </div>
-        <div>
-          <label for="costs" class="block mb-1 font-medium">Custos (Taxas, Corretagem) (€)</label>
-          <input type="number" id="costs" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Ex: 150" />
-        </div>
-        <div>
-          <label for="rate" class="block mb-1 font-medium">Taxa de Imposto (%)</label>
-          <input type="number" id="rate" class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Ex: 28" />
-        </div>
-        <button type="button" id="simulate" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
-          Simular
-        </button>
-      </form>
-    </div>
-    <!-- Resultados -->
+    </section><!-- Simulação de Impostos -->
+<section class="mb-16">
+  <h2 class="text-3xl font-semibold text-center mb-6">Simulação de Impostos</h2>
+  <div class="bg-white rounded-lg shadow p-6 grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <form id="simForm" class="space-y-4">
+      <div><label class="block mb-1">Ganho de Capital (€)</label><input id="gain" type="number" class="w-full border rounded p-2"/></div>
+      <div><label class="block mb-1">Custos (€)</label><input id="costs" type="number" class="w-full border rounded p-2"/></div>
+      <div><label class="block mb-1">Taxa (%)</label><input id="rate" type="number" class="w-full border rounded p-2"/></div>
+      <button id="simulate" type="button" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">Simular</button>
+    </form>
     <div class="bg-blue-50 rounded-lg p-6">
-      <h3 class="text-xl font-medium mb-4">Resultados da Simulação</h3>
+      <h3 class="text-xl font-medium mb-4">Resultados</h3>
       <p>Imposto Devido: <span id="taxDue" class="font-semibold">€0.00</span></p>
       <p>Lucro Líquido: <span id="netProfit" class="font-semibold">€0.00</span></p>
     </div>
   </div>
 </section>
 
-<!-- Seção: Gráficos -->
-<section id="charts">
-  <h2 class="text-3xl font-semibold mb-6 text-center">Gráficos de Transações</h2>
+<!-- Gráficos -->
+<section class="mb-16">
+  <h2 class="text-3xl font-semibold text-center mb-6">Gráficos</h2>
   <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
     <div class="bg-white rounded-lg shadow p-6">
-      <h3 class="text-xl font-medium mb-4">Volume por Dia (€)</h3>
-      <canvas id="volumeChart" height="200"></canvas>
+      <h4 class="font-medium mb-2">Volume por Dia (€)</h4><div id="volChart" class="h-48"></div>
     </div>
     <div class="bg-white rounded-lg shadow p-6">
-      <h3 class="text-xl font-medium mb-4">Dividendos por Dia (€)</h3>
-      <canvas id="dividendChart" height="200"></canvas>
+      <h4 class="font-medium mb-2">Dividendos por Dia (€)</h4><div id="divChart" class="h-48"></div>
     </div>
   </div>
 </section>
 
-  </main>  <footer class="bg-gray-800 text-gray-400 py-6">
-    <div class="max-w-6xl mx-auto px-6 text-center">
-      <p>&copy; 2025 NovaStocks. Todos os direitos reservados.</p>
-    </div>
-  </footer>  <script>
-    // Geração de Relatório Fiscal (exemplo)
+  </main>  <footer class="bg-gray-800 text-gray-400 py-6 text-center">&copy; 2025 NovaStocks. Todos os direitos reservados.</footer>  <script type="module">
+    import { auth } from './firebase-init.js';
+    import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+    // Elements
+    const signOutBtn = document.getElementById('signOutBtn');
+    const contentEl = document.getElementById('content');
+    const statusEl = document.getElementById('statusIndicator');
+    const statusText = document.getElementById('statusText');
+
+    function showNotification(msg, type='success') {
+      statusText.textContent = msg;
+      statusEl.className = `status-indicator show ${type}`;
+      setTimeout(() => statusEl.classList.remove('show'), 3000);
+    }
+
+    // Auth guard
+    onAuthStateChanged(auth, user => {
+      if (!user) {
+        window.location.href = '/login.html';
+      } else {
+        signOutBtn.classList.remove('hidden');
+        contentEl.classList.remove('opacity-50', 'pointer-events-none');
+        contentEl.classList.add('fade-in');
+        loadData(user.email);
+      }
+    });
+
+    // Sign out
+    signOutBtn.addEventListener('click', async () => {
+      await signOut(auth);
+      window.location.href = '/login.html';
+    });
+
+    // Fiscal report
     document.getElementById('generateFiscal').addEventListener('click', () => {
       const year = document.getElementById('year').value;
-      const format = document.getElementById('format').value;
-      alert(`Gerando relatório fiscal ${year} em ${format.toUpperCase()}`);
-      // TODO: integrar chamada à API para download real
+      const fmt = document.getElementById('format').value;
+      showNotification(`Gerando relatório ${year} em ${fmt.toUpperCase()}`, 'info');
+      // TODO: chamada API para baixar relatório fiscal do usuário
     });
 
-    // Simulação de Impostos
+    // Tax simulation
     document.getElementById('simulate').addEventListener('click', () => {
-      const gain = parseFloat(document.getElementById('gain').value) || 0;
-      const costs = parseFloat(document.getElementById('costs').value) || 0;
-      const rate = parseFloat(document.getElementById('rate').value) || 0;
-      const taxable = gain - costs;
-      const tax = (taxable * rate) / 100;
-      const net = taxable - tax;
+      const g = parseFloat(document.getElementById('gain').value) || 0;
+      const c = parseFloat(document.getElementById('costs').value) || 0;
+      const r = parseFloat(document.getElementById('rate').value) || 0;
+      const tax = (g - c) * r / 100;
       document.getElementById('taxDue').textContent = `€${tax.toFixed(2)}`;
-      document.getElementById('netProfit').textContent = `€${net.toFixed(2)}`;
+      document.getElementById('netProfit').textContent = `€${(g - c - tax).toFixed(2)}`;
     });
 
-    // Carregar dados e renderizar gráficos
-    async function loadGraphData() {
+    // Load and render charts
+    async function loadData(userEmail) {
       try {
-        const res = await fetch('/api/transactions?user=default');
+        const res = await fetch(`/api/transactions?user=${encodeURIComponent(userEmail)}`);
         const data = await res.json();
-        renderGraphs(data);
-      } catch (e) {
-        console.error('Erro ao carregar transações para gráficos', e);
+        renderCharts(data);
+      } catch {
+        showNotification('Erro carregando dados', 'error');
       }
     }
 
-    function renderGraphs(data) {
-      const volumesByDate = {};
-      const dividendsByDate = {};
-
+    function renderCharts(data) {
+      const vol = {}, div = {};
       data.forEach(tx => {
-        // Volume para compras e vendas
         if (tx.operation.toLowerCase() === 'compra' || tx.operation.toLowerCase() === 'venda') {
-          volumesByDate[tx.date] = (volumesByDate[tx.date] || 0) + (tx.price * tx.quantity);
+          vol[tx.date] = (vol[tx.date] || 0) + tx.price * tx.quantity;
         }
-        // Dividendos (assume campo tx.amount)
         if (tx.operation.toLowerCase() === 'dividendo' && tx.amount) {
-          dividendsByDate[tx.date] = (dividendsByDate[tx.date] || 0) + tx.amount;
+          div[tx.date] = (div[tx.date] || 0) + tx.amount;
         }
       });
-
-      const sortedDates = Object.keys(volumesByDate).sort();
-      const volValues = sortedDates.map(d => volumesByDate[d]);
-
-      const ctxVol = document.getElementById('volumeChart').getContext('2d');
-      new Chart(ctxVol, {
-        type: 'bar',
-        data: { labels: sortedDates, datasets: [{ label: 'Volume (€)', data: volValues }] },
-        options: { responsive: true }
-      });
-
-      const divDates = Object.keys(dividendsByDate).sort();
-      const divValues = divDates.map(d => dividendsByDate[d]);
-      const ctxDiv = document.getElementById('dividendChart').getContext('2d');
-      new Chart(ctxDiv, {
-        type: 'line',
-        data: { labels: divDates, datasets: [{ label: 'Dividendos (€)', data: divValues, fill: false, tension: 0.1 }] },
-        options: { responsive: true }
-      });
+      const datesVol = Object.keys(vol).sort();
+      const datesDiv = Object.keys(div).sort();
+      Plotly.newPlot('volChart', [{ x: datesVol, y: datesVol.map(d => vol[d]), type: 'bar' }], { margin: { t: 20 }, responsive: true });
+      Plotly.newPlot('divChart', [{ x: datesDiv, y: datesDiv.map(d => div[d]), mode: 'lines+markers' }], { margin: { t: 20 }, responsive: true });
     }
-
-    document.addEventListener('DOMContentLoaded', loadGraphData);
   </script></body>
 </html>
