@@ -2,13 +2,20 @@
 
 const defaultConfig = {
   containerId: 'header-widget',
-  title: 'NovaMarketHub',
+  title: 'NovaStocks',
   links: [
     { icon: '📊', label: 'Dashboard', href: '#' },
     { icon: '💼', label: 'Transações', href: '#' },
     { icon: '📈', label: 'Relatórios', href: 'report-transactions.html' },
-    { icon: '⚙️', label: 'Definições', href: '#' },
-  ],
+    {icon: '🏠', label: 'Painel', href: 'dashboard.html' },         // Painel geral
+  { icon: '📂', label: 'Carteira', href: 'transactions.html' },    // Ativos comprados
+  { icon: '📉', label: 'Performance', href: 'report-transactions.html' }, // Gráficos
+  { icon: '🔔', label: 'Alertas', href: 'events.html' },           // Notificações
+  { icon: '⭐', label: 'Favoritos', href: 'watchlist.html' },      // Ações em observação
+  { icon: '⚖️', label: 'Comparar', href: 'compare.html' },         // Comparação de ativos
+  { icon: '📤', label: 'Exportar', href: 'export.html' },          // CSV/Excel
+  { icon: '⚙️', label: 'Definições', href: 'settings.html' }       // Preferências
+];
 };
 
 function buildHeader(cfg) {
