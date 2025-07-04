@@ -103,23 +103,10 @@
   </style>
 </head>
 <body class="bg-gradient-to-br from-gray-50 to-gray-100 text-gray-900 dark:from-gray-900 dark:to-gray-800 dark:text-white transition-all duration-300 min-h-screen">
-  
-  <!-- Header -->
-  <header class="p-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md shadow-lg border-b border-gray-200/50 dark:border-gray-700/50">
-    <div class="max-w-7xl mx-auto flex justify-between items-center">
-      <div class="flex items-center space-x-3">
-        <div class="bg-gradient-to-r from-blue-500 to-purple-600 p-2 rounded-lg">
-          <span class="text-white font-bold text-xl">📈</span>
-        </div>
-        <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          Nova Stocks
-        </h1>
-      </div>
-      <button id="toggleTheme" class="glass-effect p-3 rounded-xl hover:bg-white/20 dark:hover:bg-gray-700/30 transition-all duration-200 hover-scale">
-        <span class="text-xl">🌗</span>
-      </button>
-    </div>
-  </header>
+  <div id="header-widget"></div>
+  <!-- 2) Include the widget script -->
+<script type="module" src="header.js"></script>
+ 
 
   <!-- Main -->
   <main class="max-w-7xl mx-auto p-6 space-y-8">
