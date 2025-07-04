@@ -172,7 +172,7 @@
         const amt = tx.price * tx.amount;
         const op = tx.operation.toLowerCase();
         // Volume
-        if (op === 'compra' || op === 'venda') {
+        if (op === 'buy' || op === 'sell') {
           volByDate[date] = (volByDate[date] || 0) + amt;
         }
         // Ganhos: vendas positivas, compras negativas
