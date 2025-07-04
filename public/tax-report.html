@@ -23,9 +23,9 @@
 <body class="bg-gray-50 text-gray-900 font-sans antialiased">
   <!-- Header Dinâmico -->
   <div id="header-widget" data-config='{"title":"NovaStocks","logoUrl":"/assets/logo.png","links":[{"icon":"🏠","label":"Início","href":"index.html"},{"icon":"📋","label":"Relatórios","href":"report-transactions.html"},{"icon":"📊","label":"Carteira","href":"portfolio.html"},{"icon":"✉️","label":"Contactos","href":"contact.html"}]}'></div>
-  <script type="module" src="header.js"></script>  <!-- Sign Out Button --><button id="signOutBtn" class="absolute top-4 right-4 text-red-600 hover:text-red-800 font-medium">Sair</button>
+  <script type="module" src="header.js"></script>  <!-- Botão Sair --><button id="signOutBtn" class="absolute top-4 right-4 text-red-600 hover:text-red-800 font-medium">Sair</button>
 
-  <!-- Notification -->  <div id="statusIndicator" class="status-indicator"><span id="statusText"></span></div>  <main id="content" class="max-w-4xl mx-auto py-12 px-6 opacity-50 pointer-events-none">
+  <!-- Notificação -->  <div id="statusIndicator" class="status-indicator"><span id="statusText"></span></div>  <main id="content" class="max-w-4xl mx-auto py-12 px-6 opacity-50 pointer-events-none">
     <!-- Relatório Fiscal -->
     <section class="mb-16">
       <h2 class="text-3xl font-semibold text-center mb-6">Relatório Fiscal</h2>
@@ -66,16 +66,11 @@
   </div>
 </section>
 
-<!-- Gráficos -->
+<!-- Gráfico de Volume -->
 <section class="mb-16">
-  <h2 class="text-3xl font-semibold text-center mb-6">Gráficos</h2>
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-    <div class="bg-white rounded-lg shadow p-6">
-      <h4 class="font-medium mb-2">Volume por Dia (€)</h4><div id="volChart" class="h-48"></div>
-    </div>
-    <div class="bg-white rounded-lg shadow p-6">
-      <h4 class="font-medium mb-2">Dividendos por Dia (€)</h4><div id="divChart" class="h-48"></div>
-    </div>
+  <h2 class="text-3xl font-semibold text-center mb-6">Gráfico de Volume por Dia</h2>
+  <div class="bg-white rounded-lg shadow p-6">
+    <div id="volChart" class="h-64"></div>
   </div>
 </section>
 
@@ -83,10 +78,9 @@
     import { auth } from './firebase-init.js';
     import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
-    // Elements
     const signOutBtn = document.getElementById('signOutBtn');
-    const contentEl = document.getElementById('content');
-    const statusEl = document.getElementById('statusIndicator');
+    const contentEl  = document.getElementById('content');
+    const statusEl   = document.getElementById('statusIndicator');
     const statusText = document.getElementById('statusText');
 
     function showNotification(msg, type='success') {
@@ -95,33 +89,26 @@
       setTimeout(() => statusEl.classList.remove('show'), 3000);
     }
 
-    // Auth guard
     onAuthStateChanged(auth, user => {
-      if (!user) {
-        window.location.href = '/login.html';
-      } else {
-        signOutBtn.classList.remove('hidden');
-        contentEl.classList.remove('opacity-50', 'pointer-events-none');
-        contentEl.classList.add('fade-in');
-        loadData(user.email);
-      }
+      if (!user) return window.location.href = '/login.html';
+      signOutBtn.classList.remove('hidden');
+      contentEl.classList.remove('opacity-50', 'pointer-events-none');
+      contentEl.classList.add('fade-in');
+      loadData(user.email);
     });
 
-    // Sign out
     signOutBtn.addEventListener('click', async () => {
       await signOut(auth);
       window.location.href = '/login.html';
     });
 
-    // Fiscal report
     document.getElementById('generateFiscal').addEventListener('click', () => {
       const year = document.getElementById('year').value;
-      const fmt = document.getElementById('format').value;
+      const fmt  = document.getElementById('format').value;
       showNotification(`Gerando relatório ${year} em ${fmt.toUpperCase()}`, 'info');
-      // TODO: chamada API para baixar relatório fiscal do usuário
+      // TODO: API call for fiscal report
     });
 
-    // Tax simulation
     document.getElementById('simulate').addEventListener('click', () => {
       const g = parseFloat(document.getElementById('gain').value) || 0;
       const c = parseFloat(document.getElementById('costs').value) || 0;
@@ -131,31 +118,26 @@
       document.getElementById('netProfit').textContent = `€${(g - c - tax).toFixed(2)}`;
     });
 
-    // Load and render charts
     async function loadData(userEmail) {
       try {
         const res = await fetch(`/api/transactions?user=${encodeURIComponent(userEmail)}`);
         const data = await res.json();
-        renderCharts(data);
+        renderVolumeChart(data);
       } catch {
         showNotification('Erro carregando dados', 'error');
       }
     }
 
-    function renderCharts(data) {
-      const vol = {}, div = {};
+    function renderVolumeChart(data) {
+      const volByDate = {};
       data.forEach(tx => {
-        if (tx.operation.toLowerCase() === 'compra' || tx.operation.toLowerCase() === 'venda') {
-          vol[tx.date] = (vol[tx.date] || 0) + tx.price * tx.quantity;
-        }
-        if (tx.operation.toLowerCase() === 'dividendo' && tx.amount) {
-          div[tx.date] = (div[tx.date] || 0) + tx.amount;
+        const op = tx.operation.toLowerCase();
+        if (op === 'buy' || op === 'sell') {
+          volByDate[tx.date] = (volByDate[tx.date] || 0) + tx.price * tx.amount;
         }
       });
-      const datesVol = Object.keys(vol).sort();
-      const datesDiv = Object.keys(div).sort();
-      Plotly.newPlot('volChart', [{ x: datesVol, y: datesVol.map(d => vol[d]), type: 'bar' }], { margin: { t: 20 }, responsive: true });
-      Plotly.newPlot('divChart', [{ x: datesDiv, y: datesDiv.map(d => div[d]), mode: 'lines+markers' }], { margin: { t: 20 }, responsive: true });
+      const dates = Object.keys(volByDate).sort();
+      Plotly.newPlot('volChart', [{ x: dates, y: dates.map(d => volByDate[d]), type: 'bar' }], { margin: { t: 20 }, responsive: true });
     }
   </script></body>
 </html>
