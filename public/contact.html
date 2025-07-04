@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contactos - NovaStocks</title>
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800">
+  <!-- Header Dinâmico -->
+  <div id="header-widget" data-config='{"title":"NovaStocks","logoUrl":"/assets/logo.png","links":[{"icon":"🏠","label":"Home","href":"index.html"},{"icon":"💼","label":"Conta","href":"settings.html"},{"icon":"📋","label":"Relatórios","href":"report-transactions.html"},{"icon":"✉️","label":"Contactos","href":"contact.html"}]}'></div>
+  <script type="module" src="header.js"></script>
+
+  <!-- Hero Section -->
+  <section class="bg-blue-600 text-white py-16">
+    <div class="max-w-3xl mx-auto text-center px-6">
+      <h1 class="text-4xl font-bold mb-4">Fale Connosco</h1>
+      <p class="text-lg">Tem alguma dúvida ou sugestão? Preencha o formulário abaixo e entraremos em contacto!</p>
+    </div>
+  </section>
+
+  <!-- Contact Form + Info -->
+  <div class="max-w-5xl mx-auto px-6 py-12 grid grid-cols-1 lg:grid-cols-2 gap-12">
+    <!-- Formulário -->
+    <div class="bg-white rounded-lg shadow p-8">
+      <form id="contactForm" class="space-y-6">
+        <div>
+          <label for="name" class="block text-sm font-medium mb-1">Nome Completo</label>
+          <input type="text" id="name" name="name" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Seu nome" />
+        </div>
+        <div>
+          <label for="email" class="block text-sm font-medium mb-1">Email</label>
+          <input type="email" id="email" name="email" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="seu@email.com" />
+        </div>
+        <div>
+          <label for="message" class="block text-sm font-medium mb-1">Mensagem</label>
+          <textarea id="message" name="message" rows="6" required class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="Digite a sua mensagem..."></textarea>
+        </div>
+        <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition">Enviar Mensagem</button>
+      </form>
+    </div>
+
+    <!-- Informações de Contato -->
+    <div class="space-y-8">
+      <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-2xl font-semibold mb-4">Informações de Contato</h2>
+        <p class="flex items-center mb-2"><span class="mr-3">📍</span>Av. da Liberdade 123, Lisboa, Portugal</p>
+        <p class="flex items-center mb-2"><span class="mr-3">✉️</span><a href="mailto:suporte@novastocks.com" class="hover:underline">suporte@novastocks.com</a></p>
+        <p class="flex items-center"><span class="mr-3">📞</span><a href="tel:+351211234567" class="hover:underline">+351 21 123 4567</a></p>
+      </div>
+      <div class="bg-white rounded-lg shadow overflow-hidden">
+        <iframe class="w-full h-64" src="https://www.google.com/maps/embed?pb=!1m18!2m..." frameborder="0" allowfullscreen aria-hidden="false" tabindex="0"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-gray-400 py-6">
+    <div class="max-w-6xl mx-auto px-6 text-center">
+      <p>&copy; 2025 NovaStocks. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Lógica simples de submissão (exemplo)
+    document.getElementById('contactForm').addEventListener('submit', e => {
+      e.preventDefault();
+      alert('Obrigado pela sua mensagem! Em breve entraremos em contacto.');
+      e.target.reset();
+    });
+  </script>
+</body>
+</html>
