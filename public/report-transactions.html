@@ -140,7 +140,7 @@
         // Lista
         const li = document.createElement('li');
         li.className = 'p-4 bg-white rounded shadow';
-        li.textContent = `${tx.date} - ${tx.symbol} (${tx.operation}) x${tx.quantity} @ €${tx.price.toFixed(4)}`;
+        li.textContent = `${tx.date} - ${tx.symbol} (${tx.operation}) x${tx.amount} @ €${tx.price.toFixed(4)}`;
         listEl.appendChild(li);
 
         // Tabela
@@ -148,17 +148,17 @@
         row.innerHTML = `
           <td class="px-6 py-4">${tx.symbol}</td>
           <td class="px-6 py-4">${tx.operation}</td>
-          <td class="px-6 py-4">${tx.quantity}</td>
+          <td class="px-6 py-4">${tx.amount}</td>
           <td class="px-6 py-4">€${tx.price.toFixed(4)}</td>
           <td class="px-6 py-4">${tx.date}</td>
         `;
         tbodyEl.appendChild(row);
 
         // Resumo
-        if (tx.operation.toLowerCase() === 'compra') totalBuy += tx.quantity;
-        if (tx.operation.toLowerCase() === 'venda') totalSell += tx.quantity;
-        totalVol += tx.price * tx.quantity;
-        volumesByDate[tx.date] = (volumesByDate[tx.date] || 0) + tx.price * tx.quantity;
+        if (tx.operation.toLowerCase() === 'compra') totalBuy += tx.amount;
+        if (tx.operation.toLowerCase() === 'venda') totalSell += tx.amount;
+        totalVol += tx.price * tx.amount;
+        volumesByDate[tx.date] = (volumesByDate[tx.date] || 0) + tx.price * tx.amount;
       });
 
       document.getElementById('totalBuy').textContent = totalBuy;
@@ -182,7 +182,7 @@
     // Export helpers (sem alterações)
     function exportCSV(data) {
       const header = ['Símbolo', 'Operação', 'Quantidade', 'Preço (€)', 'Data'];
-      const rows = data.map(tx => [tx.symbol, tx.operation, tx.quantity, tx.price.toFixed(4), tx.date]);
+      const rows = data.map(tx => [tx.symbol, tx.operation, tx.amount, tx.price.toFixed(4), tx.date]);
       let csv = header.join(',') + '\n';
       rows.forEach(r => { csv += r.join(',') + '\n'; });
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
