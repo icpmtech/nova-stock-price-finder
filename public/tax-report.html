@@ -1,3 +1,4 @@
+
 <!DOCTYPE html><html lang="pt">
 <head>
   <meta charset="UTF-8" />
@@ -23,11 +24,11 @@
 <body class="bg-gray-50 text-gray-900 font-sans antialiased">
   <!-- Header Dinâmico -->
   <div id="header-widget" data-config='{"title":"NovaStocks","logoUrl":"/assets/logo.png","links":[{"icon":"🏠","label":"Início","href":"index.html"},{"icon":"📋","label":"Relatórios","href":"report-transactions.html"},{"icon":"📊","label":"Carteira","href":"portfolio.html"},{"icon":"✉️","label":"Contactos","href":"contact.html"}]}'></div>
-  <script type="module" src="header.js"></script>  <!-- Botão Sair --><button id="signOutBtn" class="absolute top-4 right-4 text-red-600 hover:text-red-800 font-medium">Sair</button>
+  <script type="module" src="header.js"></script>  <!-- Botão Sair --><button id="signOutBtn" class="absolute top-4 right-4 text-red-600 hover:text-red-800 font-medium hidden">Sair</button>
 
-  <!-- Notificação -->  <div id="statusIndicator" class="status-indicator"><span id="statusText"></span></div>  <main id="content" class="max-w-4xl mx-auto py-12 px-6 opacity-50 pointer-events-none">
+  <!-- Notificação -->  <div id="statusIndicator" class="status-indicator"><span id="statusText"></span></div>  <main id="content" class="max-w-4xl mx-auto py-12 px-6 opacity-50 pointer-events-none space-y-16">
     <!-- Relatório Fiscal -->
-    <section class="mb-16">
+    <section>
       <h2 class="text-3xl font-semibold text-center mb-6">Relatório Fiscal</h2>
       <div class="bg-white rounded-lg shadow p-6">
         <form id="fiscalForm" class="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
@@ -49,13 +50,22 @@
         </form>
       </div>
     </section><!-- Simulação de Impostos -->
-<section class="mb-16">
+<section>
   <h2 class="text-3xl font-semibold text-center mb-6">Simulação de Impostos</h2>
   <div class="bg-white rounded-lg shadow p-6 grid grid-cols-1 lg:grid-cols-2 gap-8">
     <form id="simForm" class="space-y-4">
-      <div><label class="block mb-1">Ganho de Capital (€)</label><input id="gain" type="number" class="w-full border rounded p-2"/></div>
-      <div><label class="block mb-1">Custos (€)</label><input id="costs" type="number" class="w-full border rounded p-2"/></div>
-      <div><label class="block mb-1">Taxa (%)</label><input id="rate" type="number" class="w-full border rounded p-2"/></div>
+      <div>
+        <label class="block mb-1">Ganho de Capital (€)</label>
+        <input id="gain" type="number" class="w-full border rounded p-2" placeholder="Ex: 5000" />
+      </div>
+      <div>
+        <label class="block mb-1">Custos (€)</label>
+        <input id="costs" type="number" class="w-full border rounded p-2" placeholder="Ex: 200" />
+      </div>
+      <div>
+        <label class="block mb-1">Taxa (%)</label>
+        <input id="rate" type="number" class="w-full border rounded p-2" value="28" />
+      </div>
       <button id="simulate" type="button" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">Simular</button>
     </form>
     <div class="bg-blue-50 rounded-lg p-6">
@@ -66,11 +76,25 @@
   </div>
 </section>
 
-<!-- Gráfico de Volume -->
-<section class="mb-16">
-  <h2 class="text-3xl font-semibold text-center mb-6">Gráfico de Volume por Dia</h2>
-  <div class="bg-white rounded-lg shadow p-6">
-    <div id="volChart" class="h-64"></div>
+<!-- Gráficos: Volume, Ganhos, IRS -->
+<section>
+  <h2 class="text-3xl font-semibold text-center mb-6">Gráficos</h2>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <!-- Volume Chart -->
+    <div class="bg-white rounded-lg shadow p-6">
+      <h4 class="font-medium mb-2">Volume por Dia (€)</h4>
+      <div id="volChart" class="h-48"></div>
+    </div>
+    <!-- Ganhos Chart -->
+    <div class="bg-white rounded-lg shadow p-6">
+      <h4 class="font-medium mb-2">Ganhos por Dia (€)</h4>
+      <div id="gainChart" class="h-48"></div>
+    </div>
+    <!-- IRS Chart -->
+    <div class="bg-white rounded-lg shadow p-6">
+      <h4 class="font-medium mb-2">Imposto (IRS) por Dia (€)</h4>
+      <div id="taxChart" class="h-48"></div>
+    </div>
   </div>
 </section>
 
@@ -78,6 +102,7 @@
     import { auth } from './firebase-init.js';
     import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
+    // Elements
     const signOutBtn = document.getElementById('signOutBtn');
     const contentEl  = document.getElementById('content');
     const statusEl   = document.getElementById('statusIndicator');
@@ -89,19 +114,25 @@
       setTimeout(() => statusEl.classList.remove('show'), 3000);
     }
 
+    // Auth guard
     onAuthStateChanged(auth, user => {
-      if (!user) return window.location.href = '/login.html';
-      signOutBtn.classList.remove('hidden');
-      contentEl.classList.remove('opacity-50', 'pointer-events-none');
-      contentEl.classList.add('fade-in');
-      loadData(user.email);
+      if (!user) {
+        window.location.href = '/login.html';
+      } else {
+        signOutBtn.classList.remove('hidden');
+        contentEl.classList.remove('opacity-50', 'pointer-events-none');
+        contentEl.classList.add('fade-in');
+        loadData(user.email);
+      }
     });
 
+    // Sign out
     signOutBtn.addEventListener('click', async () => {
       await signOut(auth);
       window.location.href = '/login.html';
     });
 
+    // Fiscal report
     document.getElementById('generateFiscal').addEventListener('click', () => {
       const year = document.getElementById('year').value;
       const fmt  = document.getElementById('format').value;
@@ -109,6 +140,7 @@
       // TODO: API call for fiscal report
     });
 
+    // Tax simulation
     document.getElementById('simulate').addEventListener('click', () => {
       const g = parseFloat(document.getElementById('gain').value) || 0;
       const c = parseFloat(document.getElementById('costs').value) || 0;
@@ -116,28 +148,70 @@
       const tax = (g - c) * r / 100;
       document.getElementById('taxDue').textContent = `€${tax.toFixed(2)}`;
       document.getElementById('netProfit').textContent = `€${(g - c - tax).toFixed(2)}`;
+      // Update IRS chart when simulate clicked
+      if (window.transactionsData) renderTaxChart(window.transactionsData, r);
     });
 
+    // Load and render charts
     async function loadData(userEmail) {
       try {
         const res = await fetch(`/api/transactions?user=${encodeURIComponent(userEmail)}`);
         const data = await res.json();
-        renderVolumeChart(data);
+        window.transactionsData = data;
+        renderAllCharts(data);
       } catch {
         showNotification('Erro carregando dados', 'error');
       }
     }
 
-    function renderVolumeChart(data) {
+    function renderAllCharts(data) {
       const volByDate = {};
+      const gainByDate = {};
       data.forEach(tx => {
+        const date = tx.date;
+        const amt = tx.price * tx.amount;
         const op = tx.operation.toLowerCase();
-        if (op === 'buy' || op === 'sell') {
-          volByDate[tx.date] = (volByDate[tx.date] || 0) + tx.price * tx.amount;
+        // Volume
+        if (op === 'compra' || op === 'venda') {
+          volByDate[date] = (volByDate[date] || 0) + amt;
         }
+        // Ganhos: vendas positivas, compras negativas
+        if (op === 'venda') gainByDate[date] = (gainByDate[date] || 0) + amt;
+        if (op === 'compra') gainByDate[date] = (gainByDate[date] || 0) - amt;
       });
-      const dates = Object.keys(volByDate).sort();
-      Plotly.newPlot('volChart', [{ x: dates, y: dates.map(d => volByDate[d]), type: 'bar' }], { margin: { t: 20 }, responsive: true });
+      const dates = Array.from(new Set([...Object.keys(volByDate), ...Object.keys(gainByDate)])).sort();
+      const vols = dates.map(d => volByDate[d] || 0);
+      const gains = dates.map(d => gainByDate[d] || 0);
+
+      // Volume Chart
+      Plotly.newPlot('volChart', [
+        { x: dates, y: vols, type: 'bar', marker: { color: '#3b82f6' } }
+      ],{ margin:{t:20}, responsive:true });
+
+      // Gains Chart
+      Plotly.newPlot('gainChart', [
+        { x: dates, y: gains, type: 'scatter', mode: 'lines+markers', marker: { color: '#10b981' } }
+      ],{ margin:{t:20}, responsive:true });
+
+      // Initial IRS Chart with default rate
+      const rate = parseFloat(document.getElementById('rate').value) || 0;
+      renderTaxChart(data, rate);
+    }
+
+    function renderTaxChart(data, rate) {
+      const gainByDate = {};
+      data.forEach(tx => {
+        const date = tx.date;
+        const amt = tx.price * tx.quantity;
+        const op = tx.operation.toLowerCase();
+        if (op === 'venda') gainByDate[date] = (gainByDate[date] || 0) + amt;
+        if (op === 'compra') gainByDate[date] = (gainByDate[date] || 0) - amt;
+      });
+      const dates = Object.keys(gainByDate).sort();
+      const taxes = dates.map(d => (gainByDate[d] * rate) / 100);
+      Plotly.newPlot('taxChart', [
+        { x: dates, y: taxes, type: 'bar', marker: { color: '#ef4444' } }
+      ],{ margin:{t:20}, responsive:true, yaxis:{title:'IRS (€)'} });
     }
   </script></body>
 </html>
