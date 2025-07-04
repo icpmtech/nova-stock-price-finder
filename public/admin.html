@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mini-CMS NovaStocks</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-6">
+  <div class="max-w-3xl mx-auto bg-white p-6 rounded shadow">
+    <h1 class="text-2xl font-bold mb-4">Editor de Páginas</h1>
+
+    <label class="block mb-2">Slug (URL)</label>
+    <input id="slug" class="w-full border p-2 rounded mb-4" placeholder="ex: sobre, termos" />
+
+    <label class="block mb-2">Conteúdo HTML</label>
+    <textarea id="content" rows="10" class="w-full border p-2 rounded mb-4"></textarea>
+
+    <button id="saveBtn" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Salvar Página</button>
+
+    <h2 class="text-xl font-semibold mt-6 mb-2">Páginas Publicadas</h2>
+    <ul id="list" class="list-disc pl-5 space-y-1"></ul>
+  </div>
+
+  <script>
+    async function listPages() {
+      const res = await fetch('/api/list');
+      const slugs = await res.json();
+      const ul = document.getElementById('list');
+      ul.innerHTML = slugs.map(s => 
+        `<li><a href="/${s}" target="_blank" class="text-blue-600 hover:underline">${s}</a></li>`
+      ).join('');
+    }
+
+    document.getElementById('saveBtn').onclick = async () => {
+      const slug = document.getElementById('slug').value.trim();
+      const content = document.getElementById('content').value;
+      if (!slug) return alert('Defina um slug');
+      await fetch('/api/save', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ slug, content })
+      });
+      alert('Página salva!');
+      listPages();
+    };
+
+    window.addEventListener('DOMContentLoaded', listPages);
+  </script>
+</body>
+</html>
