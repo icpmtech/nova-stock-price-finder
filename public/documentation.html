@@ -1,0 +1,84 @@
+<!DOCTYPE html><html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Documentação - NovaStocks</title>
+  <meta name="description" content="Guia completo de uso, referência de API e exemplos para a plataforma NovaStocks. Aprenda a integrar e utilizar nossos recursos.">
+  <meta name="keywords" content="NovaStocks, documentação, API, guia de uso, exemplos, referência">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://novastocks.vercel.app/documentacao.html">  <!-- Open Graph -->  <meta property="og:title" content="Documentação - NovaStocks">
+  <meta property="og:description" content="Explore a documentação oficial da NovaStocks: APIs, guias de início rápido e exemplos de integração.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://novastocks.vercel.app/documentacao.html">
+  <meta property="og:image" content="https://novastocks.vercel.app/assets/og-docs.png">  <!-- Twitter Card -->  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Documentação - NovaStocks">
+  <meta name="twitter:description" content="Guia completo de uso, referência de API e exemplos para a plataforma NovaStocks.">
+  <meta name="twitter:image" content="https://novastocks.vercel.app/assets/twitter-docs.png">  <!-- JSON-LD WebPage -->  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "Documentação NovaStocks",
+    "description": "Documentação oficial da NovaStocks com guias de uso, referência de API e exemplos.",
+    "url": "https://novastocks.vercel.app/documentacao.html",
+    "publisher": {
+      "@type": "Organization",
+      "name": "NovaStocks",
+      "url": "https://novastocks.vercel.app"
+    }
+  }
+  </script>  <script src="https://cdn.tailwindcss.com"></script></head>
+<body class="bg-gray-50 text-gray-800">  <div id="header-widget"></div>
+  <script type="module" src="header.js"></script>  <main class="max-w-5xl mx-auto px-4 py-12 space-y-12">
+    <header class="text-center">
+      <h1 class="text-4xl font-bold mb-2">Documentação</h1>
+      <p class="text-lg text-gray-600">Guia completo de uso e referência da plataforma NovaStocks</p>
+    </header><section id="overview" class="space-y-4">
+  <h2 class="text-2xl font-semibold">1. Visão Geral</h2>
+  <p>A NovaStocks oferece ferramentas avançadas para análise de ações, notificações de eventos e geração de relatórios. Nesta documentação você encontrará guias de uso, referência de API e melhores práticas.</p>
+</section>
+
+<section id="getting-started" class="space-y-4">
+  <h2 class="text-2xl font-semibold">2. Guia de Início Rápido</h2>
+  <ol class="list-decimal list-inside space-y-2">
+    <li>Cadastre-se em <a href="/signup.html" class="text-blue-600 hover:underline">signup.html</a>.</li>
+    <li>Faça login em <a href="/login.html" class="text-blue-600 hover:underline">login.html</a>.</li>
+    <li>Acesse o painel e configure seus alertas de ações.</li>
+    <li>Explore a API pública em <code>/api</code> para buscar cotações e indicadores.</li>
+  </ol>
+</section>
+
+<section id="api-reference" class="space-y-4">
+  <h2 class="text-2xl font-semibold">3. Referência de API</h2>
+  <h3 class="text-xl font-medium">3.1 Buscar Cotações</h3>
+  <pre class="bg-gray-100 p-4 rounded"><code>GET /api/stock?symbol={ticker}</code></pre>
+  <p>Retorna o preço atual e indicadores básicos para o ticker informado.</p>
+  <h3 class="text-xl font-medium">3.2 Listar Páginas CMS</h3>
+  <pre class="bg-gray-100 p-4 rounded"><code>GET /api/webhook?cms=list</code></pre>
+  <p>Retorna lista de slugs das páginas HTML publicadas via CMS.</p>
+  <h3 class="text-xl font-medium">3.3 Salvar Página CMS</h3>
+  <pre class="bg-gray-100 p-4 rounded"><code>POST /api/webhook?cms=save
+
+Content-Type: application/json
+
+{ "slug": "exemplo", "content": "<h1>Olá</h1>" }</code></pre> </section>
+
+<section id="usage-examples" class="space-y-4">
+  <h2 class="text-2xl font-semibold">4. Exemplos de Uso</h2>
+  <p>Exemplo de fetch em JavaScript para buscar cotações:</p>
+  <pre class="bg-gray-100 p-4 rounded"><code>fetch('/api/stock?symbol=NVDA')
+
+.then(res => res.json()) .then(data => console.log(data));</code></pre> </section>
+
+<section id="faq" class="space-y-4">
+  <h2 class="text-2xl font-semibold">5. Perguntas Frequentes</h2>
+  <dl class="space-y-2">
+    <dt class="font-medium">Posso usar a API gratuitamente?</dt>
+    <dd>Sim, o Plano Básico oferece chamadas de API ilimitadas para indicadores básicos.</dd>
+    <dt class="font-medium">Como configuro notificações?</dt>
+    <dd>No painel de usuário, vá em "Alertas" e defina eventos de data ou preço para cada ticker.</dd>
+  </dl>
+</section>
+
+  </main>  <div id="footer-widget"></div>
+  <script type="module" src="footer.js"></script></body>
+</html>
