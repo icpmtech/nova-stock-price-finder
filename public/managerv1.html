@@ -73,7 +73,31 @@
 
   <!-- Main Content (hidden until auth) -->
   <div id="content" class="opacity-50 pointer-events-none">
-
+ <!-- Watchlist Section -->
+    <section id="watchlistSection" class="px-4 py-4">
+      <h2 class="text-lg font-semibold text-gray-900">Watchlist</h2>
+      <div class="flex space-x-2 mt-2">
+        <input id="inputSymbol" type="text" placeholder="Símbolo..." class="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none" />
+        <button id="addBtn" class="px-4 py-2 bg-blue-600 text-white rounded-lg">Adicionar</button>
+        <button id="exportBtn" class="px-4 py-2 bg-green-600 text-white rounded-lg">Exportar</button>
+        <button id="toggleTheme" class="px-4 py-2 bg-gray-600 text-white rounded-lg">Tema</button>
+      </div>
+      <div id="suggestions" class="absolute bg-white border border-gray-300 rounded mt-1 hidden w-1/3 max-w-sm z-10"></div>
+      <div id="statusIndicator" class="status-indicator"><span id="statusText"></span></div>
+      <div id="stockGrid" class="grid grid-cols-3 gap-4 mt-4"></div>
+      <table id="stockTable" class="w-full mt-4 bg-white rounded-lg shadow border border-gray-100">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-4 py-2 text-left">Símbolo</th>
+            <th class="px-4 py-2 text-left">Preço</th>
+            <th class="px-4 py-2 text-left">Variação</th>
+            <th class="px-4 py-2 text-left">Volume</th>
+            <th class="px-4 py-2 text-left">Market Cap</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
     <!-- Portfolio Overview Cards -->
     <section class="px-4 py-4">
       <div class="grid grid-cols-2 gap-3 mb-4">
@@ -131,31 +155,7 @@
       </div>
     </section>
 
-    <!-- Watchlist Section -->
-    <section id="watchlistSection" class="px-4 py-4">
-      <h2 class="text-lg font-semibold text-gray-900">Watchlist</h2>
-      <div class="flex space-x-2 mt-2">
-        <input id="inputSymbol" type="text" placeholder="Símbolo..." class="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none" />
-        <button id="addBtn" class="px-4 py-2 bg-blue-600 text-white rounded-lg">Adicionar</button>
-        <button id="exportBtn" class="px-4 py-2 bg-green-600 text-white rounded-lg">Exportar</button>
-        <button id="toggleTheme" class="px-4 py-2 bg-gray-600 text-white rounded-lg">Tema</button>
-      </div>
-      <div id="suggestions" class="absolute bg-white border border-gray-300 rounded mt-1 hidden w-1/3 max-w-sm z-10"></div>
-      <div id="statusIndicator" class="status-indicator"><span id="statusText"></span></div>
-      <div id="stockGrid" class="grid grid-cols-3 gap-4 mt-4"></div>
-      <table id="stockTable" class="w-full mt-4 bg-white rounded-lg shadow border border-gray-100">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="px-4 py-2 text-left">Símbolo</th>
-            <th class="px-4 py-2 text-left">Preço</th>
-            <th class="px-4 py-2 text-left">Variação</th>
-            <th class="px-4 py-2 text-left">Volume</th>
-            <th class="px-4 py-2 text-left">Market Cap</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </section>
+   
 
     <!-- Modal -->
     <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop hidden items-center justify-end sm:justify-center z-50 p-4">
