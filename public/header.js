@@ -56,17 +56,14 @@ function buildHeader(cfg) {
   notifMenu.className =
     'hidden absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 overflow-auto max-h-64';
 
-  const eventsLink = cfg.links.find(link => link.label === 'Eventos').href;
-
   if (upcoming.length) {
     upcoming.forEach(ev => {
       const item = document.createElement('div');
-      item.className = 'px-4 py-2 hover:bg-gray-100 text-sm text-gray-800 cursor-pointer';
+      item.className = 'px-4 py-2 hover:bg-gray-100 text-sm text-gray-800';
       item.innerHTML = `
         <div class="font-semibold">${ev.title}</div>
         <div class="text-xs text-gray-500">${ev.date} - ${ev.symbol}</div>
       `;
-      item.addEventListener('click', () => window.location.href = eventsLink);
       notifMenu.appendChild(item);
     });
   } else {
