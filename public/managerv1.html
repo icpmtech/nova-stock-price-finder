@@ -400,7 +400,7 @@
       stockList.innerHTML = "";
       filtered.forEach(tx=>{
         const idx   = transactions.indexOf(tx);
-        const total = (tx.price*tx.shares + (tx.fee||0)).toFixed(2);
+        const total = (tx.amount*tx.shares + (tx.fee||0)).toFixed(2);
         const date  = tx.date ? new Date(tx.date).toLocaleDateString('pt-PT') : 'N/A';
         const row   = document.createElement("div");
         row.className = "px-4 py-3 hover:bg-gray-50 transition-colors";
