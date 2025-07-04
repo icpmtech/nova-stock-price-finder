@@ -685,6 +685,15 @@
     document.getElementById('toggleTheme').onclick = toggleTheme;
 
     init();
+     // make these functions available to your inline onclick=""
+  window.openModal   = openModal;
+  window.closeModal  = closeModal;
+  window.deleteTx    = deleteTx;
+  window.removeStock = removeStock;
+  window.addStock    = addStock;
+  window.sortTable   = sortTable;
+  window.toggleTheme = toggleTheme;
+  window.exportList  = exportList;
   </script>
 </body>
 </html>
