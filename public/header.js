@@ -14,7 +14,7 @@ const defaultConfig = {
     { icon: '📉', label: 'Performance', href: 'report-transactions.html' },
     { icon: '🔔', label: 'Alertas', href: 'events.html' },
     { icon: '⭐', label: 'Favoritos', href: 'watchlist.html' },
-    { icon: '📤', label: 'Exportar', href: 'report-transactions.html' },
+    { icon: '📤', label: 'Exportar', href: 'tax-report.html' },
     { icon: '⚙️', label: 'Definições', href: 'settings.html' }
   ]
 };
