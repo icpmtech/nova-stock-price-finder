@@ -19,8 +19,11 @@
     }
   </style>
 </head>
-<body class="bg-gradient-to-br from-purple-700 to-blue-600 min-h-screen flex items-center justify-center p-4 text-white">
-
+<body >
+<div id="header-widget" data-config='{"title":"NovaStocks","links":[{"icon":"📈","label":"Início","href":"index.html"},{"icon":"👤","label":"Conta","href":"settings.html"},{"icon":"✍️","label":"Registo","href":"signup.html"},{"icon":"📞","label":"Contactos","href":"contact.html"}]}'></div>
+  <!-- 2) Include the widget script -->
+<script type="module" src="header.js"></script>
+<main class="bg-gradient-to-br from-purple-700 to-blue-600 min-h-screen flex items-center justify-center p-4 text-white">
   <div class="w-full max-w-md">
     <div class="text-center mb-8 slide-in">
       <h1 class="text-3xl font-bold">Criar Conta</h1>
@@ -70,7 +73,7 @@
       </form>
     </div>
   </div>
-
+</main>
   <!-- Firebase + Script -->
   <script type="module">
     import { auth } from './firebase-init.js';

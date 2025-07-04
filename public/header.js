@@ -24,7 +24,7 @@ function buildHeader(cfg) {
 
   // Root header
   const header = document.createElement('div');
-  header.className = 'flex justify-between items-center mb-6 bg-white p-4 shadow-lg relative';
+  header.className = 'flex justify-between items-center  bg-white p-4 shadow-lg relative';
 
   // Sidebar toggle (left)
   const btnMenu = document.createElement('button');
