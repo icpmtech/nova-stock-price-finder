@@ -8,6 +8,8 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Plotly JS -->
   <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
+  <!-- jsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     .safe-area { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
     .fade-in { animation: fadeIn 0.2s ease-out; }
@@ -27,22 +29,52 @@
 </head>
 <body class="bg-gray-50 text-gray-900 font-sans antialiased">
 
-  <!-- Header Dinâmico -->
-  <div id="header-widget"
-       data-config='{"title":"NovaStocks","logoUrl":"/assets/logo.png","links":[
-         {"icon":"🏠","label":"Início","href":"index.html"},
-         {"icon":"📋","label":"Relatórios","href":"report-transactions.html"},
-         {"icon":"📊","label":"Carteira","href":"portfolio.html"},
-         {"icon":"✉️","label":"Contactos","href":"contact.html"}
-       ]}'>
-  </div>
-  <script type="module" src="header.js"></script>
-
-  <!-- Botão Sair -->
-  <button id="signOutBtn"
-          class="absolute top-4 right-4 text-red-600 hover:text-red-800 font-medium hidden">
-    Sair
-  </button>
+  <!-- Header Melhorado -->
+  <header class="bg-white shadow safe-area">
+    <div class="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
+      <!-- Logo e Título -->
+      <a href="index.html" class="flex items-center space-x-2">
+        <img src="/assets/logo.png" alt="NovaStocks Logo" class="h-8 w-auto" />
+        <span class="text-xl font-bold text-gray-800">NovaStocks</span>
+      </a>
+      <!-- Navegação Desktop -->
+      <nav class="space-x-6 hidden md:flex">
+        <a href="index.html" class="text-gray-600 hover:text-gray-900">Início</a>
+        <a href="report-transactions.html" class="text-gray-600 hover:text-gray-900">Relatórios</a>
+        <a href="portfolio.html" class="text-gray-600 hover:text-gray-900">Carteira</a>
+        <a href="contact.html" class="text-gray-600 hover:text-gray-900">Contactos</a>
+      </nav>
+      <!-- Usuário e Sair -->
+      <div class="flex items-center space-x-4">
+        <span id="currentUser" class="text-gray-700"></span>
+        <button id="signOutBtn"
+                class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg hidden">
+          Sair
+        </button>
+      </div>
+      <!-- Toggle Mobile Menu -->
+      <button id="btnMenu" class="md:hidden p-2 text-gray-600 hover:text-gray-900 focus:outline-none">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+             stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+    </div>
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="hidden bg-white border-t border-gray-200 md:hidden">
+      <nav class="flex flex-col px-6 py-4 space-y-2">
+        <a href="index.html" class="text-gray-600 hover:text-gray-900">Início</a>
+        <a href="report-transactions.html" class="text-gray-600 hover:text-gray-900">Relatórios</a>
+        <a href="portfolio.html" class="text-gray-600 hover:text-gray-900">Carteira</a>
+        <a href="contact.html" class="text-gray-600 hover:text-gray-900">Contactos</a>
+        <button id="signOutBtnMobile"
+                class="mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg">
+          Sair
+        </button>
+      </nav>
+    </div>
+  </header>
 
   <!-- Notificação -->
   <div id="statusIndicator" class="status-indicator"><span id="statusText"></span></div>
@@ -117,17 +149,14 @@
     <section>
       <h2 class="text-3xl font-semibold text-center mb-6">Gráficos</h2>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        <!-- Volume Chart -->
         <div class="bg-white rounded-lg shadow p-6">
           <h4 class="font-medium mb-2">Volume por Dia (€)</h4>
           <div id="volChart" class="h-48"></div>
         </div>
-        <!-- Ganhos Chart -->
         <div class="bg-white rounded-lg shadow p-6">
           <h4 class="font-medium mb-2">Ganhos por Dia (€)</h4>
           <div id="gainChart" class="h-48"></div>
         </div>
-        <!-- IRS Chart -->
         <div class="bg-white rounded-lg shadow p-6">
           <h4 class="font-medium mb-2">Imposto (IRS) por Dia (€)</h4>
           <div id="taxChart" class="h-48"></div>
@@ -141,133 +170,141 @@
     &copy; 2025 NovaStocks. Todos os direitos reservados.
   </footer>
 
-<script type="module">
-  import { auth } from './firebase-init.js';
-  import { onAuthStateChanged, signOut }
-    from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  <script type="module">
+    import { auth } from './firebase-init.js';
+    import { onAuthStateChanged, signOut }
+      from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+    const { jsPDF } = window.jspdf;
 
-  const signOutBtn = document.getElementById('signOutBtn');
-  const contentEl  = document.getElementById('content');
-  const statusEl   = document.getElementById('statusIndicator');
-  const statusText = document.getElementById('statusText');
+    // Elementos
+    const signOutBtn       = document.getElementById('signOutBtn');
+    const signOutBtnMobile = document.getElementById('signOutBtnMobile');
+    const btnMenu          = document.getElementById('btnMenu');
+    const mobileMenu       = document.getElementById('mobileMenu');
+    const currentUserEl    = document.getElementById('currentUser');
+    const contentEl        = document.getElementById('content');
+    const statusEl         = document.getElementById('statusIndicator');
+    const statusText       = document.getElementById('statusText');
 
-  function showNotification(msg, type='success') {
-    statusText.textContent = msg;
-    statusEl.className = `status-indicator show ${type}`;
-    setTimeout(() => statusEl.classList.remove('show'), 3000);
-  }
-
-  // Protege a página via Auth
-  onAuthStateChanged(auth, user => {
-    if (!user) {
-      window.location.href = '/login.html';
-    } else {
-      signOutBtn.classList.remove('hidden');
-      contentEl.classList.remove('opacity-50','pointer-events-none');
-      contentEl.classList.add('fade-in');
-      loadData(user.email);
+    // Notificações
+    function showNotification(msg, type='success') {
+      statusText.textContent = msg;
+      statusEl.className = `status-indicator show ${type}`;
+      setTimeout(() => statusEl.classList.remove('show'), 3000);
     }
-  });
 
-  signOutBtn.addEventListener('click', async () => {
-    await signOut(auth);
-    window.location.href = '/login.html';
-  });
+    // Toggle menu mobile
+    btnMenu.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
 
-  // Gerar relatório fiscal
-  document.getElementById('generateFiscal').addEventListener('click', () => {
-    const year = document.getElementById('year').value;
-    const fmt  = document.getElementById('format').value;
-    showNotification(`Gerando relatório ${year} em ${fmt.toUpperCase()}`, 'info');
-    // TODO: chamada à API para download de relatório
-  });
-
-  // Simulação de imposto
-  document.getElementById('simulate').addEventListener('click', () => {
-    const g = parseFloat(document.getElementById('gain').value)  || 0;
-    const c = parseFloat(document.getElementById('costs').value) || 0;
-    const r = parseFloat(document.getElementById('rate').value)  || 0;
-    const tax = (g - c) * r / 100;
-    document.getElementById('taxDue').textContent = `€${tax.toFixed(2)}`;
-    document.getElementById('netProfit').textContent = `€${(g - c - tax).toFixed(2)}`;
-    // Atualiza gráfico de IRS
-    if (window.transactionsData) renderTaxChart(window.transactionsData, r);
-  });
-
-  // Carrega transações e renderiza todos os gráficos
-  async function loadData(userEmail) {
-    try {
-      const res = await fetch(`/api/transactions?user=${encodeURIComponent(userEmail)}`);
-      const data = await res.json();
-      window.transactionsData = data;
-      renderAllCharts(data);
-    } catch {
-      showNotification('Erro carregando dados', 'error');
-    }
-  }
-
-  function renderAllCharts(data) {
-    const volByDate  = {};
-    const gainByDate = {};
-    data.forEach(tx => {
-      const date = tx.date;
-      const amt  = tx.price * tx.amount;
-      const op   = tx.operation.toLowerCase();
-
-      // Volume
-      if (op === 'buy' || op === 'sell') {
-        volByDate[date] = (volByDate[date] || 0) + amt;
+    // Autenticação
+    onAuthStateChanged(auth, user => {
+      if (!user) {
+        window.location.href = '/login.html';
+      } else {
+        currentUserEl.textContent = user.displayName || user.email.split('@')[0];
+        [signOutBtn, signOutBtnMobile].forEach(btn => btn.classList.remove('hidden'));
+        contentEl.classList.remove('opacity-50','pointer-events-none');
+        contentEl.classList.add('fade-in');
+        loadData(user.email);
       }
-      // Ganhos: vendas positivas, compras negativas
-      if (op === 'sell') gainByDate[date] = (gainByDate[date] || 0) + amt;
-      if (op === 'buy')  gainByDate[date] = (gainByDate[date] || 0) - amt;
     });
 
-    const dates = Array.from(new Set([
-      ...Object.keys(volByDate),
-      ...Object.keys(gainByDate)
-    ])).sort();
-    const vols  = dates.map(d => volByDate[d]  || 0);
-    const gains = dates.map(d => gainByDate[d] || 0);
+    // Logout
+    [signOutBtn, signOutBtnMobile].forEach(btn =>
+      btn.addEventListener('click', async () => {
+        await signOut(auth);
+        window.location.href = '/login.html';
+      })
+    );
 
-    // Volume Chart
-    Plotly.newPlot('volChart', [{
-      x: dates, y: vols, type: 'bar',
-      marker: { color: '#3b82f6' }
-    }], { margin:{ t:20 }, responsive:true });
+    // Gerar Relatório (PDF/CSV)
+    document.getElementById('generateFiscal').addEventListener('click', async() => {
+      const year = document.getElementById('year').value;
+      const fmt  = document.getElementById('format').value;
+      showNotification(`Gerando relatório ${year} em ${fmt.toUpperCase()}`, 'info');
 
-    // Ganhos Chart
-    Plotly.newPlot('gainChart', [{
-      x: dates, y: gains, type: 'scatter', mode: 'lines+markers',
-      marker: { color: '#10b981' }
-    }], { margin:{ t:20 }, responsive:true });
-
-    // Gráfico de IRS inicial
-    const rate = parseFloat(document.getElementById('rate').value) || 0;
-    renderTaxChart(data, rate);
-  }
-
-  function renderTaxChart(data, rate) {
-    const gainByDate = {};
-    data.forEach(tx => {
-      const date = tx.date;
-      const amt  = tx.price * tx.amount;
-      const op   = tx.operation.toLowerCase();
-      if (op === 'sell') gainByDate[date] = (gainByDate[date] || 0) + amt;
-      if (op === 'buy')  gainByDate[date] = (gainByDate[date] || 0) - amt;
+      if (fmt === 'pdf') {
+        const doc = new jsPDF();
+        await doc.html(document.querySelector('main'), {
+          callback: () => doc.save(`relatorio_fiscal_${year}.pdf`),
+          x:10, y:10, width:190
+        });
+      } else {
+        const res  = await fetch(`/api/transactions?user=${encodeURIComponent(auth.currentUser.email)}&year=${year}`);
+        const data = await res.json();
+        const hdr  = ['Símbolo','Operação','Quantidade','Preço','Taxa','Data'];
+        const rows = data.map(tx => [tx.symbol, tx.operation, tx.amount, tx.price, tx.fee, tx.date]);
+        let csv = hdr.join(',') + '\n';
+        rows.forEach(r => csv += r.join(',') + '\n');
+        const blob = new Blob([csv], { type:'text/csv' });
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href     = url;
+        a.download = `relatorio_${year}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
     });
-    const dates = Object.keys(gainByDate).sort();
-    const taxes = dates.map(d => (gainByDate[d] * rate) / 100);
 
-    Plotly.newPlot('taxChart', [{
-      x: dates, y: taxes, type: 'bar',
-      marker: { color: '#ef4444' }
-    }], {
-      margin:{ t:20 }, responsive:true,
-      yaxis:{ title:'IRS (€)' }
+    // Simulação de Impostos
+    document.getElementById('simulate').addEventListener('click', () => {
+      const g   = parseFloat(document.getElementById('gain').value)  || 0;
+      const c   = parseFloat(document.getElementById('costs').value) || 0;
+      const r   = parseFloat(document.getElementById('rate').value)  || 0;
+      const tax = (g - c) * r / 100;
+      document.getElementById('taxDue').textContent    = `€${tax.toFixed(2)}`;
+      document.getElementById('netProfit').textContent = `€${(g - c - tax).toFixed(2)}`;
+      if (window.transactionsData) renderTaxChart(window.transactionsData, r);
     });
-  }
-</script>
 
+    // Carregar dados e desenhar gráficos
+    async function loadData(userEmail) {
+      try {
+        const res = await fetch(`/api/transactions?user=${encodeURIComponent(userEmail)}`);
+        const data = await res.json();
+        window.transactionsData = data;
+        renderAllCharts(data);
+      } catch {
+        showNotification('Erro carregando dados', 'error');
+      }
+    }
+
+    function renderAllCharts(data) {
+      const volByDate  = {};
+      const gainByDate = {};
+      data.forEach(tx => {
+        const d   = tx.date;
+        const amt = tx.price * tx.amount;
+        const op  = tx.operation.toLowerCase();
+        if (op==='buy'||op==='sell') volByDate[d]  = (volByDate[d]||0) + amt;
+        if (op==='sell')               gainByDate[d] = (gainByDate[d]||0) + amt;
+        if (op==='buy')                gainByDate[d] = (gainByDate[d]||0) - amt;
+      });
+      const dates = Array.from(new Set([...Object.keys(volByDate), ...Object.keys(gainByDate)])).sort();
+      const vols  = dates.map(d => volByDate[d]  || 0);
+      const gains = dates.map(d => gainByDate[d] || 0);
+
+      Plotly.newPlot('volChart', [{ x:dates, y:vols, type:'bar', marker:{color:'#3b82f6'} }], {margin:{t:20}, responsive:true});
+      Plotly.newPlot('gainChart',[{ x:dates, y:gains, type:'scatter', mode:'lines+markers', marker:{color:'#10b981'} }],{margin:{t:20},responsive:true});
+      const rate = parseFloat(document.getElementById('rate').value)||0;
+      renderTaxChart(data, rate);
+    }
+
+    function renderTaxChart(data, rate) {
+      const gainByDate = {};
+      data.forEach(tx => {
+        const d   = tx.date;
+        const amt = tx.price * tx.amount;
+        const op  = tx.operation.toLowerCase();
+        if (op==='sell') gainByDate[d] = (gainByDate[d]||0) + amt;
+        if (op==='buy')  gainByDate[d] = (gainByDate[d]||0) - amt;
+      });
+      const dates = Object.keys(gainByDate).sort();
+      const taxes = dates.map(d => (gainByDate[d] * rate) / 100);
+      Plotly.newPlot('taxChart',[{ x:dates, y:taxes, type:'bar', marker:{color:'#ef4444'} }],{margin:{t:20},responsive:true,yaxis:{title:'IRS (€)'}});
+    }
+  </script>
 </body>
 </html>
