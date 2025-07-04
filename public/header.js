@@ -1,4 +1,5 @@
-// header.js  const defaultConfig = {
+// header.js 
+const defaultConfig = {
 containerId: 'header-widget',
 title: 'NovaStocks',
 logoUrl: '/assets/logo.png', // caminho para o logo
