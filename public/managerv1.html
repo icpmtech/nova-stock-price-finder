@@ -375,8 +375,8 @@
       document.getElementById('totalPreview').textContent = `€${total}`;
     }
 
-    function getTypeIcon(type)  { return type==='Compra' ? '<span class="text-green-600">↗</span>' : '<span class="text-red-600">↘</span>'; }
-    function getTypeColor(type) { return type==='Compra' ? 'text-green-600' : 'text-red-600'; }
+    function getTypeIcon(type)  { return type==='buy' ? '<span class="text-green-600">↗</span>' : '<span class="text-red-600">↘</span>'; }
+    function getTypeColor(type) { return type==='buy' ? 'text-green-600' : 'text-red-600'; }
 
     function renderStocks() {
       const filtered = filterType.value
