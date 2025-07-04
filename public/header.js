@@ -1,4 +1,4 @@
-;(function(window, document){
+
   const defaultConfig = {
     containerId: 'header-widget',
     title: 'NovaMarketHub',
@@ -83,4 +83,3 @@
       buildHeader(Object.assign({}, defaultConfig, config));
     }
   };
-})(window, document);
