@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elasticsearch ESQL Editor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.29.0.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .editor-container { height: 300px; }
+        .results-container { max-height: 600px; overflow-y: auto; }
+        .loading { animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .syntax-highlight { background-color: #f8f9fa; }
+        .query-history-item { 
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .query-history-item:hover { 
+            background-color: #f3f4f6;
+            transform: translateX(4px);
+        }
+        .result-table { font-size: 0.85rem; }
+        .result-table th { background-color: #f8f9fa; }
+        .chart-container { min-height: 400px; }
+        .connection-status { 
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .status-connected { background-color: #dcfce7; color: #166534; }
+        .status-disconnected { background-color: #fee2e2; color: #dc2626; }
+        .status-connecting { background-color: #fef3c7; color: #d97706; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="gradient-bg text-white shadow-lg">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="text-2xl">🔍</div>
+                    <div>
+                        <h1 class="text-2xl font-bold">Elasticsearch ESQL Editor</h1>
+                        <p class="text-blue-100">Query and analyze your Elasticsearch data</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div id="connectionStatus" class="connection-status status-disconnected">
+                        <span id="statusIndicator">●</span>
+                        <span id="statusText">Disconnected</span>
+                    </div>
+                    <button onclick="toggleSettings()" class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg transition-all">
+                        ⚙️ Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-6 py-8">
+        <!-- Settings Panel -->
+        <div id="settingsPanel" class="bg-white rounded-lg shadow-lg p-6 mb-6 hidden">
+            <h2 class="text-xl font-semibold mb-4">Connection Settings</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Elasticsearch URL</label>
+                    <input type="text" id="esUrl" value="http://localhost:9200" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Index Pattern</label>
+                    <input type="text" id="indexPattern" value="*" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Username (Optional)</label>
+                    <input type="text" id="username" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Password (Optional)</label>
+                    <input type="password" id="password" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+            <div class="mt-4 flex space-x-3">
+                <button onclick="testConnection()" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors">
+                    Test Connection
+                </button>
+                <button onclick="toggleSettings()" class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors">
+                    Close
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <!-- Query Editor -->
+            <div class="lg:col-span-3">
+                <div class="bg-white rounded-lg shadow-lg">
+                    <div class="border-b border-gray-200 p-4">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-lg font-semibold">ESQL Query Editor</h2>
+                            <div class="flex space-x-2">
+                                <button onclick="formatQuery()" class="bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded text-sm transition-colors">
+                                    Format
+                                </button>
+                                <button onclick="clearEditor()" class="bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded text-sm transition-colors">
+                                    Clear
+                                </button>
+                                <button onclick="executeQuery()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors">
+                                    <span id="executeBtn">▶️ Execute</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <div id="editor" class="editor-container border border-gray-200 rounded"></div>
+                    </div>
+                </div>
+
+                <!-- Query Examples -->
+                <div class="bg-white rounded-lg shadow-lg mt-6">
+                    <div class="border-b border-gray-200 p-4">
+                        <h3 class="text-lg font-semibold">Query Examples</h3>
+                    </div>
+                    <div class="p-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <h4 class="font-medium text-gray-700">Basic Queries</h4>
+                                <div class="space-y-1">
+                                    <button onclick="loadExample('basic1')" class="w-full text-left p-2 text-sm bg-gray-50 hover:bg-gray-100 rounded transition-colors">
+                                        FROM logs | LIMIT 10
+                                    </button>
+                                    <button onclick="loadExample('basic2')" class="w-full text-left p-2 text-sm bg-gray-50 hover:bg-gray-100 rounded transition-colors">
+                                        FROM logs | WHERE status = 200
+                                    </button>
+                                    <button onclick="loadExample('basic3')" class="w-full text-left p-2 text-sm bg-gray-50 hover:bg-gray-100 rounded transition-colors">
+                                        FROM logs | STATS count() BY status
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <h4 class="font-medium text-gray-700">Advanced Queries</h4>
+                                <div class="space-y-1">
+                                    <button onclick="loadExample('advanced1')" class="w-full text-left p-2 text-sm bg-gray-50 hover:bg-gray-100 rounded transition-colors">
+                                        FROM logs | WHERE @timestamp > NOW() - 1h
+                                    </button>
+                                    <button onclick="loadExample('advanced2')" class="w-full text-left p-2 text-sm bg-gray-50 hover:bg-gray-100 rounded transition-colors">
+                                        FROM logs | EVAL error_rate = errors / total
+                                    </button>
+                                    <button onclick="loadExample('advanced3')" class="w-full text-left p-2 text-sm bg-gray-50 hover:bg-gray-100 rounded transition-colors">
+                                        FROM logs | STATS avg(response_time) BY host
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="space-y-6">
+                <!-- Query History -->
+                <div class="bg-white rounded-lg shadow-lg">
+                    <div class="border-b border-gray-200 p-4">
+                        <h3 class="text-lg font-semibold">Query History</h3>
+                    </div>
+                    <div class="p-4">
+                        <div id="queryHistory" class="space-y-2">
+                            <div class="text-sm text-gray-500">No queries executed yet</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="bg-white rounded-lg shadow-lg">
+                    <div class="border-b border-gray-200 p-4">
+                        <h3 class="text-lg font-semibold">Quick Stats</h3>
+                    </div>
+                    <div class="p-4">
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Queries Executed</span>
+                                <span id="queryCount" class="font-semibold">0</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Total Results</span>
+                                <span id="totalResults" class="font-semibold">0</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-600">Avg Response Time</span>
+                                <span id="avgResponseTime" class="font-semibold">0ms</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="mt-6">
+            <div class="bg-white rounded-lg shadow-lg">
+                <div class="border-b border-gray-200 p-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold">Query Results</h3>
+                        <div class="flex space-x-2">
+                            <button onclick="switchView('table')" id="tableViewBtn" class="bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                                Table
+                            </button>
+                            <button onclick="switchView('chart')" id="chartViewBtn" class="bg-gray-200 text-gray-700 px-3 py-1 rounded text-sm transition-colors">
+                                Chart
+                            </button>
+                            <button onclick="switchView('json')" id="jsonViewBtn" class="bg-gray-200 text-gray-700 px-3 py-1 rounded text-sm transition-colors">
+                                JSON
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-4">
+                    <div id="resultsContainer">
+                        <div class="text-center py-12 text-gray-500">
+                            <div class="text-4xl mb-4">🔍</div>
+                            <p>Execute a query to see results here</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let editor;
+        let currentView = 'table';
+        let queryHistory = [];
+        let queryStats = { count: 0, totalResults: 0, totalTime: 0 };
+        let currentResults = null;
+
+        // Initialize Monaco Editor
+        require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' } });
+        require(['vs/editor/editor.main'], function () {
+            // Register ESQL language
+            monaco.languages.register({ id: 'esql' });
+            
+            // Define ESQL language tokens
+            monaco.languages.setMonarchTokensProvider('esql', {
+                keywords: [
+                    'FROM', 'WHERE', 'STATS', 'EVAL', 'LIMIT', 'SORT', 'KEEP', 'DROP',
+                    'RENAME', 'DISSECT', 'GROK', 'ENRICH', 'MV_EXPAND', 'ROW',
+                    'AND', 'OR', 'NOT', 'IN', 'LIKE', 'RLIKE', 'IS', 'NULL',
+                    'TRUE', 'FALSE', 'ASC', 'DESC', 'BY', 'AS'
+                ],
+                functions: [
+                    'count', 'sum', 'avg', 'min', 'max', 'median', 'percentile',
+                    'values', 'top', 'now', 'date_format', 'date_parse',
+                    'substring', 'length', 'upper', 'lower', 'trim', 'concat',
+                    'round', 'floor', 'ceil', 'abs', 'sqrt', 'log', 'exp'
+                ],
+                operators: ['=', '!=', '<', '<=', '>', '>=', '+', '-', '*', '/', '%'],
+                tokenizer: {
+                    root: [
+                        [/[a-zA-Z_][a-zA-Z0-9_]*/, {
+                            cases: {
+                                '@keywords': 'keyword',
+                                '@functions': 'function',
+                                '@default': 'identifier'
+                            }
+                        }],
+                        [/".*?"/, 'string'],
+                        [/'.*?'/, 'string'],
+                        [/\d+(\.\d+)?/, 'number'],
+                        [/[+\-*/%=!<>]/, 'operator'],
+                        [/[{}()\[\]]/, 'bracket'],
+                        [/[;,.]/, 'delimiter'],
+                        [/\s+/, 'white']
+                    ]
+                }
+            });
+
+            // Set language configuration
+            monaco.languages.setLanguageConfiguration('esql', {
+                brackets: [['(', ')'], ['[', ']'], ['{', '}']],
+                autoClosingPairs: [
+                    { open: '(', close: ')' },
+                    { open: '[', close: ']' },
+                    { open: '{', close: '}' },
+                    { open: '"', close: '"' },
+                    { open: "'", close: "'" }
+                ],
+                surroundingPairs: [
+                    { open: '(', close: ')' },
+                    { open: '[', close: ']' },
+                    { open: '{', close: '}' },
+                    { open: '"', close: '"' },
+                    { open: "'", close: "'" }
+                ]
+            });
+
+            // Create editor
+            editor = monaco.editor.create(document.getElementById('editor'), {
+                value: 'FROM logs | LIMIT 10',
+                language: 'esql',
+                theme: 'vs',
+                fontSize: 14,
+                lineNumbers: 'on',
+                minimap: { enabled: false },
+                automaticLayout: true,
+                wordWrap: 'on',
+                scrollBeyondLastLine: false,
+                renderLineHighlight: 'line',
+                selectOnLineNumbers: true,
+                roundedSelection: false,
+                readOnly: false,
+                cursorStyle: 'line',
+                folding: true,
+                lineNumbersMinChars: 3,
+                scrollbar: {
+                    verticalScrollbarSize: 8,
+                    horizontalScrollbarSize: 8
+                }
+            });
+
+            // Add keyboard shortcuts
+            editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, executeQuery);
+            editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyF, formatQuery);
+        });
+
+        // Mock Elasticsearch connection for demo
+        function generateMockData(query) {
+            const mockData = [];
+            const statuses = [200, 404, 500, 301, 403];
+            const hosts = ['web-01', 'web-02', 'web-03', 'api-01', 'api-02'];
+            const methods = ['GET', 'POST', 'PUT', 'DELETE'];
+            
+            // Generate mock log entries
+            for (let i = 0; i < 50; i++) {
+                const timestamp = new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000);
+                mockData.push({
+                    '@timestamp': timestamp.toISOString(),
+                    status: statuses[Math.floor(Math.random() * statuses.length)],
+                    host: hosts[Math.floor(Math.random() * hosts.length)],
+                    method: methods[Math.floor(Math.random() * methods.length)],
+                    response_time: Math.floor(Math.random() * 1000) + 10,
+                    bytes: Math.floor(Math.random() * 10000) + 100,
+                    url: `/api/v1/resource${Math.floor(Math.random() * 100)}`,
+                    user_agent: 'Mozilla/5.0 (compatible; Bot/1.0)',
+                    ip: `192.168.1.${Math.floor(Math.random() * 255)}`
+                });
+            }
+            
+            return mockData;
+        }
+
+        function processESQLQuery(query, data) {
+            // Simple ESQL query processor for demo
+            let result = [...data];
+            
+            // Handle LIMIT
+            const limitMatch = query.match(/LIMIT\s+(\d+)/i);
+            if (limitMatch) {
+                result = result.slice(0, parseInt(limitMatch[1]));
+            }
+            
+            // Handle WHERE conditions
+            const whereMatch = query.match(/WHERE\s+(.+?)(?:\s+LIMIT|\s+STATS|\s+SORT|$)/i);
+            if (whereMatch) {
+                const condition = whereMatch[1].trim();
+                
+                // Simple status filter
+                if (condition.includes('status')) {
+                    const statusMatch = condition.match(/status\s*=\s*(\d+)/);
+                    if (statusMatch) {
+                        const status = parseInt(statusMatch[1]);
+                        result = result.filter(item => item.status === status);
+                    }
+                }
+                
+                // Time range filter
+                if (condition.includes('@timestamp') && condition.includes('NOW()')) {
+                    const now = new Date();
+                    const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+                    result = result.filter(item => new Date(item['@timestamp']) > oneHourAgo);
+                }
+            }
+            
+            // Handle STATS
+            const statsMatch = query.match(/STATS\s+(.+?)(?:\s+BY\s+(.+?))?(?:\s+LIMIT|$)/i);
+            if (statsMatch) {
+                const aggregation = statsMatch[1].trim();
+                const groupBy = statsMatch[2] ? statsMatch[2].trim() : null;
+                
+                if (aggregation.includes('count()')) {
+                    if (groupBy) {
+                        const grouped = {};
+                        result.forEach(item => {
+                            const key = item[groupBy];
+                            grouped[key] = (grouped[key] || 0) + 1;
+                        });
+                        result = Object.entries(grouped).map(([key, count]) => ({
+                            [groupBy]: key,
+                            'count()': count
+                        }));
+                    } else {
+                        result = [{ 'count()': result.length }];
+                    }
+                }
+                
+                if (aggregation.includes('avg(')) {
+                    const fieldMatch = aggregation.match(/avg\((.+?)\)/);
+                    if (fieldMatch && groupBy) {
+                        const field = fieldMatch[1];
+                        const grouped = {};
+                        result.forEach(item => {
+                            const key = item[groupBy];
+                            if (!grouped[key]) grouped[key] = [];
+                            grouped[key].push(item[field]);
+                        });
+                        result = Object.entries(grouped).map(([key, values]) => ({
+                            [groupBy]: key,
+                            [`avg(${field})`]: values.reduce((a, b) => a + b, 0) / values.length
+                        }));
+                    }
+                }
+            }
+            
+            return result;
+        }
+
+        async function executeQuery() {
+            const query = editor.getValue().trim();
+            if (!query) return;
+            
+            const executeBtn = document.getElementById('executeBtn');
+            executeBtn.innerHTML = '⏳ Executing...';
+            
+            try {
+                const startTime = Date.now();
+                
+                // Simulate API call with mock data
+                await new Promise(resolve => setTimeout(resolve, 500));
+                const mockData = generateMockData(query);
+                const processedData = processESQLQuery(query, mockData);
+                
+                const endTime = Date.now();
+                const responseTime = endTime - startTime;
+                
+                // Update results
+                currentResults = processedData;
+                displayResults(processedData);
+                
+                // Update history
+                addToHistory(query, processedData.length, responseTime);
+                
+                // Update stats
+                updateStats(processedData.length, responseTime);
+                
+                executeBtn.innerHTML = '✅ Success';
+                setTimeout(() => {
+                    executeBtn.innerHTML = '▶️ Execute';
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Query execution error:', error);
+                document.getElementById('resultsContainer').innerHTML = `
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                        <div class="text-red-800 font-medium">Query Error</div>
+                        <div class="text-red-600 text-sm mt-1">${error.message}</div>
+                    </div>
+                `;
+                executeBtn.innerHTML = '❌ Error';
+                setTimeout(() => {
+                    executeBtn.innerHTML = '▶️ Execute';
+                }, 2000);
+            }
+        }
+
+        function displayResults(data) {
+            const container = document.getElementById('resultsContainer');
+            
+            if (!data || data.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-gray-500">
+                        <div class="text-4xl mb-4">📭</div>
+                        <p>No results found</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            switch (currentView) {
+                case 'table':
+                    displayTableView(data);
+                    break;
+                case 'chart':
+                    displayChartView(data);
+                    break;
+                case 'json':
+                    displayJsonView(data);
+                    break;
+            }
+        }
+
+        function displayTableView(data) {
+            const container = document.getElementById('resultsContainer');
+            
+            if (!data.length) return;
+            
+            const columns = Object.keys(data[0]);
+            const table = `
+                <div class="results-container">
+                    <table class="result-table w-full border-collapse">
+                        <thead>
+                            <tr>
+                                ${columns.map(col => `<th class="border border-gray-300 px-3 py-2 text-left font-medium">${col}</th>`).join('')}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.map(row => `
+                                <tr class="hover:bg-gray-50">
+                                    ${columns.map(col => `<td class="border border-gray-300 px-3 py-2">${formatValue(row[col])}</td>`).join('')}
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            container.innerHTML = table;
+        }
+
+        function displayChartView(data) {
+            const container = document.getElementById('resultsContainer');
+            
+            if (!data.length) return;
+            
+            // Try to create a meaningful chart based on data structure
+            const columns = Object.keys(data[0]);
+            const numericColumns = columns.filter(col => 
+                typeof data[0][col] === 'number' && col !== 'count()'
+            );
+            
+            if (data.some(row => row['count()'] !== undefined)) {
+                // Aggregation result - create bar chart
+                const labels = data.map(row => {
+                    const key = Object.keys(row).find(k => k !== 'count()' && !k.includes('avg('));
+                    return key ? row[key] : 'Total';
+                });
+                const values = data.map(row => row['count()'] || Object.values(row)[0]);
+                
+                container.innerHTML = '<div id="chartDiv" class="chart-container"></div>';
+                Plotly.newPlot('chartDiv', [{
+                    x: labels,
+                    y: values,
+                    type: 'bar',
+                    marker: { color: '#3b82f6' }
+                }], {
+                    title: 'Query Results',
+                    xaxis: { title: 'Category' },
+                    yaxis: { title: 'Count' },
+                    margin: { t: 50, l: 50, r: 20, b: 50 }
+                });
+            } else if (numericColumns.length > 0) {
+                // Time series or scatter plot
+                const xCol = columns.find(col => col.includes('timestamp') || col.includes('time')) || columns[0];
+                const yCol = numericColumns[0];
+                
+                container.innerHTML = '<div id="chartDiv" class="chart-container"></div>';
+                Plotly.newPlot('chartDiv', [{
+                    x: data.map(row => row[xCol]),
+                    y: data.map(row => row[yCol]),
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    marker: { color: '#10b981' }
+                }], {
+                    title: 'Query Results',
+                    xaxis: { title: xCol },
+                    yaxis: { title: yCol },
+                    margin: { t: 50, l: 50, r: 20, b: 50 }
+                });
+            } else {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-gray-500">
+                        <div class="text-4xl mb-4">📊</div>
+                        <p>No suitable data for chart visualization</p>
+                        <p class="text-sm">Try a query with aggregations or numeric fields</p>
+                    </div>
+                `;
+            }
+        }
+
+        function displayJsonView(data) {
+            const container = document.getElementById('resultsContainer');
+            container.innerHTML = `
+                <div class="results-container">
+                    <pre class="bg-gray-50 p-4 rounded-lg overflow-auto text-sm"><code>${JSON.stringify(data, null, 2)}</code></pre>
+                </div>
+            `;
+        }
+
+        function formatValue(value) {
+            if (value === null || value === undefined) return '-';
+            if (typeof value === 'number') return value.toLocaleString();
+            if (typeof value === 'string' && value.includes('T') && value.includes('Z')) {
+                return new Date(value).toLocaleString();
+            }
+            return value;
+        }
+
+        function switchView(view) {
+            currentView = view;
+            
+            // Update button states
+            document.getElementById('tableViewBtn').className = view === 'table' ? 
+                'bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors' : 
+                'bg-gray-200 text-gray-700 px-3 py-1 rounded text-sm transition-colors';
+            document.getElementById('chartViewBtn').className = view === 'chart' ? 
+                'bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors' : 
+                'bg-gray-200 text-gray-700 px-3 py-1 rounded text-sm transition-colors';
+            document.getElementById('jsonViewBtn').className = view === 'json' ? 
+                'bg-blue-600 text-white px-3 py-1 rounded text-sm transition-colors' : 
+                'bg-gray-200 text-gray-700 px-3 py-1 rounded text-sm transition-colors';
+            
+            if (currentResults) {
+                displayResults(currentResults);
+            }
+        }
+
+        function addToHistory(query, resultCount, responseTime) {
+            const historyItem = {
+                query: query.length > 50 ? query.substring(0, 50) + '...' : query,
+                fullQuery: query,
+                resultCount,
+                responseTime,
+                timestamp: new Date().toLocaleString()
+            };
+            
+            queryHistory.unshift(historyItem);
+            if (queryHistory.length > 10) queryHistory.pop();
+            
+            updateHistoryDisplay();
+        }
+
+        function updateHistoryDisplay() {
+            const container = document.getElementById('queryHistory');
+            
+            if (queryHistory.length === 0) {
+                container.innerHTML = '<div class="text-sm text-gray-500">No queries executed yet</div>';
+                return;
+            }
+            
+            container.innerHTML = queryHistory.map(item => `
+                <div class="query-history-item p-3 border border-gray-200 rounded-lg" onclick="loadHistoryQuery('${item.fullQuery.replace(/'/g, "\\'")}')">
+                    <div class="text-sm font-medium text-gray-800">${item.query}</div>
+                    <div class="text-xs text-gray-500 mt-1">
+                        ${item.resultCount} results • ${item.responseTime}ms • ${item.timestamp}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadHistoryQuery(query) {
+            if (editor) {
+                editor.setValue(query);
+                editor.focus();
+            }
+        }
+
+        function updateStats(resultCount, responseTime) {
+            queryStats.count++;
+            queryStats.totalResults += resultCount;
+            queryStats.totalTime += responseTime;
+            
+            document.getElementById('queryCount').textContent = queryStats.count;
+            document.getElementById('totalResults').textContent = queryStats.totalResults.toLocaleString();
+            document.getElementById('avgResponseTime').textContent = 
+                Math.round(queryStats.totalTime / queryStats.count) + 'ms';
+        }
+
+        function formatQuery() {
+            if (!editor) return;
+            
+            const query = editor.getValue();
+            const formatted = query
+                .replace(/\s+/g, ' ')
+                .replace(/\s*\|\s*/g, '\n| ')
+                .replace(/FROM\s+/gi, 'FROM ')
+                .replace(/WHERE\s+/gi, '\n| WHERE ')
+                .replace(/STATS\s+/gi, '\n| STATS ')
+                .replace(/SORT\s+/gi, '\n| SORT ')
+                .replace(/LIMIT\s+/gi, '\n| LIMIT ')
+                .replace(/EVAL\s+/gi, '\n| EVAL ')
+                .trim();
+            
+            editor.setValue(formatted);
+        }
+
+        function clearEditor() {
+            if (editor) {
+                editor.setValue('');
+                editor.focus();
+            }
+        }
+
+        function toggleSettings() {
+            const panel = document.getElementById('settingsPanel');
+            panel.classList.toggle('hidden');
+        }
+
+        function testConnection() {
+            const status = document.getElementById('connectionStatus');
+            const indicator = document.getElementById('statusIndicator');
+            const text = document.getElementById('statusText');
+            
+            // Simulate connection test
+            status.className = 'connection-status status-connecting';
+            indicator.textContent = '●';
+            text.textContent = 'Connecting...';
+            
+            setTimeout(() => {
+                // Mock successful connection for demo
+                status.className = 'connection-status status-connected';
+                indicator.textContent = '●';
+                text.textContent = 'Connected (Demo Mode)';
+            }, 1500);
+        }
+
+        function loadExample(exampleType) {
+            if (!editor) return;
+            
+            const examples = {
+                'basic1': 'FROM logs\n| LIMIT 10',
+                'basic2': 'FROM logs\n| WHERE status = 200\n| LIMIT 20',
+                'basic3': 'FROM logs\n| STATS count() BY status\n| SORT count() DESC',
+                'advanced1': 'FROM logs\n| WHERE @timestamp > NOW() - 1h\n| STATS count() BY host\n| SORT count() DESC',
+                'advanced2': 'FROM logs\n| EVAL error_rate = errors / total\n| WHERE error_rate > 0.05\n| KEEP host, error_rate\n| SORT error_rate DESC',
+                'advanced3': 'FROM logs\n| WHERE status >= 400\n| STATS avg(response_time) BY host\n| EVAL avg_response_ms = ROUND(avg(response_time), 2)\n| SORT avg_response_ms DESC'
+            };
+            
+            const example = examples[exampleType];
+            if (example) {
+                editor.setValue(example);
+                editor.focus();
+            }
+        }
+
+        // Enhanced keyboard shortcuts
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey || event.metaKey) {
+                switch(event.key) {
+                    case 'Enter':
+                        event.preventDefault();
+                        executeQuery();
+                        break;
+                    case 'k':
+                        event.preventDefault();
+                        clearEditor();
+                        break;
+                    case ',':
+                        event.preventDefault();
+                        toggleSettings();
+                        break;
+                }
+            }
+        });
+
+        // Initialize connection status
+        document.addEventListener('DOMContentLoaded', function() {
+            testConnection();
+        });
+
+        // Auto-save query to localStorage
+        setInterval(() => {
+            if (editor) {
+                const query = editor.getValue();
+                if (query.trim()) {
+                    localStorage.setItem('esql_last_query', query);
+                }
+            }
+        }, 5000);
+
+        // Load saved query on page load
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                const savedQuery = localStorage.getItem('esql_last_query');
+                if (savedQuery && editor) {
+                    editor.setValue(savedQuery);
+                }
+            }, 1000);
+        });
+
+        // Enhanced error handling for real Elasticsearch connections
+        async function executeElasticsearchQuery(query) {
+            const esUrl = document.getElementById('esUrl').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const headers = {
+                    'Content-Type': 'application/json',
+                };
+                
+                if (username && password) {
+                    headers['Authorization'] = 'Basic ' + btoa(username + ':' + password);
+                }
+                
+                const response = await fetch(`${esUrl}/_query`, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify({
+                        query: query,
+                        format: 'json'
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                return data.rows || data.values || [];
+                
+            } catch (error) {
+                console.warn('Elasticsearch connection failed, using mock data:', error);
+                // Fall back to mock data
+                const mockData = generateMockData(query);
+                return processESQLQuery(query, mockData);
+            }
+        }
+
+        // Export functionality
+        function exportResults(format) {
+            if (!currentResults || !currentResults.length) return;
+            
+            let content, mimeType, filename;
+            
+            switch (format) {
+                case 'csv':
+                    const headers = Object.keys(currentResults[0]);
+                    const csvContent = [
+                        headers.join(','),
+                        ...currentResults.map(row => 
+                            headers.map(header => `"${row[header] || ''}"`).join(',')
+                        )
+                    ].join('\n');
+                    content = csvContent;
+                    mimeType = 'text/csv';
+                    filename = 'esql_results.csv';
+                    break;
+                    
+                case 'json':
+                    content = JSON.stringify(currentResults, null, 2);
+                    mimeType = 'application/json';
+                    filename = 'esql_results.json';
+                    break;
+            }
+            
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Add export buttons to results header
+        function addExportButtons() {
+            const resultsHeader = document.querySelector('.border-b.border-gray-200.p-4');
+            if (resultsHeader && !resultsHeader.querySelector('.export-buttons')) {
+                const exportDiv = document.createElement('div');
+                exportDiv.className = 'export-buttons flex space-x-2 ml-4';
+                exportDiv.innerHTML = `
+                    <button onclick="exportResults('csv')" class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 transition-colors">
+                        CSV
+                    </button>
+                    <button onclick="exportResults('json')" class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors">
+                        JSON
+                    </button>
+                `;
+                resultsHeader.querySelector('.flex.space-x-2').appendChild(exportDiv);
+            }
+        }
+
+        // Enhanced query validation
+        function validateQuery(query) {
+            const errors = [];
+            
+            if (!query.trim()) {
+                errors.push('Query cannot be empty');
+                return errors;
+            }
+            
+            if (!query.toUpperCase().includes('FROM')) {
+                errors.push('Query must contain a FROM clause');
+            }
+            
+            // Check for balanced parentheses
+            const openParens = (query.match(/\(/g) || []).length;
+            const closeParens = (query.match(/\)/g) || []).length;
+            if (openParens !== closeParens) {
+                errors.push('Unbalanced parentheses in query');
+            }
+            
+            // Check for proper pipe syntax
+            const pipes = query.split('|');
+            if (pipes.length > 1) {
+                for (let i = 1; i < pipes.length; i++) {
+                    const command = pipes[i].trim().split(' ')[0].toUpperCase();
+                    const validCommands = ['WHERE', 'STATS', 'SORT', 'LIMIT', 'EVAL', 'KEEP', 'DROP', 'RENAME'];
+                    if (!validCommands.includes(command)) {
+                        errors.push(`Invalid pipe command: ${command}`);
+                    }
+                }
+            }
+            
+            return errors;
+        }
+
+        // Query suggestion system
+        function showQuerySuggestions(query) {
+            const suggestions = [];
+            const upperQuery = query.toUpperCase();
+            
+            if (upperQuery.includes('FROM') && !upperQuery.includes('WHERE')) {
+                suggestions.push('Add WHERE clause to filter results');
+            }
+            
+            if (upperQuery.includes('STATS') && !upperQuery.includes('BY')) {
+                suggestions.push('Consider adding BY clause for grouping');
+            }
+            
+            if (!upperQuery.includes('LIMIT') && !upperQuery.includes('STATS')) {
+                suggestions.push('Add LIMIT clause to control result size');
+            }
+            
+            return suggestions;
+        }
+
+        // Add helpful tooltips and hints
+        function addQueryHints() {
+            const hintsDiv = document.createElement('div');
+            hintsDiv.className = 'bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4';
+            hintsDiv.innerHTML = `
+                <h4 class="font-medium text-blue-800 mb-2">💡 Query Tips</h4>
+                <ul class="text-sm text-blue-700 space-y-1">
+                    <li>• Use <code>Ctrl+Enter</code> to execute queries</li>
+                    <li>• Use <code>Ctrl+Shift+F</code> to format queries</li>
+                    <li>• Click on query history items to reuse them</li>
+                    <li>• Try the example queries to get started</li>
+                </ul>
+            `;
+            
+            const editorContainer = document.querySelector('.bg-white.rounded-lg.shadow-lg');
+            editorContainer.parentNode.insertBefore(hintsDiv, editorContainer);
+        }
+
+        // Initialize hints
+        setTimeout(addQueryHints, 1000);
+    </script>
+</body>
+</html>
