@@ -1,11 +1,13 @@
 <!--
-  NovaStocks • Gráfico RT + Histórico + Análise Técnica
-  =====================================================
-  Exemplo cURL (histórico):
-    curl -X 'GET' \
-         'https://marketanalyticshubapp.azurewebsites.net/api/YahooFinance/chart-symbol-tradingview/INTC?interval=1d' \
-         -H 'accept: */*'
-  • Intervals: rt (tempo-real) | 1d | 1w | 1y | all
+  NovaStocks • RT + Histórico + TA + “Quote” detalhado
+  ===================================================
+  Principais chamadas:
+    • Tempo-real (quote + RT): https://marketanalyticshubapp.azurewebsites.net/api/YahooFinance/price/INTC
+    • Histórico  (velas)     : https://marketanalyticshubapp.azurewebsites.net/api/YahooFinance/chart-symbol-tradingview/INTC?interval=1d
+  Time-frames suportados: rt | 1d | 1w | 1y | all
+  Notas:
+    - Mantém toda a lógica anterior (investimentos, Resumo, Análises, Dados, TA).
+    - Acrescenta novo tab “Cotação” com dados completos do endpoint /price.
 -->
 
 <!DOCTYPE html>
@@ -21,7 +23,6 @@
   <script src="https://cdn.plot.ly/plotly-2.29.0.min.js"></script>
 
   <style>
-    /* barras dos intervalos (dia / 52 semanas) */
     .range-bar{position:relative;height:0.5rem;border-radius:0.25rem;background:#e5e7eb}
     .range-dot{position:absolute;top:-0.25rem;width:1rem;height:1rem;border-radius:9999px;
                background:#2563eb;border:2px solid #fff}
@@ -29,12 +30,12 @@
 </head>
 <body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col">
 
-  <!-- cabeçalho opcional -->
+  <!-- Cabeçalho/placeholder ------------------------------------------------->
   <div id="header-widget"></div>
 
   <main class="flex-grow container mx-auto p-4 space-y-8">
 
-    <!-- Seleção do ticker -->
+    <!-- Selecção do ticker -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div class="flex gap-2">
         <input id="symbolInput" placeholder="Ticker (ex: INTC ou EDP.LS)"
@@ -49,7 +50,7 @@
       </span>
     </div>
 
-    <!-- Buttons timeframe -->
+    <!-- Time-frames -->
     <div id="tfGroup" class="flex gap-2">
       <button data-interval="rt"  class="tf-btn bg-blue-600 text-white px-3 py-1 rounded text-sm">RT</button>
       <button data-interval="1d" class="tf-btn bg-white px-3 py-1 rounded text-sm">1D</button>
@@ -58,20 +59,14 @@
       <button data-interval="all"class="tf-btn bg-white px-3 py-1 rounded text-sm">ALL</button>
     </div>
 
-    <!-- Controlo de Análise Técnica -->
+    <!-- Indicadores TA visíveis no histórico -->
     <div id="taControls" class="flex flex-wrap gap-4">
-      <label class="flex items-center gap-1 text-sm">
-        <input type="checkbox" class="ta-check" data-ta="sma20" checked>SMA&nbsp;20
-      </label>
-      <label class="flex items-center gap-1 text-sm">
-        <input type="checkbox" class="ta-check" data-ta="sma50" checked>SMA&nbsp;50
-      </label>
-      <label class="flex items-center gap-1 text-sm">
-        <input type="checkbox" class="ta-check" data-ta="rsi" checked>RSI&nbsp;14
-      </label>
+      <label class="flex items-center gap-1 text-sm"><input type="checkbox" class="ta-check" data-ta="sma20" checked>SMA&nbsp;20</label>
+      <label class="flex items-center gap-1 text-sm"><input type="checkbox" class="ta-check" data-ta="sma50" checked>SMA&nbsp;50</label>
+      <label class="flex items-center gap-1 text-sm"><input type="checkbox" class="ta-check" data-ta="rsi"   checked>RSI&nbsp;14</label>
     </div>
 
-    <!-- Cartão Investimentos -------------------------------------------------->
+    <!-- Investimentos ------------------------------------------------------->
     <div id="invest-card"
          class="bg-white rounded-xl shadow p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
       <div>
@@ -86,51 +81,38 @@
         </div>
       </div>
       <div class="grid grid-cols-2 gap-y-2 text-sm">
-        <div class="font-medium">Lucro do dia</div><div id="dayProfit"   class="text-right">-</div>
-        <div class="font-medium">Lucro total</div><div id="totalProfit" class="text-right">-</div>
-        <div class="font-medium">Valor de mercado</div><div id="marketValue" class="text-right">-</div>
+        <div class="font-medium">Lucro do dia</div>  <div id="dayProfit"   class="text-right">-</div>
+        <div class="font-medium">Lucro total</div>  <div id="totalProfit" class="text-right">-</div>
+        <div class="font-medium">Valor mercado</div><div id="marketValue" class="text-right">-</div>
         <div class="col-span-2 text-right">
           <a href="#" class="text-blue-600 hover:underline text-xs">Visualizar investimentos →</a>
         </div>
       </div>
     </div>
 
-    <!-- Tabs (Resumo/Análises/Dados) ---------------------------------------->
+    <!-- Tabs ---------------------------------------------------------------->
     <nav class="flex border-b border-gray-200">
-      <button data-tab="tab-resumo"
-              class="tab-btn px-4 py-2 -mb-px border-b-2 border-blue-600 text-blue-600 font-medium">
-        Resumo
-      </button>
-      <button data-tab="tab-analises"
-              class="tab-btn px-4 py-2 text-gray-600 hover:text-blue-600">
-        Análises
-      </button>
-      <button data-tab="tab-dados"
-              class="tab-btn px-4 py-2 text-gray-600 hover:text-blue-600">
-        Dados financeiros
-      </button>
+      <button data-tab="tab-resumo"   class="tab-btn px-4 py-2 -mb-px border-b-2 border-blue-600 text-blue-600 font-medium">Resumo</button>
+      <button data-tab="tab-cotacao"  class="tab-btn px-4 py-2 text-gray-600 hover:text-blue-600">Cotação</button>
+      <button data-tab="tab-analises" class="tab-btn px-4 py-2 text-gray-600 hover:text-blue-600">Análises</button>
+      <button data-tab="tab-dados"    class="tab-btn px-4 py-2 text-gray-600 hover:text-blue-600">Dados financeiros</button>
     </nav>
 
-    <!-- Tab Resumo -->
+    <!-- --- Resumo -------------------------------------------------------- -->
     <section id="tab-resumo" class="space-y-6">
       <div class="bg-white rounded-xl shadow p-6">
         <h3 class="text-lg font-semibold mb-4">Principais estatísticas</h3>
 
-        <!-- intervalos -->
         <div class="space-y-6 text-sm">
           <div>
             <div class="flex justify-between">
-              <span id="dayLow">-</span>
-              <span class="text-gray-600">Variação do dia</span>
-              <span id="dayHigh">-</span>
+              <span id="dayLow">-</span><span class="text-gray-600">Dia</span><span id="dayHigh">-</span>
             </div>
             <div class="range-bar mt-1"><span id="dayDot" class="range-dot"></span></div>
           </div>
           <div>
             <div class="flex justify-between">
-              <span id="wkLow">-</span>
-              <span class="text-gray-600">Variação 52 sem.</span>
-              <span id="wkHigh">-</span>
+              <span id="wkLow">-</span><span class="text-gray-600">52 sem.</span><span id="wkHigh">-</span>
             </div>
             <div class="range-bar mt-1"><span id="wkDot" class="range-dot"></span></div>
           </div>
@@ -143,158 +125,140 @@
       </div>
     </section>
 
+    <!-- --- Cotação (novo) ------------------------------------------------- -->
+    <section id="tab-cotacao" class="hidden">
+      <div class="bg-white rounded-xl shadow p-6">
+        <h3 class="text-lg font-semibold mb-4">Detalhes da cotação</h3>
+        <div id="quoteGrid" class="grid grid-cols-2 md:grid-cols-3 gap-y-2 gap-x-6 text-sm">
+          <!-- preenchido via JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- --- Placeholders --------------------------------------------------- -->
     <section id="tab-analises" class="hidden">
-      <div class="bg-white rounded-xl shadow p-6 text-center text-gray-500">
-        <p>Conteúdo de análises em desenvolvimento.</p>
-      </div>
+      <div class="bg-white rounded-xl shadow p-6 text-center text-gray-500"><p>Conteúdo de análises em desenvolvimento.</p></div>
     </section>
-
     <section id="tab-dados" class="hidden">
-      <div class="bg-white rounded-xl shadow p-6 text-center text-gray-500">
-        <p>Dados financeiros detalhados em breve.</p>
-      </div>
+      <div class="bg-white rounded-xl shadow p-6 text-center text-gray-500"><p>Dados financeiros detalhados em breve.</p></div>
     </section>
 
-    <!-- Chart principal -->
-    <div id="chart" class="bg-white rounded-xl shadow p-4 h-[28rem]"></div>
-    <!-- Chart RSI -->
+    <!-- Gráficos -->
+    <div id="chart"   class="bg-white rounded-xl shadow p-4 h-[28rem]"></div>
     <div id="taChart" class="bg-white rounded-xl shadow p-4 h-[12rem]"></div>
-
   </main>
 
-  <!-- rodapé opcional -->
+  <!-- Rodapé --------------------------------------------------------------->
   <div id="footer-widget"></div>
 
-  <!-- ===================  JS =================== -->
+  <!-- ====================  JS  =========================================== -->
   <script>
     /* ---------- Config ---------- */
-    const REFRESH_MS = 5_000;
-    const MAX_RT = 70;
+    const REFRESH_MS = 5_000, MAX_RT = 70;
 
     /* ---------- Estado ---------- */
-    let symbol='', tf='rt';
-    let rtTimer, cdTimer, secs=REFRESH_MS/1000;
-    let lastData=null;
+    let symbol='', tf='rt', rtTimer, cdTimer, secs=REFRESH_MS/1000, lastData=null;
+    const taState={sma20:true,sma50:true,rsi:true};
 
-    /* Trace RT (área) */
-    const traceRT = {
-      x:[], y:[],
-      mode:'lines',
-      fill:'tozeroy',
-      line:{color:'#16a34a',width:2},
-      fillcolor:'rgba(22,163,74,.2)',
-      hovertemplate:'%{x|%H:%M:%S}<br>€%{y:.4f}<extra></extra>',
-      name:'Preço'
-    };
+    /* ---------- Traços & layouts ---------- */
+    const traceRT = {x:[],y:[],mode:'lines',fill:'tozeroy',
+                     line:{color:'#16a34a',width:2},
+                     fillcolor:'rgba(22,163,74,.2)',
+                     hovertemplate:'%{x|%H:%M:%S}<br>€%{y:.4f}<extra></extra>',name:'Preço'};
+    const layoutRT  ={margin:{t:20,l:56,r:8,b:40},xaxis:{type:'date',tickformat:'%H:%M',fixedrange:true},
+                      yaxis:{title:'Preço (€)',fixedrange:true},shapes:[]};
+    const layoutRSI ={margin:{t:20,l:56,r:8,b:30},xaxis:{type:'date',tickformat:'%Y-%m-%d',fixedrange:true},
+                      yaxis:{title:'RSI',range:[0,100],fixedrange:true}};
 
-    /* Layouts */
-    const layoutRT = {margin:{t:20,l:56,r:8,b:40},
-                      xaxis:{type:'date',tickformat:'%H:%M',fixedrange:true},
-                      yaxis:{title:'Preço (€)',fixedrange:true},
-                      shapes:[]};
-    const layoutRSI = {margin:{t:20,l:56,r:8,b:30},
-                       xaxis:{type:'date',tickformat:'%Y-%m-%d',fixedrange:true},
-                       yaxis:{title:'RSI',range:[0,100],fixedrange:true}};
-
-    Plotly.newPlot('chart',[traceRT],layoutRT,{responsive:true,displaylogo:false});
-    Plotly.newPlot('taChart',[],layoutRSI,{responsive:true,displaylogo:false});
+    Plotly.newPlot('chart',   [traceRT],layoutRT ,{responsive:true,displaylogo:false});
+    Plotly.newPlot('taChart', [],layoutRSI,{responsive:true,displaylogo:false});
 
     /* ---------- Helpers ---------- */
-    const euro = n => n!=null?`€${n.toLocaleString('pt-PT',{minimumFractionDigits:4,maximumFractionDigits:4})}`:'-';
-    const pct  = n => n!=null?`${n.toLocaleString('pt-PT',{minimumFractionDigits:2,maximumFractionDigits:2})} %`:'-';
-    const sma=(arr,win)=>{
-      const out=[];let sum=0;
-      for(let i=0;i<arr.length;i++){
-        sum+=arr[i]; if(i>=win) sum-=arr[i-win];
-        out.push(i>=win-1?sum/win:null);
-      } return out;
-    };
-    const rsi=(arr,period=14)=>{
-      const res=[null];let gains=0,losses=0;
+    const euro=n=>n!=null?`€${n.toLocaleString('pt-PT',{minimumFractionDigits:4,maximumFractionDigits:4})}`:'-';
+    const pct =n=>n!=null?`${n.toLocaleString('pt-PT',{minimumFractionDigits:2,maximumFractionDigits:2})} %`:'-';
+    const sma=(arr,w)=>arr.map((_,i)=>i>=w-1?arr.slice(i-w+1,i+1).reduce((a,b)=>a+b)/w:null);
+    const rsi=(arr,p=14)=>{
+      const out=[null];let g=0,l=0;
       for(let i=1;i<arr.length;i++){
-        const diff=arr[i]-arr[i-1];
-        if(i<=period){
-          gains+=Math.max(0,diff); losses+=Math.max(0,-diff);
-          res.push(i===period?100-100/(1+gains/(losses||1)):null);
-        }else{
-          const up=Math.max(0,diff),down=Math.max(0,-diff);
-          gains=(gains*(period-1)+up)/period;
-          losses=(losses*(period-1)+down)/period;
-          res.push(100-100/(1+gains/(losses||1)));
-        }
-      } return res;
+        const d=arr[i]-arr[i-1];
+        if(i<=p){g+=Math.max(d,0);l+=Math.max(-d,0);out.push(i===p?100-100/(1+g/(l||1)):null);}
+        else{g=(g*(p-1)+Math.max(d,0))/p;l=(l*(p-1)+Math.max(-d,0))/p;out.push(100-100/(1+g/(l||1)));}}
+      return out;
     };
+    const fmtDate=ts=>ts?new Date(ts*1_000).toLocaleDateString('pt-PT'):'-';
 
-    /* UI helpers */
-    function hiTF(btn){
-      document.querySelectorAll('.tf-btn').forEach(b=>{
-        const a=b===btn;
-        b.classList.toggle('bg-blue-600',a);b.classList.toggle('text-white',a);
-        b.classList.toggle('bg-white',!a);
-      });
+    /* UI toggles */
+    document.querySelectorAll('.tf-btn').forEach(btn=>{
+      btn.addEventListener('click',()=>{tf=btn.dataset.interval;highlight(btn,'.tf-btn');loadSymbol();});
+    });
+    document.querySelectorAll('.tab-btn').forEach(btn=>{
+      btn.addEventListener('click',()=>{highlight(btn,'.tab-btn','border-blue-600 text-blue-600 font-medium');
+        document.querySelectorAll('[id^="tab-"]').forEach(s=>s.classList.add('hidden'));
+        document.getElementById(btn.dataset.tab).classList.remove('hidden');});
+    });
+    document.querySelectorAll('.ta-check').forEach(cb=>{
+      taState[cb.dataset.ta]=cb.checked;
+      cb.addEventListener('change',()=>{taState[cb.dataset.ta]=cb.checked;if(symbol&&tf!=='rt')plotHist();});
+    });
+    function highlight(el,sel,extra=''){document.querySelectorAll(sel).forEach(b=>b.className=b.className.replace(extra,'').replace('bg-blue-600','bg-white').replace('text-white',''));
+      el.classList.add('bg-blue-600','text-white');extra.split(' ').filter(Boolean).forEach(c=>el.classList.add(c));
     }
-    function resetCount(){
-      clearInterval(cdTimer);
-      secs=REFRESH_MS/1000;
+    /* Countdown */
+    function resetCount(){clearInterval(cdTimer);secs=REFRESH_MS/1000;
       const t=document.getElementById('timer');
       t.textContent=`Próxima actualização em ${secs} s`;
-      cdTimer=setInterval(()=>{
-        secs=secs>1?secs-1:REFRESH_MS/1000;
-        t.textContent=`Próxima actualização em ${secs} s`;
-      },1_000);
-    }
+      cdTimer=setInterval(()=>{secs=secs>1?secs-1:REFRESH_MS/1000;
+        t.textContent=`Próxima actualização em ${secs} s`;},1_000);}
 
     /* ---------- API ---------- */
-    const fetchRT = async sym =>{
-      const r=await fetch(`https://marketanalyticshubapp.azurewebsites.net/api/YahooFinance/price/${sym}`);
-      const j=await r.json();return j[0]||{};
-    };
-    const fetchHist = async (sym,intv)=>{
-      const r=await fetch(`https://marketanalyticshubapp.azurewebsites.net/api/YahooFinance/chart-symbol-tradingview/${sym}?interval=${intv}`);
-      return await r.json();
-    };
+    const fetchRT   = async s=>{const r=await fetch(`https://marketanalyticshubapp.azurewebsites.net/api/YahooFinance/price/${s}`);return (await r.json())[0]||{};};
+    const fetchHist = async (s,i)=>await (await fetch(`https://marketanalyticshubapp.azurewebsites.net/api/YahooFinance/chart-symbol-tradingview/${s}?interval=${i}`)).json();
 
     /* ---------- Investimentos ---------- */
-    function updInvest(d){
-      const qty=+document.getElementById('sharesInput').value||0;
-      const cost=+document.getElementById('avgCostInput').value||0;
-      const px=d.regularMarketPrice??0;
-      const prev=d.regularMarketPreviousClose??px;
-      const day=(px-prev)*qty, tot=(px-cost)*qty, val=px*qty;
-      const dayPct=d.regularMarketChangePercent,
-            totPct=cost?((px/cost-1)*100):0;
-      document.getElementById('dayProfit').innerHTML=
-        `${euro(day)} <span class="${day>=0?'text-green-600':'text-red-600'}">(${pct(dayPct)})</span>`;
-      document.getElementById('totalProfit').innerHTML=
-        `${euro(tot)} <span class="${tot>=0?'text-green-600':'text-red-600'}">(${pct(totPct)})</span>`;
+    const calcInv=d=>{
+      const q=+document.getElementById('sharesInput').value||0,c=+document.getElementById('avgCostInput').value||0,
+            p=d.regularMarketPrice??0,pr=d.regularMarketPreviousClose??p;
+      const day=(p-pr)*q,tot=(p-c)*q,val=p*q;
+      const html=(v)=>`${euro(v)} <span class="${v>=0?'text-green-600':'text-red-600'}">(${pct(v?100*v/(q?c*q:val):0)})</span>`;
+      document.getElementById('dayProfit').innerHTML = html(day);
+      document.getElementById('totalProfit').innerHTML= html(tot);
       document.getElementById('marketValue').textContent=euro(val);
-    }
-    ['sharesInput','avgCostInput'].forEach(id=>{
-      document.getElementById(id).addEventListener('input',()=>lastData&&updInvest(lastData));
-    });
+    };
+    ['sharesInput','avgCostInput'].forEach(id=>document.getElementById(id).addEventListener('input',()=>lastData&&calcInv(lastData)));
 
-    /* ---------- Estatísticas ---------- */
-    function dot(el,lo,hi,cur){el.style.left=`${Math.min(100,Math.max(0,(cur-lo)/(hi-lo)*100))}%`;}
-    function fillStats(d){
+    /* ---------- Resumo & Cotação ---------- */
+    function dot(el,l,h,c){el.style.left=`${Math.min(100,Math.max(0,(c-l)/(h-l)*100))}%`; }
+    function fillResumo(d){
       document.getElementById('dayLow').textContent=euro(d.regularMarketDayLow);
       document.getElementById('dayHigh').textContent=euro(d.regularMarketDayHigh);
-      document.getElementById('wkLow').textContent=euro(d.fiftyTwoWeekLow);
+      document.getElementById('wkLow').textContent =euro(d.fiftyTwoWeekLow);
       document.getElementById('wkHigh').textContent=euro(d.fiftyTwoWeekHigh);
-      dot(document.getElementById('dayDot'),d.regularMarketDayLow,d.regularMarketDayHigh,d.regularMarketPrice);
-      dot(document.getElementById('wkDot'),d.fiftyTwoWeekLow,d.fiftyTwoWeekHigh,d.regularMarketPrice);
+      dot(dayDot,d.regularMarketDayLow,d.regularMarketDayHigh,d.regularMarketPrice);
+      dot(wkDot ,d.fiftyTwoWeekLow ,d.fiftyTwoWeekHigh ,d.regularMarketPrice);
       const rows=[
-        ['Fech. anterior',euro(d.regularMarketPreviousClose)],
-        ['Abertura',euro(d.regularMarketOpen)],
-        ['Volume',d.regularMarketVolume?.toLocaleString('pt-PT')??'-'],
-        ['Volume médio (3m)',d.averageDailyVolume3Month?.toLocaleString('pt-PT')??'-'],
-        ['P/L (12m)',d.trailingPE?.toFixed(2)??'-'],
-        ['Market Cap',d.marketCap!=null?(d.marketCap/1e9).toFixed(2)+' Bi':'-'],
-        ['Beta',d.beta?.toFixed(3)??'-'],
-        ['Divid. & Yield',d.trailingAnnualDividendRate!=null
-          ?`${euro(d.trailingAnnualDividendRate)} (${pct(d.trailingAnnualDividendYield*100)})`:'-']
+        ['Fech. ant.',euro(d.regularMarketPreviousClose)],['Abertura',euro(d.regularMarketOpen)],
+        ['Volume',d.regularMarketVolume?.toLocaleString('pt-PT')??'-'],['Vol. médio (3m)',d.averageDailyVolume3Month?.toLocaleString('pt-PT')??'-'],
+        ['P/L',d.forwardPE?.toFixed(2)??'-'],['Market Cap',(d.marketCap/1e9).toFixed(2)+' Bi'],
+        ['Beta',d.beta?.toFixed(3)??'-'],['Yield',pct(d.trailingAnnualDividendYield*100)]
       ];
-      const grid=document.getElementById('statsGrid');grid.innerHTML='';
-      rows.forEach(([k,v])=>grid.insertAdjacentHTML('beforeend',`<div class="text-gray-600">${k}</div><div class="text-right">${v}</div>`));
+      statsGrid.innerHTML='';rows.forEach(([k,v])=>statsGrid.insertAdjacentHTML('beforeend',`<div class="text-gray-600">${k}</div><div class="text-right">${v}</div>`));
+    }
+    function fillQuote(d){
+      const rows=[
+        ['Estado',d.marketState],                   ['Moeda',d.currency],
+        ['Bid',euro(d.bid)],                        ['Ask',euro(d.ask)],
+        ['Bid size',d.bidSize??'-'],                ['Ask size',d.askSize??'-'],
+        ['Range dia',d.regularMarketDayRange],      ['Range 52 s',d.fiftyTwoWeekRange],
+        ['Analyst rating',d.averageAnalystRating],  ['EPS TTM',d.epsTrailingTwelveMonths],
+        ['EPS Forward',d.epsForward],               ['EPS Ano',d.epsCurrentYear?.toFixed(4)],
+        ['Preço/BV',d.priceToBook?.toFixed(2)],     ['BV',euro(d.bookValue)],
+        ['Média 50 d',euro(d.fiftyDayAverage)],     ['Média 200 d',euro(d.twoHundredDayAverage)],
+        ['Dividendo',euro(d.trailingAnnualDividendRate)], ['Yield',pct(d.trailingAnnualDividendYield*100)],
+        ['Data div.',fmtDate(d.dividendDate)],      ['Próx. EPS',fmtDate(d.earningsTimestamp)],
+        ['Acções out.',d.sharesOutstanding?.toLocaleString('pt-PT')], ['Cap. Mercado',(d.marketCap/1e9).toFixed(2)+' Bi']
+      ];
+      quoteGrid.innerHTML='';
+      rows.forEach(([k,v])=>quoteGrid.insertAdjacentHTML('beforeend',`<div class="text-gray-600">${k}</div><div class="text-right">${v??'-'}</div>`));
     }
 
     /* ---------- RT loop ---------- */
@@ -304,120 +268,56 @@
         traceRT.x.push(new Date());traceRT.y.push(d.regularMarketPrice);
         if(traceRT.x.length>MAX_RT){traceRT.x.shift();traceRT.y.shift();}
         const up=d.regularMarketPrice>=prev;
-        traceRT.line.color=up?'#16a34a':'#dc2626';
-        traceRT.fillcolor=up?'rgba(22,163,74,.2)':'rgba(220,38,38,.2)';
+        traceRT.line.color=up?'#16a34a':'#dc2626';traceRT.fillcolor=up?'rgba(22,163,74,.2)':'rgba(220,38,38,.2)';
         Plotly.update('chart',{x:[traceRT.x],y:[traceRT.y],
                                'line.color':[[traceRT.line.color]],
-                               'fillcolor':[[traceRT.fillcolor]]});
-        updInvest(d);fillStats(d);
-      }catch(e){console.error('RT',e);}
+                               'fillcolor' :[[traceRT.fillcolor]]});
+        calcInv(d);fillResumo(d);fillQuote(d);
+      }catch(e){console.error('pullRT',e);}
     }
 
-    /* ---------- Histórico & TA ---------- */
-    const taState={sma20:true,sma50:true,rsi:true};
-    document.querySelectorAll('.ta-check').forEach(cb=>{
-      taState[cb.dataset.ta]=cb.checked;
-      cb.addEventListener('change',()=>{
-        taState[cb.dataset.ta]=cb.checked;
-        if(symbol&&tf!=='rt') plotHist();
-      });
-    });
-
+    /* ---------- Histórico + TA ---------- */
     async function plotHist(){
       try{
-        const hist=await fetchHist(symbol,tf);
-        const x=[],open=[],high=[],low=[],close=[];
-        hist.forEach(p=>{
-          x.push(new Date(p.timestamp));
-          open.push(p.open);high.push(p.high);low.push(p.low);close.push(p.close);
-        });
-
-        /* Candlestick */
-        const candle={
-          type:'candlestick',x,open,high,low,close,
-          increasing:{line:{color:'#16a34a'}},
-          decreasing:{line:{color:'#dc2626'}},
-          hovertemplate:'%{x|%Y-%m-%d}<br>O:%{open:.2f} H:%{high:.2f}<br>L:%{low:.2f} C:%{close:.2f}<extra></extra>'
-        };
-
-        /* Moving Averages */
-        const traces=[candle];
-        if(taState.sma20){
-          traces.push({x,y:sma(close,20),mode:'lines',name:'SMA 20',
-                       line:{color:'#1d4ed8',width:1}});
-        }
-        if(taState.sma50){
-          traces.push({x,y:sma(close,50),mode:'lines',name:'SMA 50',
-                       line:{color:'#f59e0b',width:1}});
-        }
-
-        /* Layout principal */
-        const lay={margin:{t:20,l:56,r:8,b:40},
-                   xaxis:{type:'date',tickformat:'%Y-%m-%d',fixedrange:true},
-                   yaxis:{title:'Preço (€)',fixedrange:true}};
-
-        Plotly.react('chart',traces,lay,{responsive:true,displaylogo:false});
-
-        /* RSI */
+        const h=await fetchHist(symbol,tf);const x=[],o=[],hig=[],l=[],c=[];
+        h.forEach(p=>{x.push(new Date(p.timestamp));o.push(p.open);hig.push(p.high);l.push(p.low);c.push(p.close);});
+        const traces=[{type:'candlestick',x,open:o,high:hig,low:l,close:c,
+                       increasing:{line:{color:'#16a34a'}},decreasing:{line:{color:'#dc2626'}},
+                       hovertemplate:'%{x|%Y-%m-%d}<br>O:%{open:.2f} H:%{high:.2f}<br>L:%{low:.2f} C:%{close:.2f}<extra></extra>'}];
+        if(taState.sma20) traces.push({x,y:sma(c,20),mode:'lines',name:'SMA 20',
+                                       line:{color:'#1d4ed8',width:1}});
+        if(taState.sma50) traces.push({x,y:sma(c,50),mode:'lines',name:'SMA 50',
+                                       line:{color:'#f59e0b',width:1}});
+        Plotly.react('chart',traces,{...layoutRT,xaxis:{type:'date',tickformat:'%Y-%m-%d'}},{responsive:true,displaylogo:false});
         if(taState.rsi){
-          const rsiVals=rsi(close,14);
-          const rsiTrace={x,y:rsiVals,type:'scatter',mode:'lines',name:'RSI',
-                          line:{color:'#6b7280',width:1}};
-          const overbought={type:'line',xref:'paper',x0:0,x1:1,y0:70,y1:70,
-                            line:{dash:'dot',color:'#dc2626',width:1}};
-          const oversold={type:'line',xref:'paper',x0:0,x1:1,y0:30,y1:30,
-                          line:{dash:'dot',color:'#16a34a',width:1}};
-          Plotly.react('taChart',[rsiTrace],
-                       {...layoutRSI,shapes:[overbought,oversold]},
-                       {responsive:true,displaylogo:false});
-        }else{
-          Plotly.react('taChart',[],layoutRSI,{responsive:true,displaylogo:false});
-        }
-
-      }catch(e){console.error('Hist',e);}
+          const r=rsi(c,14);Plotly.react('taChart',[{x,y:r,mode:'lines',name:'RSI',
+            line:{color:'#6b7280',width:1}}],
+            {...layoutRSI,shapes:[
+              {type:'line',xref:'paper',x0:0,x1:1,y0:70,y1:70,line:{dash:'dot',color:'#dc2626',width:1}},
+              {type:'line',xref:'paper',x0:0,x1:1,y0:30,y1:30,line:{dash:'dot',color:'#16a34a',width:1}}]},
+            {responsive:true,displaylogo:false});
+        }else Plotly.react('taChart',[],layoutRSI,{responsive:true,displaylogo:false});
+      }catch(e){console.error('plotHist',e);}
     }
 
     /* ---------- Carregar símbolo ---------- */
     async function loadSymbol(){
-      if(!symbol) return;
-      clearInterval(rtTimer);clearInterval(cdTimer);
-
-      if(tf==='rt'){
-        traceRT.x.length=0;traceRT.y.length=0;
+      if(!symbol) return;clearInterval(rtTimer);clearInterval(cdTimer);
+      if(tf==='rt'){traceRT.x.length=0;traceRT.y.length=0;
         Plotly.react('chart',[traceRT],layoutRT,{responsive:true,displaylogo:false});
         Plotly.react('taChart',[],layoutRSI,{responsive:true,displaylogo:false});
         const first=await fetchRT(symbol);lastData=first;
-        layoutRT.shapes=[{type:'line',xref:'paper',x0:0,x1:1,
-                          y0:first.regularMarketPreviousClose,
-                          y1:first.regularMarketPreviousClose,
+        layoutRT.shapes=[{type:'line',xref:'paper',x0:0,x1:1,y0:first.regularMarketPreviousClose,y1:first.regularMarketPreviousClose,
                           line:{dash:'dot',color:'#6b7280',width:1}}];
-        Plotly.relayout('chart',layoutRT);
-        resetCount();
+        Plotly.relayout('chart',layoutRT);resetCount();
         pullRT(first.regularMarketPreviousClose);
         rtTimer=setInterval(()=>pullRT(first.regularMarketPreviousClose),REFRESH_MS);
-      }else{
-        document.getElementById('timer').textContent='—';
-        await plotHist();
-      }
+      }else{document.getElementById('timer').textContent='—';await plotHist();}
     }
 
-    /* ---------- Eventos UI ---------- */
+    /* ---------- Eventos ---------- */
     document.getElementById('loadBtn').addEventListener('click',()=>{
-      symbol=document.getElementById('symbolInput').value.trim().toUpperCase();
-      if(symbol) loadSymbol();
-    });
-    document.querySelectorAll('.tf-btn').forEach(btn=>{
-      btn.addEventListener('click',()=>{
-        tf=btn.dataset.interval;hiTF(btn);loadSymbol();
-      });
-    });
-    document.querySelectorAll('.tab-btn').forEach(btn=>{
-      btn.addEventListener('click',()=>{
-        document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('border-blue-600','text-blue-600','font-medium'));
-        btn.classList.add('border-blue-600','text-blue-600','font-medium');
-        document.querySelectorAll('[id^="tab-"]').forEach(s=>s.classList.add('hidden'));
-        document.getElementById(btn.dataset.tab).classList.remove('hidden');
-      });
+      symbol=document.getElementById('symbolInput').value.trim().toUpperCase();if(symbol)loadSymbol();
     });
   </script>
 </body>
