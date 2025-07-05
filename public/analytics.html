@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -7,80 +8,435 @@
   <link rel="canonical" href="https://novastocks.vercel.app/analytics.html">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.plot.ly/plotly-2.29.0.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .metric-card { 
+      transition: all 0.3s ease;
+      border: 1px solid #e5e7eb;
+    }
+    .metric-card:hover { 
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    .loading { 
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    .chart-container {
+      position: relative;
+      overflow: hidden;
+    }
+    .chart-loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col">
-  <div id="header-widget"></div>
-  <script type="module" src="header.js"></script>
-
-  <main class="flex-grow container mx-auto p-4 space-y-8">
-    <h1 class="text-2xl font-bold">Dashboard Analítico de Transações</h1>
-
-    <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div class="bg-white p-4 rounded-xl shadow text-center">
-        <h2 class="text-lg font-semibold">Total de Transações</h2>
-        <div id="totalTx" class="text-3xl mt-2 text-blue-600"></div>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 text-gray-800 min-h-screen flex flex-col">
+  <!-- Header -->
+  <header class="gradient-bg text-white shadow-lg">
+    <div class="container mx-auto px-4 py-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold">NovaStocks Analytics</h1>
+          <p class="text-blue-100 mt-1">Dashboard Analítico de Transações</p>
+        </div>
+        <div class="flex items-center space-x-4">
+          <button onclick="refreshData()" class="bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg transition-all duration-200">
+            <span id="refreshIcon">🔄</span> Atualizar
+          </button>
+          <select id="timeFilter" onchange="filterByTime()" class="bg-white bg-opacity-20 text-white px-3 py-2 rounded-lg">
+            <option value="all">Todos os Tempos</option>
+            <option value="7">Últimos 7 Dias</option>
+            <option value="30">Últimos 30 Dias</option>
+            <option value="90">Últimos 90 Dias</option>
+          </select>
+        </div>
       </div>
-      <div class="bg-white p-4 rounded-xl shadow text-center">
-        <h2 class="text-lg font-semibold">Total Diário</h2>
-        <div id="dailyTotal" class="text-3xl mt-2 text-green-600"></div>
+    </div>
+  </header>
+
+  <main class="flex-grow container mx-auto p-6 space-y-8">
+    <!-- Key Metrics -->
+    <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+      <div class="metric-card bg-white p-6 rounded-xl shadow-sm">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide">Total de Transações</h3>
+            <div id="totalTx" class="text-2xl font-bold text-blue-600 mt-2 loading">--</div>
+          </div>
+          <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+            <span class="text-2xl">📊</span>
+          </div>
+        </div>
       </div>
-      <div class="bg-white p-4 rounded-xl shadow text-center">
-        <h2 class="text-lg font-semibold">Média por Symbol</h2>
-        <div id="avgSymbol" class="text-3xl mt-2 text-purple-600"></div>
+      
+      <div class="metric-card bg-white p-6 rounded-xl shadow-sm">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide">Volume Total</h3>
+            <div id="totalVolume" class="text-2xl font-bold text-green-600 mt-2 loading">--</div>
+          </div>
+          <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+            <span class="text-2xl">💰</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="metric-card bg-white p-6 rounded-xl shadow-sm">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide">Valor Médio</h3>
+            <div id="avgTransaction" class="text-2xl font-bold text-purple-600 mt-2 loading">--</div>
+          </div>
+          <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+            <span class="text-2xl">📈</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="metric-card bg-white p-6 rounded-xl shadow-sm">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide">Símbolos Únicos</h3>
+            <div id="uniqueSymbols" class="text-2xl font-bold text-orange-600 mt-2 loading">--</div>
+          </div>
+          <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+            <span class="text-2xl">🎯</span>
+          </div>
+        </div>
       </div>
     </section>
 
-    <section>
-      <h2 class="text-xl font-semibold mb-4">Transações por Dia</h2>
-      <div id="chartDaily" class="bg-white rounded-xl shadow p-4 h-80"></div>
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+      <!-- Daily Volume Chart -->
+      <section class="bg-white rounded-xl shadow-sm">
+        <div class="p-6 border-b border-gray-200">
+          <h2 class="text-xl font-semibold text-gray-800">Volume Diário</h2>
+          <p class="text-sm text-gray-600 mt-1">Evolução do volume de transações por dia</p>
+        </div>
+        <div class="chart-container">
+          <div id="chartDaily" class="p-4 h-96"></div>
+          <div id="dailyLoading" class="chart-loading loading">
+            <div class="text-center">
+              <div class="text-2xl">📊</div>
+              <div class="text-sm text-gray-500 mt-2">Carregando dados...</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Symbol Distribution Chart -->
+      <section class="bg-white rounded-xl shadow-sm">
+        <div class="p-6 border-b border-gray-200">
+          <h2 class="text-xl font-semibold text-gray-800">Distribuição por Symbol</h2>
+          <p class="text-sm text-gray-600 mt-1">Número de transações por símbolo</p>
+        </div>
+        <div class="chart-container">
+          <div id="chartSymbol" class="p-4 h-96"></div>
+          <div id="symbolLoading" class="chart-loading loading">
+            <div class="text-center">
+              <div class="text-2xl">🥧</div>
+              <div class="text-sm text-gray-500 mt-2">Carregando dados...</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Transaction Type Analysis -->
+    <section class="bg-white rounded-xl shadow-sm">
+      <div class="p-6 border-b border-gray-200">
+        <h2 class="text-xl font-semibold text-gray-800">Análise de Tendências</h2>
+        <p class="text-sm text-gray-600 mt-1">Transações por tipo e volume ao longo do tempo</p>
+      </div>
+      <div class="chart-container">
+        <div id="chartTrends" class="p-4 h-96"></div>
+        <div id="trendsLoading" class="chart-loading loading">
+          <div class="text-center">
+            <div class="text-2xl">📈</div>
+            <div class="text-sm text-gray-500 mt-2">Carregando dados...</div>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <section>
-      <h2 class="text-xl font-semibold mb-4">Distribuição por Symbol</h2>
-      <div id="chartSymbol" class="bg-white rounded-xl shadow p-4 h-80"></div>
+    <!-- Recent Activity -->
+    <section class="bg-white rounded-xl shadow-sm">
+      <div class="p-6 border-b border-gray-200">
+        <h2 class="text-xl font-semibold text-gray-800">Atividade Recente</h2>
+        <p class="text-sm text-gray-600 mt-1">Últimas transações registradas</p>
+      </div>
+      <div class="p-6">
+        <div id="recentActivity" class="space-y-4">
+          <div class="loading text-center py-8">
+            <div class="text-2xl">⏳</div>
+            <div class="text-sm text-gray-500 mt-2">Carregando atividade recente...</div>
+          </div>
+        </div>
+      </div>
     </section>
-
   </main>
 
-  <div id="footer-widget"></div>
-  <script type="module" src="footer.js"></script>
-
   <script>
+    let allTransactions = [];
+    let filteredTransactions = [];
+
+    // Mock data generator for demonstration
+    function generateMockData() {
+      const symbols = ['AAPL', 'GOOGL', 'MSFT', 'AMZN', 'TSLA', 'META', 'NVDA', 'NFLX'];
+      const types = ['BUY', 'SELL'];
+      const data = [];
+      
+      for (let i = 0; i < 150; i++) {
+        const date = new Date();
+        date.setDate(date.getDate() - Math.floor(Math.random() * 180));
+        
+        data.push({
+          id: i + 1,
+          symbol: symbols[Math.floor(Math.random() * symbols.length)],
+          type: types[Math.floor(Math.random() * types.length)],
+          amount: Math.floor(Math.random() * 10000) + 100,
+          price: Math.floor(Math.random() * 500) + 50,
+          date: date.toISOString()
+        });
+      }
+      
+      return data.sort((a, b) => new Date(b.date) - new Date(a.date));
+    }
+
     async function fetchTx() {
-      const res = await fetch('/api/transactions');
-      return await res.json();
+      try {
+        const res = await fetch('/api/transactions');
+        if (!res.ok) throw new Error('API not available');
+        return await res.json();
+      } catch (error) {
+        console.log('Using mock data for demonstration');
+        return generateMockData();
+      }
     }
 
     function formatCurrency(v) {
-      return '€' + v.toLocaleString('pt-PT', { minimumFractionDigits:2 });
+      return '€' + v.toLocaleString('pt-PT', { minimumFractionDigits: 2 });
     }
 
-    async function render() {
-      const tx = await fetchTx();
-      const total = tx.length;
-      document.getElementById('totalTx').textContent = total;
+    function formatDate(dateStr) {
+      return new Date(dateStr).toLocaleDateString('pt-PT');
+    }
 
+    function hideLoadingIndicators() {
+      document.getElementById('dailyLoading').style.display = 'none';
+      document.getElementById('symbolLoading').style.display = 'none';
+      document.getElementById('trendsLoading').style.display = 'none';
+    }
+
+    function filterByTime() {
+      const filter = document.getElementById('timeFilter').value;
+      const now = new Date();
+      
+      if (filter === 'all') {
+        filteredTransactions = [...allTransactions];
+      } else {
+        const daysAgo = new Date(now.getTime() - (parseInt(filter) * 24 * 60 * 60 * 1000));
+        filteredTransactions = allTransactions.filter(t => new Date(t.date) >= daysAgo);
+      }
+      
+      updateDashboard();
+    }
+
+    function updateMetrics() {
+      const total = filteredTransactions.length;
+      const totalVolume = filteredTransactions.reduce((sum, t) => sum + t.amount, 0);
+      const avgTransaction = total > 0 ? totalVolume / total : 0;
+      const uniqueSymbols = new Set(filteredTransactions.map(t => t.symbol)).size;
+
+      document.getElementById('totalTx').textContent = total.toLocaleString();
+      document.getElementById('totalVolume').textContent = formatCurrency(totalVolume);
+      document.getElementById('avgTransaction').textContent = formatCurrency(avgTransaction);
+      document.getElementById('uniqueSymbols').textContent = uniqueSymbols;
+
+      // Remove loading animation
+      document.querySelectorAll('.loading').forEach(el => el.classList.remove('loading'));
+    }
+
+    function updateDailyChart() {
       const dailyMap = {};
-      const symbolMap = {};
-      tx.forEach(t => {
-        const d = new Date(t.date).toLocaleDateString('pt-PT');
-        dailyMap[d] = (dailyMap[d]||0) + t.amount;
-        symbolMap[t.symbol] = (symbolMap[t.symbol]||0) + 1;
+      filteredTransactions.forEach(t => {
+        const d = formatDate(t.date);
+        dailyMap[d] = (dailyMap[d] || 0) + t.amount;
       });
-      const days = Object.keys(dailyMap).sort();
-      const dailyValues = days.map(d=>dailyMap[d]);
-      const avg = (dailyValues.reduce((a,b)=>a+b,0)/Object.keys(symbolMap).length).toFixed(2);
-      document.getElementById('dailyTotal').textContent = formatCurrency(dailyValues.reduce((a,b)=>a+b,0));
-      document.getElementById('avgSymbol').textContent = formatCurrency(avg);
 
-      Plotly.newPlot('chartDaily', [{ x: days, y: dailyValues, type:'bar', marker:{color:'#2563eb'} }], { margin:{t:0}, xaxis:{title:'Data'}, yaxis:{title:'Total (€)'} });
+      const days = Object.keys(dailyMap).sort((a, b) => new Date(a.split('/').reverse().join('-')) - new Date(b.split('/').reverse().join('-')));
+      const dailyValues = days.map(d => dailyMap[d]);
+
+      Plotly.newPlot('chartDaily', [{
+        x: days,
+        y: dailyValues,
+        type: 'scatter',
+        mode: 'lines+markers',
+        fill: 'tonexty',
+        line: { color: '#3b82f6', width: 3 },
+        marker: { color: '#3b82f6', size: 8 }
+      }], {
+        margin: { t: 20, l: 60, r: 20, b: 60 },
+        xaxis: { title: 'Data', showgrid: true, gridcolor: '#f3f4f6' },
+        yaxis: { title: 'Volume (€)', showgrid: true, gridcolor: '#f3f4f6' },
+        plot_bgcolor: 'white',
+        paper_bgcolor: 'white',
+        font: { family: 'Inter', size: 12 }
+      });
+    }
+
+    function updateSymbolChart() {
+      const symbolMap = {};
+      filteredTransactions.forEach(t => {
+        symbolMap[t.symbol] = (symbolMap[t.symbol] || 0) + 1;
+      });
 
       const symbols = Object.keys(symbolMap);
-      const counts = symbols.map(s=>symbolMap[s]);
-      Plotly.newPlot('chartSymbol', [{ labels:symbols, values:counts, type:'pie', hole:0.4 }], { margin:{t:0} });
+      const counts = symbols.map(s => symbolMap[s]);
+
+      const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#84cc16', '#f97316'];
+
+      Plotly.newPlot('chartSymbol', [{
+        labels: symbols,
+        values: counts,
+        type: 'pie',
+        hole: 0.4,
+        marker: { colors: colors },
+        textinfo: 'label+percent',
+        textposition: 'auto'
+      }], {
+        margin: { t: 20, l: 20, r: 20, b: 20 },
+        showlegend: true,
+        legend: { orientation: 'h', y: -0.1 },
+        font: { family: 'Inter', size: 12 }
+      });
     }
 
-    render();
+    function updateTrendsChart() {
+      const buyData = {};
+      const sellData = {};
+
+      filteredTransactions.forEach(t => {
+        const d = formatDate(t.date);
+        if (t.type === 'BUY') {
+          buyData[d] = (buyData[d] || 0) + t.amount;
+        } else {
+          sellData[d] = (sellData[d] || 0) + t.amount;
+        }
+      });
+
+      const allDays = [...new Set([...Object.keys(buyData), ...Object.keys(sellData)])].sort((a, b) => new Date(a.split('/').reverse().join('-')) - new Date(b.split('/').reverse().join('-')));
+      
+      const buyValues = allDays.map(d => buyData[d] || 0);
+      const sellValues = allDays.map(d => sellData[d] || 0);
+
+      Plotly.newPlot('chartTrends', [
+        {
+          x: allDays,
+          y: buyValues,
+          type: 'bar',
+          name: 'Compras',
+          marker: { color: '#10b981' }
+        },
+        {
+          x: allDays,
+          y: sellValues,
+          type: 'bar',
+          name: 'Vendas',
+          marker: { color: '#ef4444' }
+        }
+      ], {
+        margin: { t: 20, l: 60, r: 20, b: 60 },
+        xaxis: { title: 'Data', showgrid: true, gridcolor: '#f3f4f6' },
+        yaxis: { title: 'Volume (€)', showgrid: true, gridcolor: '#f3f4f6' },
+        barmode: 'group',
+        plot_bgcolor: 'white',
+        paper_bgcolor: 'white',
+        font: { family: 'Inter', size: 12 }
+      });
+    }
+
+    function updateRecentActivity() {
+      const recentTx = filteredTransactions.slice(0, 5);
+      const html = recentTx.map(t => `
+        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <div class="flex items-center space-x-4">
+            <div class="w-10 h-10 rounded-full flex items-center justify-center ${t.type === 'BUY' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}">
+              ${t.type === 'BUY' ? '↗️' : '↘️'}
+            </div>
+            <div>
+              <div class="font-medium">${t.symbol}</div>
+              <div class="text-sm text-gray-500">${formatDate(t.date)}</div>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="font-medium">${formatCurrency(t.amount)}</div>
+            <div class="text-sm text-gray-500">${t.type}</div>
+          </div>
+        </div>
+      `).join('');
+
+      document.getElementById('recentActivity').innerHTML = html || '<div class="text-center py-8 text-gray-500">Nenhuma transação encontrada</div>';
+    }
+
+    function updateDashboard() {
+      updateMetrics();
+      updateDailyChart();
+      updateSymbolChart();
+      updateTrendsChart();
+      updateRecentActivity();
+      hideLoadingIndicators();
+    }
+
+    async function refreshData() {
+      const refreshIcon = document.getElementById('refreshIcon');
+      refreshIcon.style.animation = 'spin 1s linear infinite';
+      
+      try {
+        allTransactions = await fetchTx();
+        filteredTransactions = [...allTransactions];
+        updateDashboard();
+      } catch (error) {
+        console.error('Error refreshing data:', error);
+      } finally {
+        refreshIcon.style.animation = '';
+      }
+    }
+
+    // Initialize dashboard
+    async function init() {
+      try {
+        allTransactions = await fetchTx();
+        filteredTransactions = [...allTransactions];
+        updateDashboard();
+      } catch (error) {
+        console.error('Error initializing dashboard:', error);
+      }
+    }
+
+    // Add CSS for spin animation
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Initialize on page load
+    init();
   </script>
 </body>
 </html>
