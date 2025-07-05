@@ -1,5 +1,5 @@
 // marketApis.js
-const BASE_URL = 'https://nova-stock-price-finder.vercel.app/api';
+const BASE_URL = 'https://novastocks.vercel.app/api';
 
 async function fetchJSON(path) {
   const res = await fetch(`${BASE_URL}/${path}`);
