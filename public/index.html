@@ -123,6 +123,8 @@
     <div class="max-w-6xl mx-auto px-4 md:px-6">
       <h2 class="text-2xl md:text-3xl font-semibold text-center mb-8">Planos e Preços</h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        <!-- Plano Básico -->
         <div class="bg-white rounded-lg shadow p-8 text-center">
           <h3 class="text-2xl font-semibold mb-4">Plano Básico</h3>
           <p class="text-4xl font-bold mb-4">Grátis</p>
@@ -134,6 +136,8 @@
           </ul>
           <a href="/signup.html" class="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700">Iniciar Grátis</a>
         </div>
+
+        <!-- Plano Profissional -->
         <div class="bg-white rounded-lg shadow p-8 text-center border-2 border-blue-600">
           <h3 class="text-2xl font-semibold mb-4">Plano Profissional</h3>
           <p class="text-4xl font-bold mb-4">€19,90/mês</p>
@@ -143,28 +147,10 @@
             <li>✓ Exportação CSV/PDF</li>
             <li>✓ Alertas personalizáveis</li>
           </ul>
-          <div id="paypal-button-container-P-07U70833JY358824LNBUPQVA"></div>
-<script src="https://www.paypal.com/sdk/js?client-id=AT-bX_Cn3jxGDcuwRHd9y4Ki9L8DfEmcA9vkzWTUKwbv_tOMRVr7RsOL2BsveJd2Puo9vA0cnJAc_POo&vault=true&intent=subscription" data-sdk-integration-source="button-factory"></script>
-<script>
-  paypal.Buttons({
-      style: {
-          shape: 'pill',
-          color: 'white',
-          layout: 'vertical',
-          label: 'subscribe'
-      },
-      createSubscription: function(data, actions) {
-        return actions.subscription.create({
-          /* Creates the subscription */
-          plan_id: 'P-07U70833JY358824LNBUPQVA'
-        });
-      },
-      onApprove: function(data, actions) {
-        alert(data.subscriptionID); // You can add optional success message for the subscriber here
-      }
-  }).render('#paypal-button-container-P-07U70833JY358824LNBUPQVA'); // Renders the PayPal button
-</script>
+          <div id="paypal-button-profissional"></div>
         </div>
+
+        <!-- Plano Empresarial -->
         <div class="bg-white rounded-lg shadow p-8 text-center">
           <h3 class="text-2xl font-semibold mb-4">Plano Empresarial</h3>
           <p class="text-4xl font-bold mb-4">€49,90/mês</p>
@@ -174,27 +160,9 @@
             <li>✓ Suporte prioritário</li>
             <li>✓ Relatórios personalizados</li>
           </ul>
-      <div id="paypal-button-container-P-67G223169M685840PNBUPVCY"></div>
-<script src="https://www.paypal.com/sdk/js?client-id=AT-bX_Cn3jxGDcuwRHd9y4Ki9L8DfEmcA9vkzWTUKwbv_tOMRVr7RsOL2BsveJd2Puo9vA0cnJAc_POo&vault=true&intent=subscription" data-sdk-integration-source="button-factory"></script>
-<script>
-  paypal.Buttons({
-      style: {
-          shape: 'pill',
-          color: 'white',
-          layout: 'vertical',
-          label: 'subscribe'
-      },
-      createSubscription: function(data, actions) {
-        return actions.subscription.create({
-          /* Creates the subscription */
-          plan_id: 'P-67G223169M685840PNBUPVCY'
-        });
-      },
-      onApprove: function(data, actions) {
-        alert(data.subscriptionID); // You can add optional success message for the subscriber here
-      }
-  }).render('#paypal-button-container-P-67G223169M685840PNBUPVCY'); // Renders the PayPal button
-</script>  </div>
+          <div id="paypal-button-empresarial"></div>
+        </div>
+
       </div>
     </div>
   </section>
@@ -237,7 +205,45 @@
     <div class="mt-8 text-center text-sm">&copy; 2025 NovaStocks. Todos os direitos reservados.</div>
   </footer>
 
+  <script src="https://www.paypal.com/sdk/js?client-id=AT-bX_Cn3jxGDcuwRHd9y4Ki9L8DfEmcA9vkzWTUKwbv_tOMRVr7RsOL2BsveJd2Puo9vA0cnJAc_POo&vault=true&intent=subscription"></script>
   <script>
+    // Botão Plano Profissional
+    paypal.Buttons({
+      style: {
+        shape: 'pill',
+        color: 'white',
+        layout: 'vertical',
+        label: 'subscribe'
+      },
+      createSubscription: function(data, actions) {
+        return actions.subscription.create({
+          plan_id: 'P-07U70833JY358824LNBUPQVA'
+        });
+      },
+      onApprove: function(data) {
+        alert('Assinatura Profissional criada: ' + data.subscriptionID);
+      }
+    }).render('#paypal-button-profissional');
+
+    // Botão Plano Empresarial
+    paypal.Buttons({
+      style: {
+        shape: 'pill',
+        color: 'white',
+        layout: 'vertical',
+        label: 'subscribe'
+      },
+      createSubscription: function(data, actions) {
+        return actions.subscription.create({
+          plan_id: 'P-67G223169M685840PNBUPVCY'
+        });
+      },
+      onApprove: function(data) {
+        alert('Assinatura Empresarial criada: ' + data.subscriptionID);
+      }
+    }).render('#paypal-button-empresarial');
+
+    // Menu mobile toggle
     const btn = document.getElementById('btnMenu');
     const mobileMenu = document.getElementById('mobileMenu');
     btn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
