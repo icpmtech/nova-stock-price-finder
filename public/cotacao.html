@@ -1,15 +1,3 @@
-<!--
-  NovaStocks • RT + Histórico + TA + “Quote” detalhado
-  ===================================================
-  Principais chamadas:
-    • Tempo-real (quote + RT): https://marketanalyticshubapp.azurewebsites.net/api/YahooFinance/price/INTC
-    • Histórico  (velas)     : https://marketanalyticshubapp.azurewebsites.net/api/YahooFinance/chart-symbol-tradingview/INTC?interval=1d
-  Time-frames suportados: rt | 1d | 1w | 1y | all
-  Notas:
-    - Mantém toda a lógica anterior (investimentos, Resumo, Análises, Dados, TA).
-    - Acrescenta novo tab “Cotação” com dados completos do endpoint /price.
--->
-
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -23,135 +11,667 @@
   <script src="https://cdn.plot.ly/plotly-2.29.0.min.js"></script>
 
   <style>
-    .range-bar{position:relative;height:0.5rem;border-radius:0.25rem;background:#e5e7eb}
-    .range-dot{position:absolute;top:-0.25rem;width:1rem;height:1rem;border-radius:9999px;
-               background:#2563eb;border:2px solid #fff}
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    * {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .card-hover {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .card-hover:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    .range-bar {
+      position: relative;
+      height: 0.75rem;
+      border-radius: 0.5rem;
+      background: linear-gradient(90deg, #ef4444 0%, #f59e0b 50%, #10b981 100%);
+      overflow: hidden;
+    }
+
+    .range-dot {
+      position: absolute;
+      top: -0.25rem;
+      width: 1.25rem;
+      height: 1.25rem;
+      border-radius: 50%;
+      background: #fff;
+      border: 3px solid #2563eb;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .pulse-dot {
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .floating-icon {
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .glow-effect {
+      box-shadow: 0 0 20px rgba(37, 99, 235, 0.3);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+    }
+
+    .tab-btn {
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .tab-btn::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #3b82f6, #2563eb);
+      transition: all 0.3s ease;
+      transform: translateX(-50%);
+    }
+
+    .tab-btn.active::before {
+      width: 100%;
+    }
+
+    .tf-btn {
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .tf-btn::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .tf-btn:hover::after {
+      left: 100%;
+    }
+
+    .stats-card {
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      border-left: 4px solid #3b82f6;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #3498db;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .status-indicator {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+
+    .status-live {
+      background: #10b981;
+      animation: pulse 2s infinite;
+    }
+
+    .status-closed {
+      background: #6b7280;
+    }
+
+    .market-time {
+      font-feature-settings: 'tnum';
+      font-variant-numeric: tabular-nums;
+    }
+
+    .chart-container {
+      position: relative;
+      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .chart-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ef4444, #f59e0b, #10b981);
+      background-size: 400% 100%;
+      animation: gradientShift 8s ease infinite;
+    }
+
+    @keyframes gradientShift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .input-glow:focus {
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      border-color: #3b82f6;
+    }
+
+    .micro-interaction {
+      transition: all 0.2s ease;
+    }
+
+    .micro-interaction:active {
+      transform: scale(0.98);
+    }
+
+    .investment-card {
+      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+      color: white;
+    }
+
+    .profit-positive {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    .profit-negative {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    .ticker-display {
+      font-size: 2.5rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .price-display {
+      font-size: 3rem;
+      font-weight: 900;
+      font-feature-settings: 'tnum';
+      font-variant-numeric: tabular-nums;
+    }
+
+    .price-change {
+      font-feature-settings: 'tnum';
+      font-variant-numeric: tabular-nums;
+    }
+
+    .sidebar-nav {
+      position: fixed;
+      top: 50%;
+      right: 20px;
+      transform: translateY(-50%);
+      z-index: 50;
+    }
+
+    .nav-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.3);
+      margin: 8px 0;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .nav-dot.active {
+      background: #3b82f6;
+      transform: scale(1.2);
+    }
+
+    .hero-section {
+      min-height: 60vh;
+      display: flex;
+      align-items: center;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="rgba(255,255,255,0.1)" points="0,0 1000,300 1000,1000 0,700"/></svg>');
+      background-size: cover;
+    }
+
+    .floating-elements {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .floating-element {
+      position: absolute;
+      opacity: 0.1;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .floating-element:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+    .floating-element:nth-child(2) { top: 20%; right: 10%; animation-delay: 2s; }
+    .floating-element:nth-child(3) { bottom: 20%; left: 20%; animation-delay: 4s; }
+    .floating-element:nth-child(4) { bottom: 10%; right: 20%; animation-delay: 1s; }
+
+    @media (max-width: 768px) {
+      .ticker-display { font-size: 2rem; }
+      .price-display { font-size: 2rem; }
+      .sidebar-nav { display: none; }
+    }
   </style>
 </head>
-<body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col">
+<body class="bg-gradient-to-br from-slate-50 to-blue-50 text-gray-800 min-h-screen">
 
-  <!-- Cabeçalho/placeholder ------------------------------------------------->
-  <div id="header-widget"></div>
+  <!-- Sidebar Navigation -->
+  <div class="sidebar-nav hidden lg:block">
+    <div class="nav-dot active" data-section="hero"></div>
+    <div class="nav-dot" data-section="controls"></div>
+    <div class="nav-dot" data-section="investment"></div>
+    <div class="nav-dot" data-section="analytics"></div>
+    <div class="nav-dot" data-section="charts"></div>
+  </div>
 
-  <main class="flex-grow container mx-auto p-4 space-y-8">
+  <!-- Hero Section -->
+  <section id="hero" class="hero-section relative">
+    <div class="floating-elements">
+      <div class="floating-element text-white text-6xl">📈</div>
+      <div class="floating-element text-white text-4xl">💹</div>
+      <div class="floating-element text-white text-5xl">📊</div>
+      <div class="floating-element text-white text-3xl">💰</div>
+    </div>
+    
+    <div class="container mx-auto px-6 relative z-10">
+      <div class="text-center text-white">
+        <h1 class="text-6xl md:text-8xl font-black mb-6">
+          <span class="floating-icon">Nova</span><span class="text-yellow-300">Stocks</span>
+        </h1>
+        <p class="text-xl md:text-2xl mb-8 opacity-90 max-w-2xl mx-auto">
+          Análise em tempo real com tecnologia avançada. Monitore seus investimentos como um profissional.
+        </p>
+        <div class="flex justify-center space-x-4">
+          <div class="glass-effect px-6 py-3 rounded-full">
+            <span class="status-indicator status-live"></span>
+            <span class="text-sm font-medium">Mercado Ativo</span>
+          </div>
+          <div class="glass-effect px-6 py-3 rounded-full">
+            <span class="text-sm font-medium market-time">15:30:42 UTC</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    <!-- Selecção do ticker -->
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-      <div class="flex gap-2">
-        <input id="symbolInput" placeholder="Ticker (ex: INTC ou EDP.LS)"
-               class="border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
-        <button id="loadBtn"
-                class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition">
-          Carregar
+  <main class="container mx-auto px-4 py-8 space-y-8">
+
+    <!-- Enhanced Controls Section -->
+    <section id="controls" class="space-y-6">
+      <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl p-6 border border-white/20">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div class="flex flex-col sm:flex-row gap-4 flex-1">
+            <div class="relative flex-1">
+              <input id="symbolInput" 
+                     placeholder="Digite o ticker (ex: AAPL, TSLA, INTC)"
+                     class="w-full border-2 border-gray-200 rounded-xl px-6 py-4 text-lg font-medium focus:outline-none focus:ring-0 input-glow transition-all duration-300 bg-white/50 backdrop-blur-sm"/>
+              <div class="absolute inset-y-0 right-0 flex items-center pr-4">
+                <div class="loading-spinner hidden" id="loadingSpinner"></div>
+              </div>
+            </div>
+            <button id="loadBtn"
+                    class="btn-primary text-white px-8 py-4 rounded-xl font-semibold text-lg micro-interaction shadow-lg">
+              <span class="flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
+                Carregar
+              </span>
+            </button>
+          </div>
+          
+          <div class="flex items-center gap-4">
+            <div class="status-indicator status-live"></div>
+            <span id="timer" class="text-sm font-medium text-gray-600 market-time bg-gray-100 px-4 py-2 rounded-full">
+              Próxima actualização em 5 s
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Current Price Display -->
+    <section id="priceDisplay" class="hidden">
+      <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/20 card-hover">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div class="flex items-center gap-6">
+            <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+              <span class="text-white font-bold text-xl" id="tickerIcon">📈</span>
+            </div>
+            <div>
+              <h2 id="tickerSymbol" class="ticker-display">AAPL</h2>
+              <p id="companyName" class="text-gray-600 text-lg">Apple Inc.</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <div id="currentPrice" class="price-display text-gray-900">$150.25</div>
+            <div id="priceChange" class="price-change text-lg font-semibold">+2.45 (+1.65%)</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Time-frames with Enhanced Design -->
+    <section class="space-y-4">
+      <h3 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+        <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        Intervalos de Tempo
+      </h3>
+      <div id="tfGroup" class="flex flex-wrap gap-3">
+        <button data-interval="rt"  class="tf-btn bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-xl font-semibold text-sm shadow-lg micro-interaction">
+          Tempo Real
+        </button>
+        <button data-interval="1d" class="tf-btn bg-white/80 backdrop-blur-sm border border-gray-200 text-gray-700 px-6 py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-gray-50 micro-interaction">
+          1 Dia
+        </button>
+        <button data-interval="1w" class="tf-btn bg-white/80 backdrop-blur-sm border border-gray-200 text-gray-700 px-6 py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-gray-50 micro-interaction">
+          1 Semana
+        </button>
+        <button data-interval="1y" class="tf-btn bg-white/80 backdrop-blur-sm border border-gray-200 text-gray-700 px-6 py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-gray-50 micro-interaction">
+          1 Ano
+        </button>
+        <button data-interval="all" class="tf-btn bg-white/80 backdrop-blur-sm border border-gray-200 text-gray-700 px-6 py-3 rounded-xl font-semibold text-sm shadow-md hover:bg-gray-50 micro-interaction">
+          Tudo
         </button>
       </div>
-      <span id="timer" class="text-sm text-gray-600 select-none">
-        Próxima actualização em 5&nbsp;s
-      </span>
-    </div>
+    </section>
 
-    <!-- Time-frames -->
-    <div id="tfGroup" class="flex gap-2">
-      <button data-interval="rt"  class="tf-btn bg-blue-600 text-white px-3 py-1 rounded text-sm">RT</button>
-      <button data-interval="1d" class="tf-btn bg-white px-3 py-1 rounded text-sm">1D</button>
-      <button data-interval="1w" class="tf-btn bg-white px-3 py-1 rounded text-sm">1W</button>
-      <button data-interval="1y" class="tf-btn bg-white px-3 py-1 rounded text-sm">1Y</button>
-      <button data-interval="all"class="tf-btn bg-white px-3 py-1 rounded text-sm">ALL</button>
-    </div>
-
-    <!-- Indicadores TA visíveis no histórico -->
-    <div id="taControls" class="flex flex-wrap gap-4">
-      <label class="flex items-center gap-1 text-sm"><input type="checkbox" class="ta-check" data-ta="sma20" checked>SMA&nbsp;20</label>
-      <label class="flex items-center gap-1 text-sm"><input type="checkbox" class="ta-check" data-ta="sma50" checked>SMA&nbsp;50</label>
-      <label class="flex items-center gap-1 text-sm"><input type="checkbox" class="ta-check" data-ta="rsi"   checked>RSI&nbsp;14</label>
-    </div>
-
-    <!-- Investimentos ------------------------------------------------------->
-    <div id="invest-card"
-         class="bg-white rounded-xl shadow p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div>
-        <h3 class="text-lg font-semibold mb-4">Meus Investimentos</h3>
-        <div class="grid grid-cols-2 gap-y-2 text-sm">
-          <label class="text-gray-600">Ações</label>
-          <input id="sharesInput" type="number" min="0" value="0"
-                 class="border rounded px-2 py-1 text-right">
-          <label class="text-gray-600">Custo médio (€)</label>
-          <input id="avgCostInput" type="number" min="0" step="0.0001" value="0"
-                 class="border rounded px-2 py-1 text-right">
-        </div>
+    <!-- Technical Analysis Controls -->
+    <section class="space-y-4">
+      <h3 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+        <svg class="w-6 h-6 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+        </svg>
+        Indicadores Técnicos
+      </h3>
+      <div id="taControls" class="flex flex-wrap gap-4">
+        <label class="flex items-center gap-3 bg-white/80 backdrop-blur-sm px-4 py-3 rounded-xl border border-gray-200 cursor-pointer hover:bg-gray-50 transition-all duration-200">
+          <input type="checkbox" class="ta-check w-5 h-5 text-blue-500 rounded focus:ring-blue-500" data-ta="sma20" checked>
+          <span class="font-medium text-gray-700">SMA 20</span>
+        </label>
+        <label class="flex items-center gap-3 bg-white/80 backdrop-blur-sm px-4 py-3 rounded-xl border border-gray-200 cursor-pointer hover:bg-gray-50 transition-all duration-200">
+          <input type="checkbox" class="ta-check w-5 h-5 text-blue-500 rounded focus:ring-blue-500" data-ta="sma50" checked>
+          <span class="font-medium text-gray-700">SMA 50</span>
+        </label>
+        <label class="flex items-center gap-3 bg-white/80 backdrop-blur-sm px-4 py-3 rounded-xl border border-gray-200 cursor-pointer hover:bg-gray-50 transition-all duration-200">
+          <input type="checkbox" class="ta-check w-5 h-5 text-blue-500 rounded focus:ring-blue-500" data-ta="rsi" checked>
+          <span class="font-medium text-gray-700">RSI 14</span>
+        </label>
       </div>
-      <div class="grid grid-cols-2 gap-y-2 text-sm">
-        <div class="font-medium">Lucro do dia</div>  <div id="dayProfit"   class="text-right">-</div>
-        <div class="font-medium">Lucro total</div>  <div id="totalProfit" class="text-right">-</div>
-        <div class="font-medium">Valor mercado</div><div id="marketValue" class="text-right">-</div>
-        <div class="col-span-2 text-right">
-          <a href="#" class="text-blue-600 hover:underline text-xs">Visualizar investimentos →</a>
-        </div>
-      </div>
-    </div>
+    </section>
 
-    <!-- Tabs ---------------------------------------------------------------->
-    <nav class="flex border-b border-gray-200">
-      <button data-tab="tab-resumo"   class="tab-btn px-4 py-2 -mb-px border-b-2 border-blue-600 text-blue-600 font-medium">Resumo</button>
-      <button data-tab="tab-cotacao"  class="tab-btn px-4 py-2 text-gray-600 hover:text-blue-600">Cotação</button>
-      <button data-tab="tab-analises" class="tab-btn px-4 py-2 text-gray-600 hover:text-blue-600">Análises</button>
-      <button data-tab="tab-dados"    class="tab-btn px-4 py-2 text-gray-600 hover:text-blue-600">Dados financeiros</button>
-    </nav>
-
-    <!-- --- Resumo -------------------------------------------------------- -->
-    <section id="tab-resumo" class="space-y-6">
-      <div class="bg-white rounded-xl shadow p-6">
-        <h3 class="text-lg font-semibold mb-4">Principais estatísticas</h3>
-
-        <div class="space-y-6 text-sm">
-          <div>
-            <div class="flex justify-between">
-              <span id="dayLow">-</span><span class="text-gray-600">Dia</span><span id="dayHigh">-</span>
+    <!-- Enhanced Investment Section -->
+    <section id="investment" class="space-y-6">
+      <h3 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+        <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+        </svg>
+        Portfolio Pessoal
+      </h3>
+      <div class="investment-card rounded-2xl shadow-xl p-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div class="space-y-6">
+            <h4 class="text-xl font-semibold text-white/90 mb-4">Configuração do Investimento</h4>
+            <div class="space-y-4">
+              <div class="relative">
+                <label class="block text-white/70 text-sm font-medium mb-2">Número de Ações</label>
+                <input id="sharesInput" type="number" min="0" value="0"
+                       class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white font-medium placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent">
+              </div>
+              <div class="relative">
+                <label class="block text-white/70 text-sm font-medium mb-2">Custo Médio (€)</label>
+                <input id="avgCostInput" type="number" min="0" step="0.0001" value="0"
+                       class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white font-medium placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent">
+              </div>
             </div>
-            <div class="range-bar mt-1"><span id="dayDot" class="range-dot"></span></div>
           </div>
-          <div>
-            <div class="flex justify-between">
-              <span id="wkLow">-</span><span class="text-gray-600">52 sem.</span><span id="wkHigh">-</span>
+          <div class="space-y-6">
+            <h4 class="text-xl font-semibold text-white/90 mb-4">Resumo Financeiro</h4>
+            <div class="space-y-4">
+              <div class="stats-card bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <div class="flex justify-between items-center">
+                  <span class="text-white/70 font-medium">Lucro do Dia</span>
+                  <div id="dayProfit" class="text-right text-white font-bold">-</div>
+                </div>
+              </div>
+              <div class="stats-card bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <div class="flex justify-between items-center">
+                  <span class="text-white/70 font-medium">Lucro Total</span>
+                  <div id="totalProfit" class="text-right text-white font-bold">-</div>
+                </div>
+              </div>
+              <div class="stats-card bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <div class="flex justify-between items-center">
+                  <span class="text-white/70 font-medium">Valor de Mercado</span>
+                  <div id="marketValue" class="text-right text-white font-bold">-</div>
+                </div>
+              </div>
             </div>
-            <div class="range-bar mt-1"><span id="wkDot" class="range-dot"></span></div>
           </div>
         </div>
+      </div>
+    </section>
 
-        <div id="statsGrid"
-             class="grid grid-cols-2 md:grid-cols-4 gap-y-2 gap-x-6 mt-6 text-sm">
-          <!-- preenchido via JS -->
+    <!-- Enhanced Tabs -->
+    <section id="analytics" class="space-y-6">
+      <nav class="flex space-x-1 bg-white/80 backdrop-blur-sm rounded-xl p-2 border border-white/20">
+        <button data-tab="tab-resumo" class="tab-btn active flex-1 px-6 py-3 font-semibold text-blue-600 bg-white rounded-lg shadow-sm transition-all duration-200">
+          Resumo
+        </button>
+        <button data-tab="tab-cotacao" class="tab-btn flex-1 px-6 py-3 font-semibold text-gray-600 hover:text-blue-600 transition-all duration-200">
+          Cotação
+        </button>
+        <button data-tab="tab-analises" class="tab-btn flex-1 px-6 py-3 font-semibold text-gray-600 hover:text-blue-600 transition-all duration-200">
+          Análises
+        </button>
+        <button data-tab="tab-dados" class="tab-btn flex-1 px-6 py-3 font-semibold text-gray-600 hover:text-blue-600 transition-all duration-200">
+          Dados
+        </button>
+      </nav>
+
+      <!-- Tab Content -->
+      <div class="tab-content">
+        <!-- Resumo Tab -->
+        <section id="tab-resumo" class="space-y-6">
+          <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/20 card-hover">
+            <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+              <svg class="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+              </svg>
+              Estatísticas Principais
+            </h3>
+
+            <div class="space-y-8">
+              <div class="bg-gray-50 rounded-xl p-6">
+                <div class="space-y-4">
+                  <div class="flex justify-between items-center">
+                    <span id="dayLow" class="font-semibold text-gray-700">-</span>
+                    <span class="text-gray-600 font-medium">Variação Diária</span>
+                    <span id="dayHigh" class="font-semibold text-gray-700">-</span>
+                  </div>
+                  <div class="range-bar">
+                    <span id="dayDot" class="range-dot pulse-dot"></span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-gray-50 rounded-xl p-6">
+                <div class="space-y-4">
+                  <div class="flex justify-between items-center">
+                    <span id="wkLow" class="font-semibold text-gray-700">-</span>
+                    <span class="text-gray-600 font-medium">52 Semanas</span>
+                    <span id="wkHigh" class="font-semibold text-gray-700">-</span>
+                  </div>
+                  <div class="range-bar">
+                    <span id="wkDot" class="range-dot pulse-dot"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="statsGrid" class="grid grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
+              <!-- Preenchido via JS -->
+            </div>
+          </div>
+        </section>
+
+        <!-- Cotação Tab -->
+        <section id="tab-cotacao" class="hidden">
+          <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/20 card-hover">
+            <h3 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+              <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+              </svg>
+              Detalhes da Cotação
+            </h3>
+            <div id="quoteGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <!-- Preenchido via JS -->
+            </div>
+          </div>
+        </section>
+
+        <!-- Análises Tab -->
+        <section id="tab-analises" class="hidden">
+          <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/20 card-hover">
+            <div class="text-center py-12">
+              <div class="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                </svg>
+              </div>
+              <h4 class="text-xl font-semibold text-gray-800 mb-4">Análises Avançadas</h4>
+              <p class="text-gray-600 max-w-md mx-auto">
+                Funcionalidades de análise técnica e fundamental estarão disponíveis em breve. 
+                Incluirá padrões de candlestick, análise de volume e muito mais.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Dados Tab -->
+        <section id="tab-dados" class="hidden">
+          <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-8 border border-white/20 card-hover">
+            <div class="text-center py-12">
+              <div class="w-24 h-24 bg-gradient-to-br from-green-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+              </div>
+              <h4 class="text-xl font-semibold text-gray-800 mb-4">Dados Financeiros</h4>
+              <p class="text-gray-600 max-w-md mx-auto">
+                Demonstrações financeiras detalhadas, métricas de avaliação e dados históricos 
+                estarão disponíveis em breve.
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <!-- Enhanced Charts Section -->
+    <section id="charts" class="space-y-6">
+      <h3 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+        <svg class="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+        Gráficos e Análise Técnica
+      </h3>
+      
+      <div class="grid grid-cols-1 gap-6">
+        <!-- Main Chart -->
+        <div class="chart-container shadow-2xl">
+          <div class="p-6 pb-2">
+            <h4 class="text-lg font-semibold text-gray-800 mb-4">Gráfico Principal</h4>
+          </div>
+          <div id="chart" class="h-[32rem] px-4 pb-4"></div>
+        </div>
+
+        <!-- Technical Analysis Chart -->
+        <div class="chart-container shadow-2xl">
+          <div class="p-6 pb-2">
+            <h4 class="text-lg font-semibold text-gray-800 mb-4">Indicadores Técnicos</h4>
+          </div>
+          <div id="taChart" class="h-[16rem] px-4 pb-4"></div>
         </div>
       </div>
     </section>
 
-    <!-- --- Cotação (novo) ------------------------------------------------- -->
-    <section id="tab-cotacao" class="hidden">
-      <div class="bg-white rounded-xl shadow p-6">
-        <h3 class="text-lg font-semibold mb-4">Detalhes da cotação</h3>
-        <div id="quoteGrid" class="grid grid-cols-2 md:grid-cols-3 gap-y-2 gap-x-6 text-sm">
-          <!-- preenchido via JS -->
-        </div>
+    <!-- Footer -->
+    <footer class="text-center py-12 text-gray-600">
+      <div class="space-y-4">
+        <p class="text-sm">
+          © 2024 NovaStocks. Dados fornecidos por Yahoo Finance.
+        </p>
+        <p class="text-xs text-gray-500">
+          Os dados são fornecidos "como estão" e destinam-se apenas a fins informativos, não para fins comerciais.
+        </p>
       </div>
-    </section>
-
-    <!-- --- Placeholders --------------------------------------------------- -->
-    <section id="tab-analises" class="hidden">
-      <div class="bg-white rounded-xl shadow p-6 text-center text-gray-500"><p>Conteúdo de análises em desenvolvimento.</p></div>
-    </section>
-    <section id="tab-dados" class="hidden">
-      <div class="bg-white rounded-xl shadow p-6 text-center text-gray-500"><p>Dados financeiros detalhados em breve.</p></div>
-    </section>
-
-    <!-- Gráficos -->
-    <div id="chart"   class="bg-white rounded-xl shadow p-4 h-[28rem]"></div>
-    <div id="taChart" class="bg-white rounded-xl shadow p-4 h-[12rem]"></div>
+    </footer>
   </main>
 
-  <!-- Rodapé --------------------------------------------------------------->
-  <div id="footer-widget"></div>
-
-  <!-- ====================  JS  =========================================== -->
+  <!-- JavaScript (mantém toda a funcionalidade original) -->
   <script>
     /* ---------- Config ---------- */
     const REFRESH_MS = 5_000, MAX_RT = 70;
@@ -162,16 +682,18 @@
 
     /* ---------- Traços & layouts ---------- */
     const traceRT = {x:[],y:[],mode:'lines',fill:'tozeroy',
-                     line:{color:'#16a34a',width:2},
-                     fillcolor:'rgba(22,163,74,.2)',
+                     line:{color:'#16a34a',width:3},
+                     fillcolor:'rgba(22,163,74,.1)',
                      hovertemplate:'%{x|%H:%M:%S}<br>€%{y:.4f}<extra></extra>',name:'Preço'};
     const layoutRT  ={margin:{t:20,l:56,r:8,b:40},xaxis:{type:'date',tickformat:'%H:%M',fixedrange:true},
-                      yaxis:{title:'Preço (€)',fixedrange:true},shapes:[]};
+                      yaxis:{title:'Preço (€)',fixedrange:true},shapes:[],
+                      plot_bgcolor:'rgba(248,250,252,0.8)',paper_bgcolor:'rgba(255,255,255,0.9)'};
     const layoutRSI ={margin:{t:20,l:56,r:8,b:30},xaxis:{type:'date',tickformat:'%Y-%m-%d',fixedrange:true},
-                      yaxis:{title:'RSI',range:[0,100],fixedrange:true}};
+                      yaxis:{title:'RSI',range:[0,100],fixedrange:true},
+                      plot_bgcolor:'rgba(248,250,252,0.8)',paper_bgcolor:'rgba(255,255,255,0.9)'};
 
-    Plotly.newPlot('chart',   [traceRT],layoutRT ,{responsive:true,displaylogo:false});
-    Plotly.newPlot('taChart', [],layoutRSI,{responsive:true,displaylogo:false});
+    Plotly.newPlot('chart',   [traceRT],layoutRT ,{responsive:true,displaylogo:false,modeBarButtonsToRemove:['pan2d','lasso2d','select2d','autoScale2d','resetScale2d']});
+    Plotly.newPlot('taChart', [],layoutRSI,{responsive:true,displaylogo:false,modeBarButtonsToRemove:['pan2d','lasso2d','select2d','autoScale2d','resetScale2d']});
 
     /* ---------- Helpers ---------- */
     const euro=n=>n!=null?`€${n.toLocaleString('pt-PT',{minimumFractionDigits:4,maximumFractionDigits:4})}`:'-';
@@ -187,28 +709,86 @@
     };
     const fmtDate=ts=>ts?new Date(ts*1_000).toLocaleDateString('pt-PT'):'-';
 
+    /* Enhanced UI functions */
+    function showLoading(show = true) {
+      const spinner = document.getElementById('loadingSpinner');
+      const btn = document.getElementById('loadBtn');
+      if (show) {
+        spinner.classList.remove('hidden');
+        btn.disabled = true;
+        btn.classList.add('opacity-50');
+      } else {
+        spinner.classList.add('hidden');
+        btn.disabled = false;
+        btn.classList.remove('opacity-50');
+      }
+    }
+
+    function updatePriceDisplay(data) {
+      const priceDisplay = document.getElementById('priceDisplay');
+      const tickerSymbol = document.getElementById('tickerSymbol');
+      const currentPrice = document.getElementById('currentPrice');
+      const priceChange = document.getElementById('priceChange');
+      
+      if (data.regularMarketPrice) {
+        priceDisplay.classList.remove('hidden');
+        tickerSymbol.textContent = symbol;
+        currentPrice.textContent = euro(data.regularMarketPrice);
+        
+        const change = data.regularMarketChange || 0;
+        const changePercent = data.regularMarketChangePercent || 0;
+        const changeClass = change >= 0 ? 'text-green-600' : 'text-red-600';
+        const changeSign = change >= 0 ? '+' : '';
+        
+        priceChange.textContent = `${changeSign}${change.toFixed(2)} (${changeSign}${changePercent.toFixed(2)}%)`;
+        priceChange.className = `price-change text-lg font-semibold ${changeClass}`;
+      }
+    }
+
     /* UI toggles */
     document.querySelectorAll('.tf-btn').forEach(btn=>{
-      btn.addEventListener('click',()=>{tf=btn.dataset.interval;highlight(btn,'.tf-btn');loadSymbol();});
+      btn.addEventListener('click',()=>{
+        tf=btn.dataset.interval;
+        highlight(btn,'.tf-btn');
+        loadSymbol();
+      });
     });
+    
     document.querySelectorAll('.tab-btn').forEach(btn=>{
-      btn.addEventListener('click',()=>{highlight(btn,'.tab-btn','border-blue-600 text-blue-600 font-medium');
+      btn.addEventListener('click',()=>{
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active', 'text-blue-600', 'bg-white', 'shadow-sm'));
+        btn.classList.add('active', 'text-blue-600', 'bg-white', 'shadow-sm');
+        
         document.querySelectorAll('[id^="tab-"]').forEach(s=>s.classList.add('hidden'));
-        document.getElementById(btn.dataset.tab).classList.remove('hidden');});
+        document.getElementById(btn.dataset.tab).classList.remove('hidden');
+      });
     });
+    
     document.querySelectorAll('.ta-check').forEach(cb=>{
       taState[cb.dataset.ta]=cb.checked;
       cb.addEventListener('change',()=>{taState[cb.dataset.ta]=cb.checked;if(symbol&&tf!=='rt')plotHist();});
     });
-    function highlight(el,sel,extra=''){document.querySelectorAll(sel).forEach(b=>b.className=b.className.replace(extra,'').replace('bg-blue-600','bg-white').replace('text-white',''));
-      el.classList.add('bg-blue-600','text-white');extra.split(' ').filter(Boolean).forEach(c=>el.classList.add(c));
+    
+    function highlight(el,sel,extra=''){
+      document.querySelectorAll(sel).forEach(b=>{
+        b.classList.remove('bg-gradient-to-r', 'from-blue-500', 'to-blue-600', 'text-white', 'shadow-lg');
+        b.classList.add('bg-white/80', 'backdrop-blur-sm', 'border', 'border-gray-200', 'text-gray-700', 'shadow-md');
+      });
+      el.classList.remove('bg-white/80', 'backdrop-blur-sm', 'border', 'border-gray-200', 'text-gray-700', 'shadow-md');
+      el.classList.add('bg-gradient-to-r', 'from-blue-500', 'to-blue-600', 'text-white', 'shadow-lg');
     }
+    
     /* Countdown */
-    function resetCount(){clearInterval(cdTimer);secs=REFRESH_MS/1000;
+    function resetCount(){
+      clearInterval(cdTimer);
+      secs=REFRESH_MS/1000;
       const t=document.getElementById('timer');
       t.textContent=`Próxima actualização em ${secs} s`;
-      cdTimer=setInterval(()=>{secs=secs>1?secs-1:REFRESH_MS/1000;
-        t.textContent=`Próxima actualização em ${secs} s`;},1_000);}
+      cdTimer=setInterval(()=>{
+        secs=secs>1?secs-1:REFRESH_MS/1000;
+        t.textContent=`Próxima actualização em ${secs} s`;
+      },1_000);
+    }
 
     /* ---------- API ---------- */
     const fetchRT   = async s=>{const r=await fetch(`https://marketanalyticshubapp.azurewebsites.net/api/YahooFinance/price/${s}`);return (await r.json())[0]||{};};
@@ -219,7 +799,7 @@
       const q=+document.getElementById('sharesInput').value||0,c=+document.getElementById('avgCostInput').value||0,
             p=d.regularMarketPrice??0,pr=d.regularMarketPreviousClose??p;
       const day=(p-pr)*q,tot=(p-c)*q,val=p*q;
-      const html=(v)=>`${euro(v)} <span class="${v>=0?'text-green-600':'text-red-600'}">(${pct(v?100*v/(q?c*q:val):0)})</span>`;
+      const html=(v)=>`${euro(v)} <span class="${v>=0?'text-green-400':'text-red-400'}">(${pct(v?100*v/(q?c*q:val):0)})</span>`;
       document.getElementById('dayProfit').innerHTML = html(day);
       document.getElementById('totalProfit').innerHTML= html(tot);
       document.getElementById('marketValue').textContent=euro(val);
@@ -233,92 +813,254 @@
       document.getElementById('dayHigh').textContent=euro(d.regularMarketDayHigh);
       document.getElementById('wkLow').textContent =euro(d.fiftyTwoWeekLow);
       document.getElementById('wkHigh').textContent=euro(d.fiftyTwoWeekHigh);
-      dot(dayDot,d.regularMarketDayLow,d.regularMarketDayHigh,d.regularMarketPrice);
-      dot(wkDot ,d.fiftyTwoWeekLow ,d.fiftyTwoWeekHigh ,d.regularMarketPrice);
+      dot(document.getElementById('dayDot'),d.regularMarketDayLow,d.regularMarketDayHigh,d.regularMarketPrice);
+      dot(document.getElementById('wkDot') ,d.fiftyTwoWeekLow ,d.fiftyTwoWeekHigh ,d.regularMarketPrice);
+      
       const rows=[
-        ['Fech. ant.',euro(d.regularMarketPreviousClose)],['Abertura',euro(d.regularMarketOpen)],
-        ['Volume',d.regularMarketVolume?.toLocaleString('pt-PT')??'-'],['Vol. médio (3m)',d.averageDailyVolume3Month?.toLocaleString('pt-PT')??'-'],
-        ['P/L',d.forwardPE?.toFixed(2)??'-'],['Market Cap',(d.marketCap/1e9).toFixed(2)+' Bi'],
-        ['Beta',d.beta?.toFixed(3)??'-'],['Yield',pct(d.trailingAnnualDividendYield*100)]
+        ['Fechamento Anterior',euro(d.regularMarketPreviousClose)],
+        ['Abertura',euro(d.regularMarketOpen)],
+        ['Volume',d.regularMarketVolume?.toLocaleString('pt-PT')??'-'],
+        ['Volume Médio (3m)',d.averageDailyVolume3Month?.toLocaleString('pt-PT')??'-'],
+        ['P/L',d.forwardPE?.toFixed(2)??'-'],
+        ['Market Cap',(d.marketCap/1e9).toFixed(2)+' Bi'],
+        ['Beta',d.beta?.toFixed(3)??'-'],
+        ['Yield',pct(d.trailingAnnualDividendYield*100)]
       ];
-      statsGrid.innerHTML='';rows.forEach(([k,v])=>statsGrid.insertAdjacentHTML('beforeend',`<div class="text-gray-600">${k}</div><div class="text-right">${v}</div>`));
+      
+      const statsGrid = document.getElementById('statsGrid');
+      statsGrid.innerHTML='';
+      rows.forEach(([k,v])=>{
+        const card = document.createElement('div');
+        card.className = 'stats-card bg-gray-50 rounded-xl p-4 border border-gray-200';
+        card.innerHTML = `
+          <div class="text-gray-600 text-sm font-medium mb-1">${k}</div>
+          <div class="text-gray-900 font-bold text-lg">${v}</div>
+        `;
+        statsGrid.appendChild(card);
+      });
     }
+    
     function fillQuote(d){
       const rows=[
-        ['Estado',d.marketState],                   ['Moeda',d.currency],
-        ['Bid',euro(d.bid)],                        ['Ask',euro(d.ask)],
-        ['Bid size',d.bidSize??'-'],                ['Ask size',d.askSize??'-'],
-        ['Range dia',d.regularMarketDayRange],      ['Range 52 s',d.fiftyTwoWeekRange],
-        ['Analyst rating',d.averageAnalystRating],  ['EPS TTM',d.epsTrailingTwelveMonths],
-        ['EPS Forward',d.epsForward],               ['EPS Ano',d.epsCurrentYear?.toFixed(4)],
-        ['Preço/BV',d.priceToBook?.toFixed(2)],     ['BV',euro(d.bookValue)],
-        ['Média 50 d',euro(d.fiftyDayAverage)],     ['Média 200 d',euro(d.twoHundredDayAverage)],
-        ['Dividendo',euro(d.trailingAnnualDividendRate)], ['Yield',pct(d.trailingAnnualDividendYield*100)],
-        ['Data div.',fmtDate(d.dividendDate)],      ['Próx. EPS',fmtDate(d.earningsTimestamp)],
-        ['Acções out.',d.sharesOutstanding?.toLocaleString('pt-PT')], ['Cap. Mercado',(d.marketCap/1e9).toFixed(2)+' Bi']
+        ['Estado',d.marketState],['Moeda',d.currency],
+        ['Bid',euro(d.bid)],['Ask',euro(d.ask)],
+        ['Bid Size',d.bidSize??'-'],['Ask Size',d.askSize??'-'],
+        ['Range Dia',d.regularMarketDayRange],['Range 52 Semanas',d.fiftyTwoWeekRange],
+        ['Rating Analistas',d.averageAnalystRating],['EPS TTM',d.epsTrailingTwelveMonths],
+        ['EPS Forward',d.epsForward],['EPS Ano',d.epsCurrentYear?.toFixed(4)],
+        ['Preço/Valor Contábil',d.priceToBook?.toFixed(2)],['Valor Contábil',euro(d.bookValue)],
+        ['Média 50 Dias',euro(d.fiftyDayAverage)],['Média 200 Dias',euro(d.twoHundredDayAverage)],
+        ['Dividendo',euro(d.trailingAnnualDividendRate)],['Yield',pct(d.trailingAnnualDividendYield*100)],
+        ['Data Dividendo',fmtDate(d.dividendDate)],['Próximos Resultados',fmtDate(d.earningsTimestamp)],
+        ['Ações em Circulação',d.sharesOutstanding?.toLocaleString('pt-PT')],['Capitalização',((d.marketCap||0)/1e9).toFixed(2)+' Bi']
       ];
+      
+      const quoteGrid = document.getElementById('quoteGrid');
       quoteGrid.innerHTML='';
-      rows.forEach(([k,v])=>quoteGrid.insertAdjacentHTML('beforeend',`<div class="text-gray-600">${k}</div><div class="text-right">${v??'-'}</div>`));
+      rows.forEach(([k,v])=>{
+        const card = document.createElement('div');
+        card.className = 'stats-card bg-gray-50 rounded-xl p-4 border border-gray-200';
+        card.innerHTML = `
+          <div class="text-gray-600 text-sm font-medium mb-1">${k}</div>
+          <div class="text-gray-900 font-bold">${v??'-'}</div>
+        `;
+        quoteGrid.appendChild(card);
+      });
     }
 
     /* ---------- RT loop ---------- */
     async function pullRT(prev){
       try{
-        const d=await fetchRT(symbol);lastData=d;
-        traceRT.x.push(new Date());traceRT.y.push(d.regularMarketPrice);
-        if(traceRT.x.length>MAX_RT){traceRT.x.shift();traceRT.y.shift();}
+        const d=await fetchRT(symbol);
+        lastData=d;
+        traceRT.x.push(new Date());
+        traceRT.y.push(d.regularMarketPrice);
+        
+        if(traceRT.x.length>MAX_RT){
+          traceRT.x.shift();
+          traceRT.y.shift();
+        }
+        
         const up=d.regularMarketPrice>=prev;
-        traceRT.line.color=up?'#16a34a':'#dc2626';traceRT.fillcolor=up?'rgba(22,163,74,.2)':'rgba(220,38,38,.2)';
-        Plotly.update('chart',{x:[traceRT.x],y:[traceRT.y],
-                               'line.color':[[traceRT.line.color]],
-                               'fillcolor' :[[traceRT.fillcolor]]});
-        calcInv(d);fillResumo(d);fillQuote(d);
-      }catch(e){console.error('pullRT',e);}
+        traceRT.line.color=up?'#10b981':'#ef4444';
+        traceRT.fillcolor=up?'rgba(16,185,129,.1)':'rgba(239,68,68,.1)';
+        
+        Plotly.update('chart',{
+          x:[traceRT.x],
+          y:[traceRT.y],
+          'line.color':[[traceRT.line.color]],
+          'fillcolor' :[[traceRT.fillcolor]]
+        });
+        
+        updatePriceDisplay(d);
+        calcInv(d);
+        fillResumo(d);
+        fillQuote(d);
+      }catch(e){
+        console.error('pullRT',e);
+      }
     }
 
     /* ---------- Histórico + TA ---------- */
     async function plotHist(){
       try{
-        const h=await fetchHist(symbol,tf);const x=[],o=[],hig=[],l=[],c=[];
-        h.forEach(p=>{x.push(new Date(p.timestamp));o.push(p.open);hig.push(p.high);l.push(p.low);c.push(p.close);});
-        const traces=[{type:'candlestick',x,open:o,high:hig,low:l,close:c,
-                       increasing:{line:{color:'#16a34a'}},decreasing:{line:{color:'#dc2626'}},
-                       hovertemplate:'%{x|%Y-%m-%d}<br>O:%{open:.2f} H:%{high:.2f}<br>L:%{low:.2f} C:%{close:.2f}<extra></extra>'}];
-        if(taState.sma20) traces.push({x,y:sma(c,20),mode:'lines',name:'SMA 20',
-                                       line:{color:'#1d4ed8',width:1}});
-        if(taState.sma50) traces.push({x,y:sma(c,50),mode:'lines',name:'SMA 50',
-                                       line:{color:'#f59e0b',width:1}});
-        Plotly.react('chart',traces,{...layoutRT,xaxis:{type:'date',tickformat:'%Y-%m-%d'}},{responsive:true,displaylogo:false});
+        const h=await fetchHist(symbol,tf);
+        const x=[],o=[],hig=[],l=[],c=[];
+        h.forEach(p=>{
+          x.push(new Date(p.timestamp));
+          o.push(p.open);
+          hig.push(p.high);
+          l.push(p.low);
+          c.push(p.close);
+        });
+        
+        const traces=[{
+          type:'candlestick',
+          x,open:o,high:hig,low:l,close:c,
+          increasing:{line:{color:'#10b981'}},
+          decreasing:{line:{color:'#ef4444'}},
+          hovertemplate:'%{x|%Y-%m-%d}<br>O:%{open:.2f} H:%{high:.2f}<br>L:%{low:.2f} C:%{close:.2f}<extra></extra>'
+        }];
+        
+        if(taState.sma20) traces.push({
+          x,y:sma(c,20),mode:'lines',name:'SMA 20',
+          line:{color:'#3b82f6',width:2}
+        });
+        if(taState.sma50) traces.push({
+          x,y:sma(c,50),mode:'lines',name:'SMA 50',
+          line:{color:'#f59e0b',width:2}
+        });
+        
+        Plotly.react('chart',traces,{
+          ...layoutRT,
+          xaxis:{type:'date',tickformat:'%Y-%m-%d'}
+        },{responsive:true,displaylogo:false,modeBarButtonsToRemove:['pan2d','lasso2d','select2d','autoScale2d','resetScale2d']});
+        
         if(taState.rsi){
-          const r=rsi(c,14);Plotly.react('taChart',[{x,y:r,mode:'lines',name:'RSI',
-            line:{color:'#6b7280',width:1}}],
-            {...layoutRSI,shapes:[
-              {type:'line',xref:'paper',x0:0,x1:1,y0:70,y1:70,line:{dash:'dot',color:'#dc2626',width:1}},
-              {type:'line',xref:'paper',x0:0,x1:1,y0:30,y1:30,line:{dash:'dot',color:'#16a34a',width:1}}]},
-            {responsive:true,displaylogo:false});
-        }else Plotly.react('taChart',[],layoutRSI,{responsive:true,displaylogo:false});
-      }catch(e){console.error('plotHist',e);}
+          const r=rsi(c,14);
+          Plotly.react('taChart',[{
+            x,y:r,mode:'lines',name:'RSI',
+            line:{color:'#6b7280',width:2}
+          }],{
+            ...layoutRSI,
+            shapes:[
+              {type:'line',xref:'paper',x0:0,x1:1,y0:70,y1:70,line:{dash:'dot',color:'#ef4444',width:1}},
+              {type:'line',xref:'paper',x0:0,x1:1,y0:30,y1:30,line:{dash:'dot',color:'#10b981',width:1}}
+            ]
+          },{responsive:true,displaylogo:false,modeBarButtonsToRemove:['pan2d','lasso2d','select2d','autoScale2d','resetScale2d']});
+        }else{
+          Plotly.react('taChart',[],layoutRSI,{responsive:true,displaylogo:false,modeBarButtonsToRemove:['pan2d','lasso2d','select2d','autoScale2d','resetScale2d']});
+        }
+      }catch(e){
+        console.error('plotHist',e);
+      }
     }
 
     /* ---------- Carregar símbolo ---------- */
     async function loadSymbol(){
-      if(!symbol) return;clearInterval(rtTimer);clearInterval(cdTimer);
-      if(tf==='rt'){traceRT.x.length=0;traceRT.y.length=0;
-        Plotly.react('chart',[traceRT],layoutRT,{responsive:true,displaylogo:false});
-        Plotly.react('taChart',[],layoutRSI,{responsive:true,displaylogo:false});
-        const first=await fetchRT(symbol);lastData=first;
-        layoutRT.shapes=[{type:'line',xref:'paper',x0:0,x1:1,y0:first.regularMarketPreviousClose,y1:first.regularMarketPreviousClose,
-                          line:{dash:'dot',color:'#6b7280',width:1}}];
-        Plotly.relayout('chart',layoutRT);resetCount();
-        pullRT(first.regularMarketPreviousClose);
-        rtTimer=setInterval(()=>pullRT(first.regularMarketPreviousClose),REFRESH_MS);
-      }else{document.getElementById('timer').textContent='—';await plotHist();}
+      if(!symbol) return;
+      
+      showLoading(true);
+      clearInterval(rtTimer);
+      clearInterval(cdTimer);
+      
+      try {
+        if(tf==='rt'){
+          traceRT.x.length=0;
+          traceRT.y.length=0;
+          Plotly.react('chart',[traceRT],layoutRT,{responsive:true,displaylogo:false,modeBarButtonsToRemove:['pan2d','lasso2d','select2d','autoScale2d','resetScale2d']});
+          Plotly.react('taChart',[],layoutRSI,{responsive:true,displaylogo:false,modeBarButtonsToRemove:['pan2d','lasso2d','select2d','autoScale2d','resetScale2d']});
+          
+          const first=await fetchRT(symbol);
+          lastData=first;
+          
+          layoutRT.shapes=[{
+            type:'line',xref:'paper',x0:0,x1:1,
+            y0:first.regularMarketPreviousClose,y1:first.regularMarketPreviousClose,
+            line:{dash:'dot',color:'#6b7280',width:1}
+          }];
+          
+          Plotly.relayout('chart',layoutRT);
+          resetCount();
+          pullRT(first.regularMarketPreviousClose);
+          rtTimer=setInterval(()=>pullRT(first.regularMarketPreviousClose),REFRESH_MS);
+        }else{
+          document.getElementById('timer').textContent='—';
+          await plotHist();
+        }
+      } catch(e) {
+        console.error('loadSymbol error:', e);
+      } finally {
+        showLoading(false);
+      }
     }
 
     /* ---------- Eventos ---------- */
     document.getElementById('loadBtn').addEventListener('click',()=>{
-      symbol=document.getElementById('symbolInput').value.trim().toUpperCase();if(symbol)loadSymbol();
+      symbol=document.getElementById('symbolInput').value.trim().toUpperCase();
+      if(symbol) loadSymbol();
     });
+
+    document.getElementById('symbolInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        symbol = e.target.value.trim().toUpperCase();
+        if(symbol) loadSymbol();
+      }
+    });
+
+    // Smooth scrolling for navigation dots
+    document.querySelectorAll('.nav-dot').forEach(dot => {
+      dot.addEventListener('click', () => {
+        const section = document.getElementById(dot.dataset.section);
+        if (section) {
+          section.scrollIntoView({ behavior: 'smooth' });
+          
+          // Update active state
+          document.querySelectorAll('.nav-dot').forEach(d => d.classList.remove('active'));
+          dot.classList.add('active');
+        }
+      });
+    });
+
+    // Update nav dots on scroll
+    window.addEventListener('scroll', () => {
+      const sections = ['hero', 'controls', 'investment', 'analytics', 'charts'];
+      const scrollPos = window.scrollY + 100;
+      
+      sections.forEach(sectionId => {
+        const section = document.getElementById(sectionId);
+        if (section) {
+          const top = section.offsetTop;
+          const bottom = top + section.offsetHeight;
+          
+          if (scrollPos >= top && scrollPos < bottom) {
+            document.querySelectorAll('.nav-dot').forEach(dot => {
+              dot.classList.remove('active');
+              if (dot.dataset.section === sectionId) {
+                dot.classList.add('active');
+              }
+            });
+          }
+        }
+      });
+    });
+
+    // Auto-update market time
+    setInterval(() => {
+      const now = new Date();
+      const timeString = now.toLocaleTimeString('pt-PT', { 
+        hour12: false, 
+        timeZone: 'UTC' 
+      });
+      document.querySelector('.market-time').textContent = `${timeString} UTC`;
+    }, 1000);
+
+    // Initialize with some sample data
+    setTimeout(() => {
+      document.getElementById('symbolInput').value = 'AAPL';
+      symbol = 'AAPL';
+      loadSymbol();
+    }, 1000);
   </script>
 </body>
 </html>
