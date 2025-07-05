@@ -1,128 +1,424 @@
-<!DOCTYPE html><html lang="pt">
+<!--
+  NovaStocks • Gráfico RT + Histórico + Análise Técnica
+  =====================================================
+  Exemplo cURL (histórico):
+    curl -X 'GET' \
+         'https://marketanalyticshubapp.azurewebsites.net/api/YahooFinance/chart-symbol-tradingview/INTC?interval=1d' \
+         -H 'accept: */*'
+  • Intervals: rt (tempo-real) | 1d | 1w | 1y | all
+-->
+
+<!DOCTYPE html>
+<html lang="pt">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Gráfico em Tempo Real - NovaStocks</title>
-  <meta name="description" content="Acompanhe o preço em tempo real de ações na NovaStocks com interface tabulada.">
-  <meta name="keywords" content="tempo real, ações, gráfico, NovaStocks, mercado, ticker">
-  <link rel="canonical" href="https://novastocks.vercel.app/realtime.html">  <script src="https://cdn.tailwindcss.com"></script>  <script src="https://cdn.plot.ly/plotly-2.29.0.min.js"></script></head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NovaStocks • Cotação em tempo-real</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Plotly -->
+  <script src="https://cdn.plot.ly/plotly-2.29.0.min.js"></script>
+
+  <style>
+    /* barras dos intervalos (dia / 52 semanas) */
+    .range-bar{position:relative;height:0.5rem;border-radius:0.25rem;background:#e5e7eb}
+    .range-dot{position:absolute;top:-0.25rem;width:1rem;height:1rem;border-radius:9999px;
+               background:#2563eb;border:2px solid #fff}
+  </style>
+</head>
 <body class="bg-gray-100 text-gray-800 min-h-screen flex flex-col">
+
+  <!-- cabeçalho opcional -->
   <div id="header-widget"></div>
-  <script type="module" src="header.js"></script>
-  <main class="flex-grow container mx-auto p-4">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
-      <div class="flex space-x-2">
-        <input id="symbolInput" type="text" placeholder="Ticker (ex: INTC)"
-               class="border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-        <button id="loadBtn" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition">
+
+  <main class="flex-grow container mx-auto p-4 space-y-8">
+
+    <!-- Seleção do ticker -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div class="flex gap-2">
+        <input id="symbolInput" placeholder="Ticker (ex: INTC ou EDP.LS)"
+               class="border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+        <button id="loadBtn"
+                class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition">
           Carregar
         </button>
       </div>
-      <div id="timer" class="text-sm text-gray-600">Próxima atualização em 5s</div>
-    </div><div class="mb-6">
-  <nav class="flex space-x-4 border-b">
-    <button data-tab="chart" class="py-2 px-4 -mb-px font-medium text-blue-600 border-b-2 border-blue-600 focus:outline-none">Gráfico</button>
-    <button data-tab="details" class="py-2 px-4 text-gray-600 hover:text-gray-800 focus:outline-none">Detalhes</button>
-  </nav>
-</div>
-
-<section id="chart" class="tab-content">
-  <div id="chart-container" class="bg-white rounded-xl shadow-lg p-4 h-96"></div>
-</section>
-
-<section id="details" class="tab-content hidden">
-  <div id="card" class="bg-white rounded-xl shadow-lg p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-    <div>
-      <h2 id="info" class="text-xl font-semibold text-gray-800"></h2>
-      <p id="description" class="text-gray-600 mt-2"></p>
+      <span id="timer" class="text-sm text-gray-600 select-none">
+        Próxima actualização em 5&nbsp;s
+      </span>
     </div>
-    <div class="grid grid-cols-2 md:grid-cols-1 gap-4 text-sm text-gray-600" id="card-details">
-      <!-- propriedades inseridas aqui -->
+
+    <!-- Buttons timeframe -->
+    <div id="tfGroup" class="flex gap-2">
+      <button data-interval="rt"  class="tf-btn bg-blue-600 text-white px-3 py-1 rounded text-sm">RT</button>
+      <button data-interval="1d" class="tf-btn bg-white px-3 py-1 rounded text-sm">1D</button>
+      <button data-interval="1w" class="tf-btn bg-white px-3 py-1 rounded text-sm">1W</button>
+      <button data-interval="1y" class="tf-btn bg-white px-3 py-1 rounded text-sm">1Y</button>
+      <button data-interval="all"class="tf-btn bg-white px-3 py-1 rounded text-sm">ALL</button>
     </div>
-  </div>
-</section>
+
+    <!-- Controlo de Análise Técnica -->
+    <div id="taControls" class="flex flex-wrap gap-4">
+      <label class="flex items-center gap-1 text-sm">
+        <input type="checkbox" class="ta-check" data-ta="sma20" checked>SMA&nbsp;20
+      </label>
+      <label class="flex items-center gap-1 text-sm">
+        <input type="checkbox" class="ta-check" data-ta="sma50" checked>SMA&nbsp;50
+      </label>
+      <label class="flex items-center gap-1 text-sm">
+        <input type="checkbox" class="ta-check" data-ta="rsi" checked>RSI&nbsp;14
+      </label>
+    </div>
+
+    <!-- Cartão Investimentos -------------------------------------------------->
+    <div id="invest-card"
+         class="bg-white rounded-xl shadow p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <h3 class="text-lg font-semibold mb-4">Meus Investimentos</h3>
+        <div class="grid grid-cols-2 gap-y-2 text-sm">
+          <label class="text-gray-600">Ações</label>
+          <input id="sharesInput" type="number" min="0" value="0"
+                 class="border rounded px-2 py-1 text-right">
+          <label class="text-gray-600">Custo médio (€)</label>
+          <input id="avgCostInput" type="number" min="0" step="0.0001" value="0"
+                 class="border rounded px-2 py-1 text-right">
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-y-2 text-sm">
+        <div class="font-medium">Lucro do dia</div><div id="dayProfit"   class="text-right">-</div>
+        <div class="font-medium">Lucro total</div><div id="totalProfit" class="text-right">-</div>
+        <div class="font-medium">Valor de mercado</div><div id="marketValue" class="text-right">-</div>
+        <div class="col-span-2 text-right">
+          <a href="#" class="text-blue-600 hover:underline text-xs">Visualizar investimentos →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs (Resumo/Análises/Dados) ---------------------------------------->
+    <nav class="flex border-b border-gray-200">
+      <button data-tab="tab-resumo"
+              class="tab-btn px-4 py-2 -mb-px border-b-2 border-blue-600 text-blue-600 font-medium">
+        Resumo
+      </button>
+      <button data-tab="tab-analises"
+              class="tab-btn px-4 py-2 text-gray-600 hover:text-blue-600">
+        Análises
+      </button>
+      <button data-tab="tab-dados"
+              class="tab-btn px-4 py-2 text-gray-600 hover:text-blue-600">
+        Dados financeiros
+      </button>
+    </nav>
+
+    <!-- Tab Resumo -->
+    <section id="tab-resumo" class="space-y-6">
+      <div class="bg-white rounded-xl shadow p-6">
+        <h3 class="text-lg font-semibold mb-4">Principais estatísticas</h3>
+
+        <!-- intervalos -->
+        <div class="space-y-6 text-sm">
+          <div>
+            <div class="flex justify-between">
+              <span id="dayLow">-</span>
+              <span class="text-gray-600">Variação do dia</span>
+              <span id="dayHigh">-</span>
+            </div>
+            <div class="range-bar mt-1"><span id="dayDot" class="range-dot"></span></div>
+          </div>
+          <div>
+            <div class="flex justify-between">
+              <span id="wkLow">-</span>
+              <span class="text-gray-600">Variação 52 sem.</span>
+              <span id="wkHigh">-</span>
+            </div>
+            <div class="range-bar mt-1"><span id="wkDot" class="range-dot"></span></div>
+          </div>
+        </div>
+
+        <div id="statsGrid"
+             class="grid grid-cols-2 md:grid-cols-4 gap-y-2 gap-x-6 mt-6 text-sm">
+          <!-- preenchido via JS -->
+        </div>
+      </div>
+    </section>
+
+    <section id="tab-analises" class="hidden">
+      <div class="bg-white rounded-xl shadow p-6 text-center text-gray-500">
+        <p>Conteúdo de análises em desenvolvimento.</p>
+      </div>
+    </section>
+
+    <section id="tab-dados" class="hidden">
+      <div class="bg-white rounded-xl shadow p-6 text-center text-gray-500">
+        <p>Dados financeiros detalhados em breve.</p>
+      </div>
+    </section>
+
+    <!-- Chart principal -->
+    <div id="chart" class="bg-white rounded-xl shadow p-4 h-[28rem]"></div>
+    <!-- Chart RSI -->
+    <div id="taChart" class="bg-white rounded-xl shadow p-4 h-[12rem]"></div>
 
   </main>
+
+  <!-- rodapé opcional -->
   <div id="footer-widget"></div>
-  <script type="module" src="footer.js"></script>  <script>
-    // Tab switching
-    document.querySelectorAll('[data-tab]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.tab-content').forEach(sec => sec.classList.add('hidden'));
-        document.querySelectorAll('[data-tab]').forEach(b => b.classList.remove('border-blue-600', 'text-blue-600'));
-        const sel = btn.getAttribute('data-tab');
-        document.getElementById(sel).classList.remove('hidden');
-        btn.classList.add('border-blue-600', 'text-blue-600');
+
+  <!-- ===================  JS =================== -->
+  <script>
+    /* ---------- Config ---------- */
+    const REFRESH_MS = 5_000;
+    const MAX_RT = 70;
+
+    /* ---------- Estado ---------- */
+    let symbol='', tf='rt';
+    let rtTimer, cdTimer, secs=REFRESH_MS/1000;
+    let lastData=null;
+
+    /* Trace RT (área) */
+    const traceRT = {
+      x:[], y:[],
+      mode:'lines',
+      fill:'tozeroy',
+      line:{color:'#16a34a',width:2},
+      fillcolor:'rgba(22,163,74,.2)',
+      hovertemplate:'%{x|%H:%M:%S}<br>€%{y:.4f}<extra></extra>',
+      name:'Preço'
+    };
+
+    /* Layouts */
+    const layoutRT = {margin:{t:20,l:56,r:8,b:40},
+                      xaxis:{type:'date',tickformat:'%H:%M',fixedrange:true},
+                      yaxis:{title:'Preço (€)',fixedrange:true},
+                      shapes:[]};
+    const layoutRSI = {margin:{t:20,l:56,r:8,b:30},
+                       xaxis:{type:'date',tickformat:'%Y-%m-%d',fixedrange:true},
+                       yaxis:{title:'RSI',range:[0,100],fixedrange:true}};
+
+    Plotly.newPlot('chart',[traceRT],layoutRT,{responsive:true,displaylogo:false});
+    Plotly.newPlot('taChart',[],layoutRSI,{responsive:true,displaylogo:false});
+
+    /* ---------- Helpers ---------- */
+    const euro = n => n!=null?`€${n.toLocaleString('pt-PT',{minimumFractionDigits:4,maximumFractionDigits:4})}`:'-';
+    const pct  = n => n!=null?`${n.toLocaleString('pt-PT',{minimumFractionDigits:2,maximumFractionDigits:2})} %`:'-';
+    const sma=(arr,win)=>{
+      const out=[];let sum=0;
+      for(let i=0;i<arr.length;i++){
+        sum+=arr[i]; if(i>=win) sum-=arr[i-win];
+        out.push(i>=win-1?sum/win:null);
+      } return out;
+    };
+    const rsi=(arr,period=14)=>{
+      const res=[null];let gains=0,losses=0;
+      for(let i=1;i<arr.length;i++){
+        const diff=arr[i]-arr[i-1];
+        if(i<=period){
+          gains+=Math.max(0,diff); losses+=Math.max(0,-diff);
+          res.push(i===period?100-100/(1+gains/(losses||1)):null);
+        }else{
+          const up=Math.max(0,diff),down=Math.max(0,-diff);
+          gains=(gains*(period-1)+up)/period;
+          losses=(losses*(period-1)+down)/period;
+          res.push(100-100/(1+gains/(losses||1)));
+        }
+      } return res;
+    };
+
+    /* UI helpers */
+    function hiTF(btn){
+      document.querySelectorAll('.tf-btn').forEach(b=>{
+        const a=b===btn;
+        b.classList.toggle('bg-blue-600',a);b.classList.toggle('text-white',a);
+        b.classList.toggle('bg-white',!a);
+      });
+    }
+    function resetCount(){
+      clearInterval(cdTimer);
+      secs=REFRESH_MS/1000;
+      const t=document.getElementById('timer');
+      t.textContent=`Próxima actualização em ${secs} s`;
+      cdTimer=setInterval(()=>{
+        secs=secs>1?secs-1:REFRESH_MS/1000;
+        t.textContent=`Próxima actualização em ${secs} s`;
+      },1_000);
+    }
+
+    /* ---------- API ---------- */
+    const fetchRT = async sym =>{
+      const r=await fetch(`https://marketanalyticshubapp.azurewebsites.net/api/YahooFinance/price/${sym}`);
+      const j=await r.json();return j[0]||{};
+    };
+    const fetchHist = async (sym,intv)=>{
+      const r=await fetch(`https://marketanalyticshubapp.azurewebsites.net/api/YahooFinance/chart-symbol-tradingview/${sym}?interval=${intv}`);
+      return await r.json();
+    };
+
+    /* ---------- Investimentos ---------- */
+    function updInvest(d){
+      const qty=+document.getElementById('sharesInput').value||0;
+      const cost=+document.getElementById('avgCostInput').value||0;
+      const px=d.regularMarketPrice??0;
+      const prev=d.regularMarketPreviousClose??px;
+      const day=(px-prev)*qty, tot=(px-cost)*qty, val=px*qty;
+      const dayPct=d.regularMarketChangePercent,
+            totPct=cost?((px/cost-1)*100):0;
+      document.getElementById('dayProfit').innerHTML=
+        `${euro(day)} <span class="${day>=0?'text-green-600':'text-red-600'}">(${pct(dayPct)})</span>`;
+      document.getElementById('totalProfit').innerHTML=
+        `${euro(tot)} <span class="${tot>=0?'text-green-600':'text-red-600'}">(${pct(totPct)})</span>`;
+      document.getElementById('marketValue').textContent=euro(val);
+    }
+    ['sharesInput','avgCostInput'].forEach(id=>{
+      document.getElementById(id).addEventListener('input',()=>lastData&&updInvest(lastData));
+    });
+
+    /* ---------- Estatísticas ---------- */
+    function dot(el,lo,hi,cur){el.style.left=`${Math.min(100,Math.max(0,(cur-lo)/(hi-lo)*100))}%`;}
+    function fillStats(d){
+      document.getElementById('dayLow').textContent=euro(d.regularMarketDayLow);
+      document.getElementById('dayHigh').textContent=euro(d.regularMarketDayHigh);
+      document.getElementById('wkLow').textContent=euro(d.fiftyTwoWeekLow);
+      document.getElementById('wkHigh').textContent=euro(d.fiftyTwoWeekHigh);
+      dot(document.getElementById('dayDot'),d.regularMarketDayLow,d.regularMarketDayHigh,d.regularMarketPrice);
+      dot(document.getElementById('wkDot'),d.fiftyTwoWeekLow,d.fiftyTwoWeekHigh,d.regularMarketPrice);
+      const rows=[
+        ['Fech. anterior',euro(d.regularMarketPreviousClose)],
+        ['Abertura',euro(d.regularMarketOpen)],
+        ['Volume',d.regularMarketVolume?.toLocaleString('pt-PT')??'-'],
+        ['Volume médio (3m)',d.averageDailyVolume3Month?.toLocaleString('pt-PT')??'-'],
+        ['P/L (12m)',d.trailingPE?.toFixed(2)??'-'],
+        ['Market Cap',d.marketCap!=null?(d.marketCap/1e9).toFixed(2)+' Bi':'-'],
+        ['Beta',d.beta?.toFixed(3)??'-'],
+        ['Divid. & Yield',d.trailingAnnualDividendRate!=null
+          ?`${euro(d.trailingAnnualDividendRate)} (${pct(d.trailingAnnualDividendYield*100)})`:'-']
+      ];
+      const grid=document.getElementById('statsGrid');grid.innerHTML='';
+      rows.forEach(([k,v])=>grid.insertAdjacentHTML('beforeend',`<div class="text-gray-600">${k}</div><div class="text-right">${v}</div>`));
+    }
+
+    /* ---------- RT loop ---------- */
+    async function pullRT(prev){
+      try{
+        const d=await fetchRT(symbol);lastData=d;
+        traceRT.x.push(new Date());traceRT.y.push(d.regularMarketPrice);
+        if(traceRT.x.length>MAX_RT){traceRT.x.shift();traceRT.y.shift();}
+        const up=d.regularMarketPrice>=prev;
+        traceRT.line.color=up?'#16a34a':'#dc2626';
+        traceRT.fillcolor=up?'rgba(22,163,74,.2)':'rgba(220,38,38,.2)';
+        Plotly.update('chart',{x:[traceRT.x],y:[traceRT.y],
+                               'line.color':[[traceRT.line.color]],
+                               'fillcolor':[[traceRT.fillcolor]]});
+        updInvest(d);fillStats(d);
+      }catch(e){console.error('RT',e);}
+    }
+
+    /* ---------- Histórico & TA ---------- */
+    const taState={sma20:true,sma50:true,rsi:true};
+    document.querySelectorAll('.ta-check').forEach(cb=>{
+      taState[cb.dataset.ta]=cb.checked;
+      cb.addEventListener('change',()=>{
+        taState[cb.dataset.ta]=cb.checked;
+        if(symbol&&tf!=='rt') plotHist();
       });
     });
 
-    // Default to chart tab
-    document.querySelector('[data-tab="chart"]').click();
+    async function plotHist(){
+      try{
+        const hist=await fetchHist(symbol,tf);
+        const x=[],open=[],high=[],low=[],close=[];
+        hist.forEach(p=>{
+          x.push(new Date(p.timestamp));
+          open.push(p.open);high.push(p.high);low.push(p.low);close.push(p.close);
+        });
 
-    let symbol = '';
-    let updateInterval, countdownInterval, secondsRemaining = 5;
-    const layout = { margin: { t: 20, b: 40 }, xaxis: { title: 'Hora', type: 'date' }, yaxis: { title: 'Preço' } };
-    const trace = { x: [], y: [], mode: 'lines', line: { color: '#2563eb', width: 2 }, name: 'Preço' };
+        /* Candlestick */
+        const candle={
+          type:'candlestick',x,open,high,low,close,
+          increasing:{line:{color:'#16a34a'}},
+          decreasing:{line:{color:'#dc2626'}},
+          hovertemplate:'%{x|%Y-%m-%d}<br>O:%{open:.2f} H:%{high:.2f}<br>L:%{low:.2f} C:%{close:.2f}<extra></extra>'
+        };
 
-    function initChart() {
-      Plotly.newPlot('chart-container', [trace], layout, { responsive: true, displaylogo: false });
+        /* Moving Averages */
+        const traces=[candle];
+        if(taState.sma20){
+          traces.push({x,y:sma(close,20),mode:'lines',name:'SMA 20',
+                       line:{color:'#1d4ed8',width:1}});
+        }
+        if(taState.sma50){
+          traces.push({x,y:sma(close,50),mode:'lines',name:'SMA 50',
+                       line:{color:'#f59e0b',width:1}});
+        }
+
+        /* Layout principal */
+        const lay={margin:{t:20,l:56,r:8,b:40},
+                   xaxis:{type:'date',tickformat:'%Y-%m-%d',fixedrange:true},
+                   yaxis:{title:'Preço (€)',fixedrange:true}};
+
+        Plotly.react('chart',traces,lay,{responsive:true,displaylogo:false});
+
+        /* RSI */
+        if(taState.rsi){
+          const rsiVals=rsi(close,14);
+          const rsiTrace={x,y:rsiVals,type:'scatter',mode:'lines',name:'RSI',
+                          line:{color:'#6b7280',width:1}};
+          const overbought={type:'line',xref:'paper',x0:0,x1:1,y0:70,y1:70,
+                            line:{dash:'dot',color:'#dc2626',width:1}};
+          const oversold={type:'line',xref:'paper',x0:0,x1:1,y0:30,y1:30,
+                          line:{dash:'dot',color:'#16a34a',width:1}};
+          Plotly.react('taChart',[rsiTrace],
+                       {...layoutRSI,shapes:[overbought,oversold]},
+                       {responsive:true,displaylogo:false});
+        }else{
+          Plotly.react('taChart',[],layoutRSI,{responsive:true,displaylogo:false});
+        }
+
+      }catch(e){console.error('Hist',e);}
     }
 
-    async function fetchData(sym) {
-      const resp = await fetch(`https://marketanalyticshubapp.azurewebsites.net/api/YahooFinance/price/${sym}`);
-      const arr = await resp.json();
-      return Array.isArray(arr) && arr.length ? arr[0] : {};
-    }
+    /* ---------- Carregar símbolo ---------- */
+    async function loadSymbol(){
+      if(!symbol) return;
+      clearInterval(rtTimer);clearInterval(cdTimer);
 
-    function updateCardAll(data) {
-      const details = document.getElementById('card-details');
-      details.innerHTML = '';
-      for (const [k, v] of Object.entries(data)) {
-        const div = document.createElement('div');
-        div.innerHTML = `<span class='font-medium'>${k.replace(/([A-Z])/g,' $1')}:</span> ${v}`;
-        details.appendChild(div);
+      if(tf==='rt'){
+        traceRT.x.length=0;traceRT.y.length=0;
+        Plotly.react('chart',[traceRT],layoutRT,{responsive:true,displaylogo:false});
+        Plotly.react('taChart',[],layoutRSI,{responsive:true,displaylogo:false});
+        const first=await fetchRT(symbol);lastData=first;
+        layoutRT.shapes=[{type:'line',xref:'paper',x0:0,x1:1,
+                          y0:first.regularMarketPreviousClose,
+                          y1:first.regularMarketPreviousClose,
+                          line:{dash:'dot',color:'#6b7280',width:1}}];
+        Plotly.relayout('chart',layoutRT);
+        resetCount();
+        pullRT(first.regularMarketPreviousClose);
+        rtTimer=setInterval(()=>pullRT(first.regularMarketPreviousClose),REFRESH_MS);
+      }else{
+        document.getElementById('timer').textContent='—';
+        await plotHist();
       }
     }
 
-    function updatePriceOnly(data) {
-      document.getElementById('info').textContent = `${data.shortName || data.symbol} (${data.symbol})`;
-      document.getElementById('description').textContent = `Preço: €${data.regularMarketPrice?.toFixed(2) || 'N/A'}`;
-      const now = new Date();
-      trace.x.push(now);
-      trace.y.push(data.regularMarketPrice);
-      if (trace.x.length > 30) { trace.x.shift(); trace.y.shift(); }
-      Plotly.update('chart-container',{ x:[trace.x], y:[trace.y] });
-    }
-
-    async function update() {
-      try {
-        const data = await fetchData(symbol);
-        updatePriceOnly(data);
-      } catch (e) { console.error(e); }
-    }
-
-    function startAutoUpdate() {
-      clearInterval(updateInterval); clearInterval(countdownInterval);
-      secondsRemaining = 5;
-      document.getElementById('timer').textContent = `Próxima atualização em ${secondsRemaining}s`;
-      countdownInterval = setInterval(() => {
-        secondsRemaining = secondsRemaining>1?secondsRemaining-1:5;
-        document.getElementById('timer').textContent = `Próxima atualização em ${secondsRemaining}s`;
-      },1000);
-      updateInterval = setInterval(update, 5000);
-    }
-
-    document.getElementById('loadBtn').addEventListener('click', async () => {
-      const val = document.getElementById('symbolInput').value.trim().toUpperCase();
-      if (!val) return;
-      symbol = val; trace.x=[]; trace.y=[];
-      initChart();
-      const data = await fetchData(symbol);
-      updateCardAll(data);
-      updatePriceOnly(data);
-      startAutoUpdate();
+    /* ---------- Eventos UI ---------- */
+    document.getElementById('loadBtn').addEventListener('click',()=>{
+      symbol=document.getElementById('symbolInput').value.trim().toUpperCase();
+      if(symbol) loadSymbol();
     });
-
-    initChart();
-  </script></body>
+    document.querySelectorAll('.tf-btn').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        tf=btn.dataset.interval;hiTF(btn);loadSymbol();
+      });
+    });
+    document.querySelectorAll('.tab-btn').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('border-blue-600','text-blue-600','font-medium'));
+        btn.classList.add('border-blue-600','text-blue-600','font-medium');
+        document.querySelectorAll('[id^="tab-"]').forEach(s=>s.classList.add('hidden'));
+        document.getElementById(btn.dataset.tab).classList.remove('hidden');
+      });
+    });
+  </script>
+</body>
 </html>
