@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -25,7 +24,8 @@
             'slide-in': 'slideIn 0.3s ease-out',
             'fade-in': 'fadeIn 0.5s ease-out',
             'pulse-soft': 'pulseSoft 2s infinite',
-            'bounce-soft': 'bounceSoft 0.6s ease-out'
+            'bounce-soft': 'bounceSoft 0.6s ease-out',
+            'float': 'float 3s ease-in-out infinite'
           }
         }
       }
@@ -127,6 +127,11 @@
       60% { transform: translateY(-5px); }
     }
     
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+    
     .mobile-sidebar {
       transform: translateX(-100%);
       transition: transform 0.3s ease;
@@ -146,46 +151,202 @@
       opacity: 1;
       visibility: visible;
     }
+    
+    /* Mobile-first responsive improvements */
+    @media (max-width: 640px) {
+      .mobile-form {
+        padding: 1rem;
+      }
+      
+      .mobile-table {
+        font-size: 0.875rem;
+      }
+      
+      .mobile-card {
+        margin: 0.5rem;
+        border-radius: 1rem;
+      }
+      
+      .mobile-input {
+        font-size: 16px; /* Prevents zoom on iOS */
+      }
+      
+      .mobile-button {
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+      }
+      
+      .mobile-header {
+        position: sticky;
+        top: 0;
+        z-index: 30;
+        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.95);
+      }
+    }
+    
+    /* Tablet specific improvements */
+    @media (min-width: 641px) and (max-width: 1024px) {
+      .tablet-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+      }
+      
+      .tablet-form {
+        grid-column: span 2;
+      }
+      
+      .tablet-table {
+        grid-column: span 2;
+      }
+    }
+    
+    /* Desktop specific improvements */
+    @media (min-width: 1025px) {
+      .desktop-grid {
+        grid-template-columns: 1fr 2fr;
+        gap: 2rem;
+      }
+      
+      .desktop-sidebar {
+        position: fixed;
+        height: 100vh;
+        overflow-y: auto;
+      }
+      
+      .desktop-content {
+        margin-left: 16rem;
+      }
+    }
+    
+    /* Improved scrollbar styling */
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 3px;
+    }
+    
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+    
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    
+    /* Touch-friendly buttons */
+    .touch-target {
+      min-height: 44px;
+      min-width: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    /* Improved focus states for accessibility */
+    .focus-visible:focus {
+      outline: 2px solid #0ea5e9;
+      outline-offset: 2px;
+    }
+    
+    /* Loading state animations */
+    .loading-overlay {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(4px);
+    }
+    
+    /* Notification improvements */
+    .notification {
+      animation: slideInRight 0.3s ease-out;
+    }
+    
+    @keyframes slideInRight {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    
+    /* Enhanced table responsive design */
+    .responsive-table {
+      overflow-x: auto;
+    }
+    
+    .responsive-table::-webkit-scrollbar {
+      height: 8px;
+    }
+    
+    .responsive-table::-webkit-scrollbar-track {
+      background: #f8fafc;
+      border-radius: 4px;
+    }
+    
+    .responsive-table::-webkit-scrollbar-thumb {
+      background: #e2e8f0;
+      border-radius: 4px;
+    }
+    
+    /* Mobile table cards */
+    @media (max-width: 640px) {
+      .mobile-table-card {
+        display: block;
+        background: white;
+        border-radius: 0.75rem;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e5e7eb;
+      }
+      
+      .mobile-table-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+    }
   </style>
 </head>
 <body class="text-gray-800 min-h-screen flex flex-col">
 <div id="header-widget"></div>
   <!-- Mobile Overlay -->
-  <div id="overlay" class="overlay fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"></div>
+  <div id="overlay" class="overlay fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"></div>
 
   <!-- Sidebar + Header Container -->
   <div class="flex flex-1 overflow-hidden">
     <!-- Sidebar -->
-    <aside id="sidebar" class="sidebar-gradient w-64 border-r border-gray-200 shadow-xl p-6 flex-col mobile-sidebar fixed inset-y-0 left-0 z-50 md:relative md:z-auto md:flex">    <div class="flex items-center justify-between mb-8">
-        <h2 class="text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">novaHub</h2>
-        <button id="closeSidebarBtn" class="md:hidden p-2 rounded-lg hover:bg-gray-100 transition">
+    <aside id="sidebar" class="sidebar-gradient w-64 border-r border-gray-200 shadow-xl p-4 lg:p-6 flex-col mobile-sidebar fixed inset-y-0 left-0 z-50 lg:relative lg:z-auto lg:flex desktop-sidebar">
+      <div class="flex items-center justify-between mb-6 lg:mb-8">
+        <h2 class="text-xl lg:text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">novaHub</h2>
+        <button id="closeSidebarBtn" class="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition touch-target">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
           </svg>
         </button>
       </div>
       
-      <nav class="flex-1 space-y-2">
-        <a href="#" class="flex items-center space-x-3 py-3 px-4 rounded-xl hover:bg-primary-50 font-medium text-primary-700 bg-primary-50 transition group">
-          <span class="text-xl group-hover:scale-110 transition-transform">📊</span>
-          <span>Dashboard</span>
+      <nav class="flex-1 space-y-1 lg:space-y-2">
+        <a href="#" class="flex items-center space-x-3 py-2 lg:py-3 px-3 lg:px-4 rounded-xl hover:bg-primary-50 font-medium text-primary-700 bg-primary-50 transition group touch-target">
+          <span class="text-lg lg:text-xl group-hover:scale-110 transition-transform">📊</span>
+          <span class="text-sm lg:text-base">Dashboard</span>
         </a>
-        <a href="#" class="flex items-center space-x-3 py-3 px-4 rounded-xl hover:bg-gray-100 font-medium text-gray-700 transition group">
-          <span class="text-xl group-hover:scale-110 transition-transform">💼</span>
-          <span>Transações</span>
+        <a href="#" class="flex items-center space-x-3 py-2 lg:py-3 px-3 lg:px-4 rounded-xl hover:bg-gray-100 font-medium text-gray-700 transition group touch-target">
+          <span class="text-lg lg:text-xl group-hover:scale-110 transition-transform">💼</span>
+          <span class="text-sm lg:text-base">Transações</span>
         </a>
-        <a href="report-transactions.html" class="flex items-center space-x-3 py-3 px-4 rounded-xl hover:bg-gray-100 font-medium text-gray-700 transition group">
-          <span class="text-xl group-hover:scale-110 transition-transform">📈</span>
-          <span>Relatórios</span>
+        <a href="report-transactions.html" class="flex items-center space-x-3 py-2 lg:py-3 px-3 lg:px-4 rounded-xl hover:bg-gray-100 font-medium text-gray-700 transition group touch-target">
+          <span class="text-lg lg:text-xl group-hover:scale-110 transition-transform">📈</span>
+          <span class="text-sm lg:text-base">Relatórios</span>
         </a>
-        <a href="#" class="flex items-center space-x-3 py-3 px-4 rounded-xl hover:bg-gray-100 font-medium text-gray-700 transition group">
-          <span class="text-xl group-hover:scale-110 transition-transform">⚙️</span>
-          <span>Definições</span>
+        <a href="#" class="flex items-center space-x-3 py-2 lg:py-3 px-3 lg:px-4 rounded-xl hover:bg-gray-100 font-medium text-gray-700 transition group touch-target">
+          <span class="text-lg lg:text-xl group-hover:scale-110 transition-transform">⚙️</span>
+          <span class="text-sm lg:text-base">Definições</span>
         </a>
       </nav>
       
-      <button id="signOutBtn" class="mt-auto btn-danger text-white px-4 py-3 rounded-xl transition flex items-center justify-center space-x-2 font-medium">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <button id="signOutBtn" class="mt-auto btn-danger text-white px-3 lg:px-4 py-2 lg:py-3 rounded-xl transition flex items-center justify-center space-x-2 font-medium text-sm lg:text-base touch-target">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 lg:h-5 lg:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7"/>
         </svg>
         <span>Sair</span>
@@ -193,11 +354,11 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 overflow-auto p-4 md:p-6">
-      <!-- Header for mobile -->
-      <div class="md:hidden flex justify-between items-center mb-6 bg-white rounded-2xl p-4 shadow-lg">
-        <h1 class="text-2xl font-bold text-gray-800">Dashboard</h1>
-        <button id="mobileMenuBtn" class="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition">
+    <main class="flex-1 overflow-auto p-3 lg:p-6 desktop-content">
+      <!-- Header for mobile/tablet -->
+      <div class="lg:hidden mobile-header flex justify-between items-center mb-4 bg-white rounded-xl lg:rounded-2xl p-3 lg:p-4 shadow-lg">
+        <h1 class="text-xl lg:text-2xl font-bold text-gray-800">Dashboard</h1>
+        <button id="mobileMenuBtn" class="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition touch-target">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
@@ -205,17 +366,17 @@
       </div>
 
       <!-- Welcome Card -->
-      <section id="content" class="bg-white rounded-2xl shadow-xl p-6 mb-8 opacity-50 pointer-events-none card-hover animate-fade-in">
+      <section id="content" class="bg-white rounded-xl lg:rounded-2xl shadow-xl p-4 lg:p-6 mb-4 lg:mb-8 opacity-50 pointer-events-none card-hover animate-fade-in mobile-card">
         <div class="flex items-center justify-between">
           <div>
-            <h2 class="text-2xl font-bold mb-2 text-gray-800">
+            <h2 class="text-xl lg:text-2xl font-bold mb-2 text-gray-800">
               Bem-vindo, <span id="userName" class="text-primary-600 animate-pulse-soft">Utilizador</span>! 👋
             </h2>
-            <p class="text-gray-600">Aqui está um resumo das suas atividades mais recentes.</p>
+            <p class="text-sm lg:text-base text-gray-600">Aqui está um resumo das suas atividades mais recentes.</p>
           </div>
-          <div class="hidden md:block">
-            <div class="w-20 h-20 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center">
-              <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div class="hidden md:block animate-float">
+            <div class="w-16 h-16 lg:w-20 lg:h-20 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center">
+              <svg class="w-8 h-8 lg:w-10 lg:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
               </svg>
             </div>
@@ -225,9 +386,9 @@
 
       <!-- Transactions Section -->
       <section class="animate-fade-in">
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="text-3xl font-bold text-gray-800 flex items-center">
-            <span class="mr-3 text-4xl animate-bounce-soft">📈</span>
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between mb-4 lg:mb-6">
+          <h2 class="text-2xl lg:text-3xl font-bold text-gray-800 flex items-center mb-2 lg:mb-0">
+            <span class="mr-2 lg:mr-3 text-3xl lg:text-4xl animate-bounce-soft">📈</span>
             Transações de Ações
           </h2>
           <div class="hidden md:flex items-center space-x-2 text-sm text-gray-500">
@@ -243,15 +404,15 @@
         </div>
         
         <!-- Form & List Container -->
-        <div class="grid lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 tablet-grid desktop-grid">
           <!-- Form -->
-          <div class="lg:col-span-1">
-            <div class="bg-white rounded-2xl shadow-xl p-6 card-hover">
-              <h3 class="text-xl font-semibold mb-4 text-gray-800 flex items-center">
+          <div class="lg:col-span-1 tablet-form">
+            <div class="bg-white rounded-xl lg:rounded-2xl shadow-xl p-4 lg:p-6 card-hover mobile-card mobile-form">
+              <h3 class="text-lg lg:text-xl font-semibold mb-4 text-gray-800 flex items-center">
                 <span class="mr-2">✨</span>
                 Nova Transação
               </h3>
-              <form id="transactionForm" class="space-y-4">
+              <form id="transactionForm" class="space-y-3 lg:space-y-4">
                 <input type="hidden" id="transactionId" />
                 
                 <div class="space-y-2">
@@ -259,14 +420,14 @@
                   <input 
                     id="symbol" 
                     placeholder="Ex: AAPL, GOOGL, TSLA" 
-                    class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent input-glow transition text-gray-800 font-medium uppercase" 
+                    class="w-full border border-gray-300 rounded-xl px-3 lg:px-4 py-2 lg:py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent input-glow transition text-gray-800 font-medium uppercase mobile-input text-sm lg:text-base" 
                     required 
                   />
                 </div>
                 
                 <div class="space-y-2">
                   <label class="block text-sm font-medium text-gray-700">Tipo de Operação</label>
-                  <select id="operation" class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent input-glow transition text-gray-800 font-medium">
+                  <select id="operation" class="w-full border border-gray-300 rounded-xl px-3 lg:px-4 py-2 lg:py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent input-glow transition text-gray-800 font-medium mobile-input text-sm lg:text-base">
                     <option value="buy">🟢 Compra</option>
                     <option value="sell">🔴 Venda</option>
                   </select>
@@ -279,7 +440,7 @@
                     id="amount" 
                     placeholder="Número de ações" 
                     min="1" 
-                    class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent input-glow transition text-gray-800 font-medium" 
+                    class="w-full border border-gray-300 rounded-xl px-3 lg:px-4 py-2 lg:py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent input-glow transition text-gray-800 font-medium mobile-input text-sm lg:text-base" 
                     required 
                   />
                 </div>
@@ -292,28 +453,30 @@
                     placeholder="0.00" 
                     step="0.0001" 
                     min="0" 
-                    class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent input-glow transition text-gray-800 font-medium" 
+                    class="w-full border border-gray-300 rounded-xl px-3 lg:px-4 py-2 lg:py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent input-glow transition text-gray-800 font-medium mobile-input text-sm lg:text-base" 
                     required 
                   />
                 </div>
+                
                 <div class="space-y-2">
-                <label class="block text-sm font-medium text-gray-700">Taxa (€)</label>
-                <input
-                  type="number"
-                  id="fee"
-                  placeholder="0.00"
-                  step="0.0001"
-                  min="0"
-                  class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent input-glow transition text-gray-800 font-medium"
-                  required
-                />
-              </div>
+                  <label class="block text-sm font-medium text-gray-700">Taxa (€)</label>
+                  <input
+                    type="number"
+                    id="fee"
+                    placeholder="0.00"
+                    step="0.0001"
+                    min="0"
+                    class="w-full border border-gray-300 rounded-xl px-3 lg:px-4 py-2 lg:py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent input-glow transition text-gray-800 font-medium mobile-input text-sm lg:text-base"
+                    required
+                  />
+                </div>
+                
                 <div class="space-y-2">
                   <label class="block text-sm font-medium text-gray-700">Data da Transação</label>
                   <input 
                     type="date" 
                     id="date" 
-                    class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent input-glow transition text-gray-800 font-medium" 
+                    class="w-full border border-gray-300 rounded-xl px-3 lg:px-4 py-2 lg:py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent input-glow transition text-gray-800 font-medium mobile-input text-sm lg:text-base" 
                     required 
                   />
                 </div>
@@ -321,7 +484,7 @@
                 <button 
                   id="submitBtn" 
                   type="submit" 
-                  class="w-full btn-primary text-white font-semibold py-3 rounded-xl transition flex items-center justify-center space-x-2"
+                  class="w-full btn-primary text-white font-semibold py-2 lg:py-3 rounded-xl transition flex items-center justify-center space-x-2 mobile-button touch-target"
                 >
                   <span id="submitText">💾 Guardar Transação</span>
                   <svg id="loadingSpinner" class="hidden w-5 h-5 text-white loading-spinner" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -333,10 +496,10 @@
           </div>
           
           <!-- Transactions Table -->
-          <div class="lg:col-span-2">
-            <div class="bg-white rounded-2xl shadow-xl p-6 card-hover">
-              <div class="flex items-center justify-between mb-4">
-                <h3 class="text-xl font-semibold text-gray-800 flex items-center">
+          <div class="lg:col-span-2 tablet-table">
+            <div class="bg-white rounded-xl lg:rounded-2xl shadow-xl p-4 lg:p-6 card-hover mobile-card">
+              <div class="flex flex-col lg:flex-row lg:items-center justify-between mb-4">
+                <h3 class="text-lg lg:text-xl font-semibold text-gray-800 flex items-center mb-2 lg:mb-0">
                   <span class="mr-2">📋</span>
                   Histórico de Transações
                 </h3>
@@ -345,33 +508,49 @@
                 </div>
               </div>
               
-              <div class="overflow-auto max-h-96">
-                <table class="w-full table-auto">
-                  <thead class="bg-gray-50 sticky top-0">
-                    <tr class="text-left">
-                      <th class="px-4 py-3 font-semibold text-gray-700 rounded-tl-lg">Símbolo</th>
-                      <th class="px-4 py-3 font-semibold text-gray-700">Operação</th>
-                      <th class="px-4 py-3 font-semibold text-gray-700">Quantidade</th>
-                      <th class="px-4 py-3 font-semibold text-gray-700">Preço (€)</th>
-                      <th class="px-4 py-3 font-semibold text-gray-700">Taxa/Comissão (€)</th>
-                      <th class="px-4 py-3 font-semibold text-gray-700">Data</th>
-                      <th class="px-4 py-3 font-semibold text-gray-700 rounded-tr-lg">Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody id="transactionsBody">
-                    <tr>
-                      <td colspan="6" class="text-center text-gray-400 py-12">
-                        <div class="flex flex-col items-center space-y-2">
-                          <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                          </svg>
-                          <span class="text-lg font-medium">Sem transações registadas</span>
-                          <span class="text-sm">Adicione a sua primeira transação!</span>
-                        </div>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+              <!-- Desktop Table -->
+              <div class="hidden lg:block responsive-table custom-scrollbar">
+                <div class="overflow-auto max-h-96">
+                  <table class="w-full table-auto">
+                    <thead class="bg-gray-50 sticky top-0">
+                      <tr class="text-left">
+                        <th class="px-4 py-3 font-semibold text-gray-700 rounded-tl-lg">Símbolo</th>
+                        <th class="px-4 py-3 font-semibold text-gray-700">Operação</th>
+                        <th class="px-4 py-3 font-semibold text-gray-700">Quantidade</th>
+                        <th class="px-4 py-3 font-semibold text-gray-700">Preço (€)</th>
+                        <th class="px-4 py-3 font-semibold text-gray-700">Taxa (€)</th>
+                        <th class="px-4 py-3 font-semibold text-gray-700">Data</th>
+                        <th class="px-4 py-3 font-semibold text-gray-700 rounded-tr-lg">Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody id="transactionsBody">
+                      <tr>
+                        <td colspan="7" class="text-center text-gray-400 py-12">
+                          <div class="flex flex-col items-center space-y-2">
+                            <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            <span class="text-lg font-medium">Sem transações registadas</span>
+                            <span class="text-sm">Adicione a sua primeira transação!</span>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              
+              <!-- Mobile Cards -->
+              <div class="lg:hidden" id="mobileTransactionsList">
+                <div class="text-center text-gray-400 py-12">
+                  <div class="flex flex-col items-center space-y-2">
+                    <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    <span class="text-lg font-medium">Sem transações registadas</span>
+                    <span class="text-sm">Adicione a sua primeira transação!</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -382,14 +561,16 @@
   </div>
 
   <!-- Footer -->
-  <footer class="bg-white text-center p-4 text-sm text-gray-500 border-t border-gray-200">
+  <footer class="bg-white text-center p-3 lg:p-4 text-xs lg:text-sm text-gray-500 border-t border-gray-200">
     <div class="flex items-center justify-center space-x-2">
       <span>© 2025 novamarketshub</span>
       <span class="text-gray-300">|</span>
       <span class="text-primary-600">Powered by Innovation</span>
     </div>
   </footer>
-<script>
+
+  <!-- Mobile Menu Script -->
+  <script>
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
     const closeSidebarBtn = document.getElementById('closeSidebarBtn');
     const sidebar = document.getElementById('sidebar');
@@ -398,6 +579,7 @@
     function toggleSidebar() {
       sidebar.classList.toggle('active');
       overlay.classList.toggle('active');
+      document.body.classList.toggle('overflow-hidden');
     }
 
     mobileMenuBtn.addEventListener('click', toggleSidebar);
@@ -405,16 +587,16 @@
     overlay.addEventListener('click', toggleSidebar);
 
     window.addEventListener('resize', () => {
-      if (window.innerWidth >= 768) {
+      if (window.innerWidth >= 1024) {
+        sidebar.classListwindow.addEventListener('resize', () => {
+      if (window.innerWidth >= 1024) {
         sidebar.classList.remove('active');
         overlay.classList.remove('active');
+        document.body.classList.remove('overflow-hidden');
       }
     });
   </script>
-  
-  
-
-  <script type="module">
+<script type="module">
     import { auth } from './firebase-init.js';
     import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
