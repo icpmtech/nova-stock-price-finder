@@ -2,19 +2,20 @@ const defaultConfig = {
   containerId: 'header-widget',
   title: 'NovaStocks',
   logoUrl: '/assets/logo.png',
-  links: [
-    { icon: '📊', label: 'Dashboard', href: 'dashboard.html' },
-    { icon: '📈', label: 'Transações', href: 'real-time.html' },
-    { icon: '⚖️', label: 'Mercados', href: 'global-markets.html' },
-    { icon: '📋', label: 'Relatórios', href: 'report-transactions.html' },
-    { icon: '🏠', label: 'Painel', href: 'watchlist.html' },
-    { icon: '📂', label: 'Carteira', href: 'watchlist.html' },
-    { icon: '📉', label: 'Performance', href: 'report-transactions.html' },
-    { icon: '🔔', label: 'Eventos', href: 'events.html' },
-    { icon: '⭐', label: 'Favoritos', href: 'watchlist.html' },
-    { icon: '📤', label: 'Exportar', href: 'tax-report.html' },
-    { icon: '⚙️', label: 'Definições', href: 'settings.html' }
-  ]
+   links : [
+  { icon: '📁', label: 'Dashboard',        href: 'dashboard.html' },
+  { icon: '💱', label: 'Transações',       href: 'real-time.html' },
+  { icon: '🔍', label: 'Análise',          href: 'symbol-analysis.html' },
+  { icon: '💹', label: 'Mercados',         href: 'global-markets.html' },
+  { icon: '📑', label: 'Relatórios',       href: 'report-transactions.html' },
+  { icon: '🖥️', label: 'Painel',           href: 'watchlist.html' },
+  { icon: '💼', label: 'Carteira',         href: 'wallet.html' },
+  { icon: '⚡', label: 'Performance',      href: 'report-transactions.html' },
+  { icon: '📆', label: 'Eventos',          href: 'events.html' },
+  { icon: '❤️', label: 'Favoritos',        href: 'watchlist.html' },
+  { icon: '⬆️', label: 'Exportar',         href: 'tax-report.html' },
+  { icon: '🔧', label: 'Definições',       href: 'settings.html' }
+]
 };
 
 function buildHeader(cfg) {
