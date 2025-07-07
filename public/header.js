@@ -8,6 +8,7 @@ const defaultConfig = {
   { icon: '🔍', label: 'Análise',          href: 'symbol-analysis.html' },
   { icon: '💹', label: 'Mercados',         href: 'global-markets.html' },
   { icon: '📑', label: 'Relatórios',       href: 'report-transactions.html' },
+  { icon: '⬆️', label: 'Exportar',         href: 'importer.html' },
   { icon: '🖥️', label: 'Painel',           href: 'watchlist.html' },
   { icon: '💼', label: 'Carteira',         href: 'wallet.html' },
   { icon: '⚡', label: 'Performance',      href: 'report-transactions.html' },
