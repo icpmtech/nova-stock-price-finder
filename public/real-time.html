@@ -63,8 +63,6 @@
 </head>
 <body class="font-chakra bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 min-h-screen text-gray-800 antialiased">
   <!-- Header + Auth -->
-  <div id="header-widget"></div>
-  <script type="module" src="header.js"></script>
   <header class="flex items-center justify-between p-4 bg-white bg-opacity-20 backdrop-blur-lg fixed top-0 w-full z-50 border-b border-white border-opacity-20">
     <div class="flex items-center space-x-3">
       <span class="text-3xl animate-pulse-slow">💼</span>
@@ -411,7 +409,11 @@
           isOnline ? 'text-white text-opacity-70' : 'text-red-300'
         }`;
       },
-
+      computeProfit(tx, marketPrice) {
+        return tx.operation === 'buy'
+          ? (marketPrice - tx.price) * tx.amount - tx.fee   // compra
+          : (tx.price - marketPrice) * tx.amount - tx.fee; // venda
+      },
       // Fetch transactions
       async fetchTransactions() {
         try {
@@ -769,6 +771,23 @@ handleMobileClick(event) {
             console.error('Error updating price for', tx.symbol, err);
           }
         }
+         let total = 0;
+        for (const tx of this.state.transactions) {
+          const m = this.state.marketPrices[tx.id] ?? tx.price; // fallback
+          total += this.computeProfit(tx, m);
+        }
+        this.state.totalProfit = total;
+
+        // 2. mostrar
+        const profitCls =
+          total > 0 ? 'profit-positive'
+          : total < 0 ? 'profit-negative'
+          : 'profit-neutral';
+
+        this.elements.totalProfit.textContent = `€${total.toFixed(2)}`;
+        this.elements.totalProfit.className   = `text-2xl font-bold ${profitCls}`;
+
+        // 3. restante housekeeping
         this.state.lastUpdate = new Date().toISOString();
         this.updateStatistics();
         this.renderProfitChart();
