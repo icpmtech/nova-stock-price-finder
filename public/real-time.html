@@ -4,966 +4,526 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard Stocks</title>
- <link rel="manifest" href="manifest.json" />
-<meta name="theme-color" content="#0ea5e9" />
-<link rel="apple-touch-icon" href="/icons/icon-192.png" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0ea5e9" />
+  <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+  <!-- Google Font: Chat Sans (Chakra Petch) -->
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            'chat-sans': ['"Chakra Petch"', 'sans-serif'],
+          },
+          colors: {
+            primary: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+            }
+          },
+          animation: {
+            'slide-in': 'slideIn 0.3s ease-out',
+          },
+        }
+      }
+    }
+  </script>
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
-      color: #fff;
-      transition: all 0.3s ease;
-      min-height: 100vh;
-    }
-
-    .light-mode {
-      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-      color: #1a202c;
-    }
-
-    header {
-      padding: 20px 24px;
-      background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
-      color: #fff;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 4px 20px rgba(14, 165, 233, 0.3);
-      backdrop-filter: blur(10px);
-      position: relative;
-      z-index: 1000;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 1.5rem;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-    }
-
-    .logo-icon {
-      font-size: 2rem;
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-    }
-
-    /* Enhanced Navigation Menu */
-    .nav-container {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-
-    .desktop-nav {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .nav-link {
-      color: white;
-      text-decoration: none;
-      padding: 12px 16px;
-      border-radius: 8px;
-      font-weight: 500;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .nav-link::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-      transition: left 0.5s;
-    }
-
-    .nav-link:hover::before {
-      left: 100%;
-    }
-
-    .nav-link:hover {
-      background: rgba(255, 255, 255, 0.1);
-      transform: translateY(-2px);
-    }
-
-    .nav-link.active {
-      background: rgba(255, 255, 255, 0.2);
-      font-weight: 600;
-    }
-
-    .mobile-menu-toggle {
-      display: none;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: white;
-      padding: 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 1.2rem;
-      transition: all 0.3s ease;
-    }
-
-    .mobile-menu-toggle:hover {
-      background: rgba(255, 255, 255, 0.2);
-      transform: scale(1.05);
-    }
-
-    .mobile-menu {
-      display: none;
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-      background: rgba(14, 165, 233, 0.95);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-      animation: slideDown 0.3s ease;
-    }
-
-    @keyframes slideDown {
-      from {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .mobile-menu.active {
-      display: block;
-    }
-
-    .mobile-nav-link {
-      display: block;
-      color: white;
-      text-decoration: none;
-      padding: 16px 24px;
-      font-weight: 500;
-      transition: all 0.3s ease;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      position: relative;
-    }
-
-    .mobile-nav-link:hover {
-      background: rgba(255, 255, 255, 0.1);
-      padding-left: 32px;
-    }
-
-    .mobile-nav-link:last-child {
-      border-bottom: none;
-    }
-
-    .mobile-nav-link::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 4px;
-      background: white;
-      transform: scaleY(0);
-      transition: transform 0.3s ease;
-    }
-
-    .mobile-nav-link:hover::before {
-      transform: scaleY(1);
-    }
-
-    .theme-toggle {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: white;
-      padding: 12px 16px;
-      border-radius: 12px;
-      cursor: pointer;
-      font-size: 1rem;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(10px);
-    }
-
-    .theme-toggle:hover {
-      background: rgba(255, 255, 255, 0.2);
-      transform: translateY(-2px);
-    }
-
-    /* Responsive Design */
-    @media (max-width: 768px) {
-      .desktop-nav {
-        display: none;
-      }
-
-      .mobile-menu-toggle {
-        display: block;
-      }
-
-      .nav-container {
-        gap: 12px;
-      }
-
-      .theme-toggle {
-        padding: 10px 12px;
-        font-size: 0.9rem;
-      }
-
-      header {
-        padding: 16px 20px;
-      }
-
-      .logo {
-        font-size: 1.3rem;
-      }
-
-      .logo-icon {
-        font-size: 1.8rem;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .theme-toggle {
-        padding: 8px 10px;
-        font-size: 0.8rem;
-      }
-
-      .mobile-nav-link {
-        padding: 14px 20px;
-        font-size: 0.9rem;
-      }
-    }
-
-    .controls {
-      padding: 24px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
-      justify-content: center;
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .light-mode .controls {
-      background: rgba(255, 255, 255, 0.8);
-      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    }
-
-    .input-group {
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
-
-    input, button {
-      padding: 14px 18px;
-      border-radius: 12px;
-      border: none;
-      font-size: 1rem;
-      font-weight: 500;
-      transition: all 0.3s ease;
-      outline: none;
-    }
-
-    input {
-      width: 200px;
-      background: rgba(255, 255, 255, 0.1);
-      border: 2px solid rgba(255, 255, 255, 0.2);
-      color: white;
-      backdrop-filter: blur(10px);
-    }
-
-    .light-mode input {
-      background: rgba(255, 255, 255, 0.9);
-      border: 2px solid rgba(0, 0, 0, 0.1);
-      color: #1a202c;
-    }
-
-    input::placeholder {
-      color: rgba(255, 255, 255, 0.6);
-    }
-
-    .light-mode input::placeholder {
-      color: rgba(26, 32, 44, 0.6);
-    }
-
-    input:focus {
-      border-color: #0ea5e9;
-      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.3);
-    }
-
-    button {
-      background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
-      color: white;
-      cursor: pointer;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    button::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-      transition: left 0.5s;
-    }
-
-    button:hover::before {
-      left: 100%;
-    }
-
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(14, 165, 233, 0.4);
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 24px;
-      padding: 24px;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-
-    .card {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 16px;
-      padding: 24px;
-      position: relative;
-      text-align: center;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    }
-
-    .light-mode .card {
-      background: rgba(255, 255, 255, 0.9);
-      border: 1px solid rgba(0, 0, 0, 0.1);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-    }
-
-    .card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 20px 40px rgba(14, 165, 233, 0.2);
-      border-color: #0ea5e9;
-    }
-
-    .symbol {
-      font-size: 1.5rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-      color: #0ea5e9;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .price {
-      font-size: 2.2rem;
-      font-weight: 800;
-      margin: 12px 0;
-      background: linear-gradient(135deg, #0ea5e9, #06b6d4);
-      background-clip: text;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      animation: shimmer 2s infinite;
-    }
-
-    @keyframes shimmer {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.8; }
-    }
-
-    .change {
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin-top: 8px;
-      padding: 8px 16px;
-      border-radius: 20px;
-      display: inline-block;
-    }
-
-    .positive { 
-      background: linear-gradient(135deg, #22c55e, #16a34a);
-      color: white;
-    }
-
-    .negative { 
-      background: linear-gradient(135deg, #ef4444, #dc2626);
-      color: white;
-    }
-
-    .remove-btn {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: rgba(239, 68, 68, 0.1);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      color: #ef4444;
-      font-size: 18px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.3s ease;
-    }
-
-    .remove-btn:hover {
-      background: #ef4444;
-      color: white;
-      transform: scale(1.1);
-    }
-
-    .table-container {
-      margin: 24px;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 16px;
-      overflow: hidden;
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .light-mode .table-container {
-      background: rgba(255, 255, 255, 0.9);
-      border: 1px solid rgba(0, 0, 0, 0.1);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    th, td {
-      padding: 16px;
-      text-align: left;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .light-mode th, .light-mode td {
-      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    }
-
-    th {
-      background: linear-gradient(135deg, #0ea5e9, #0284c7);
-      color: white;
-      cursor: pointer;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      position: relative;
-      transition: all 0.3s ease;
-    }
-
-    th:hover {
-      background: linear-gradient(135deg, #0284c7, #0369a1);
-    }
-
-    th::after {
-      content: '↕';
-      position: absolute;
-      right: 16px;
-      opacity: 0.6;
-    }
-
-    .suggestions {
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-      z-index: 1000;
-      border-radius: 12px;
-      max-height: 200px;
-      overflow-y: auto;
-      backdrop-filter: blur(10px);
-      margin-top: 8px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-    }
-
-    .light-mode .suggestions {
-      background: rgba(255, 255, 255, 0.95);
-      border: 1px solid rgba(0, 0, 0, 0.1);
-    }
-
-    .suggestions div {
-      padding: 12px 16px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .light-mode .suggestions div {
-      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    }
-
-    .suggestions div:hover {
-      background: rgba(14, 165, 233, 0.2);
-      transform: translateX(4px);
-    }
-
-    .suggestions div:last-child {
-      border-bottom: none;
-    }
-
-    .loading {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 2px solid rgba(255, 255, 255, 0.3);
-      border-radius: 50%;
-      border-top-color: #0ea5e9;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .status-indicator {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      background: rgba(34, 197, 94, 0.9);
-      color: white;
-      padding: 12px 20px;
-      border-radius: 24px;
-      font-weight: 600;
-      backdrop-filter: blur(10px);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-      transform: translateY(100px);
-      transition: all 0.3s ease;
-    }
-
-    .status-indicator.show {
-      transform: translateY(0);
-    }
-
-    @media (max-width: 768px) {
-      .grid {
-        grid-template-columns: 1fr;
-        padding: 16px;
-      }
-      
-      .controls {
-        flex-direction: column;
-        align-items: center;
-        gap: 12px;
-      }
-      
-      input {
-        width: 100%;
-        max-width: 300px;
-      }
-      
-      .table-container {
-        margin: 16px;
-        overflow-x: auto;
-      }
-      
-      th, td {
-        padding: 12px 8px;
-        font-size: 0.9rem;
-      }
-    }
-
-    /* Scrollbar styling */
-    ::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    ::-webkit-scrollbar-track {
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 4px;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: rgba(14, 165, 233, 0.6);
-      border-radius: 4px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(14, 165, 233, 0.8);
-    }
-
-    /* Entry animations */
-    .card {
-      animation: slideInUp 0.5s ease;
-    }
-
-    @keyframes slideInUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
+    @keyframes slideIn { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    .loading-spinner { animation: spin 1s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   </style>
 </head>
-<body>
- <div id="header-widget"></div>
-  <!-- 2) Include the widget script -->
-<script type="module" src="header.js"></script>
-<header>
-  <div class="logo">
-    <span class="logo-icon">📈</span>
-    <span>Nova Stocks</span>
-  </div>
-  
-  <div class="nav-container">
-    <!-- Desktop Navigation -->
-    <nav class="desktop-nav">
-      <a href="index.html" class="nav-link active">Início</a>
-      <a href="zack.html" class="nav-link">Análise</a>
-      <a href="stocks.html" class="nav-link">As Minhas Ações</a>
-      <a href="real-time.html" class="nav-link">Acompanhar</a>
-      <a href="https://nova-search-stock.netlify.app/" class="nav-link">Simular Estratégia</a>
-    </nav>
-
-    <!-- Mobile Menu Toggle -->
-    <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
-      <span id="menuIcon">☰</span>
-    </button>
-
-    <button class="theme-toggle" onclick="toggleTheme()">🌓 Tema</button>
-  </div>
-
-  <!-- Mobile Navigation Menu -->
-  <div class="mobile-menu" id="mobileMenu">
-    <a href="index.html" class="mobile-nav-link">🏠 Início</a>
-    <a href="zack.html" class="mobile-nav-link">📊 Análise</a>
-    <a href="stocks.html" class="mobile-nav-link">💼 As Minhas Ações</a>
-    <a href="real-time.html" class="mobile-nav-link">📡 Acompanhar</a>
-    <a href="https://nova-search-stock.netlify.app/" class="mobile-nav-link">🎯 Simular Estratégia</a>
-  </div>
-</header>
-
-<div class="controls">
-  <div class="input-group">
-    <input id="inputSymbol" placeholder="Pesquisar ticker..." />
-    <div id="suggestions" class="suggestions" style="display: none;"></div>
-  </div>
-  <button onclick="addStock()">✨ Adicionar</button>
-  <button onclick="exportList()">📤 Exportar</button>
-  <input type="file" id="fileInput" accept=".json,.csv" style="display:none;" />
-  <button onclick="document.getElementById('fileInput').click()">📥 Importar</button>
-  <button onclick="refreshAll()">🔄 Atualizar</button>
-</div>
-
-<div class="grid" id="stockGrid"></div>
-
-<div class="table-container">
-  <table id="stockTable">
-    <thead>
-      <tr>
-        <th onclick="sortTable(0)">Ticker</th>
-        <th onclick="sortTable(1)">Preço</th>
-        <th onclick="sortTable(2)">Variação</th>
-        <th onclick="sortTable(3)">Volume</th>
-        <th onclick="sortTable(4)">Cap. Mercado</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</div>
-
-<div id="statusIndicator" class="status-indicator">
-  <span id="statusText">Atualizado</span>
-</div>
-
-<script>
-// Mobile menu toggle functionality
-function toggleMobileMenu() {
-  const mobileMenu = document.getElementById('mobileMenu');
-  const menuIcon = document.getElementById('menuIcon');
-  
-  mobileMenu.classList.toggle('active');
-  menuIcon.textContent = mobileMenu.classList.contains('active') ? '✕' : '☰';
-}
-
-// Close mobile menu when clicking outside
-document.addEventListener('click', (e) => {
-  const mobileMenu = document.getElementById('mobileMenu');
-  const menuToggle = document.querySelector('.mobile-menu-toggle');
-  
-  if (!mobileMenu.contains(e.target) && !menuToggle.contains(e.target)) {
-    mobileMenu.classList.remove('active');
-    document.getElementById('menuIcon').textContent = '☰';
-  }
-});
-
-// Close mobile menu when clicking on a link
-document.querySelectorAll('.mobile-nav-link').forEach(link => {
-  link.addEventListener('click', () => {
-    document.getElementById('mobileMenu').classList.remove('active');
-    document.getElementById('menuIcon').textContent = '☰';
-  })});
-    </script>
-  <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker
-        .register('service-worker.js')
-        .then((reg) => console.log('SW registrado!', reg.scope))
-        .catch((err) => console.error('Erro ao registrar SW:', err));
-    });
-  }
-  </script>
-<script>
-const symbols = new Set(JSON.parse(localStorage.getItem('watchlist') || '["AAPL","TSLA","MSFT"]'));
-const grid = document.getElementById('stockGrid');
-const tableBody = document.querySelector('#stockTable tbody');
-const input = document.getElementById('inputSymbol');
-const suggestions = document.getElementById('suggestions');
-const statusIndicator = document.getElementById('statusIndicator');
-const statusText = document.getElementById('statusText');
-let dark = true;
-
-function toggleTheme() {
-  dark = !dark;
-  document.body.classList.toggle('light-mode', !dark);
-  localStorage.setItem('theme', dark ? 'dark' : 'light');
-}
-
-function saveList() {
-  localStorage.setItem('watchlist', JSON.stringify([...symbols]));
-}
-
-function showStatus(message, type = 'success') {
-  statusText.textContent = message;
-  statusIndicator.className = `status-indicator show ${type}`;
-  setTimeout(() => {
-    statusIndicator.classList.remove('show');
-  }, 3000);
-}
-
-function createCard(symbol) {
-  const div = document.createElement('div');
-  div.className = 'card';
-  div.id = `card-${symbol}`;
-  div.innerHTML = `
-    <button class="remove-btn" onclick="removeStock('${symbol}')" title="Remover ${symbol}">×</button>
-    <div class="symbol">${symbol}</div>
-    <div class="price" id="price-${symbol}">
-      <span class="loading"></span>
+<body class="font-chat-sans bg-gradient-to-br from-purple-500 to-purple-700 min-h-screen antialiased text-gray-800">
+  <!-- Header + User Info + Sign Out -->
+  <div id="header-widget"></div>
+  <script type="module" src="header.js"></script>
+  <header class="flex items-center justify-between p-4 bg-white bg-opacity-20 backdrop-blur-lg fixed top-0 left-0 right-0 z-50">
+    <div class="flex items-center space-x-2">
+      <span class="text-2xl">📈</span>
+      <span class="text-xl font-semibold">Nova Stocks</span>
     </div>
-    <div class="change" id="change-${symbol}">Carregando...</div>
-  `;
-  grid.appendChild(div);
-}
+    <nav class="hidden lg:flex space-x-4">
+      <a href="index.html" class="text-white hover:text-primary-100">Início</a>
+      <a href="zack.html" class="text-white hover:text-primary-100">Análise</a>
+      <a href="stocks.html" class="text-white hover:text-primary-100">Minhas Ações</a>
+      <a href="real-time.html" class="text-white hover:text-primary-100">Acompanhar</a>
+      <a href="https://nova-search-stock.netlify.app/" class="text-white hover:text-primary-100">Simular Estratégia</a>
+    </nav>
+    <div class="hidden lg:flex items-center space-x-4">
+      <span id="userName" class="text-white"></span>
+      <button id="signOutBtn" class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition">Sair</button>
+    </div>
+    <div class="flex items-center space-x-2 lg:hidden">
+      <button id="mobileMenuBtn" class="text-white text-2xl">☰</button>
+      <button id="themeToggle" class="text-white p-2 bg-primary-500 rounded-lg hover:bg-primary-600 transition">🌓 Tema</button>
+    </div>
+  </header>
 
-function updateCard(symbol, data) {
-  const priceEl = document.getElementById(`price-${symbol}`);
-  const changeEl = document.getElementById(`change-${symbol}`);
-  
-  if (priceEl && changeEl) {
-    priceEl.textContent = `€${(data.price || 0).toFixed(2)}`;
-    const c = data.changePercent || 0;
-    changeEl.textContent = `${c >= 0 ? '+' : ''}${c.toFixed(2)}%`;
-    changeEl.className = 'change ' + (c >= 0 ? 'positive' : 'negative');
-  }
-}
+  <!-- Mobile Menu -->
+  <div id="mobileMenu" class="fixed inset-0 bg-black bg-opacity-50 hidden z-40">
+    <div class="bg-white w-64 h-full p-4 space-y-4">
+      <button id="mobileMenuClose" class="text-2xl">✕</button>
+      <a href="index.html" class="block">🏠 Início</a>
+      <a href="zack.html" class="block">📊 Análise</a>
+      <a href="stocks.html" class="block">💼 Ações</a>
+      <a href="real-time.html" class="block">📡 Acompanhar</a>
+      <a href="https://nova-search-stock.netlify.app/" class="block">🎯 Simular Estratégia</a>
+      <hr class="my-2" />
+      <span id="userNameMobile" class="block font-semibold"></span>
+      <button id="signOutBtnMobile" class="w-full text-left px-2 py-1 text-red-500 hover:bg-red-100 rounded">Sair</button>
+    </div>
+  </div>
 
-function updateTableRow(symbol, data) {
-  const row = document.getElementById(`row-${symbol}`) || tableBody.insertRow();
-  row.id = `row-${symbol}`;
-  const changeClass = (data.changePercent || 0) >= 0 ? 'positive' : 'negative';
-  row.innerHTML = `
-    <td><strong>${symbol}</strong></td>
-    <td>€${(data.price || 0).toFixed(2)}</td>
-    <td><span class="change ${changeClass}">${((data.changePercent || 0) >= 0 ? '+' : '')}${(data.changePercent || 0).toFixed(2)}%</span></td>
-    <td>${data.volume ? data.volume.toLocaleString() : '-'}</td>
-    <td>${data.marketCap ? (data.marketCap/1e9).toFixed(1) + 'B' : '-'}</td>
-  `;
-}
+  <!-- Controles de Watchlist -->
+  <div class="mt-24 p-4 flex flex-wrap gap-2 items-center">
+    <div class="relative flex-1 max-w-xs">
+      <input id="inputSymbol" class="w-full p-2 rounded-lg shadow focus:ring-2 focus:ring-primary-500" placeholder="Pesquisar ticker..." />
+      <div id="suggestions" class="absolute top-full left-0 right-0 bg-white shadow rounded-lg mt-1 max-h-48 overflow-y-auto hidden"></div>
+    </div>
+    <button onclick="addStock()" class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition">✨ Adicionar</button>
+    <button onclick="exportList()" class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition">📤 Exportar</button>
+    <input type="file" id="fileInput" accept=".json,.csv" class="hidden" />
+    <button onclick="document.getElementById('fileInput').click()" class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition">📥 Importar</button>
+    <button onclick="refreshAll()" class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition">🔄 Atualizar</button>
+  </div>
 
-async function fetchStock(symbol) {
-  try {
-    const res = await fetch(`/api/stocks?symbol=${symbol}`);
-    const data = await res.json();
-    if (!data || !data.price) throw new Error("Dados inválidos");
+  <!-- Grid de Cards -->
+  <div class="p-4 grid gap-4" id="stockGrid"></div>
 
-    updateCard(symbol, data);
-    updateTableRow(symbol, data);
-  } catch (err) {
-    console.error(`Erro ao buscar ${symbol}:`, err);
-    showStatus(`Erro ao carregar ${symbol}`, 'error');
-  }
-}
+  <!-- Tabela de Watchlist -->
+  <div class="p-4 overflow-x-auto">
+    <table id="stockTable" class="min-w-full bg-white rounded-lg overflow-hidden">
+      <thead class="bg-primary-500 text-white">
+        <tr>
+          <th onclick="sortTable(0)" class="px-4 py-2 cursor-pointer">Ticker</th>
+          <th onclick="sortTable(1)" class="px-4 py-2 cursor-pointer">Preço</th>
+          <th onclick="sortTable(2)" class="px-4 py-2 cursor-pointer">Variação</th>
+          <th onclick="sortTable(3)" class="px-4 py-2 cursor-pointer">Volume</th>
+          <th onclick="sortTable(4)" class="px-4 py-2 cursor-pointer">Cap. Mercado</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y"></tbody>
+    </table>
+  </div>
 
-function refreshAll() {
-  showStatus('Atualizando preços...', 'info');
-  let completed = 0;
-  const total = symbols.size;
-  
-  symbols.forEach(sym => {
-    fetchStock(sym).then(() => {
-      completed++;
-      if (completed === total) {
-        showStatus('Preços atualizados!');
-      }
+  <!-- Formulário de Transações -->
+  <div id="formContainer" class="p-4 bg-white bg-opacity-20 backdrop-blur-lg rounded-lg max-w-3xl mx-auto mt-6">
+    <form id="transactionForm" class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <input type="hidden" id="transactionId" />
+      <div>
+        <label class="block mb-1 text-white">Símbolo</label>
+        <input id="symbol" class="w-full p-2 rounded-lg" required />
+      </div>
+      <div>
+        <label class="block mb-1 text-white">Operação</label>
+        <select id="operation" class="w-full p-2 rounded-lg" required>
+          <option value="">Selecione</option>
+          <option value="buy">Compra</option>
+          <option value="sell">Venda</option>
+        </select>
+      </div>
+      <div>
+        <label class="block mb-1 text-white">Quantidade</label>
+        <input id="amount" type="number" min="0" step="1" class="w-full p-2 rounded-lg" required />
+      </div>
+      <div>
+        <label class="block mb-1 text-white">Preço (€)</label>
+        <input id="price" type="number" min="0" step="0.0001" class="w-full p-2 rounded-lg" required />
+      </div>
+      <div>
+        <label class="block mb-1 text-white">Taxa (€)</label>
+        <input id="fee" type="number" min="0" step="0.0001" class="w-full p-2 rounded-lg" required />
+      </div>
+      <div>
+        <label class="block mb-1 text-white">Data</label>
+        <input id="date" type="date" class="w-full p-2 rounded-lg" required />
+      </div>
+      <button id="submitBtn" type="submit" class="col-span-full lg:col-start-3 lg:col-end-4 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition">
+        <span id="submitText">💾 Guardar Transação</span>
+        <span id="loadingSpinner" class="hidden ml-2 loading-spinner">⏳</span>
+      </button>
+    </form>
+  </div>
+
+  <!-- Lista de Transações -->
+  <div class="p-4 max-w-4xl mx-auto">
+    <!-- Desktop -->
+    <div class="hidden lg:block">
+      <table class="w-full bg-white rounded-lg overflow-hidden">
+        <thead class="bg-primary-600 text-white">
+          <tr>
+            <th class="px-4 py-2">Símbolo</th>
+            <th class="px-4 py-2">Op.</th>
+            <th class="px-4 py-2">Qtd</th>
+            <th class="px-4 py-2">Preço</th>
+            <th class="px-4 py-2">Taxa</th>
+            <th class="px-4 py-2">Data</th>
+            <th class="px-4 py-2">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="transactionTbody" class="divide-y"></tbody>
+      </table>
+    </div>
+    <!-- Mobile -->
+    <div id="mobileList" class="lg:hidden space-y-4"></div>
+    <div class="mt-2 text-white">Total: <span id="total">0</span></div>
+  </div>
+
+  <!-- Notificação -->
+  <div id="statusIndicator" class="fixed top-4 right-4 hidden bg-primary-500 text-white px-4 py-2 rounded-lg shadow-lg"></div>
+
+  <!-- Lógica JS Completa -->
+  <script type="module">
+    import('./firebase-init.js').then(({ auth }) => {
+      import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js').then(({ onAuthStateChanged, signOut }) => {
+        onAuthStateChanged(auth, user => {
+          if (!user) return location.href = '/login.html';
+          state.userEmail = user.email;
+          document.getElementById('userName').textContent = user.displayName || user.email.split('@')[0];
+          document.getElementById('userNameMobile').textContent = document.getElementById('userName').textContent;
+          fetchTransactions();
+        });
+        const doSignOut = async btnId => {
+          const btn = document.getElementById(btnId);
+          btn.disabled = true;
+          await signOut(auth);
+          location.href = '/login.html';
+        };
+        document.getElementById('signOutBtn').addEventListener('click', () => doSignOut('signOutBtn'));
+        document.getElementById('signOutBtnMobile').addEventListener('click', () => doSignOut('signOutBtnMobile'));
+      });
     });
-  });
-}
 
-function addStock() {
-  const sym = input.value.trim().toUpperCase();
-  if (sym && !symbols.has(sym)) {
-    symbols.add(sym);
-    createCard(sym);
-    fetchStock(sym);
-    saveList();
-    showStatus(`${sym} adicionado!`);
-  } else if (symbols.has(sym)) {
-    showStatus(`${sym} já está na lista`, 'warning');
-  }
-  input.value = '';
-  suggestions.style.display = 'none';
-}
+    // Watchlist
+    const symbols = new Set(JSON.parse(localStorage.getItem('watchlist') || '[]'));
+    const grid = document.getElementById('stockGrid');
+    const tableBody = document.querySelector('#stockTable tbody');
+    const input = document.getElementById('inputSymbol');
+    const suggestions = document.getElementById('suggestions');
+    const statusIndicator = document.getElementById('statusIndicator');
 
-function removeStock(sym) {
-  symbols.delete(sym);
-  document.getElementById(`card-${sym}`)?.remove();
-  document.getElementById(`row-${sym}`)?.remove();
-  saveList();
-  showStatus(`${sym} removido`);
-}
+    function showStatus(message, type='success') {
+      statusIndicator.textContent = message;
+      statusIndicator.className = `fixed top-4 right-4 bg-primary-500 text-white px-4 py-2 rounded-lg shadow-lg`;
+      statusIndicator.classList.remove('hidden');
+      setTimeout(() => statusIndicator.classList.add('hidden'), 3000);
+    }
 
-function sortTable(col) {
-  const rows = Array.from(tableBody.rows);
-  const sorted = rows.sort((a, b) => {
-    let va = a.cells[col].textContent.replace(/[€%BM]/g, '');
-    let vb = b.cells[col].textContent.replace(/[€%BM]/g, '');
-    return col === 0 ? va.localeCompare(vb) : parseFloat(vb) - parseFloat(va);
-  });
-  tableBody.innerHTML = '';
-  sorted.forEach(r => tableBody.appendChild(r));
-  showStatus('Tabela ordenada!');
-}
+    function saveList() {
+      localStorage.setItem('watchlist', JSON.stringify([...symbols]));
+    }
 
-input.addEventListener('input', async () => {
-  const q = input.value.trim();
-  if (!q) return suggestions.style.display = 'none';
-
-  try {
-    const res = await fetch(`/api/stocks?query=${q}`);
-    const results = await res.json();
-
-    suggestions.innerHTML = '';
-    results.forEach(({ symbol, name }) => {
+    function createCard(symbol) {
       const div = document.createElement('div');
-      div.innerHTML = `<strong>${symbol}</strong> - ${name}`;
-      div.onclick = () => {
-        input.value = symbol;
-        suggestions.style.display = 'none';
-      };
-      suggestions.appendChild(div);
-    });
+      div.className = 'card bg-white rounded-lg p-4 shadow-lg slide-in';
+      div.id = `card-${symbol}`;
+      div.innerHTML = `
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-lg font-semibold">${symbol}</span>
+          <button onclick="removeStock('${symbol}')" class="text-red-500 hover:text-red-700">×</button>
+        </div>
+        <div class="text-2xl" id="price-${symbol}">€--</div>
+        <div id="change-${symbol}" class="mt-1">--%</div>`;
+      grid.appendChild(div);
+    }
 
-    suggestions.style.display = results.length > 0 ? 'block' : 'none';
-  } catch {
-    suggestions.style.display = 'none';
-  }
-});
+    function updateCard(symbol, data) {
+      document.getElementById(`price-${symbol}`).textContent = `€${data.price.toFixed(2)}`;
+      const c = data.changePercent;
+      const el = document.getElementById(`change-${symbol}`);
+      el.textContent = `${c >= 0 ? '+' : ''}${c.toFixed(2)}%`;
+      el.className = c >= 0 ? 'text-green-600' : 'text-red-600';
+    }
 
-document.addEventListener('click', e => {
-  if (!suggestions.contains(e.target) && e.target !== input)
-    suggestions.style.display = 'none';
-});
+    async function fetchStock(sym) {
+      try {
+        const res = await fetch(`/api/stocks?symbol=${sym}`);
+        const data = await res.json();
+        if (!data.price) throw new Error();
+        updateCard(sym, data);
+      } catch {
+        showStatus(`Erro ao carregar ${sym}`, 'error');
+      }
+    }
 
-input.addEventListener('keypress', e => {
-  if (e.key === 'Enter') addStock();
-});
+    function refreshAll() {
+      showStatus('Atualizando preços...');
+      let done = 0;
+      symbols.forEach(sym => {
+        fetchStock(sym).finally(() => {
+          done++;
+          if (done === symbols.size) showStatus('Preços atualizados!');
+        });
+      });
+    }
 
-function exportList() {
-  const json = JSON.stringify([...symbols], null, 2);
-  const blob = new Blob([json], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `watchlist_${new Date().toISOString().split('T')[0]}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-  showStatus('Exportado com sucesso!');
-}
-
-document.getElementById('fileInput').addEventListener('change', async e => {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  try {
-    const text = await file.text();
-    const list = file.name.endsWith('.csv')
-      ? text.split(',').map(s => s.trim().toUpperCase())
-      : JSON.parse(text);
-
-    let added = 0;
-    list.forEach(sym => {
-      if (!symbols.has(sym)) {
+    function addStock() {
+      const sym = input.value.trim().toUpperCase();
+      if (!sym) return;
+      if (symbols.has(sym)) {
+        showStatus(`${sym} já está na lista`, 'error');
+      } else {
         symbols.add(sym);
+        saveList();
         createCard(sym);
         fetchStock(sym);
-        added++;
+        showStatus(`${sym} adicionado!`);
+      }
+      input.value = '';
+      suggestions.classList.add('hidden');
+    }
+
+    function removeStock(sym) {
+      symbols.delete(sym);
+      saveList();
+      document.getElementById(`card-${sym}`)?.remove();
+      tableBody.querySelector(`#row-${sym}`)?.remove();
+      showStatus(`${sym} removido`);
+    }
+
+    function sortTable(col) {
+      const rows = Array.from(tableBody.rows);
+      rows.sort((a,b) => {
+        const xa = a.cells[col].textContent.replace(/[€,%]/g,''), xb = b.cells[col].textContent.replace(/[€,%]/g,'');
+        return col===0 ? xa.localeCompare(xb) : parseFloat(xb)-parseFloat(xa);
+      });
+      tableBody.innerHTML = '';
+      rows.forEach(r=>tableBody.appendChild(r));
+    }
+
+    input.addEventListener('input', async () => {
+      const q = input.value.trim();
+      if (!q) return void suggestions.classList.add('hidden');
+      try {
+        const res = await fetch(`/api/stocks?query=${q}`);
+        const arr = await res.json();
+        suggestions.innerHTML = '';
+        arr.forEach(({symbol,name})=>{
+          const d=document.createElement('div');
+          d.className='p-2 hover:bg-gray-100 cursor-pointer';
+          d.textContent=`${symbol} – ${name}`;
+          d.onclick=()=>{ input.value=symbol; suggestions.classList.add('hidden'); };
+          suggestions.appendChild(d);
+        });
+        suggestions.classList.remove('hidden');
+      } catch {
+        suggestions.classList.add('hidden');
       }
     });
 
-    saveList();
-    showStatus(`${added} adicionados da lista!`);
-  } catch (err) {
-    console.error('Erro ao importar:', err);
-    showStatus('Erro ao importar ficheiro', 'error');
-  }
-});
+    document.addEventListener('click', e=>{
+      if (!suggestions.contains(e.target) && e.target!==input) {
+        suggestions.classList.add('hidden');
+      }
+    });
 
-function init() {
-  const savedTheme = localStorage.getItem('theme');
-  if (savedTheme === 'light') {
-    dark = false;
-    document.body.classList.add('light-mode');
-  }
+    input.addEventListener('keypress', e=>{
+      if (e.key==='Enter') addStock();
+    });
 
-  symbols.forEach(sym => {
-    createCard(sym);
-    fetchStock(sym);
-  });
+    function exportList() {
+      const blob=new Blob([JSON.stringify([...symbols],null,2)],{type:'application/json'});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');
+      a.href=url; a.download=`watchlist_${new Date().toISOString().slice(0,10)}.json`;
+      a.click(); URL.revokeObjectURL(url);
+    }
 
-  setInterval(refreshAll, 30000);
-  showStatus('Dashboard carregado!');
-}
+    document.getElementById('fileInput').addEventListener('change', async e=>{
+      const f=e.target.files[0]; if(!f) return;
+      try {
+        const txt=await f.text();
+        const list = f.name.endsWith('.csv')
+          ? txt.split(',').map(s=>s.trim().toUpperCase())
+          : JSON.parse(txt);
+        let added=0;
+        list.forEach(sym=>{
+          if(!symbols.has(sym)){
+            symbols.add(sym);
+            createCard(sym);
+            fetchStock(sym);
+            added++;
+          }
+        });
+        saveList();
+        showStatus(`${added} adicionados`);
+      } catch {
+        showStatus('Erro na importação','error');
+      }
+    });
 
-init();
-        </script>
-  <!-- 2) Include the widget script -->
-<script type="module" src="header.js"></script>
+    // Inicialização Watchlist
+    symbols.forEach(sym=>{createCard(sym); fetchStock(sym);});
+    setInterval(refreshAll,30000);
+
+    // Transações
+    window.state = { transactions: [] };
+    const els = {
+      tbody: document.getElementById('transactionTbody'),
+      mobileList: document.getElementById('mobileList'),
+      total: document.getElementById('total'),
+      form: document.getElementById('transactionForm'),
+      symbol: document.getElementById('symbol'),
+      operation: document.getElementById('operation'),
+      amount: document.getElementById('amount'),
+      price: document.getElementById('price'),
+      fee: document.getElementById('fee'),
+      date: document.getElementById('date'),
+      submitBtn: document.getElementById('submitBtn'),
+      submitText: document.getElementById('submitText'),
+      transactionId: document.getElementById('transactionId'),
+      loadingSpinner: document.getElementById('loadingSpinner'),
+    };
+
+    const getAPI = () => `/api/transactions?user=${encodeURIComponent(state.userEmail)}`;
+
+    async function fetchTransactions() {
+      try {
+        const res = await fetch(getAPI());
+        state.transactions = await res.json();
+        render();
+      } catch {
+        showStatus('Erro ao carregar transações', 'error');
+      }
+    }
+
+    function render() {
+      els.tbody.innerHTML = '';
+      els.mobileList.innerHTML = '';
+      els.total.textContent = state.transactions.length;
+      if (!state.transactions.length) {
+        const empty = `<div class="empty-state text-white">Sem transações registadas</div>`;
+        els.tbody.innerHTML = empty;
+        els.mobileList.innerHTML = empty;
+        return;
+      }
+      state.transactions.forEach(t=>{
+        const opClass = t.operation === 'buy' ? 'bg-green-500' : 'bg-red-500';
+        const opText = t.operation === 'buy' ? 'Compra' : 'Venda';
+        // Desktop
+        const row=document.createElement('tr');
+        row.innerHTML = `
+          <td class="px-4 py-2 font-semibold">${t.symbol}</td>
+          <td class="px-4 py-2"><span class="px-2 py-1 rounded-full text-white ${opClass}">${opText}</span></td>
+          <td class="px-4 py-2">${t.amount}</td>
+          <td class="px-4 py-2">€${t.price.toFixed(4)}</td>
+          <td class="px-4 py-2">€${t.fee.toFixed(4)}</td>
+          <td class="px-4 py-2">${new Date(t.date).toLocaleDateString()}</td>
+          <td class="px-4 py-2 space-x-2">
+            <button data-id="${t.id}" class="del-btn text-red-600">Excluir</button>
+            <button data-t="${encodeURIComponent(JSON.stringify(t))}" class="edit-btn text-blue-600">Editar</button>
+          </td>`;
+        els.tbody.appendChild(row);
+        // Mobile
+        const card=document.createElement('div');
+        card.className='mobile-transaction-card bg-white rounded-lg p-4';
+        card.innerHTML=`
+          <div class="flex justify-between mb-2">
+            <span class="font-semibold">${t.symbol}</span>
+            <span class="px-2 py-1 rounded ${opClass} text-white">${opText}</span>
+          </div>
+          <p>Qtd: ${t.amount} | Preço: €${t.price.toFixed(4)}</p>
+          <p>Taxa: €${t.fee.toFixed(4)} | Data: ${new Date(t.date).toLocaleDateString()}</p>`;
+        els.mobileList.appendChild(card);
+      });
+    }
+
+    els.tbody.addEventListener('click', e=>{
+      const editBtn = e.target.closest('.edit-btn');
+      const delBtn  = e.target.closest('.del-btn');
+      if(editBtn){
+        const t = JSON.parse(decodeURIComponent(editBtn.dataset.t));
+        els.transactionId.value = t.id;
+        els.symbol.value = t.symbol;
+        els.operation.value = t.operation;
+        els.amount.value = t.amount;
+        els.price.value = t.price;
+        els.fee.value = t.fee;
+        els.date.value = t.date;
+        els.submitText.textContent = '✏️ Atualizar Transação';
+        showStatus('Pronto para edição','info');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      if(delBtn){
+        const id = delBtn.dataset.id;
+        if(confirm('Eliminar esta transação?')) deleteTransaction(id);
+      }
+    });
+
+    async function deleteTransaction(id) {
+      try {
+        await fetch(`${getAPI()}&id=${id}`, { method: 'DELETE' });
+        fetchTransactions();
+        showStatus('Transação eliminada','success');
+      } catch {
+        showStatus('Erro ao eliminar','error');
+      }
+    }
+
+    els.form.addEventListener('submit', async e=>{
+      e.preventDefault();
+      const id = els.transactionId.value;
+      const p = {
+        symbol: els.symbol.value.trim(),
+        operation: els.operation.value,
+        amount: parseFloat(els.amount.value),
+        price: parseFloat(els.price.value),
+        fee: parseFloat(els.fee.value),
+        date: els.date.value
+      };
+      const errs=[];
+      if(!p.symbol) errs.push('Símbolo');
+      if(!p.operation) errs.push('Op.');
+      if(!p.amount||p.amount<=0) errs.push('Qtd');
+      if(!p.price||p.price<=0) errs.push('Preço');
+      if(p.fee<0) errs.push('Taxa');
+      if(!p.date) errs.push('Data');
+      if(errs.length) return showStatus(`Campos: ${errs.join(', ')}`, 'error');
+      els.submitBtn.disabled=true;
+      els.loadingSpinner.classList.remove('hidden');
+      try {
+        await fetch(`${getAPI()}${id?`&id=${id}`:''}`, {
+          method: id?'PUT':'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify(p)
+        });
+        showStatus(id?'Atualizado':'Adicionado','success');
+        els.form.reset();
+        els.date.valueAsDate=new Date();
+        els.submitText.textContent='💾 Guardar Transação';
+        fetchTransactions();
+      } catch {
+        showStatus(id?'Erro atualizar':'Erro adicionar','error');
+      } finally {
+        els.submitBtn.disabled=false;
+        els.loadingSpinner.classList.add('hidden');
+      }
+    });
+
+    // Inicialização
+    document.getElementById('date').valueAsDate = new Date();
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      document.body.classList.toggle('light-mode');
+    });
+    document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+      document.getElementById('mobileMenu').classList.remove('hidden');
+    });
+    document.getElementById('mobileMenuClose').addEventListener('click', () => {
+      document.getElementById('mobileMenu').classList.add('hidden');
+    });
+
+    // Inicia fetch de transações após login
+    window.addEventListener('load', () => {
+      if (state.userEmail) fetchTransactions();
+    });
+  </script>
 </body>
 </html>
