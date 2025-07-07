@@ -1,0 +1,204 @@
+<!DOCTYPE html><html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alertas de Preços</title>
+  <meta name="theme-color" content="#0ea5e9" />
+  <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+  <!-- Google Font: Chakra Petch -->
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes slide-up { from { transform: translateY(20px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
+    .animate-slide-up { animation: slide-up 0.3s ease-out; }
+  </style>
+</head>
+<body class="font-chakra bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 min-h-screen text-gray-800 antialiased">
+  <!-- Header -->
+  <div id="header-widget"></div>
+  <script type="module" src="header.js"></script>
+  <header class="flex items-center justify-between p-4 bg-white bg-opacity-20 backdrop-blur-lg fixed top-0 w-full z-50 border-b border-white border-opacity-20">
+    <div class="flex items-center space-x-3">
+      <span class="text-3xl animate-pulse-slow">🔔</span>
+      <div>
+        <span class="text-xl font-semibold text-white">Alertas de Preços</span>
+        <p class="text-sm text-white text-opacity-80">Baseado na Watch List</p>
+      </div>
+    </div>
+    <div class="flex items-center space-x-4">
+      <div class="text-right">
+        <span id="userName" class="text-white font-medium block"></span>
+        <span id="connectionStatus" class="text-xs text-white text-opacity-70">Conectado</span>
+      </div>
+      <button id="signOutBtn" class="px-4 py-2 bg-danger-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200 font-medium">
+        Sair
+      </button>
+    </div>
+  </header>  <main class="pt-24 p-4 max-w-4xl mx-auto space-y-6">
+    <!-- Add Alert Form -->
+    <section class="bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-6 border border-white border-opacity-20">
+      <h2 class="text-xl font-semibold text-white mb-4">Adicionar Alerta</h2>
+      <form id="alertForm" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-white mb-2 font-medium">Símbolo *</label>
+          <input id="symbol" type="text" required placeholder="Ex: TSLA"
+            class="w-full p-3 rounded-lg border border-gray-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 transition-all"/>
+        </div>
+        <div>
+          <label class="block text-white mb-2 font-medium">Condição *</label>
+          <select id="condition" required
+            class="w-full p-3 rounded-lg border border-gray-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 transition-all">
+            <option value="">Selecione...</option>
+            <option value="above">Acima de</option>
+            <option value="below">Abaixo de</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-white mb-2 font-medium">Preço Alvo (€) *</label>
+          <input id="target" type="number" min="0" step="0.0001" required placeholder="0.0000"
+            class="w-full p-3 rounded-lg border border-gray-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 transition-all"/>
+        </div>
+        <div class="md:col-span-3 text-right">
+          <button id="addBtn" type="submit"
+            class="px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors duration-200 font-medium">
+            Adicionar Alerta
+          </button>
+        </div>
+      </form>
+    </section><!-- Watchlist Table -->
+<section class="bg-white rounded-lg shadow-lg overflow-hidden">
+  <div class="p-4 bg-primary-500 text-white flex justify-between items-center">
+    <h2 class="text-xl font-semibold">Watch List</h2>
+    <span id="totalAlerts" class="font-medium"></span>
+  </div>
+  <div class="overflow-x-auto">
+    <table class="min-w-full bg-white">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Símbolo</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Condição</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preço Alvo</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preço Atual</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+        </tr>
+      </thead>
+      <tbody id="alertsTbody" class="bg-white divide-y divide-gray-200"></tbody>
+    </table>
+  </div>
+  <div id="emptyState" class="text-center py-12 hidden">
+    <div class="text-6xl mb-4">🔍</div>
+    <h3 class="text-xl font-semibold text-gray-700 mb-2">Nenhum alerta definido</h3>
+    <p class="text-gray-500">Adicione um alerta para começar a monitorar preços.</p>
+  </div>
+</section>
+
+  </main>  <!-- Toast Container -->  <div id="toastContainer" class="fixed top-20 right-4 z-50 space-y-2"></div>  <script type="module">
+    import('./firebase-init.js').then(({ auth }) => {
+      import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js').then(({ onAuthStateChanged, signOut }) => {
+        onAuthStateChanged(auth, user => {
+          if (!user) { window.location.href = '/login.html'; return; }
+          document.getElementById('userName').textContent = user.displayName || user.email.split('@')[0];
+          app.init();
+        });
+        document.getElementById('signOutBtn').onclick = async () => { await signOut(auth); window.location.href='/login.html'; };
+      });
+    });
+
+    const app = {
+      state: { watchlist: [], marketPrices: {}, userEmail: '' },
+      elements: {
+        form: document.getElementById('alertForm'), symbol: document.getElementById('symbol'),
+        condition: document.getElementById('condition'), target: document.getElementById('target'),
+        tbody: document.getElementById('alertsTbody'), empty: document.getElementById('emptyState'),
+        totalAlerts: document.getElementById('totalAlerts'), toast: document.getElementById('toastContainer'),
+        connection: document.getElementById('connectionStatus')
+      },
+
+      init() {
+        this.bind(); this.fetchWatchlist(); this.startPriceChecks();
+      },
+
+      bind() {
+        this.elements.form.addEventListener('submit', this.addAlert.bind(this));
+        this.elements.tbody.addEventListener('click', e => {
+          const id = e.target.dataset.id; if (!id) return;
+          if (e.target.dataset.action === 'delete') this.deleteAlert(id);
+        });
+      },
+
+      getAPI() { return `/api/watchlist?user=${encodeURIComponent(this.state.userEmail)}`; },
+      getPriceAPI(sym) { return `/api/stocks?symbol=${sym}`; },
+
+      showToast(msg, type='info', dur=3000) {
+        const t = document.createElement('div');
+        t.className = `animate-slide-up p-4 rounded-lg text-white font-medium ${type==='error'? 'bg-danger-500':'bg-primary-500'}`;
+        t.textContent = msg; this.elements.toast.appendChild(t);
+        setTimeout(() => t.remove(), dur);
+      },
+
+      async fetchWatchlist() {
+        try {
+          const res = await fetch(this.getAPI()); this.state.watchlist = await res.json();
+          this.render();
+        } catch { this.showToast('Erro ao carregar watch list','error'); }
+      },
+
+      render() {
+        const { watchlist } = this.state;
+        this.elements.tbody.innerHTML = '';
+        if (!watchlist.length) { this.elements.empty.classList.remove('hidden'); this.elements.totalAlerts.textContent='0 alertas'; return; }
+        this.elements.empty.classList.add('hidden');
+        this.elements.totalAlerts.textContent = `${watchlist.length} alertas`;
+        watchlist.forEach(a => this.renderRow(a));
+      },
+
+      renderRow(a) {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${a.symbol}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${a.condition==='above'? 'Acima':'Abaixo'}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">€${a.target.toFixed(2)}</td>
+          <td id="price-${a.id}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">--</td>
+          <td id="status-${a.id}" class="px-6 py-4 whitespace-nowrap text-sm font-medium">--</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+            <button data-action="delete" data-id="${a.id}" class="text-danger-600 hover:text-red-900">Excluir</button>
+          </td>`;
+        this.elements.tbody.appendChild(row);
+      },
+
+      async addAlert(evt) {
+        evt.preventDefault();
+        const payload = { symbol: this.elements.symbol.value.toUpperCase(),
+          condition: this.elements.condition.value, target: parseFloat(this.elements.target.value) };
+        try {
+          await fetch(this.getAPI(), { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+          this.showToast('Alerta adicionado','success'); this.elements.form.reset(); this.fetchWatchlist();
+        } catch { this.showToast('Erro ao adicionar alerta','error'); }
+      },
+
+      async deleteAlert(id) {
+        try { await fetch(`${this.getAPI()}&id=${id}`, { method:'DELETE' }); this.showToast('Alerta removido','success'); this.fetchWatchlist(); }
+        catch { this.showToast('Erro ao remover alerta','error'); }
+      },
+
+      startPriceChecks() { this.checkPrices(); setInterval(() => this.checkPrices(), 60*1000); },
+
+      async checkPrices() {
+        for (const a of this.state.watchlist) {
+          try {
+            const res = await fetch(this.getPriceAPI(a.symbol)); const data = await res.json();
+            const price = data.price; this.state.marketPrices[a.id] = price;
+            document.getElementById(`price-${a.id}`).textContent = `€${price.toFixed(2)}`;
+            const triggered = a.condition==='above'? price>=a.target : price<=a.target;
+            const statusEl = document.getElementById(`status-${a.id}`);
+            statusEl.textContent = triggered? '🔔 Triggered' : '—';
+            if (triggered) this.showToast(`Alerta: ${a.symbol} está ${a.condition} €${a.target}`,'warning',5000);
+          } catch {}
+        }
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => app.init());
+  </script></body>
+</html>
