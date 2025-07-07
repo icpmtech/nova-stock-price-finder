@@ -541,7 +541,7 @@
       userName: document.getElementById('userName'),
       signOutBtn: document.getElementById('signOutBtn'),
       form: document.getElementById('transactionForm'),
-      idInput: document.getElementById('transactionId'),
+      transactionId: document.getElementById('transactionId'),
       symbol: document.getElementById('symbol'),
       operation: document.getElementById('operation'),
       amount: document.getElementById('amount'),
@@ -555,12 +555,19 @@
       mobileList: document.getElementById('mobileTransactionsList'),
       total: document.getElementById('totalTransactions')
     };
-    // Utils
+
+    // Utils defaults:
     const fmtDate = s => new Date(s).toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    const notify = (msg, type = 'info') => {
-      const n = document.createElement('div'); n.className = `notification ${type}`; n.textContent = msg; document.body.appendChild(n);
-      setTimeout(() => { n.style.opacity = 0; setTimeout(() => n.remove(), 300); }, 3000);
-    };
+    function showNotification(message, type = 'info') {
+      const notification = document.createElement('div');
+      notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg text-white font-medium animate-bounce-soft ${type === 'error' ? 'bg-red-500' : type === 'success' ? 'bg-green-500' : 'bg-blue-500'
+        }`;
+      notification.textContent = message;
+      document.body.appendChild(notification);
+      setTimeout(() => notification.remove(), 3000);
+    }
+    const notify = showNotification;
+
     // Mobile menu
     (() => {
       const toggle = () => {
@@ -572,56 +579,74 @@
         els.mobileMenuBtn.addEventListener('click', toggle);
         els.closeSidebarBtn.addEventListener('click', toggle);
         els.overlay.addEventListener('click', toggle);
-        window.addEventListener('resize', () => { if (window.innerWidth >= 1024) { els.sidebar.classList.remove('active'); els.overlay.classList.remove('active'); document.body.classList.remove('overflow-hidden'); } });
+        window.addEventListener('resize', () => {
+          if (window.innerWidth >= 1024) {
+            els.sidebar.classList.remove('active');
+            els.overlay.classList.remove('active');
+            document.body.classList.remove('overflow-hidden');
+          }
+        });
       }
     })();
+
     // Auth & Data (Firebase assumed initialized in firebase-init.js)
     import('./firebase-init.js').then(({ auth }) => {
       import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js').then(({ getAuth, onAuthStateChanged, signOut }) => {
         onAuthStateChanged(auth, u => {
           if (!u) return location = '/login.html';
-          state.userEmail = u.email; els.userName.textContent = u.displayName || u.email.split('@')[0];
-          fetchData();
+          state.userEmail = u.email;
+          els.userName.textContent = u.displayName || u.email.split('@')[0];
+          fetchTransactions();
         });
         els.signOutBtn.addEventListener('click', async () => {
-          els.signOutBtn.disabled = true; await signOut(auth); location = '/login.html';
+          els.signOutBtn.disabled = true;
+          await signOut(auth);
+          location = '/login.html';
         });
       });
     });
-    const apiUrl = () => `/api/transactions?user=${encodeURIComponent(state.userEmail)}`;
-    async function fetchData() {
+    const getAPI = () => `/api/transactions?user=${encodeURIComponent(state.userEmail)}`;
+
+    // Fetch & render
+    tbodyEl = els.tbody;
+    async function fetchTransactions() {
       try {
-        const res = await fetch(apiUrl());
+        const res = await fetch(getAPI());
         state.transactions = await res.json();
         render();
-      } catch { notify('Erro ao carregar transações', 'error'); }
+      } catch (err) {
+        notify('Erro ao carregar transações', 'error');
+        console.error(err);
+      }
     }
-    function render() {
-  els.tbody.innerHTML = '';
-  els.mobileList.innerHTML = '';
-  els.total.textContent = state.transactions.length;
 
-  if (!state.transactions.length) {
-    const empty = `
+    function render() {
+      els.tbody.innerHTML = '';
+      els.mobileList.innerHTML = '';
+      els.total.textContent = state.transactions.length;
+
+      if (!state.transactions.length) {
+        const emptyDesktop = `
       <tr><td colspan="7" class="empty-state">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6" />
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">\
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6" />\
         </svg>
         <p>Sem transações registadas</p>
       </td></tr>`;
-    els.tbody.innerHTML = empty;
-    els.mobileList.innerHTML = empty.replace(/tr|td/g, 'div').replace(/colspan="7"/, '');
-    return;
-  }
+        els.tbody.innerHTML = emptyDesktop;
+        els.mobileList.innerHTML = emptyDesktop.replace(/tr|td/g, 'div').replace(/colspan=\"7\"/, '');
+        return;
+      }
 
-  state.transactions.forEach((t, i) => {
-    // Desktop row
-    const opClass = t.operation === 'buy' ? 'operation-buy' : 'operation-sell';
-    const opText = t.operation === 'buy' ? '🟢 Compra' : '🔴 Venda';
-    const row = document.createElement('tr');
-    row.className = 'transaction-row border-b border-gray-100';
-    row.style.animationDelay = `${i * 0.1}s`;
-    row.innerHTML = `
+      state.transactions.forEach((t, i) => {
+        const opClass = t.operation === 'buy' ? 'operation-buy' : 'operation-sell';
+        const opText = t.operation === 'buy' ? '🟢 Compra' : '🔴 Venda';
+
+        // Desktop row
+        const row = document.createElement('tr');
+        row.className = 'transaction-row border-b border-gray-100';
+        row.style.animationDelay = `${i * 0.1}s`;
+        row.innerHTML = `
       <td class="px-4 py-4 font-semibold">${t.symbol}</td>
       <td class="px-4 py-4"><span class="px-3 py-1 rounded-full text-xs text-white ${opClass}">${opText}</span></td>
       <td class="px-4 py-4">${t.amount.toLocaleString()}</td>
@@ -630,57 +655,124 @@
       <td class="px-4 py-4">${fmtDate(t.date)}</td>
       <td class="px-4 py-4 flex space-x-2">
         <button data-id="${t.id}" class="del-btn p-2 text-red-600 hover:bg-red-50 rounded-lg">🗑️</button>
+        <button data-t="${encodeURIComponent(JSON.stringify(t))}" class="edit-btn p-2 text-blue-600 hover:bg-blue-50 rounded-lg">✏️</button>
       </td>`;
     els.tbody.appendChild(row);
 
     // Mobile card
     const card = document.createElement('div');
     card.className = 'mobile-transaction-card transaction-row';
-    card.style.animationDelay = `${i * 0.1}s`;
+    card.style.animationDelay = `${ i * 0.1 } s`;
     card.innerHTML = `
-      <div class="flex justify-between mb-2">
+          < div class="flex justify-between mb-2" >
         <div class="font-semibold">${t.symbol}</div>
         <span class="px-3 py-1 rounded-full text-xs text-white ${opClass}">${opText}</span>
-      </div>
+      </div >
       <p>Qtd: ${t.amount.toLocaleString()} | Preço: €${t.price.toFixed(4)}</p>
-      <p>Taxa: €${t.fee.toFixed(4)} | Data: ${fmtDate(t.date)}</p>`;
+      <p>Taxa: €${t.fee.toFixed(4)} | Data: ${fmtDate(t.date)}</p>
+        `;
     els.mobileList.appendChild(card);
   });
 }
-    els.form.addEventListener('submit', async e => {
-      e.preventDefault();
-      const data = {
-        symbol: els.symbol.value.trim(),
-        operation: els.operation.value,
-        amount: parseFloat(els.amount.value),
-        price: parseFloat(els.price.value),
-        fee: parseFloat(els.fee.value),
-        date: els.date.value
-      };
-      const errors = [];
-      if (!data.symbol) errors.push('Símbolo obrigatório');
-      if (!data.operation) errors.push('Operação obrigatória');
-      if (!data.amount || data.amount <= 0) errors.push('Quantidade inválida');
-      if (!data.price || data.price <= 0) errors.push('Preço inválido');
-      if (data.fee < 0) errors.push('Taxa inválida');
-      if (!data.date) errors.push('Data obrigatória');
-      if (errors.length) { notify(errors.join(', '), 'error'); return; }
-      els.submitBtn.disabled = true; els.loadingSpinner.classList.remove('hidden');
-      try {
-        await fetch(apiUrl() + (els.idInput.value ? `&id=${els.idInput.value}` : ''), {
-          method: els.idInput.value ? 'PUT' : 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
-        notify('Transação salva!', 'success');
-        els.form.reset(); els.date.valueAsDate = new Date();
-        fetchData();
-      } catch {
-        notify('Erro ao salvar', 'error');
-      } finally {
-        els.submitBtn.disabled = false; els.loadingSpinner.classList.add('hidden');
-      }
+
+// Handlers: edit, delete
+els.tbody.addEventListener('click', e => {
+  if (e.target.closest('.edit-btn')) {
+    const t = JSON.parse(decodeURIComponent(e.target.closest('.edit-btn').dataset.t));
+    els.transactionId.value = t.id;
+    els.symbol.value = t.symbol;
+    els.operation.value = t.operation;
+    els.amount.value = t.amount;
+    els.price.value = t.price;
+    els.fee.value = t.fee;
+    els.date.value = t.date;
+    els.submitText.textContent = '✏️ Atualizar Transação';
+    notify('Transação carregada para edição', 'info');
+    if (window.innerWidth < 1024) els.form.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  if (e.target.closest('.del-btn')) {
+    const id = e.target.closest('.del-btn').dataset.id;
+    if (confirm('Tem certeza que deseja eliminar esta transação?')) deleteTransaction(id);
+  }
+});
+
+async function deleteTransaction(id) {
+  try {
+    await fetch(`${ getAPI() }& id=${ id } `, { method: 'DELETE' });
+    fetchTransactions();
+    notify('Transação eliminada com sucesso!', 'success');
+  } catch (err) {
+    notify('Erro ao eliminar transação.', 'error');
+    console.error(err);
+  }
+}
+
+// Form submit
+els.form.addEventListener('submit', async e => {
+  e.preventDefault();
+  const id = els.transactionId.value;
+  const payload = {
+    symbol: els.symbol.value.trim(),
+    operation: els.operation.value,
+    amount: parseFloat(els.amount.value),
+    price: parseFloat(els.price.value),
+    fee: parseFloat(els.fee.value),
+    date: els.date.value
+  };
+  const errors = [];
+  if (!payload.symbol) errors.push('Símbolo obrigatório');
+  if (!payload.operation) errors.push('Operação obrigatória');
+  if (!payload.amount || payload.amount <= 0) errors.push('Quantidade inválida');
+  if (!payload.price || payload.price <= 0) errors.push('Preço inválido');
+  if (payload.fee < 0) errors.push('Taxa inválida');
+  if (!payload.date) errors.push('Data obrigatória');
+  if (errors.length) return notify(errors.join(', '), 'error');
+
+  els.submitBtn.disabled = true;
+  els.loadingSpinner.classList.remove('hidden');
+  try {
+    await fetch(getAPI() + (id ? `& id=${ id }` : ''), {
+      method: id ? 'PUT' : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
     });
+    notify(id ? 'Transação atualizada com sucesso!' : 'Transação adicionada com sucesso!', 'success');
+    els.form.reset();
+    els.date.valueAsDate = new Date();
+    els.submitText.textContent = '💾 Guardar Transação';
+    fetchTransactions();
+  } catch (err) {
+    notify(id ? 'Erro ao atualizar a transação.' : 'Erro ao guardar a transação.', 'error');
+    console.error(err);
+  } finally {
+    els.submitBtn.disabled = false;
+    els.loadingSpinner.classList.add('hidden');
+  }
+});
+
+// Reset on Escape
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    els.form.reset();
+    els.date.valueAsDate = new Date();
+    els.submitText.textContent = '💾 Guardar Transação';
+  }
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey || e.metaKey) {
+    if (e.key === 'n') {
+      e.preventDefault();
+      els.symbol.focus();
+    }
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      els.form.dispatchEvent(new Event('submit'));
+    }
+  }
+});
   </script>
   <script type="module" src="header.js"></script>
 </body>
