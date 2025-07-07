@@ -212,7 +212,7 @@
       toast('A importar… Aguarde');
 
       try {
-        const resp = await fetch(`/api/import?user=${encodeURIComponent(currentUserEmail)}`, {
+        const resp = await fetch(`/api/transactions?user=${encodeURIComponent(currentUserEmail)}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ rows: parsedRows })
