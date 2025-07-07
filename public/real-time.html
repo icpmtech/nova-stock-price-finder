@@ -568,22 +568,35 @@
         }
       },
 
-      // Handle table clicks
-      handleTableClick(event) {
-        const action = event.target.getAttribute('data-action');
-        const id = event.target.getAttribute('data-id');
-        
-        if (action === 'edit' && id) {
-          this.editTransaction(id);
-        } else if (action === 'delete' && id) {
-          this.showDeleteModal(id);
-        }
-      },
+     handleTableClick(event) {
+  // find the nearest ancestor (or self) that actually has a data-action
+  const btn = event.target.closest('[data-action]');
+  if (!btn || !this.elements.tbody.contains(btn)) return;
 
-      // Handle mobile clicks
-      handleMobileClick(event) {
-        this.handleTableClick(event);
-      },
+  const action = btn.getAttribute('data-action');
+  const id     = btn.getAttribute('data-id');
+
+  if (action === 'edit') {
+    this.editTransaction(id);
+  } else if (action === 'delete') {
+    this.showDeleteModal(id);
+  }
+},
+
+handleMobileClick(event) {
+  // same logic for mobile cards
+  const btn = event.target.closest('[data-action]');
+  if (!btn || !this.elements.mobileList.contains(btn)) return;
+
+  const action = btn.getAttribute('data-action');
+  const id     = btn.getAttribute('data-id');
+
+  if (action === 'edit') {
+    this.editTransaction(id);
+  } else if (action === 'delete') {
+    this.showDeleteModal(id);
+  }
+},
 
       // Handle form submission
       async handleSubmit(event) {
