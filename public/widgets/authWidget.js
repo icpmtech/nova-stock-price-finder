@@ -1,4 +1,5 @@
 // --- authWidget.js ---
+import '../firebase-init.js';
 import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 export class AuthWidget {
   constructor(signOutBtn, userEmailEl, redirectUrl = '/login.html') {

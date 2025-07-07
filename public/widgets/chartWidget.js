@@ -1,6 +1,4 @@
 // --- chartWidget.js ---
-import { Chart, registerables } from 'https://cdn.jsdelivr.net/npm/chart.js';
-Chart.register(...registerables);
 export class ChartWidget {
   constructor(ctx, config) {
     this.ctx = ctx;

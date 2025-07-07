@@ -78,6 +78,10 @@
 
   <!-- Notification -->
   <div id="statusIndicator" class="fixed top-4 right-4 hidden bg-red-500 text-white px-4 py-2 rounded"></div>
+<script type="module">
+  import Chart from 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
+  window.Chart = Chart; // if you need a global
+</script>
 
 <script type="module" src="real-time.js"></script>
 </body>
