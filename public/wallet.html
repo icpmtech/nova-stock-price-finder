@@ -31,22 +31,18 @@
     </header>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      <!-- Saldo -->
       <div class="bg-gray-800/50 p-6 rounded-xl shadow-lg card-hover border border-gray-700">
         <div class="flex items-center justify-between mb-2"><h3 class="text-sm font-medium text-gray-400">Saldo Total</h3><span class="text-2xl">💰</span></div>
         <div id="saldoTotal" class="text-3xl font-bold text-green-400">€ 0</div><p class="text-xs text-gray-500 mt-1">* Deduzido comissões</p>
       </div>
-      <!-- Lucro -->
       <div class="bg-gray-800/50 p-6 rounded-xl shadow-lg card-hover border border-gray-700">
         <div class="flex items-center justify-between mb-2"><h3 class="text-sm font-medium text-gray-400">Lucro/Prejuízo</h3><span class="text-2xl">📈</span></div>
         <div id="lucroTotal" class="text-3xl font-bold">€ 0</div><div id="lucroPercentual" class="text-sm mt-1">0.00%</div>
       </div>
-      <!-- Investido -->
       <div class="bg-gray-800/50 p-6 rounded-xl shadow-lg card-hover border border-gray-700">
         <div class="flex items-center justify-between mb-2"><h3 class="text-sm font-medium text-gray-400">Total Investido</h3><span class="text-2xl">💸</span></div>
         <div id="totalInvestido" class="text-3xl font-bold text-blue-400">€ 0</div><div id="totalAcoes" class="text-xs text-gray-500 mt-1">0 ações</div>
       </div>
-      <!-- Comissões -->
       <div class="bg-gray-800/50 p-6 rounded-xl shadow-lg card-hover border border-gray-700">
         <div class="flex items-center justify-between mb-2"><h3 class="text-sm font-medium text-gray-400">Comissões</h3><span class="text-2xl">🏦</span></div>
         <div id="totalComissoes" class="text-3xl font-bold text-red-400">€ 0</div><div id="comissaoPercentual" class="text-xs text-gray-500 mt-1">0.00% do total</div>
@@ -101,17 +97,27 @@
     const apiTx=e=>`/api/transactions?user=${encodeURIComponent(e)}`;
     const apiPx=s=>`/api/stocks?symbol=${encodeURIComponent(s)}`;
 
+    const mapTx=r=>({
+      id      : r.id??r._id??crypto.randomUUID(),
+      symbol  : (r.symbol??r.ticker??r.ativo??'').toUpperCase(),
+      operation: r.operation??r.type??r.side??'',
+      amount  : +(r.amount??r.quantity??r.qtd??0),
+      price   : +(r.price??r.unitPrice??r.valor??0),
+      fee     : +(r.fee??r.commission??r.custo??0),
+      date    : r.date??r.tradeDate??r.data??''
+    });
+
     const fetchPx=async(s,f)=>{try{return(await(await fetch(apiPx(s))).json()).price??f}catch{return f}};
 
     async function construirCarteira(){
       carteira.length=0;
       const m=new Map;
       transacoes.forEach(t=>{
-        const mult=t.tipo==='Compra'?1:-1;
-        if(!m.has(t.simbolo))m.set(t.simbolo,{nome:t.simbolo,acoes:0,despesa:0});
-        const p=m.get(t.simbolo);
-        p.acoes+=mult*t.quantidade;
-        p.despesa+=mult*t.quantidade*t.preco;
+        const mult=t.operation==='buy'?1:-1;
+        if(!m.has(t.symbol))m.set(t.symbol,{nome:t.symbol,acoes:0,despesa:0});
+        const p=m.get(t.symbol);
+        p.acoes+=mult*t.amount;
+        p.despesa+=mult*t.amount*t.price;
       });
       await Promise.all([...m.values()].filter(p=>p.acoes>0).map(async p=>{
         p.precoCompra=Math.abs(p.despesa)/p.acoes;
@@ -121,7 +127,7 @@
     }
 
     function calcularMetricas(){
-      const com=transacoes.reduce((s,t)=>s+t.comissao,0);
+      const com=transacoes.reduce((s,t)=>s+t.fee,0);
       const inv=carteira.reduce((s,a)=>s+a.precoCompra*a.acoes,0);
       const val=carteira.reduce((s,a)=>s+a.precoAtual*a.acoes,0);
       const acs=carteira.reduce((s,a)=>s+a.acoes,0);
@@ -157,16 +163,18 @@
     function renderTransacoes(){
       const t=document.getElementById('transacoesTable');t.innerHTML='';
       filteredTransacoes.forEach(x=>{
-        const tot=x.preco*x.quantidade+x.comissao;
+        const tot=x.price*x.amount+x.fee;
+        const opClass=x.operation==='buy'?'bg-green-600 text-white':'bg-red-600 text-white';
+        const opText =x.operation==='buy'?'Compra':'Venda';
         t.insertAdjacentHTML('beforeend',
           `<tr class="border-t border-gray-700 hover:bg-gray-700/30">
-            <td class="px-6 py-2">${x.tipo}</td>
-            <td class="px-6 py-2">${x.simbolo}</td>
-            <td class="px-6 py-2">${x.quantidade}</td>
-            <td class="px-6 py-2">${€(x.preco)}</td>
-            <td class="px-6 py-2 text-red-400">${€(x.comissao)}</td>
+            <td class="px-6 py-2"><span class="px-2 py-1 rounded ${opClass}">${opText}</span></td>
+            <td class="px-6 py-2">${x.symbol}</td>
+            <td class="px-6 py-2">${x.amount}</td>
+            <td class="px-6 py-2">${€(x.price)}</td>
+            <td class="px-6 py-2 text-red-400">${€(x.fee)}</td>
             <td class="px-6 py-2">${€(tot)}</td>
-            <td class="px-6 py-2">${x.data}</td>
+            <td class="px-6 py-2">${x.date}</td>
           </tr>`);
       });
     }
@@ -190,15 +198,22 @@
       });
     }
 
-    function filtrar(){const t=document.getElementById('filterTipo').value,s=document.getElementById('searchSymbol').value.toUpperCase();filteredTransacoes=transacoes.filter(z=>(!t||z.tipo===t)&&(!s||z.simbolo.includes(s)));renderTransacoes()}
+    function filtrar(){
+      const tp=document.getElementById('filterTipo').value;
+      const sb=document.getElementById('searchSymbol').value.toUpperCase();
+      filteredTransacoes=transacoes.filter(z=>(!tp||z.operation===(tp==='Compra'?'buy':'sell'))&&(!sb||z.symbol.includes(sb)));
+      renderTransacoes();
+    }
+
     document.getElementById('filterTipo').addEventListener('change',filtrar);
     document.getElementById('searchSymbol').addEventListener('input',filtrar);
     document.getElementById('refreshBtn').addEventListener('click',async()=>{await construirCarteira();calcularMetricas();renderCarteira();renderGraficos()});
 
     async function loadTransacoes(){
-      const r=await fetch(apiTx(currentUserEmail));const raw=await r.json();
+      const r=await fetch(apiTx(currentUserEmail));
+      const raw=await r.json();
       transacoes.length=0;
-      raw.forEach(t=>transacoes.push({tipo:t.operation==='buy'?'Compra':'Venda',simbolo:t.symbol.toUpperCase(),quantidade:+t.amount,preco:+t.price,comissao:+t.fee,data:t.date}));
+      raw.map(mapTx).forEach(t=>transacoes.push(t));
       filteredTransacoes=[...transacoes];
       await construirCarteira();calcularMetricas();renderCarteira();renderGraficos();renderTransacoes();
     }
