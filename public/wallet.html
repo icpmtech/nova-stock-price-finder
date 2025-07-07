@@ -149,65 +149,189 @@
     </section>
   </div>
 
-  <!-- Script principal -->
-  
-    <!-- ⬇️ SUBSTITUI **apenas** o bloco de dados estáticos + inicialização por este código -->
 <script type="module">
-/* ----------- Firebase login ----------- */
+/* ---------------- Firebase ---------------- */
 import { auth } from './firebase-init.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
-/* ----------- Estado ----------- */
-const carteira   = [];            // será calculada
-const transacoes = [];            // virá da API
+/* ---------------- Estado ---------------- */
+const carteira   = [];   // posições agregadas
+const transacoes = [];   // lista bruta devolvida pela API
 let filteredTransacoes = [];
+
 let pieChart, barChart;
 let currentUserEmail = '';
 
-/* ----------- Helpers ----------- */
-const cores = ['#0ea5e9','#8b5cf6','#22c55e','#f97316','#f43f5e'];      // paleta fixa
+const cores = ['#0ea5e9', '#8b5cf6', '#22c55e', '#f97316', '#f43f5e'];
 
-/* --- Fetch preço actual (exemplo simples; substitui por API real se quiser) --- */
+/* ---------------- Utils ---------------- */
+const € = v => `€ ${v.toFixed(2)}`;
+
 async function getCurrentPrice(symbol, fallback) {
   try {
-    const r = await fetch(`https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbol}`);
+    const r = await fetch(
+      `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbol}`
+    );
     const json = await r.json();
     return json.quoteResponse.result[0]?.regularMarketPrice ?? fallback;
-  } catch { return fallback; }
-}
-
-/* ----------- Construir carteira a partir de transações ----------- */
-async function construirCarteira() {
-  carteira.length = 0;
-  const m = new Map();
-
-  // Agrega posição por símbolo
-  transacoes.forEach(tx => {
-    const mult  = tx.tipo === 'Compra' ? 1 : -1;
-    if (!m.has(tx.simbolo)) m.set(tx.simbolo, { nome: tx.simbolo, acoes: 0, despesa: 0 });
-    const at = m.get(tx.simbolo);
-    at.acoes   += mult * tx.quantidade;
-    at.despesa += mult * tx.quantidade * tx.preco;   // negativo numa venda
-  });
-
-  // Calcula preço médio e obtém preço actual
-  for (const at of m.values()) {
-    if (at.acoes <= 0) continue;                     // elimina posições fechadas
-    at.precoCompra = Math.abs(at.despesa) / at.acoes;
-    at.precoAtual  = await getCurrentPrice(at.nome, at.precoCompra);
-    at.setor       = '—';                            // placeholder
-    carteira.push(at);
+  } catch {
+    return fallback;
   }
 }
 
-/* ----------- Obter transações do utilizador ----------- */
+/* ---------------- Construir carteira ---------------- */
+async function construirCarteira() {
+  carteira.length = 0;
+  const pos = new Map();
+
+  transacoes.forEach(tx => {
+    const mult = tx.tipo === 'Compra' ? 1 : -1;
+    if (!pos.has(tx.simbolo))
+      pos.set(tx.simbolo, { nome: tx.simbolo, acoes: 0, despesa: 0, setor: '—' });
+
+    const p = pos.get(tx.simbolo);
+    p.acoes   += mult * tx.quantidade;
+    p.despesa += mult * tx.quantidade * tx.preco;
+  });
+
+  for (const p of pos.values()) {
+    if (p.acoes <= 0) continue;                       // ignora posições fechadas
+    p.precoCompra = Math.abs(p.despesa) / p.acoes;
+    p.precoAtual  = await getCurrentPrice(p.nome, p.precoCompra);
+    carteira.push(p);
+  }
+}
+
+/* ---------------- Métricas ---------------- */
+function calcularMetricas() {
+  const totalComissoes  = transacoes.reduce((s, t) => s + t.comissao, 0);
+  const totalInvestido  = carteira.reduce((s, a) => s + a.precoCompra * a.acoes, 0);
+  const valorAtual      = carteira.reduce((s, a) => s + a.precoAtual  * a.acoes, 0);
+  const totalAcoes      = carteira.reduce((s, a) => s + a.acoes, 0);
+
+  const lucroTotal      = valorAtual - totalInvestido;
+  const lucroPct        = totalInvestido ? (lucroTotal / totalInvestido) * 100 : 0;
+  const comissaoPct     = totalInvestido ? (totalComissoes / totalInvestido) * 100 : 0;
+  const saldoTotal      = valorAtual - totalComissoes;
+
+  /* UI */
+  document.getElementById('totalComissoes'   ).textContent = €(totalComissoes);
+  document.getElementById('comissaoPercentual').textContent = `${comissaoPct.toFixed(2)}% do total`;
+  document.getElementById('totalInvestido'   ).textContent = €(totalInvestido);
+  document.getElementById('totalAcoes'       ).textContent = `${totalAcoes} ações`;
+  document.getElementById('saldoTotal'       ).textContent = €(saldoTotal);
+
+  const lucroEl = document.getElementById('lucroTotal');
+  lucroEl.textContent = €(lucroTotal);
+  lucroEl.className   = `text-3xl font-bold ${lucroTotal >= 0 ? 'text-green-400' : 'text-red-400'}`;
+  document.getElementById('lucroPercentual').textContent = `${lucroPct.toFixed(2)}%`;
+  document.getElementById('lastUpdate').textContent = new Date().toLocaleString('pt-PT');
+}
+
+/* ---------------- Render UI ---------------- */
+function renderCarteira() {
+  const cont = document.getElementById('carteiraContainer');
+  cont.innerHTML = '';
+  carteira.forEach(a => {
+    const lucro = (a.precoAtual - a.precoCompra) * a.acoes;
+    cont.insertAdjacentHTML(
+      'beforeend',
+      `<div class="bg-gray-800 p-4 rounded-xl border border-gray-700 card-hover shadow">
+         <h3 class="text-xl font-bold text-blue-300">${a.nome}</h3>
+         <p class="text-sm text-gray-400">${a.acoes} ações</p>
+         <p class="text-sm text-gray-400">Compra: ${€(a.precoCompra)}</p>
+         <p class="text-sm text-gray-400">Atual:  ${€(a.precoAtual)}</p>
+         <p class="mt-2 text-sm font-semibold ${lucro>=0?'text-green-400':'text-red-400'}">
+           Lucro: ${€(lucro)}
+         </p>
+       </div>`
+    );
+  });
+}
+
+function renderTransacoes() {
+  const tbody = document.getElementById('transacoesTable');
+  tbody.innerHTML = '';
+  filteredTransacoes.forEach(tx => {
+    const total = tx.preco * tx.quantidade + tx.comissao;
+    tbody.insertAdjacentHTML(
+      'beforeend',
+      `<tr class="border-t border-gray-700 hover:bg-gray-700/30">
+         <td class="px-6 py-2">${tx.tipo}</td>
+         <td class="px-6 py-2">${tx.simbolo}</td>
+         <td class="px-6 py-2">${tx.quantidade}</td>
+         <td class="px-6 py-2">${€(tx.preco)}</td>
+         <td class="px-6 py-2 text-red-400">${€(tx.comissao)}</td>
+         <td class="px-6 py-2">${€(total)}</td>
+         <td class="px-6 py-2">${tx.data}</td>
+       </tr>`
+    );
+  });
+}
+
+function renderGraficos() {
+  /* labels e dados */
+  const labels  = carteira.map(a => a.nome);
+  const valores = carteira.map(a => a.precoAtual * a.acoes);
+  const lucros  = carteira.map(a => (a.precoAtual - a.precoCompra) * a.acoes);
+
+  /* Pie */
+  if (pieChart) pieChart.destroy();
+  pieChart = new Chart(document.getElementById('pieChart'), {
+    type: 'pie',
+    data: { labels, datasets: [{ data: valores, backgroundColor: cores }] },
+    options: {
+      responsive: true,
+      plugins: { legend: { labels: { color: '#fff', boxWidth: 14 } } }
+    }
+  });
+
+  /* Bar */
+  if (barChart) barChart.destroy();
+  barChart = new Chart(document.getElementById('barChart'), {
+    type: 'bar',
+    data: { labels, datasets: [{ data: lucros, backgroundColor: cores }] },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false }},
+      scales : {
+        x: { ticks: { color: '#fff' }, grid: { display: false } },
+        y: { ticks: { color: '#fff' }, grid: { color: '#334155' } }
+      }
+    }
+  });
+}
+
+/* ---------------- Filtros ---------------- */
+function filtrarTransacoes() {
+  const tipoSel = document.getElementById('filterTipo').value;
+  const simb    = document.getElementById('searchSymbol').value.toUpperCase();
+
+  filteredTransacoes = transacoes.filter(tx =>
+    (!tipoSel || tx.tipo === tipoSel) &&
+    (!simb   || tx.simbolo.includes(simb))
+  );
+  renderTransacoes();
+}
+
+/* ---------------- Listeners ---------------- */
+document.getElementById('filterTipo'  ).addEventListener('change', filtrarTransacoes);
+document.getElementById('searchSymbol').addEventListener('input',  filtrarTransacoes);
+document.getElementById('refreshBtn').addEventListener('click', async () => {
+  await construirCarteira();
+  calcularMetricas();
+  renderCarteira();
+  renderGraficos();
+});
+
+/* ---------------- Carregar transações ---------------- */
 async function loadTransacoes() {
   try {
-    const res = await fetch(`/api/transactions?user=${encodeURIComponent(currentUserEmail)}`);
-    const data = await res.json();                   // espera formato {symbol,operation,amount,price,fee,date}
+    const r   = await fetch(`/api/transactions?user=${encodeURIComponent(currentUserEmail)}`);
+    const raw = await r.json();
 
-    transacoes.length = 0;                           // limpa
-    data.forEach(t => transacoes.push({
+    transacoes.length = 0;
+    raw.forEach(t => transacoes.push({
       tipo       : t.operation === 'buy' ? 'Compra' : 'Venda',
       simbolo    : t.symbol.toUpperCase(),
       quantidade : t.amount,
@@ -222,30 +346,13 @@ async function loadTransacoes() {
     renderCarteira();
     renderGraficos();
     renderTransacoes();
-  } catch(err) {
-    console.error('Erro ao obter transações', err);
-    alert('Falha ao carregar transações');
+  } catch (e) {
+    console.error(e);
+    alert('Falha ao carregar transações.');
   }
 }
 
-/* ----------- FUNÇÕES DE UI (mantém as tuas versões) ----------- */
-function calcularMetricas(){ /* idem ao teu código actual */ }
-function renderCarteira()   { /* idem */ }
-function renderTransacoes() { /* idem */ }
-function renderGraficos()   { /* idem, mas usa “cores” */ }
-function filtrarTransacoes(){ /* idem */ }
-
-/* ----------- Listeners de filtros / refresh (mantém) ----------- */
-document.getElementById('filterTipo'  ).addEventListener('change', filtrarTransacoes);
-document.getElementById('searchSymbol').addEventListener('input',  filtrarTransacoes);
-document.getElementById('refreshBtn').addEventListener('click', async () => {
-  await construirCarteira();
-  calcularMetricas();
-  renderCarteira();
-  renderGraficos();
-});
-
-/* ----------- Arranque: garante utilizador logado e carrega dados ----------- */
+/* ---------------- Bootstrap ---------------- */
 onAuthStateChanged(auth, user => {
   if (!user) return (location = '/login.html');
   currentUserEmail = user.email;
