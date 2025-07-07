@@ -153,85 +153,72 @@
   </div>
 
 <script type="module">
-/* ---------------- Firebase ---------------- */
 import { auth } from './firebase-init.js';
 import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
-/* ---------------- Estado ---------------- */
-const carteira   = [];   // posições agregadas
-const transacoes = [];   // lista bruta devolvida pela API
+const carteira = [];
+const transacoes = [];
 let filteredTransacoes = [];
-
-let pieChart, barChart;
-let currentUserEmail = '';
+let pieChart, barChart, currentUserEmail = '';
 
 const cores = ['#0ea5e9', '#8b5cf6', '#22c55e', '#f97316', '#f43f5e'];
-
-/* ---------------- Utils ---------------- */
 const € = v => `€ ${v.toFixed(2)}`;
+
+const getTransactionsAPI = email => `/api/transactions?user=${encodeURIComponent(email)}`;
+const getPriceAPI = symbol => `/api/stocks?symbol=${encodeURIComponent(symbol)}`;
 
 async function getCurrentPrice(symbol, fallback) {
   try {
-    const r = await fetch(
-      `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${symbol}`
-    );
-    const json = await r.json();
-    return json.quoteResponse.result[0]?.regularMarketPrice ?? fallback;
+    const r = await fetch(getPriceAPI(symbol));
+    const { price } = await r.json();
+    return price ?? fallback;
   } catch {
     return fallback;
   }
 }
 
-/* ---------------- Construir carteira ---------------- */
 async function construirCarteira() {
   carteira.length = 0;
   const pos = new Map();
-
   transacoes.forEach(tx => {
     const mult = tx.tipo === 'Compra' ? 1 : -1;
-    if (!pos.has(tx.simbolo))
-      pos.set(tx.simbolo, { nome: tx.simbolo, acoes: 0, despesa: 0, setor: '—' });
-
+    if (!pos.has(tx.simbolo)) pos.set(tx.simbolo, { nome: tx.simbolo, acoes: 0, despesa: 0, setor: '—' });
     const p = pos.get(tx.simbolo);
-    p.acoes   += mult * tx.quantidade;
+    p.acoes += mult * tx.quantidade;
     p.despesa += mult * tx.quantidade * tx.preco;
   });
-
   for (const p of pos.values()) {
-    if (p.acoes <= 0) continue;                       // ignora posições fechadas
+    if (p.acoes <= 0) continue;
     p.precoCompra = Math.abs(p.despesa) / p.acoes;
-    p.precoAtual  = await getCurrentPrice(p.nome, p.precoCompra);
+    p.precoAtual = await getCurrentPrice(p.nome, p.precoCompra);
     carteira.push(p);
   }
 }
 
-/* ---------------- Métricas ---------------- */
 function calcularMetricas() {
-  const totalComissoes  = transacoes.reduce((s, t) => s + t.comissao, 0);
-  const totalInvestido  = carteira.reduce((s, a) => s + a.precoCompra * a.acoes, 0);
-  const valorAtual      = carteira.reduce((s, a) => s + a.precoAtual  * a.acoes, 0);
-  const totalAcoes      = carteira.reduce((s, a) => s + a.acoes, 0);
+  const totalComissoes = transacoes.reduce((s, t) => s + t.comissao, 0);
+  const totalInvestido = carteira.reduce((s, a) => s + a.precoCompra * a.acoes, 0);
+  const valorAtual = carteira.reduce((s, a) => s + a.precoAtual * a.acoes, 0);
+  const totalAcoes = carteira.reduce((s, a) => s + a.acoes, 0);
+  const lucroTotal = valorAtual - totalInvestido;
+  const lucroPct = totalInvestido ? (lucroTotal / totalInvestido) * 100 : 0;
+  const commPct = totalInvestido ? (totalComissoes / totalInvestido) * 100 : 0;
+  const saldo = valorAtual - totalComissoes;
 
-  const lucroTotal      = valorAtual - totalInvestido;
-  const lucroPct        = totalInvestido ? (lucroTotal / totalInvestido) * 100 : 0;
-  const comissaoPct     = totalInvestido ? (totalComissoes / totalInvestido) * 100 : 0;
-  const saldoTotal      = valorAtual - totalComissoes;
-
-  /* UI */
-  document.getElementById('totalComissoes'   ).textContent = €(totalComissoes);
-  document.getElementById('comissaoPercentual').textContent = `${comissaoPct.toFixed(2)}% do total`;
-  document.getElementById('totalInvestido'   ).textContent = €(totalInvestido);
-  document.getElementById('totalAcoes'       ).textContent = `${totalAcoes} ações`;
-  document.getElementById('saldoTotal'       ).textContent = €(saldoTotal);
+  document.getElementById('totalComissoes').textContent = €(totalComissoes);
+  document.getElementById('comissaoPercentual').textContent = `${commPct.toFixed(2)}% do total`;
+  document.getElementById('totalInvestido').textContent = €(totalInvestido);
+  document.getElementById('totalAcoes').textContent = `${totalAcoes} ações`;
+  document.getElementById('saldoTotal').textContent = €(saldo);
 
   const lucroEl = document.getElementById('lucroTotal');
   lucroEl.textContent = €(lucroTotal);
-  lucroEl.className   = `text-3xl font-bold ${lucroTotal >= 0 ? 'text-green-400' : 'text-red-400'}`;
+  lucroEl.className = `text-3xl font-bold ${lucroTotal >= 0 ? 'text-green-400' : 'text-red-400'}`;
+
   document.getElementById('lucroPercentual').textContent = `${lucroPct.toFixed(2)}%`;
   document.getElementById('lastUpdate').textContent = new Date().toLocaleString('pt-PT');
 }
 
-/* ---------------- Render UI ---------------- */
 function renderCarteira() {
   const cont = document.getElementById('carteiraContainer');
   cont.innerHTML = '';
@@ -244,9 +231,7 @@ function renderCarteira() {
          <p class="text-sm text-gray-400">${a.acoes} ações</p>
          <p class="text-sm text-gray-400">Compra: ${€(a.precoCompra)}</p>
          <p class="text-sm text-gray-400">Atual:  ${€(a.precoAtual)}</p>
-         <p class="mt-2 text-sm font-semibold ${lucro>=0?'text-green-400':'text-red-400'}">
-           Lucro: ${€(lucro)}
-         </p>
+         <p class="mt-2 text-sm font-semibold ${lucro >= 0 ? 'text-green-400' : 'text-red-400'}">Lucro: ${€(lucro)}</p>
        </div>`
     );
   });
@@ -273,31 +258,25 @@ function renderTransacoes() {
 }
 
 function renderGraficos() {
-  /* labels e dados */
-  const labels  = carteira.map(a => a.nome);
+  const labels = carteira.map(a => a.nome);
   const valores = carteira.map(a => a.precoAtual * a.acoes);
-  const lucros  = carteira.map(a => (a.precoAtual - a.precoCompra) * a.acoes);
+  const lucros = carteira.map(a => (a.precoAtual - a.precoCompra) * a.acoes);
 
-  /* Pie */
   if (pieChart) pieChart.destroy();
   pieChart = new Chart(document.getElementById('pieChart'), {
     type: 'pie',
     data: { labels, datasets: [{ data: valores, backgroundColor: cores }] },
-    options: {
-      responsive: true,
-      plugins: { legend: { labels: { color: '#fff', boxWidth: 14 } } }
-    }
+    options: { responsive: true, plugins: { legend: { labels: { color: '#fff', boxWidth: 14 } } } }
   });
 
-  /* Bar */
   if (barChart) barChart.destroy();
   barChart = new Chart(document.getElementById('barChart'), {
     type: 'bar',
     data: { labels, datasets: [{ data: lucros, backgroundColor: cores }] },
     options: {
       responsive: true,
-      plugins: { legend: { display: false }},
-      scales : {
+      plugins: { legend: { display: false } },
+      scales: {
         x: { ticks: { color: '#fff' }, grid: { display: false } },
         y: { ticks: { color: '#fff' }, grid: { color: '#334155' } }
       }
@@ -305,21 +284,17 @@ function renderGraficos() {
   });
 }
 
-/* ---------------- Filtros ---------------- */
 function filtrarTransacoes() {
   const tipoSel = document.getElementById('filterTipo').value;
-  const simb    = document.getElementById('searchSymbol').value.toUpperCase();
-
-  filteredTransacoes = transacoes.filter(tx =>
-    (!tipoSel || tx.tipo === tipoSel) &&
-    (!simb   || tx.simbolo.includes(simb))
+  const simb = document.getElementById('searchSymbol').value.toUpperCase();
+  filteredTransacoes = transacoes.filter(
+    tx => (!tipoSel || tx.tipo === tipoSel) && (!simb || tx.simbolo.includes(simb))
   );
   renderTransacoes();
 }
 
-/* ---------------- Listeners ---------------- */
-document.getElementById('filterTipo'  ).addEventListener('change', filtrarTransacoes);
-document.getElementById('searchSymbol').addEventListener('input',  filtrarTransacoes);
+document.getElementById('filterTipo').addEventListener('change', filtrarTransacoes);
+document.getElementById('searchSymbol').addEventListener('input', filtrarTransacoes);
 document.getElementById('refreshBtn').addEventListener('click', async () => {
   await construirCarteira();
   calcularMetricas();
@@ -327,22 +302,21 @@ document.getElementById('refreshBtn').addEventListener('click', async () => {
   renderGraficos();
 });
 
-/* ---------------- Carregar transações ---------------- */
 async function loadTransacoes() {
   try {
-    const r   = await fetch(`/api/transactions?user=${encodeURIComponent(currentUserEmail)}`);
+    const r = await fetch(getTransactionsAPI(currentUserEmail));
     const raw = await r.json();
-
     transacoes.length = 0;
-    raw.forEach(t => transacoes.push({
-      tipo       : t.operation === 'buy' ? 'Compra' : 'Venda',
-      simbolo    : t.symbol.toUpperCase(),
-      quantidade : t.amount,
-      preco      : t.price,
-      comissao   : t.fee,
-      data       : t.date
-    }));
-
+    raw.forEach(t =>
+      transacoes.push({
+        tipo: t.operation === 'buy' ? 'Compra' : 'Venda',
+        simbolo: t.symbol.toUpperCase(),
+        quantidade: t.amount,
+        preco: t.price,
+        comissao: t.fee,
+        data: t.date
+      })
+    );
     filteredTransacoes = [...transacoes];
     await construirCarteira();
     calcularMetricas();
@@ -355,13 +329,11 @@ async function loadTransacoes() {
   }
 }
 
-/* ---------------- Bootstrap ---------------- */
 onAuthStateChanged(auth, user => {
   if (!user) return (location = '/login.html');
   currentUserEmail = user.email;
   loadTransacoes();
 });
-</script>
-  
+</script>  
 </body>
 </html>
