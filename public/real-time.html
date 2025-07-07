@@ -6,7 +6,7 @@
   <title>Dashboard Transações</title>
   <meta name="theme-color" content="#0ea5e9" />
   <link rel="apple-touch-icon" href="/icons/icon-192.png" />
-  <!-- Google Font: Chat Sans -->
+  <!-- Google Font: Chakra Petch -->
   <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
@@ -14,75 +14,767 @@
     tailwind.config = {
       theme: {
         extend: {
-          fontFamily: { 'chat-sans': ['"Chakra Petch"', 'sans-serif'] },
-          colors: { primary: { 500: '#0ea5e9', 600: '#0284c7' } }
+          fontFamily: { 'chakra': ['"Chakra Petch"', 'sans-serif'] },
+          colors: { 
+            primary: { 
+              400: '#38bdf8',
+              500: '#0ea5e9', 
+              600: '#0284c7',
+              700: '#0369a1'
+            },
+            success: { 500: '#10b981' },
+            warning: { 500: '#f59e0b' },
+            danger: { 500: '#ef4444' }
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.3s ease-in-out',
+            'slide-up': 'slideUp 0.3s ease-out',
+            'pulse-slow': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+          }
         }
       }
     }
   </script>
+  <style>
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .loading-spinner {
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid #0ea5e9;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .profit-positive { color: #10b981; }
+    .profit-negative { color: #ef4444; }
+    .profit-neutral { color: #6b7280; }
+  </style>
 </head>
-<body class="font-chat-sans bg-gradient-to-br from-purple-500 to-purple-700 min-h-screen text-gray-800 antialiased">
+<body class="font-chakra bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 min-h-screen text-gray-800 antialiased">
   <!-- Header + Auth -->
   <div id="header-widget"></div>
   <script type="module" src="header.js"></script>
-  <header class="flex items-center justify-between p-4 bg-white bg-opacity-20 backdrop-blur-lg fixed top-0 w-full z-50">
-    <div class="flex items-center space-x-2">
-      <span class="text-2xl">💼</span>
-      <span class="text-xl font-semibold">Transações</span>
+  <header class="flex items-center justify-between p-4 bg-white bg-opacity-20 backdrop-blur-lg fixed top-0 w-full z-50 border-b border-white border-opacity-20">
+    <div class="flex items-center space-x-3">
+      <span class="text-3xl animate-pulse-slow">💼</span>
+      <div>
+        <span class="text-xl font-semibold text-white">Transações</span>
+        <p class="text-sm text-white text-opacity-80">Dashboard de Investimentos</p>
+      </div>
     </div>
     <div class="flex items-center space-x-4">
-      <span id="userName" class="text-white"></span>
-      <button id="signOutBtn" class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">Sair</button>
+      <div class="text-right">
+        <span id="userName" class="text-white font-medium block"></span>
+        <span id="connectionStatus" class="text-xs text-white text-opacity-70">Conectado</span>
+      </div>
+      <button id="signOutBtn" class="px-4 py-2 bg-danger-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200 font-medium">
+        Sair
+      </button>
     </div>
   </header>
 
-  <!-- Transactions Section -->
-  <main class="pt-20 p-4 max-w-4xl mx-auto">
-    <!-- Form -->
-    <section class="mb-6 bg-white bg-opacity-20 p-4 rounded-lg backdrop-blur-lg">
-      <form id="transactionForm" class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white p-6 rounded-lg text-center">
+      <div class="loading-spinner mx-auto mb-4"></div>
+      <p class="text-gray-600">Carregando...</p>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <main class="pt-24 p-4 max-w-6xl mx-auto">
+    <!-- Statistics Cards -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div class="bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-4 text-white">
+        <h3 class="text-sm font-medium opacity-80">Total de Transações</h3>
+        <p id="totalTransactions" class="text-2xl font-bold">0</p>
+      </div>
+      <div class="bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-4 text-white">
+        <h3 class="text-sm font-medium opacity-80">Lucro Total</h3>
+        <p id="totalProfit" class="text-2xl font-bold">€0.00</p>
+      </div>
+      <div class="bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-4 text-white">
+        <h3 class="text-sm font-medium opacity-80">Última Atualização</h3>
+        <p id="lastUpdate" class="text-sm font-medium">--</p>
+      </div>
+    </section>
+
+    <!-- Transaction Form -->
+    <section class="mb-6 bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-6 border border-white border-opacity-20">
+      <h2 class="text-xl font-semibold text-white mb-4">
+        <span id="formTitle">Nova Transação</span>
+        <button id="cancelEdit" class="ml-4 text-sm bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600 transition-colors duration-200 hidden">
+          Cancelar
+        </button>
+      </h2>
+      <form id="transactionForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <input type="hidden" id="transactionId" />
-        <div><label class="block text-white mb-1">Símbolo</label><input id="symbol" class="w-full p-2 rounded-lg" required></div>
-        <div><label class="block text-white mb-1">Operação</label><select id="operation" class="w-full p-2 rounded-lg" required><option value="">Selecione</option><option value="buy">Compra</option><option value="sell">Venda</option></select></div>
-        <div><label class="block text-white mb-1">Quantidade</label><input id="amount" type="number" class="w-full p-2 rounded-lg" required></div>
-        <div><label class="block text-white mb-1">Preço (€)</label><input id="price" type="number" step="0.0001" class="w-full p-2 rounded-lg" required></div>
-        <div><label class="block text-white mb-1">Taxa (€)</label><input id="fee" type="number" step="0.0001" class="w-full p-2 rounded-lg" required></div>
-        <div><label class="block text-white mb-1">Data</label><input id="date" type="date" class="w-full p-2 rounded-lg" required></div>
-        <button id="submitBtn" type="submit" class="col-span-full lg:col-start-3 lg:col-end-4 px-4 py-2 bg-primary-500 text-white rounded-lg">Guardar</button>
+        
+        <div class="form-group">
+          <label class="block text-white mb-2 font-medium">Símbolo *</label>
+          <input id="symbol" type="text" class="w-full p-3 rounded-lg border border-gray-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 transition-all duration-200" placeholder="Ex: AAPL" required>
+        </div>
+        
+        <div class="form-group">
+          <label class="block text-white mb-2 font-medium">Operação *</label>
+          <select id="operation" class="w-full p-3 rounded-lg border border-gray-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 transition-all duration-200" required>
+            <option value="">Selecione uma operação</option>
+            <option value="buy">Compra</option>
+            <option value="sell">Venda</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label class="block text-white mb-2 font-medium">Quantidade *</label>
+          <input id="amount" type="number" min="0" step="0.01" class="w-full p-3 rounded-lg border border-gray-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 transition-all duration-200" placeholder="0" required>
+        </div>
+        
+        <div class="form-group">
+          <label class="block text-white mb-2 font-medium">Preço (€) *</label>
+          <input id="price" type="number" min="0" step="0.0001" class="w-full p-3 rounded-lg border border-gray-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 transition-all duration-200" placeholder="0.0000" required>
+        </div>
+        
+        <div class="form-group">
+          <label class="block text-white mb-2 font-medium">Taxa (€) *</label>
+          <input id="fee" type="number" min="0" step="0.0001" class="w-full p-3 rounded-lg border border-gray-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 transition-all duration-200" placeholder="0.0000" required>
+        </div>
+        
+        <div class="form-group">
+          <label class="block text-white mb-2 font-medium">Data *</label>
+          <input id="date" type="date" class="w-full p-3 rounded-lg border border-gray-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 transition-all duration-200" required>
+        </div>
+        
+        <div class="md:col-span-2 lg:col-span-3">
+          <button id="submitBtn" type="submit" class="w-full md:w-auto px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+            <span id="submitText">Guardar Transação</span>
+            <div id="submitSpinner" class="loading-spinner hidden inline-block ml-2"></div>
+          </button>
+        </div>
       </form>
     </section>
 
-    <!-- List -->
-    <section>
-      <table class="w-full bg-white rounded-lg overflow-hidden mb-4">
-        <thead class="bg-primary-500 text-white">
-          <tr>
-            <th class="px-4 py-2">Símbolo</th>
-            <th class="px-4 py-2">Op.</th>
-            <th class="px-4 py-2">Qtd</th>
-            <th class="px-4 py-2">Preço</th>
-            <th class="px-4 py-2">Market Price</th>
-            <th class="px-4 py-2">Lucro (€)</th>
-            <th class="px-4 py-2">Taxa</th>
-            <th class="px-4 py-2">Data</th>
-            <th class="px-4 py-2">Ações</th>
-          </tr>
-        </thead>
-        <tbody id="transactionTbody" class="divide-y"></tbody>
-      </table>
-      <div id="mobileList" class="lg:hidden space-y-4"></div>
-      <div class="text-white mb-4">Total: <span id="total">0</span></div>
-      <div id="profitChart" class="bg-white p-4 rounded-lg"></div>
+    <!-- Transactions Table -->
+    <section class="bg-white rounded-lg shadow-lg overflow-hidden mb-6">
+      <div class="p-4 bg-primary-500 text-white flex justify-between items-center">
+        <h2 class="text-xl font-semibold">Transações</h2>
+        <button id="refreshBtn" class="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700 transition-colors duration-200">
+          <span id="refreshText">Atualizar</span>
+          <div id="refreshSpinner" class="loading-spinner hidden inline-block ml-2"></div>
+        </button>
+      </div>
+      
+      <!-- Desktop Table -->
+      <div class="hidden lg:block overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Símbolo</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Operação</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantidade</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preço</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preço Atual</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lucro</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Taxa</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="transactionTbody" class="bg-white divide-y divide-gray-200">
+            <!-- Transactions will be populated here -->
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Mobile Cards -->
+      <div id="mobileList" class="lg:hidden p-4 space-y-4">
+        <!-- Mobile cards will be populated here -->
+      </div>
+      
+      <!-- Empty State -->
+      <div id="emptyState" class="text-center py-12 hidden">
+        <div class="text-6xl mb-4">📊</div>
+        <h3 class="text-xl font-semibold text-gray-700 mb-2">Nenhuma transação encontrada</h3>
+        <p class="text-gray-500 mb-4">Adicione sua primeira transação para começar a acompanhar seus investimentos.</p>
+      </div>
+    </section>
+
+    <!-- Profit Chart -->
+    <section class="bg-white rounded-lg shadow-lg p-6">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">Análise de Lucros</h2>
+      <div id="profitChart" class="w-full h-96"></div>
     </section>
   </main>
 
-  <!-- Notification -->
-  <div id="statusIndicator" class="fixed top-4 right-4 hidden bg-red-500 text-white px-4 py-2 rounded"></div>
-<script type="module">
-  import Chart from 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
-  window.Chart = Chart; // if you need a global
-</script>
+  <!-- Toast Notifications -->
+  <div id="toastContainer" class="fixed top-20 right-4 z-50 space-y-2">
+    <!-- Toast notifications will be added here -->
+  </div>
 
-<script type="module" src="real-time.js"></script>
+  <!-- Delete Confirmation Modal -->
+  <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white p-6 rounded-lg max-w-md w-full mx-4">
+      <h3 class="text-lg font-semibold mb-4">Confirmar Exclusão</h3>
+      <p class="text-gray-600 mb-6">Tem certeza que deseja excluir esta transação? Esta ação não pode ser desfeita.</p>
+      <div class="flex justify-end space-x-3">
+        <button id="cancelDelete" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition-colors duration-200">
+          Cancelar
+        </button>
+        <button id="confirmDelete" class="px-4 py-2 bg-danger-500 text-white rounded hover:bg-red-600 transition-colors duration-200">
+          Excluir
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    // Initialize Firebase Authentication
+    import('./firebase-init.js').then(({ auth }) => {
+      import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js').then(({ onAuthStateChanged, signOut }) => {
+        onAuthStateChanged(auth, user => {
+          if (!user) {
+            window.location.href = '/login.html';
+            return;
+          }
+          
+          app.state.userEmail = user.email;
+          document.getElementById('userName').textContent = user.displayName || user.email.split('@')[0];
+          
+          // Initialize app
+          app.init();
+        });
+        
+        document.getElementById('signOutBtn').onclick = async () => {
+          try {
+            await signOut(auth);
+            window.location.href = '/login.html';
+          } catch (error) {
+            app.showToast('Erro ao sair', 'error');
+          }
+        };
+      });
+    }).catch(error => {
+      console.error('Error loading Firebase:', error);
+      app.showToast('Erro ao carregar autenticação', 'error');
+    });
+
+    // Main Application
+    const app = {
+      state: {
+        transactions: [],
+        userEmail: '',
+        isLoading: false,
+        isEditing: false,
+        editingId: null,
+        marketPrices: {},
+        lastUpdate: null
+      },
+
+      elements: {
+        // Form elements
+        form: document.getElementById('transactionForm'),
+        transactionId: document.getElementById('transactionId'),
+        symbol: document.getElementById('symbol'),
+        operation: document.getElementById('operation'),
+        amount: document.getElementById('amount'),
+        price: document.getElementById('price'),
+        fee: document.getElementById('fee'),
+        date: document.getElementById('date'),
+        submitBtn: document.getElementById('submitBtn'),
+        submitText: document.getElementById('submitText'),
+        submitSpinner: document.getElementById('submitSpinner'),
+        formTitle: document.getElementById('formTitle'),
+        cancelEdit: document.getElementById('cancelEdit'),
+        
+        // Display elements
+        tbody: document.getElementById('transactionTbody'),
+        mobileList: document.getElementById('mobileList'),
+        emptyState: document.getElementById('emptyState'),
+        profitChart: document.getElementById('profitChart'),
+        
+        // Statistics
+        totalTransactions: document.getElementById('totalTransactions'),
+        totalProfit: document.getElementById('totalProfit'),
+        lastUpdate: document.getElementById('lastUpdate'),
+        
+        // Controls
+        refreshBtn: document.getElementById('refreshBtn'),
+        refreshText: document.getElementById('refreshText'),
+        refreshSpinner: document.getElementById('refreshSpinner'),
+        
+        // Modals
+        deleteModal: document.getElementById('deleteModal'),
+        confirmDelete: document.getElementById('confirmDelete'),
+        cancelDelete: document.getElementById('cancelDelete'),
+        
+        // Other
+        loadingOverlay: document.getElementById('loadingOverlay'),
+        toastContainer: document.getElementById('toastContainer'),
+        connectionStatus: document.getElementById('connectionStatus')
+      },
+
+      // Initialize application
+      init() {
+        this.bindEvents();
+        this.setDefaultDate();
+        this.fetchTransactions();
+        this.startMarketPriceUpdates();
+      },
+
+      // Bind event listeners
+      bindEvents() {
+        // Form events
+        this.elements.form.addEventListener('submit', this.handleSubmit.bind(this));
+        this.elements.cancelEdit.addEventListener('click', this.cancelEdit.bind(this));
+        
+        // Table events
+        this.elements.tbody.addEventListener('click', this.handleTableClick.bind(this));
+        this.elements.mobileList.addEventListener('click', this.handleMobileClick.bind(this));
+        
+        // Control events
+        this.elements.refreshBtn.addEventListener('click', this.refreshData.bind(this));
+        
+        // Modal events
+        this.elements.cancelDelete.addEventListener('click', this.hideDeleteModal.bind(this));
+        this.elements.confirmDelete.addEventListener('click', this.deleteTransaction.bind(this));
+        
+        // Close modal on outside click
+        this.elements.deleteModal.addEventListener('click', (e) => {
+          if (e.target === this.elements.deleteModal) {
+            this.hideDeleteModal();
+          }
+        });
+      },
+
+      // Set default date to today
+      setDefaultDate() {
+        const today = new Date().toISOString().split('T')[0];
+        this.elements.date.value = today;
+      },
+
+      // API helpers
+      getAPI() {
+        return `/api/transactions?user=${encodeURIComponent(this.state.userEmail)}`;
+      },
+
+      getPriceAPI(symbol) {
+        return `/api/stocks?symbol=${symbol}`;
+      },
+
+      // Show loading overlay
+      showLoading() {
+        this.elements.loadingOverlay.classList.remove('hidden');
+      },
+
+      // Hide loading overlay
+      hideLoading() {
+        this.elements.loadingOverlay.classList.add('hidden');
+      },
+
+      // Show toast notification
+      showToast(message, type = 'info', duration = 3000) {
+        const toast = document.createElement('div');
+        toast.className = `animate-slide-up p-4 rounded-lg text-white font-medium ${
+          type === 'success' ? 'bg-success-500' :
+          type === 'error' ? 'bg-danger-500' :
+          type === 'warning' ? 'bg-warning-500' :
+          'bg-primary-500'
+        }`;
+        toast.textContent = message;
+        
+        this.elements.toastContainer.appendChild(toast);
+        
+        setTimeout(() => {
+          toast.style.opacity = '0';
+          setTimeout(() => {
+            if (toast.parentNode) {
+              toast.parentNode.removeChild(toast);
+            }
+          }, 300);
+        }, duration);
+      },
+
+      // Update connection status
+      updateConnectionStatus(isOnline) {
+        this.elements.connectionStatus.textContent = isOnline ? 'Conectado' : 'Offline';
+        this.elements.connectionStatus.className = `text-xs ${
+          isOnline ? 'text-white text-opacity-70' : 'text-red-300'
+        }`;
+      },
+
+      // Fetch transactions
+      async fetchTransactions() {
+        try {
+          this.state.isLoading = true;
+          this.updateConnectionStatus(true);
+          
+          const response = await fetch(this.getAPI());
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
+          this.state.transactions = await response.json();
+          this.renderTransactions();
+          this.updateStatistics();
+          
+        } catch (error) {
+          console.error('Error fetching transactions:', error);
+          this.showToast('Erro ao carregar transações', 'error');
+          this.updateConnectionStatus(false);
+        } finally {
+          this.state.isLoading = false;
+        }
+      },
+
+      // Render transactions
+      renderTransactions() {
+        const { tbody, mobileList, emptyState } = this.elements;
+        
+        // Clear existing content
+        tbody.innerHTML = '';
+        mobileList.innerHTML = '';
+        
+        if (this.state.transactions.length === 0) {
+          emptyState.classList.remove('hidden');
+          return;
+        }
+        
+        emptyState.classList.add('hidden');
+        
+        this.state.transactions.forEach(transaction => {
+          this.renderDesktopRow(transaction);
+          this.renderMobileCard(transaction);
+        });
+        
+        // Update market prices after rendering
+        this.updateMarketPrices();
+      },
+
+      // Render desktop table row
+      renderDesktopRow(transaction) {
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-gray-50 transition-colors duration-150';
+        
+        const operationText = transaction.operation === 'buy' ? 'Compra' : 'Venda';
+        const operationColor = transaction.operation === 'buy' ? 'text-success-500' : 'text-danger-500';
+        
+        row.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm font-medium text-gray-900">${transaction.symbol}</div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${operationColor} bg-opacity-10">
+              ${operationText}
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${transaction.amount}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">€${transaction.price.toFixed(4)}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+            <span id="market-${transaction.id}" class="text-gray-400">Carregando...</span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm">
+            <span id="profit-${transaction.id}" class="font-medium">--</span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">€${transaction.fee.toFixed(4)}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+            ${new Date(transaction.date).toLocaleDateString('pt-PT')}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+            <button data-action="edit" data-id="${transaction.id}" class="text-primary-600 hover:text-primary-900 mr-3">
+              Editar
+            </button>
+            <button data-action="delete" data-id="${transaction.id}" class="text-danger-600 hover:text-red-900">
+              Excluir
+            </button>
+          </td>
+        `;
+        
+        this.elements.tbody.appendChild(row);
+      },
+
+      // Render mobile card
+      renderMobileCard(transaction) {
+        const card = document.createElement('div');
+        card.className = 'bg-white border border-gray-200 rounded-lg p-4 animate-fade-in';
+        
+        const operationText = transaction.operation === 'buy' ? 'Compra' : 'Venda';
+        const operationColor = transaction.operation === 'buy' ? 'text-success-500' : 'text-danger-500';
+        
+        card.innerHTML = `
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900">${transaction.symbol}</h3>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${operationColor} bg-opacity-10">
+                ${operationText}
+              </span>
+            </div>
+            <div class="text-right">
+              <button data-action="edit" data-id="${transaction.id}" class="text-primary-600 hover:text-primary-900 mr-3 text-sm">
+                Editar
+              </button>
+              <button data-action="delete" data-id="${transaction.id}" class="text-danger-600 hover:text-red-900 text-sm">
+                Excluir
+              </button>
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <p class="text-gray-500">Quantidade</p>
+              <p class="font-medium">${transaction.amount}</p>
+            </div>
+            <div>
+              <p class="text-gray-500">Preço</p>
+              <p class="font-medium">€${transaction.price.toFixed(4)}</p>
+            </div>
+            <div>
+              <p class="text-gray-500">Preço Atual</p>
+              <p id="market-mobile-${transaction.id}" class="font-medium text-gray-400">Carregando...</p>
+            </div>
+            <div>
+              <p class="text-gray-500">Lucro</p>
+              <p id="profit-mobile-${transaction.id}" class="font-medium">--</p>
+            </div>
+            <div>
+              <p class="text-gray-500">Taxa</p>
+              <p class="font-medium">€${transaction.fee.toFixed(4)}</p>
+            </div>
+            <div>
+              <p class="text-gray-500">Data</p>
+              <p class="font-medium">${new Date(transaction.date).toLocaleDateString('pt-PT')}</p>
+            </div>
+          </div>
+        `;
+        
+        this.elements.mobileList.appendChild(card);
+      },
+
+      // Update statistics
+      updateStatistics() {
+        this.elements.totalTransactions.textContent = this.state.transactions.length;
+        
+        if (this.state.lastUpdate) {
+          this.elements.lastUpdate.textContent = new Date(this.state.lastUpdate).toLocaleString('pt-PT');
+        }
+      },
+
+      // Handle table clicks
+      handleTableClick(event) {
+        const action = event.target.getAttribute('data-action');
+        const id = event.target.getAttribute('data-id');
+        
+        if (action === 'edit' && id) {
+          this.editTransaction(id);
+        } else if (action === 'delete' && id) {
+          this.showDeleteModal(id);
+        }
+      },
+
+      // Handle mobile clicks
+      handleMobileClick(event) {
+        this.handleTableClick(event);
+      },
+
+      // Handle form submission
+      async handleSubmit(event) {
+        event.preventDefault();
+        
+        const formData = new FormData(event.target);
+        const payload = {
+          symbol: this.elements.symbol.value.toUpperCase(),
+          operation: this.elements.operation.value,
+          amount: parseFloat(this.elements.amount.value),
+          price: parseFloat(this.elements.price.value),
+          fee: parseFloat(this.elements.fee.value),
+          date: this.elements.date.value
+        };
+        
+        // Validate payload
+        if (!this.validateTransaction(payload)) {
+          return;
+        }
+        
+        try {
+          this.setSubmitLoading(true);
+          
+          let url = this.getAPI();
+          let method = 'POST';
+          
+          if (this.state.isEditing && this.state.editingId) {
+            url += `&id=${this.state.editingId}`;
+            method = 'PUT';
+          }
+          
+          const response = await fetch(url, {
+            method,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload)
+          });
+          
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          
+          // Reset form and refresh data
+          this.resetForm();
+          await this.fetchTransactions();
+          
+          this.showToast(
+            this.state.isEditing ? 'Transação atualizada com sucesso' : 'Transação criada com sucesso',
+            'success'
+          );
+          
+        } catch (error) {
+          console.error('Error saving transaction:', error);
+          this.showToast('Erro ao salvar transação', 'error');
+        } finally {
+          this.setSubmitLoading(false);
+        }
+      },
+
+       validateTransaction(payload) {
+        const errors = [];
+        if (!payload.symbol) errors.push('Símbolo é obrigatório');
+        if (!payload.operation) errors.push('Operação é obrigatória');
+        if (isNaN(payload.amount) || payload.amount <= 0) errors.push('Quantidade deve ser maior que zero');
+        if (isNaN(payload.price) || payload.price <= 0) errors.push('Preço deve ser maior que zero');
+        if (isNaN(payload.fee) || payload.fee < 0) errors.push('Taxa não pode ser negativa');
+        if (!payload.date) errors.push('Data é obrigatória');
+        if (errors.length > 0) {
+          errors.forEach(err => this.showToast(err, 'error'));
+          return false;
+        }
+        return true;
+      },
+
+      setSubmitLoading(loading) {
+        this.elements.submitBtn.disabled = loading;
+        this.elements.submitSpinner.classList.toggle('hidden', !loading);
+        this.elements.submitText.textContent = loading ? 'Salvando...' : 'Guardar Transação';
+      },
+
+      resetForm() {
+        this.elements.form.reset();
+        this.setDefaultDate();
+        this.state.isEditing = false;
+        this.state.editingId = null;
+        this.elements.formTitle.textContent = 'Nova Transação';
+        this.elements.cancelEdit.classList.add('hidden');
+      },
+
+      editTransaction(id) {
+        const tx = this.state.transactions.find(t => t.id === Number(id));
+        if (!tx) return;
+        this.state.isEditing = true;
+        this.state.editingId = tx.id;
+        this.elements.formTitle.textContent = 'Editar Transação';
+        this.elements.cancelEdit.classList.remove('hidden');
+        // populate form
+        this.elements.transactionId.value = tx.id;
+        this.elements.symbol.value = tx.symbol;
+        this.elements.operation.value = tx.operation;
+        this.elements.amount.value = tx.amount;
+        this.elements.price.value = tx.price;
+        this.elements.fee.value = tx.fee;
+        this.elements.date.value = new Date(tx.date).toISOString().split('T')[0];
+      },
+
+      cancelEdit() {
+        this.resetForm();
+      },
+
+      showDeleteModal(id) {
+        this.state.editingId = id;
+        this.elements.deleteModal.classList.remove('hidden');
+      },
+
+      hideDeleteModal() {
+        this.elements.deleteModal.classList.add('hidden');
+      },
+
+      async deleteTransaction() {
+        try {
+          await fetch(`${this.getAPI()}&id=${this.state.editingId}`, { method: 'DELETE' });
+          this.hideDeleteModal();
+          await this.fetchTransactions();
+          this.showToast('Transação excluída com sucesso', 'success');
+        } catch (e) {
+          console.error(e);
+          this.showToast('Erro ao excluir transação', 'error');
+        }
+      },
+
+      async refreshData() {
+        this.elements.refreshBtn.disabled = true;
+        this.elements.refreshSpinner.classList.remove('hidden');
+        await this.fetchTransactions();
+        this.elements.refreshSpinner.classList.add('hidden');
+        this.elements.refreshBtn.disabled = false;
+      },
+
+      startMarketPriceUpdates() {
+        this.updateMarketPrices();
+        setInterval(() => this.updateMarketPrices(), 60 * 1000); // every minute
+      },
+
+      async updateMarketPrices() {
+        const ids = this.state.transactions.map(t => t.id);
+        for (const tx of this.state.transactions) {
+          try {
+            const res = await fetch(this.getPriceAPI(tx.symbol));
+            const data = await res.json();
+            const market = data.price;
+            this.state.marketPrices[tx.id] = market;
+            const profit = tx.operation === 'buy'
+              ? (market - tx.price) * tx.amount - tx.fee
+              : (tx.price - market) * tx.amount - tx.fee;
+            const profitElem = document.getElementById(`profit-${tx.id}`);
+            const marketElem = document.getElementById(`market-${tx.id}`);
+            const cls = profit > 0 ? 'profit-positive' : profit < 0 ? 'profit-negative' : 'profit-neutral';
+            profitElem.textContent = `€${profit.toFixed(2)}`;
+            profitElem.className = cls;
+            marketElem.textContent = `€${market.toFixed(2)}`;
+            // mobile
+            const mobileProfit = document.getElementById(`profit-mobile-${tx.id}`);
+            const mobileMarket = document.getElementById(`market-mobile-${tx.id}`);
+            mobileProfit.textContent = `€${profit.toFixed(2)}`;
+            mobileProfit.className = cls;
+            mobileMarket.textContent = `€${market.toFixed(2)}`;
+          } catch (err) {
+            console.error('Error updating price for', tx.symbol, err);
+          }
+        }
+        this.state.lastUpdate = new Date().toISOString();
+        this.updateStatistics();
+        this.renderProfitChart();
+      },
+
+      renderProfitChart() {
+        const labels = this.state.transactions.map(t => new Date(t.date).toLocaleDateString('pt-PT'));
+        const profits = this.state.transactions.map(t => {
+          const m = this.state.marketPrices[t.id] || t.price;
+          return (t.operation === 'buy' ? (m - t.price) : (t.price - m)) * t.amount - t.fee;
+        });
+        const data = [{ x: labels, y: profits, type: 'scatter', mode: 'lines+markers' }];
+        const layout = { margin: { t: 20 } };
+        Plotly.newPlot(this.elements.profitChart, data, layout, { responsive: true });
+      }
+    };
+
+    // Kickoff
+    document.addEventListener('DOMContentLoaded', () => app.init());
+  </script>
 </body>
 </html>
