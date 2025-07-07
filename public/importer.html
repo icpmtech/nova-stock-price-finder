@@ -1,0 +1,234 @@
+<!-- /import.html  – Página de importação CSV/Excel para Transações -->
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Importar Transações – NovaMarketHub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: { 500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .card-hover { transition: transform .25s cubic-bezier(.4,0,.2,1), box-shadow .25s; }
+    .card-hover:hover { transform: translateY(-4px); box-shadow: 0 15px 25px -5px rgba(0,0,0,.15); }
+    .btn-primary { background: linear-gradient(135deg,#0ea5e9 0%,#0284c7 100%); color:#fff; }
+    .btn-primary:hover { background: linear-gradient(135deg,#0284c7 0%,#0369a1 100%); transform: translateY(-2px); }
+    .notification { position: fixed; right: 1rem; top: 1rem; z-index: 50; }
+  </style>
+</head>
+
+<body class="min-h-screen flex flex-col text-gray-800">
+  <!-- Cabeçalho reutilizado -->
+  <div id="header-widget"></div>
+  <script type="module" src="header.js"></script>
+
+  <main class="flex-1 flex items-center justify-center p-6">
+    <div
+      class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-4xl card-hover animate-fade-in space-y-8 lg:space-y-10">
+      <h1 class="text-3xl font-bold text-center">Importar Transações</h1>
+
+      <!-- Selecção de ficheiro -->
+      <div class="space-y-4">
+        <label class="block text-sm font-medium text-gray-700">Escolha um ficheiro CSV ou Excel</label>
+        <input id="fileInput" type="file"
+          accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+          class="w-full border border-gray-300 rounded-lg p-3" />
+        <p class="text-xs text-gray-500">Estrutura esperada: <code>symbol,operation,amount,price,fee,date</code></p>
+        <a href="data:text/csv;charset=utf-8,symbol,operation,amount,price,fee,date%0AAPL,buy,10,150.25,2.5,2025-01-15"
+          download="modelo-transacoes.csv"
+          class="text-primary-600 underline text-sm">🔽 Descarregar modelo CSV</a>
+      </div>
+
+      <!-- Pré-visualização -->
+      <section>
+        <h2 class="font-semibold mb-2">Pré-visualização</h2>
+        <div class="overflow-x-auto max-h-64 border border-gray-200 rounded-lg">
+          <table id="previewTable" class="w-full text-sm">
+            <thead class="bg-gray-50 sticky top-0">
+              <tr>
+                <th class="px-3 py-2">symbol</th>
+                <th class="px-3 py-2">operation</th>
+                <th class="px-3 py-2">amount</th>
+                <th class="px-3 py-2">price</th>
+                <th class="px-3 py-2">fee</th>
+                <th class="px-3 py-2">date</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Botões -->
+      <div class="flex justify-between items-center">
+        <a href="dashboard.html" class="text-sm text-gray-600 underline">← Voltar ao dashboard</a>
+        <button id="importBtn" disabled
+          class="btn-primary px-6 py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed">📤
+          Importar Registos</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Notificações -->
+  <div id="toastArea" class="notification space-y-2"></div>
+
+  <script type="module">
+    // Firebase auth (reutiliza firebase-init.js e garante login)
+    import { auth } from './firebase-init.js';
+    import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+    const els = {
+      fileInput: document.getElementById('fileInput'),
+      previewBody: document.querySelector('#previewTable tbody'),
+      importBtn: document.getElementById('importBtn'),
+      toastArea: document.getElementById('toastArea')
+    };
+
+    let currentUserEmail = '';
+    let parsedRows = [];   // mantém array de objetos prontos a enviar
+
+    // Toast helper
+    function toast(msg, type = 'info') {
+      const bg = type === 'error' ? 'bg-red-500' : type === 'success' ? 'bg-green-500' : 'bg-blue-500';
+      const div = document.createElement('div');
+      div.className = `${bg} text-white rounded-lg px-4 py-2 shadow-md animate-slide-in`;
+      div.textContent = msg;
+      els.toastArea.appendChild(div);
+      setTimeout(() => div.remove(), 3000);
+    }
+
+    // Auth guard
+    onAuthStateChanged(auth, user => {
+      if (!user) return location.href = '/login.html';
+      currentUserEmail = user.email;
+    });
+
+    // Parse handler
+    els.fileInput.addEventListener('change', async e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      parsedRows = [];
+      els.previewBody.innerHTML = '';
+      els.importBtn.disabled = true;
+
+      const ext = file.name.split('.').pop().toLowerCase();
+      try {
+        if (ext === 'csv') {
+          await parseCSV(file);
+        } else {            // assume Excel
+          await parseExcel(file);
+        }
+        if (parsedRows.length) {
+          renderPreview();
+          els.importBtn.disabled = false;
+          toast(`${parsedRows.length} registos prontos para importar`, 'success');
+        } else {
+          toast('Nenhum registo válido encontrado', 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        toast('Erro ao ler ficheiro', 'error');
+      }
+    });
+
+    async function parseCSV(file) {
+      return new Promise((res, rej) => {
+        Papa.parse(file, {
+          header: true,
+          skipEmptyLines: true,
+          complete: ({ data }) => {
+            parsedRows = normalizeRows(data);
+            res();
+          },
+          error: err => rej(err)
+        });
+      });
+    }
+
+    async function parseExcel(file) {
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data, { type: 'array' });
+      const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+      const json = XLSX.utils.sheet_to_json(firstSheet, { defval: '' });
+      parsedRows = normalizeRows(json);
+    }
+
+    // Validação / normalização
+    function normalizeRows(arr) {
+      const required = ['symbol', 'operation', 'amount', 'price', 'fee', 'date'];
+      return arr
+        .map(r => {
+          const obj = {};
+          for (const key of required) obj[key] = (r[key] ?? r[key.toUpperCase()] ?? '').toString().trim();
+          return obj;
+        })
+        .filter(r =>
+          r.symbol && ['buy', 'sell'].includes(r.operation) &&
+          !isNaN(+r.amount) && +r.amount > 0 &&
+          !isNaN(+r.price)  && +r.price  > 0 &&
+          !isNaN(+r.fee)    && +r.fee    >= 0 &&
+          /^\d{4}-\d{2}-\d{2}$/.test(r.date)
+        )
+        .map(r => ({
+          symbol: r.symbol.toUpperCase(),
+          operation: r.operation,
+          amount: +r.amount,
+          price: +r.price,
+          fee: +r.fee,
+          date: r.date
+        }));
+    }
+
+    function renderPreview() {
+      els.previewBody.innerHTML = parsedRows.map(r => `
+        <tr class="border-b">
+          <td class="px-3 py-2">${r.symbol}</td>
+          <td class="px-3 py-2">${r.operation}</td>
+          <td class="px-3 py-2">${r.amount}</td>
+          <td class="px-3 py-2">€${r.price.toFixed(4)}</td>
+          <td class="px-3 py-2">€${r.fee.toFixed(4)}</td>
+          <td class="px-3 py-2">${r.date}</td>
+        </tr>`).join('');
+    }
+
+    // Importar
+    els.importBtn.addEventListener('click', async () => {
+      if (!parsedRows.length) return toast('Nada para importar', 'error');
+      els.importBtn.disabled = true;
+      toast('A importar… Aguarde');
+
+      try {
+        const resp = await fetch(`/api/import?user=${encodeURIComponent(currentUserEmail)}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rows: parsedRows })
+        });
+        if (!resp.ok) throw new Error(await resp.text());
+        toast('Importação concluída com sucesso!', 'success');
+        parsedRows = [];
+        els.previewBody.innerHTML = '';
+      } catch (err) {
+        console.error(err);
+        toast('Falha na importação', 'error');
+      } finally {
+        els.importBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+
+</html>
