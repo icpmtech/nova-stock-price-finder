@@ -503,43 +503,46 @@
       `).join('');
     }
 
-    // Enhanced import with progress
-    els.importBtn.addEventListener('click', async () => {
-      if (!parsedRows.length) return toast('Nada para importar', 'warning');
-      
-      els.importBtn.disabled = true;
-      els.importBtnText.textContent = 'A importar...';
-      els.progressContainer.classList.remove('hidden');
-      
-      toast('Importação iniciada. Aguarde...', 'info');
+async function importRowsOneByOne() {
+  if (!parsedRows.length) return toast('Nada para importar', 'warning');
 
-      try {
-        const resp = await fetch(`/api/transactions?user=${encodeURIComponent(currentUserEmail)}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ rows: parsedRows })
-        });
-        
-        if (!resp.ok) throw new Error(await resp.text());
-        
-        toast('Importação concluída com sucesso!', 'success');
-        
-        // Reset form
-        parsedRows = [];
-        els.previewBody.innerHTML = '';
-        els.previewSection.style.display = 'none';
-        els.fileInput.value = '';
-        els.recordCount.textContent = '0 registos';
-        
-      } catch (err) {
-        console.error(err);
-        toast('Falha na importação. Tente novamente.', 'error');
-      } finally {
-        els.importBtn.disabled = false;
-        els.importBtnText.textContent = 'Importar Transações';
-        els.progressContainer.classList.add('hidden');
-      }
-    });
+  els.importBtn.disabled = true;
+  els.importBtnText.textContent = 'A importar…';
+  els.progressContainer.classList.remove('hidden');
+  els.progressBar.style.width = '0%';
+
+  try {
+    let done = 0;
+    for (const row of parsedRows) {
+      const resp = await fetch(`/api/transactions?user=${encodeURIComponent(currentUserEmail)}`, {
+        method : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body   : JSON.stringify(row)
+      });
+      if (!resp.ok) throw new Error(await resp.text());
+
+      done++;
+      els.progressBar.style.width = `${Math.round((done / parsedRows.length) * 100)}%`;
+    }
+
+    toast('Importação concluída com sucesso!', 'success');
+    parsedRows = [];
+    els.previewBody.innerHTML = '';
+    els.previewSection.style.display = 'none';
+    els.fileInput.value = '';
+    els.recordCount.textContent = '0 registos';
+  } catch (err) {
+    console.error(err);
+    toast('Falha na importação. Tente novamente.', 'error');
+  } finally {
+    els.importBtn.disabled = false;
+    els.importBtnText.textContent = 'Importar Transações';
+    els.progressContainer.classList.add('hidden');
+  }
+}
+
+// ligação ao botão
+els.importBtn.addEventListener('click', importRowsOneByOne);
   </script>
 </body>
 
