@@ -4,40 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Carteira de Investimentos</title>
-
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Chart.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-
   <style>
-    body {
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-      min-height: 100vh;
-    }
-    .card-hover { transition: all 0.3s ease; }
-    .card-hover:hover { transform: translateY(-4px); }
-    .pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: .5; }
-    }
+    body{background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);min-height:100vh}
+    .card-hover{transition:.3s}.card-hover:hover{transform:translateY(-4px)}
   </style>
 </head>
 
 <body class="text-white font-sans">
   <div id="header-widget"></div>
-  <!-- 2) Include the widget script -->
-<script type="module" src="header.js"></script>
+  <script type="module" src="header.js"></script>
+
   <div class="container mx-auto px-4 py-6 max-w-7xl">
-    <!-- Header -->
     <header class="mb-8">
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-            💼 Nova Wallet
-          </h1>
+          <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">💼 Nova Wallet</h1>
           <p class="text-gray-400 mt-2">Dashboard com comissões e lucro em tempo real</p>
         </div>
         <div class="text-right">
@@ -47,104 +30,60 @@
       </div>
     </header>
 
-    <!-- Métricas principais -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <!-- Saldo -->
-      <div class="bg-gray-800/50 backdrop-blur-sm p-6 rounded-xl shadow-lg card-hover border border-gray-700">
-        <div class="flex items-center justify-between mb-2">
-          <h3 class="text-sm font-medium text-gray-400">Saldo Total</h3>
-          <span class="text-2xl">💰</span>
-        </div>
-        <div id="saldoTotal" class="text-3xl font-bold text-green-400">€ 0</div>
-        <p class="text-xs text-gray-500 mt-1">* Deduzido comissões</p>
+      <div class="bg-gray-800/50 p-6 rounded-xl shadow-lg card-hover border border-gray-700">
+        <div class="flex items-center justify-between mb-2"><h3 class="text-sm font-medium text-gray-400">Saldo Total</h3><span class="text-2xl">💰</span></div>
+        <div id="saldoTotal" class="text-3xl font-bold text-green-400">€ 0</div><p class="text-xs text-gray-500 mt-1">* Deduzido comissões</p>
       </div>
-
       <!-- Lucro -->
-      <div class="bg-gray-800/50 backdrop-blur-sm p-6 rounded-xl shadow-lg card-hover border border-gray-700">
-        <div class="flex items-center justify-between mb-2">
-          <h3 class="text-sm font-medium text-gray-400">Lucro/Prejuízo</h3>
-          <span class="text-2xl">📈</span>
-        </div>
-        <div id="lucroTotal" class="text-3xl font-bold">€ 0</div>
-        <div id="lucroPercentual" class="text-sm mt-1">0.00%</div>
+      <div class="bg-gray-800/50 p-6 rounded-xl shadow-lg card-hover border border-gray-700">
+        <div class="flex items-center justify-between mb-2"><h3 class="text-sm font-medium text-gray-400">Lucro/Prejuízo</h3><span class="text-2xl">📈</span></div>
+        <div id="lucroTotal" class="text-3xl font-bold">€ 0</div><div id="lucroPercentual" class="text-sm mt-1">0.00%</div>
       </div>
-
       <!-- Investido -->
-      <div class="bg-gray-800/50 backdrop-blur-sm p-6 rounded-xl shadow-lg card-hover border border-gray-700">
-        <div class="flex items-center justify-between mb-2">
-          <h3 class="text-sm font-medium text-gray-400">Total Investido</h3>
-          <span class="text-2xl">💸</span>
-        </div>
-        <div id="totalInvestido" class="text-3xl font-bold text-blue-400">€ 0</div>
-        <div id="totalAcoes" class="text-xs text-gray-500 mt-1">0 ações</div>
+      <div class="bg-gray-800/50 p-6 rounded-xl shadow-lg card-hover border border-gray-700">
+        <div class="flex items-center justify-between mb-2"><h3 class="text-sm font-medium text-gray-400">Total Investido</h3><span class="text-2xl">💸</span></div>
+        <div id="totalInvestido" class="text-3xl font-bold text-blue-400">€ 0</div><div id="totalAcoes" class="text-xs text-gray-500 mt-1">0 ações</div>
       </div>
-
       <!-- Comissões -->
-      <div class="bg-gray-800/50 backdrop-blur-sm p-6 rounded-xl shadow-lg card-hover border border-gray-700">
-        <div class="flex items-center justify-between mb-2">
-          <h3 class="text-sm font-medium text-gray-400">Comissões</h3>
-          <span class="text-2xl">🏦</span>
-        </div>
-        <div id="totalComissoes" class="text-3xl font-bold text-red-400">€ 0</div>
-        <div id="comissaoPercentual" class="text-xs text-gray-500 mt-1">0.00% do total</div>
+      <div class="bg-gray-800/50 p-6 rounded-xl shadow-lg card-hover border border-gray-700">
+        <div class="flex items-center justify-between mb-2"><h3 class="text-sm font-medium text-gray-400">Comissões</h3><span class="text-2xl">🏦</span></div>
+        <div id="totalComissoes" class="text-3xl font-bold text-red-400">€ 0</div><div id="comissaoPercentual" class="text-xs text-gray-500 mt-1">0.00% do total</div>
       </div>
     </div>
 
-    <!-- Gráficos -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-      <!-- Pizza -->
-      <div class="bg-gray-800/50 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-gray-700">
+      <div class="bg-gray-800/50 p-6 rounded-xl shadow-lg border border-gray-700">
         <h3 class="text-lg font-semibold mb-4 text-gray-200">Distribuição da Carteira</h3>
         <div class="h-64"><canvas id="pieChart"></canvas></div>
       </div>
-
-      <!-- Barras -->
-      <div class="bg-gray-800/50 backdrop-blur-sm p-6 rounded-xl shadow-lg border border-gray-700">
+      <div class="bg-gray-800/50 p-6 rounded-xl shadow-lg border border-gray-700">
         <h3 class="text-lg font-semibold mb-4 text-gray-200">Performance por Ativo</h3>
         <div class="h-64"><canvas id="barChart"></canvas></div>
       </div>
     </div>
 
-    <!-- Carteira -->
     <section class="mb-8">
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-2xl font-semibold text-gray-200">Carteira de Investimentos</h2>
-        <button id="refreshBtn" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-          🔄 Atualizar Preços
-        </button>
+        <button id="refreshBtn" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-medium">🔄 Atualizar Preços</button>
       </div>
       <div id="carteiraContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
     </section>
 
-    <!-- Transações -->
     <section>
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-2xl font-semibold text-gray-200">Transações Recentes</h2>
         <div class="flex gap-2">
-          <select id="filterTipo" class="bg-gray-700 text-white px-3 py-1 rounded text-sm">
-            <option value="">Todos os tipos</option>
-            <option value="Compra">Compra</option>
-            <option value="Venda">Venda</option>
-          </select>
-          <input id="searchSymbol" type="text" placeholder="Buscar símbolo..."
-                 class="bg-gray-700 text-white px-3 py-1 rounded text-sm w-32">
+          <select id="filterTipo" class="bg-gray-700 text-white px-3 py-1 rounded text-sm"><option value="">Todos</option><option value="Compra">Compra</option><option value="Venda">Venda</option></select>
+          <input id="searchSymbol" class="bg-gray-700 text-white px-3 py-1 rounded text-sm w-32" placeholder="Buscar símbolo...">
         </div>
       </div>
-
-      <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl overflow-hidden shadow-lg border border-gray-700">
+      <div class="bg-gray-800/50 rounded-xl overflow-hidden shadow-lg border border-gray-700">
         <div class="overflow-x-auto">
           <table class="w-full text-sm text-left">
-            <thead class="bg-gray-700/50 text-gray-300">
-              <tr>
-                <th class="px-6 py-3 font-semibold">Tipo</th>
-                <th class="px-6 py-3 font-semibold">Símbolo</th>
-                <th class="px-6 py-3 font-semibold">Quantidade</th>
-                <th class="px-6 py-3 font-semibold">Preço</th>
-                <th class="px-6 py-3 font-semibold">Comissão</th>
-                <th class="px-6 py-3 font-semibold">Total</th>
-                <th class="px-6 py-3 font-semibold">Data</th>
-              </tr>
-            </thead>
+            <thead class="bg-gray-700/50 text-gray-300"><tr><th class="px-6 py-3">Tipo</th><th class="px-6 py-3">Símbolo</th><th class="px-6 py-3">Qtd.</th><th class="px-6 py-3">Preço</th><th class="px-6 py-3">Comissão</th><th class="px-6 py-3">Total</th><th class="px-6 py-3">Data</th></tr></thead>
             <tbody id="transacoesTable"></tbody>
           </table>
         </div>
@@ -152,188 +91,119 @@
     </section>
   </div>
 
-<script type="module">
-import { auth } from './firebase-init.js';
-import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+  <script type="module">
+    import { auth } from './firebase-init.js';
+    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
-const carteira = [];
-const transacoes = [];
-let filteredTransacoes = [];
-let pieChart, barChart, currentUserEmail = '';
+    const carteira=[],transacoes=[],cores=['#0ea5e9','#8b5cf6','#22c55e','#f97316','#f43f5e'];
+    let filteredTransacoes=[],pieChart,barChart,currentUserEmail='';
+    const €=v=>`€ ${Number(v).toFixed(2)}`;
+    const apiTx=e=>`/api/transactions?user=${encodeURIComponent(e)}`;
+    const apiPx=s=>`/api/stocks?symbol=${encodeURIComponent(s)}`;
 
-const cores = ['#0ea5e9', '#8b5cf6', '#22c55e', '#f97316', '#f43f5e'];
-const € = v => `€ ${v.toFixed(2)}`;
+    const fetchPx=async(s,f)=>{try{return(await(await fetch(apiPx(s))).json()).price??f}catch{return f}};
 
-const getTransactionsAPI = email => `/api/transactions?user=${encodeURIComponent(email)}`;
-const getPriceAPI = symbol => `/api/stocks?symbol=${encodeURIComponent(symbol)}`;
-
-async function getCurrentPrice(symbol, fallback) {
-  try {
-    const r = await fetch(getPriceAPI(symbol));
-    const { price } = await r.json();
-    return price ?? fallback;
-  } catch {
-    return fallback;
-  }
-}
-
-async function construirCarteira() {
-  carteira.length = 0;
-  const pos = new Map();
-  transacoes.forEach(tx => {
-    const mult = tx.tipo === 'Compra' ? 1 : -1;
-    if (!pos.has(tx.simbolo)) pos.set(tx.simbolo, { nome: tx.simbolo, acoes: 0, despesa: 0, setor: '—' });
-    const p = pos.get(tx.simbolo);
-    p.acoes += mult * tx.quantidade;
-    p.despesa += mult * tx.quantidade * tx.preco;
-  });
-  for (const p of pos.values()) {
-    if (p.acoes <= 0) continue;
-    p.precoCompra = Math.abs(p.despesa) / p.acoes;
-    p.precoAtual = await getCurrentPrice(p.nome, p.precoCompra);
-    carteira.push(p);
-  }
-}
-
-function calcularMetricas() {
-  const totalComissoes = transacoes.reduce((s, t) => s + t.comissao, 0);
-  const totalInvestido = carteira.reduce((s, a) => s + a.precoCompra * a.acoes, 0);
-  const valorAtual = carteira.reduce((s, a) => s + a.precoAtual * a.acoes, 0);
-  const totalAcoes = carteira.reduce((s, a) => s + a.acoes, 0);
-  const lucroTotal = valorAtual - totalInvestido;
-  const lucroPct = totalInvestido ? (lucroTotal / totalInvestido) * 100 : 0;
-  const commPct = totalInvestido ? (totalComissoes / totalInvestido) * 100 : 0;
-  const saldo = valorAtual - totalComissoes;
-
-  document.getElementById('totalComissoes').textContent = €(totalComissoes);
-  document.getElementById('comissaoPercentual').textContent = `${commPct.toFixed(2)}% do total`;
-  document.getElementById('totalInvestido').textContent = €(totalInvestido);
-  document.getElementById('totalAcoes').textContent = `${totalAcoes} ações`;
-  document.getElementById('saldoTotal').textContent = €(saldo);
-
-  const lucroEl = document.getElementById('lucroTotal');
-  lucroEl.textContent = €(lucroTotal);
-  lucroEl.className = `text-3xl font-bold ${lucroTotal >= 0 ? 'text-green-400' : 'text-red-400'}`;
-
-  document.getElementById('lucroPercentual').textContent = `${lucroPct.toFixed(2)}%`;
-  document.getElementById('lastUpdate').textContent = new Date().toLocaleString('pt-PT');
-}
-
-function renderCarteira() {
-  const cont = document.getElementById('carteiraContainer');
-  cont.innerHTML = '';
-  carteira.forEach(a => {
-    const lucro = (a.precoAtual - a.precoCompra) * a.acoes;
-    cont.insertAdjacentHTML(
-      'beforeend',
-      `<div class="bg-gray-800 p-4 rounded-xl border border-gray-700 card-hover shadow">
-         <h3 class="text-xl font-bold text-blue-300">${a.nome}</h3>
-         <p class="text-sm text-gray-400">${a.acoes} ações</p>
-         <p class="text-sm text-gray-400">Compra: ${€(a.precoCompra)}</p>
-         <p class="text-sm text-gray-400">Atual:  ${€(a.precoAtual)}</p>
-         <p class="mt-2 text-sm font-semibold ${lucro >= 0 ? 'text-green-400' : 'text-red-400'}">Lucro: ${€(lucro)}</p>
-       </div>`
-    );
-  });
-}
-
-function renderTransacoes() {
-  const tbody = document.getElementById('transacoesTable');
-  tbody.innerHTML = '';
-  filteredTransacoes.forEach(tx => {
-    const total = tx.preco * tx.quantidade + tx.comissao;
-    tbody.insertAdjacentHTML(
-      'beforeend',
-      `<tr class="border-t border-gray-700 hover:bg-gray-700/30">
-         <td class="px-6 py-2">${tx.tipo}</td>
-         <td class="px-6 py-2">${tx.simbolo}</td>
-         <td class="px-6 py-2">${tx.quantidade}</td>
-         <td class="px-6 py-2">${€(tx.preco)}</td>
-         <td class="px-6 py-2 text-red-400">${€(tx.comissao)}</td>
-         <td class="px-6 py-2">${€(total)}</td>
-         <td class="px-6 py-2">${tx.data}</td>
-       </tr>`
-    );
-  });
-}
-
-function renderGraficos() {
-  const labels = carteira.map(a => a.nome);
-  const valores = carteira.map(a => a.precoAtual * a.acoes);
-  const lucros = carteira.map(a => (a.precoAtual - a.precoCompra) * a.acoes);
-
-  if (pieChart) pieChart.destroy();
-  pieChart = new Chart(document.getElementById('pieChart'), {
-    type: 'pie',
-    data: { labels, datasets: [{ data: valores, backgroundColor: cores }] },
-    options: { responsive: true, plugins: { legend: { labels: { color: '#fff', boxWidth: 14 } } } }
-  });
-
-  if (barChart) barChart.destroy();
-  barChart = new Chart(document.getElementById('barChart'), {
-    type: 'bar',
-    data: { labels, datasets: [{ data: lucros, backgroundColor: cores }] },
-    options: {
-      responsive: true,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { ticks: { color: '#fff' }, grid: { display: false } },
-        y: { ticks: { color: '#fff' }, grid: { color: '#334155' } }
-      }
+    async function construirCarteira(){
+      carteira.length=0;
+      const m=new Map;
+      transacoes.forEach(t=>{
+        const mult=t.tipo==='Compra'?1:-1;
+        if(!m.has(t.simbolo))m.set(t.simbolo,{nome:t.simbolo,acoes:0,despesa:0});
+        const p=m.get(t.simbolo);
+        p.acoes+=mult*t.quantidade;
+        p.despesa+=mult*t.quantidade*t.preco;
+      });
+      await Promise.all([...m.values()].filter(p=>p.acoes>0).map(async p=>{
+        p.precoCompra=Math.abs(p.despesa)/p.acoes;
+        p.precoAtual=await fetchPx(p.nome,p.precoCompra);
+        carteira.push(p);
+      }));
     }
-  });
-}
 
-function filtrarTransacoes() {
-  const tipoSel = document.getElementById('filterTipo').value;
-  const simb = document.getElementById('searchSymbol').value.toUpperCase();
-  filteredTransacoes = transacoes.filter(
-    tx => (!tipoSel || tx.tipo === tipoSel) && (!simb || tx.simbolo.includes(simb))
-  );
-  renderTransacoes();
-}
+    function calcularMetricas(){
+      const com=transacoes.reduce((s,t)=>s+t.comissao,0);
+      const inv=carteira.reduce((s,a)=>s+a.precoCompra*a.acoes,0);
+      const val=carteira.reduce((s,a)=>s+a.precoAtual*a.acoes,0);
+      const acs=carteira.reduce((s,a)=>s+a.acoes,0);
+      const luc=val-inv;
+      const lp=inv?luc/inv*100:0;
+      const cp=inv?com/inv*100:0;
+      document.getElementById('totalComissoes').textContent=€(com);
+      document.getElementById('comissaoPercentual').textContent=`${cp.toFixed(2)}% do total`;
+      document.getElementById('totalInvestido').textContent=€(inv);
+      document.getElementById('totalAcoes').textContent=`${acs} ações`;
+      document.getElementById('saldoTotal').textContent=€(val-com);
+      const l=document.getElementById('lucroTotal');
+      l.textContent=€(luc);l.className=`text-3xl font-bold ${luc>=0?'text-green-400':'text-red-400'}`;
+      document.getElementById('lucroPercentual').textContent=`${lp.toFixed(2)}%`;
+      document.getElementById('lastUpdate').textContent=new Date().toLocaleString('pt-PT');
+    }
 
-document.getElementById('filterTipo').addEventListener('change', filtrarTransacoes);
-document.getElementById('searchSymbol').addEventListener('input', filtrarTransacoes);
-document.getElementById('refreshBtn').addEventListener('click', async () => {
-  await construirCarteira();
-  calcularMetricas();
-  renderCarteira();
-  renderGraficos();
-});
+    function renderCarteira(){
+      const c=document.getElementById('carteiraContainer');c.innerHTML='';
+      carteira.forEach(a=>{
+        const lucro=(a.precoAtual-a.precoCompra)*a.acoes;
+        c.insertAdjacentHTML('beforeend',
+          `<div class="bg-gray-800 p-4 rounded-xl border border-gray-700 card-hover shadow">
+            <h3 class="text-xl font-bold text-blue-300">${a.nome}</h3>
+            <p class="text-sm text-gray-400">${a.acoes} ações</p>
+            <p class="text-sm text-gray-400">Compra: ${€(a.precoCompra)}</p>
+            <p class="text-sm text-gray-400">Atual: ${€(a.precoAtual)}</p>
+            <p class="mt-2 text-sm font-semibold ${lucro>=0?'text-green-400':'text-red-400'}">Lucro: ${€(lucro)}</p>
+          </div>`);
+      });
+    }
 
-async function loadTransacoes() {
-  try {
-    const r = await fetch(getTransactionsAPI(currentUserEmail));
-    const raw = await r.json();
-    transacoes.length = 0;
-    raw.forEach(t =>
-      transacoes.push({
-        tipo: t.operation === 'buy' ? 'Compra' : 'Venda',
-        simbolo: t.symbol.toUpperCase(),
-        quantidade: t.amount,
-        preco: t.price,
-        comissao: t.fee,
-        data: t.date
-      })
-    );
-    filteredTransacoes = [...transacoes];
-    await construirCarteira();
-    calcularMetricas();
-    renderCarteira();
-    renderGraficos();
-    renderTransacoes();
-  } catch (e) {
-    console.error(e);
-    alert('Falha ao carregar transações.');
-  }
-}
+    function renderTransacoes(){
+      const t=document.getElementById('transacoesTable');t.innerHTML='';
+      filteredTransacoes.forEach(x=>{
+        const tot=x.preco*x.quantidade+x.comissao;
+        t.insertAdjacentHTML('beforeend',
+          `<tr class="border-t border-gray-700 hover:bg-gray-700/30">
+            <td class="px-6 py-2">${x.tipo}</td>
+            <td class="px-6 py-2">${x.simbolo}</td>
+            <td class="px-6 py-2">${x.quantidade}</td>
+            <td class="px-6 py-2">${€(x.preco)}</td>
+            <td class="px-6 py-2 text-red-400">${€(x.comissao)}</td>
+            <td class="px-6 py-2">${€(tot)}</td>
+            <td class="px-6 py-2">${x.data}</td>
+          </tr>`);
+      });
+    }
 
-onAuthStateChanged(auth, user => {
-  if (!user) return (location = '/login.html');
-  currentUserEmail = user.email;
-  loadTransacoes();
-});
-</script>  
+    function renderGraficos(){
+      const labels=carteira.map(a=>a.nome);
+      const valores=carteira.map(a=>a.precoAtual*a.acoes);
+      const lucros=carteira.map(a=>(a.precoAtual-a.precoCompra)*a.acoes);
+      if(pieChart)pieChart.destroy();
+      pieChart=new Chart(document.getElementById('pieChart'),{
+        type:'pie',
+        data:{labels,datasets:[{data:valores,backgroundColor:cores}]},
+        options:{responsive:true,plugins:{legend:{labels:{color:'#fff',boxWidth:14}}}}
+      });
+      if(barChart)barChart.destroy();
+      barChart=new Chart(document.getElementById('barChart'),{
+        type:'bar',
+        data:{labels,datasets:[{data:lucros,backgroundColor:cores}]},
+        options:{responsive:true,plugins:{legend:{display:false}},
+          scales:{x:{ticks:{color:'#fff'},grid:{display:false}},y:{ticks:{color:'#fff'},grid:{color:'#334155'}}}}
+      });
+    }
+
+    function filtrar(){const t=document.getElementById('filterTipo').value,s=document.getElementById('searchSymbol').value.toUpperCase();filteredTransacoes=transacoes.filter(z=>(!t||z.tipo===t)&&(!s||z.simbolo.includes(s)));renderTransacoes()}
+    document.getElementById('filterTipo').addEventListener('change',filtrar);
+    document.getElementById('searchSymbol').addEventListener('input',filtrar);
+    document.getElementById('refreshBtn').addEventListener('click',async()=>{await construirCarteira();calcularMetricas();renderCarteira();renderGraficos()});
+
+    async function loadTransacoes(){
+      const r=await fetch(apiTx(currentUserEmail));const raw=await r.json();
+      transacoes.length=0;
+      raw.forEach(t=>transacoes.push({tipo:t.operation==='buy'?'Compra':'Venda',simbolo:t.symbol.toUpperCase(),quantidade:+t.amount,preco:+t.price,comissao:+t.fee,data:t.date}));
+      filteredTransacoes=[...transacoes];
+      await construirCarteira();calcularMetricas();renderCarteira();renderGraficos();renderTransacoes();
+    }
+
+    onAuthStateChanged(auth,u=>{if(!u)return location='/login.html';currentUserEmail=u.email;loadTransacoes()});
+  </script>
 </body>
 </html>
