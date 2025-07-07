@@ -688,7 +688,7 @@ handleMobileClick(event) {
       },
 
       editTransaction(id) {
-        const tx = this.state.transactions.find(t => t.id === Number(id));
+        const tx = this.state.transactions.find(t => t.id ==id);
         if (!tx) return;
         this.state.isEditing = true;
         this.state.editingId = tx.id;
