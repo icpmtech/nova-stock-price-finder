@@ -699,7 +699,8 @@ els.tbody.addEventListener('click', e => {
 
 async function deleteTransaction(id) {
   try {
-    await fetch(`${ getAPI() }& id=${ id } `, { method: 'DELETE' });
+   
+    await fetch(`${getAPI()}&id=${id}`, { method: 'DELETE' });
     fetchTransactions();
     notify('Transação eliminada com sucesso!', 'success');
   } catch (err) {
@@ -732,7 +733,9 @@ els.form.addEventListener('submit', async e => {
   els.submitBtn.disabled = true;
   els.loadingSpinner.classList.remove('hidden');
   try {
-    await fetch(getAPI() + (id ? `& id=${ id }` : ''), {
+    const url = new URL(getAPI(), window.location.origin);
+url.searchParams.set('id', id);
+    await fetch(`${getAPI()}&id=${id}`, {
       method: id ? 'PUT' : 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
