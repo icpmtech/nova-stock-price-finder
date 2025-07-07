@@ -310,13 +310,15 @@
 </head>
 <body class="text-gray-800 min-h-screen flex flex-col">
 <div id="header-widget"></div>
-  <!-- Mobile Overlay -->
-  <div id="overlay" class="overlay fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"></div>
+
 
   <!-- Sidebar + Header Container -->
   <div class="flex flex-1 overflow-hidden">
     <!-- Sidebar -->
-    <aside id="sidebar" class="sidebar-gradient w-64 border-r border-gray-200 shadow-xl p-4 lg:p-6 flex-col mobile-sidebar fixed inset-y-0 left-0 z-50 lg:relative lg:z-auto lg:flex desktop-sidebar ">
+   <aside
+  id="sidebar"
+  class="sidebar-gradient w-64 border-r border-gray-200 shadow-xl p-4 lg:p-6 flex flex-col"
+>
       <div class="flex items-center justify-between mb-6 lg:mb-8">
         <h2 class="text-xl lg:text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">novaHub</h2>
         <button id="closeSidebarBtn" class="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition touch-target">
