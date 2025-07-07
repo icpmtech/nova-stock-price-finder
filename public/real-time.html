@@ -332,6 +332,7 @@
         this.setDefaultDate();
         this.fetchTransactions();
         this.startMarketPriceUpdates();
+        this.startUpdateTimer();
       },
 
       // Bind event listeners
@@ -811,6 +812,7 @@ handleMobileClick(event) {
 
         this.elements.totalProfit.textContent = `€${total.toFixed(2)}`;
         this.elements.totalProfit.className   = `text-2xl font-bold ${profitCls}`;
+        this.elements.updateTimer.textContent = '0s';
 
         // 3. restante housekeeping
         this.state.lastUpdate = new Date().toISOString();
