@@ -9,6 +9,7 @@
   <!-- Google Font: Chat Sans -->
   <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -61,6 +62,7 @@
             <th class="px-4 py-2">Qtd</th>
             <th class="px-4 py-2">Preço</th>
             <th class="px-4 py-2">Market Price</th>
+            <th class="px-4 py-2">Lucro (€)</th>
             <th class="px-4 py-2">Taxa</th>
             <th class="px-4 py-2">Data</th>
             <th class="px-4 py-2">Ações</th>
@@ -69,7 +71,8 @@
         <tbody id="transactionTbody" class="divide-y"></tbody>
       </table>
       <div id="mobileList" class="lg:hidden space-y-4"></div>
-      <div class="text-white">Total: <span id="total">0</span></div>
+      <div class="text-white mb-4">Total: <span id="total">0</span></div>
+      <div id="profitChart" class="bg-white p-4 rounded-lg"></div>
     </section>
   </main>
 
@@ -130,6 +133,7 @@
           <td>${t.amount}</td>
           <td>€${t.price.toFixed(4)}</td>
           <td id="mkt-${t.id}">--</td>
+          <td id="profit-${t.id}">--</td>
           <td>€${t.fee.toFixed(4)}</td>
           <td>${new Date(t.date).toLocaleDateString()}</td>
           <td><button data-id="${t.id}" class="del">Excluir</button> <button data-t='${encodeURIComponent(JSON.stringify(t))}' class="edit">Editar</button></td>`;
@@ -139,6 +143,7 @@
         d.innerHTML=`<div class="flex justify-between"><span>${t.symbol}</span><span>${t.operation==='buy'?'Compra':'Venda'}</span></div>
           <p>Qtd: ${t.amount} | Price: €${t.price.toFixed(4)}</p>
           <p>Market: <span id="mktm-${t.id}">--</span></p>
+          <p>Lucro: <span id="profitm-${t.id}">--</span></p>
           <p>Taxa: €${t.fee.toFixed(4)} | ${new Date(t.date).toLocaleDateString()}</p>`;
         els.mobile.appendChild(d);
       });
@@ -163,15 +168,25 @@
       els.form.reset(); els.submit.textContent='Guardar'; fetchTransactions();
     };
 
-    // Fetch real-time prices for transactions
+    // Fetch real-time prices and compute profits
     async function refreshMarketPrices(){
-      state.transactions.forEach(async t=>{
+      const profits = [];
+      const times = [];
+      for(const t of state.transactions){
         try{
           const r=await fetch(getPriceAPI(t.symbol)); const d=await r.json();
-          document.getElementById(`mkt-${t.id}`).textContent = `€${d.price.toFixed(2)}`;
-          document.getElementById(`mktm-${t.id}`).textContent = `€${d.price.toFixed(2)}`;
-        }catch{}
-      });
+          const m = d.price;
+          const p = ((m - t.price) * t.amount) - t.fee;
+          document.getElementById(`mkt-${t.id}`).textContent = `€${m.toFixed(2)}`;
+          document.getElementById(`mktm-${t.id}`).textContent = `€${m.toFixed(2)}`;
+          document.getElementById(`profit-${t.id}`).textContent = `€${p.toFixed(2)}`;
+          document.getElementById(`profitm-${t.id}`).textContent = `€${p.toFixed(2)}`;
+          profits.push(p);
+          times.push(new Date(t.date).toLocaleDateString());
+        } catch{}
+      }
+      // Plot profit over date
+      Plotly.newPlot('profitChart', [{ x: times, y: profits, type: 'scatter', mode: 'lines+markers' }], { title: 'Lucro por Data' });
     }
   </script>
 </body>
