@@ -72,12 +72,8 @@
       seriesData = [];
 
       for (const tipo of types) {
-        let endpoint = tipo === 'perfil'
-          ? `/api/perfil?symbol=${encodeURIComponent(symbol)}`
-          : `/api/indicador?symbol=${encodeURIComponent(symbol)}&tipo=${tipo}`;
-
         try {
-          const res = await fetch(endpoint);
+         const res = await fetch(`https://novastocks.vercel.app/api/analises?symbol=${encodeURIComponent(symbol)}&tipo=${tipo}`);
           const data = await res.json();
 
           if (tipo === 'perfil') {
