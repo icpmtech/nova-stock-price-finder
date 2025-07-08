@@ -126,7 +126,13 @@
          {"icon":"📞","label":"","href":"contact.html"}
        ]}'></div>
   <script type="module" src="header.js"></script>
-
+<div class="p-4 text-right">
+    <select id="lang-switch" class="border rounded px-2 bg-slate-800 text-white">
+      <option value="pt">PT</option>
+      <option value="en">EN</option>
+      <option value="es">ES</option>
+    </select>
+  </div>
   <!-- 🔹  LOGIN  🔹 -->
   <main class="gradient-bg text-white min-h-screen flex items-center justify-center p-4">
     <div class="w-full max-w-md p-8 glass-effect rounded-2xl shadow-2xl animate-slide-in">
@@ -210,125 +216,195 @@
   <div id="footer-widget"></div>
   <script type="module" src="footer.js"></script>
 
-  <!-- 🔹 Firebase + Login 🔹 -->
-  <script type="module">
-    import { auth } from './firebase-init.js';
-    import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    <!-- Firebase SDKs + Login Logic -->
+<script type="module">
+   import { auth } from './firebase-init.js';
+  import {
+    getAuth,
+    signInWithEmailAndPassword
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-    // DOM
-    const form          = document.getElementById("loginForm");
-    const emailInput    = document.getElementById("email");
-    const passwordInput = document.getElementById("password");
-    const emailError    = document.getElementById("emailError");
-    const passwordError = document.getElementById("passwordError");
-    const submitBtn     = document.getElementById("submitBtn");
-    const btnText       = document.getElementById("btnText");
-    const btnSpinner    = document.getElementById("btnSpinner");
-    const messageCt     = document.getElementById("messageContainer");
-    const messageEl     = document.getElementById("message");
+ 
 
-    // eye toggle
-    document.getElementById("togglePassword").addEventListener("click", () => {
-      const eyeOpen   = document.getElementById("eyeOpen");
-      const eyeClosed = document.getElementById("eyeClosed");
-      const isHidden  = passwordInput.type === "password";
-      passwordInput.type = isHidden ? "text" : "password";
-      eyeOpen.classList.toggle("hidden", isHidden);
-      eyeClosed.classList.toggle("hidden", !isHidden);
-    });
+  // Elementos do DOM
+  const form = document.getElementById("loginForm");
+  const emailInput = document.getElementById("email");
+  const passwordInput = document.getElementById("password");
+  const rememberCheckbox = document.getElementById("remember");
 
-    // validação simples
-    function validateEmail() {
-      const val = emailInput.value.trim();
-      const ok  = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
-      if (!val)         showErr(emailError, 'Email é obrigatório');
-      else if (!ok)     showErr(emailError, 'Formato de email inválido');
-      else              clearErr(emailError);
-      return ok;
+  const emailError = document.getElementById("emailError");
+  const passwordError = document.getElementById("passwordError");
+
+  const submitBtn = document.getElementById("submitBtn");
+  const btnText = document.getElementById("btnText");
+  const btnSpinner = document.getElementById("btnSpinner");
+
+  const messageContainer = document.getElementById("messageContainer");
+  const messageEl = document.getElementById("message");
+
+  // Toggle de visibilidade da password
+  document.getElementById("togglePassword").addEventListener("click", () => {
+    const eyeOpen = document.getElementById("eyeOpen");
+    const eyeClosed = document.getElementById("eyeClosed");
+    if (passwordInput.type === "password") {
+      passwordInput.type = "text";
+      eyeOpen.classList.add("hidden");
+      eyeClosed.classList.remove("hidden");
+    } else {
+      passwordInput.type = "password";
+      eyeOpen.classList.remove("hidden");
+      eyeClosed.classList.add("hidden");
     }
-    function validatePass() {
-      const val = passwordInput.value;
-      if (!val)         showErr(passwordError, 'Senha é obrigatória');
-      else if (val.length < 6) showErr(passwordError,'Senha deve ter ≥ 6 caracteres');
-      else              clearErr(passwordError);
-      return !!val && val.length>=6;
-    }
-    function showErr(el,msg){ el.textContent=msg; el.classList.remove("hidden"); }
-    function clearErr(el){ el.classList.add("hidden"); }
+  });
 
-    function setLoading(on){
-      submitBtn.disabled = on;
-      btnText.textContent = on ? i18n('loading') : i18n('btn.login');
-      btnSpinner.classList.toggle('hidden', !on);
+  // Validações simples
+  function validateEmail() {
+    const email = emailInput.value.trim();
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email) {
+      showFieldError(emailError, "Email é obrigatório");
+      emailInput.classList.add("border-red-500");
+      return false;
     }
-    function showMsg(text,type){
-      messageEl.textContent = text;
-      messageEl.className = "p-4 rounded-lg text-center text-sm font-medium animate-slide-in";
+    if (!re.test(email)) {
+      showFieldError(emailError, "Formato de email inválido");
+      emailInput.classList.add("border-red-500");
+      return false;
+    }
+    clearFieldError(emailError, emailInput);
+    return true;
+  }
+
+  function validatePassword() {
+    const pwd = passwordInput.value;
+    if (!pwd) {
+      showFieldError(passwordError, "Senha é obrigatória");
+      passwordInput.classList.add("border-red-500");
+      return false;
+    }
+    if (pwd.length < 6) {
+      showFieldError(passwordError, "Senha deve ter ≥ 6 caracteres");
+      passwordInput.classList.add("border-red-500");
+      return false;
+    }
+    clearFieldError(passwordError, passwordInput);
+    return true;
+  }
+
+  function showFieldError(el, msg) {
+    el.textContent = msg;
+    el.classList.remove("hidden");
+  }
+  function clearFieldError(el, input) {
+    el.classList.add("hidden");
+    if (input) input.classList.remove("border-red-500");
+  }
+
+  function setLoadingState(isLoading) {
+    submitBtn.disabled = isLoading;
+    btnText.textContent = isLoading ? "Entrando..." : "Entrar";
+    btnSpinner.classList.toggle("hidden", !isLoading);
+  }
+
+   function showMessage(text, type) {
+    // Reset da mensagem
+    messageEl.className = "p-4 rounded-lg text-center text-sm font-medium animate-slide-in";
+    messageEl.textContent = text;
+
+    // Remove classes de estado anteriores
+    messageEl.classList.remove(
+      "bg-emerald-500/20", "text-emerald-400", "border", "border-emerald-500/30",
+      "bg-red-500/20",    "text-red-400",    "border-red-500/30",
+      "bg-blue-500/20",   "text-blue-400",   "border-blue-500/30"
+    );
+
+    // Adiciona classes consoante o tipo
+    if (type === "success") {
       messageEl.classList.add(
-        type==='success' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' :
-        type==='error'   ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
-                           'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+        "bg-emerald-500/20", "text-emerald-400", "border", "border-emerald-500/30"
       );
-      messageCt.classList.remove("hidden");
-      if(type!=='success') setTimeout(()=>messageCt.classList.add('hidden'),5000);
+    } else if (type === "error") {
+      messageEl.classList.add(
+        "bg-red-500/20", "text-red-400", "border", "border-red-500/30"
+      );
+    } else {
+      messageEl.classList.add(
+        "bg-blue-500/20", "text-blue-400", "border", "border-blue-500/30"
+      );
     }
 
-    form.addEventListener("submit", async e=>{
-      e.preventDefault();
-      if(!validateEmail()|!validatePass()){
-        form.classList.add('animate-shake'); setTimeout(()=>form.classList.remove('animate-shake'),500); return;
+    // Mostra o container e, se não for success, esconde ao fim de 5s
+    messageContainer.classList.remove("hidden");
+    if (type !== "success") {
+      setTimeout(() => messageContainer.classList.add("hidden"), 5000);
+    }
+  }
+  // Envio do formulário
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    clearFieldError(emailError, emailInput);
+    clearFieldError(passwordError, passwordInput);
+
+    const validEmail = validateEmail();
+    const validPass = validatePassword();
+    if (!validEmail || !validPass) {
+      form.classList.add("animate-shake");
+      setTimeout(() => form.classList.remove("animate-shake"), 500);
+      return;
+    }
+
+    setLoadingState(true);
+    try {
+      const cred = await signInWithEmailAndPassword(auth, emailInput.value.trim(), passwordInput.value);
+      const token = await cred.user.getIdToken();
+      localStorage.setItem("token", token);
+      showMessage("Login bem-sucedido! A redirecionar…", "success");
+      setTimeout(() => window.location.href = "/dashboard.html", 1500);
+    } catch (err) {
+      let msg = "Erro ao entrar. ";
+      if (err.code === "auth/user-not-found")      msg += "Utilizador não encontrado.";
+      else if (err.code === "auth/wrong-password") msg += "Senha incorreta.";
+      else if (err.code === "auth/too-many-requests") msg += "Muitas tentativas. Tente mais tarde.";
+      else                                          msg += err.message;
+      showMessage(msg, "error");
+      form.classList.add("animate-shake");
+      setTimeout(() => form.classList.remove("animate-shake"), 500);
+    } finally {
+      setLoadingState(false);
+    }
+  });
+
+  // Navegação por Enter
+  form.querySelectorAll("input[required]").forEach((input, idx, arr) => {
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const next = arr[idx + 1];
+        if (next) next.focus();
+        else form.dispatchEvent(new Event("submit"));
       }
-      setLoading(true);
-      try{
-        const cred = await signInWithEmailAndPassword(auth,emailInput.value.trim(),passwordInput.value);
-        localStorage.setItem('token', await cred.user.getIdToken());
-        showMsg(i18n('msg.success'),'success');
-        setTimeout(()=>location.href='/dashboard.html',1500);
-      }catch(err){
-        let key = 'msg.generic', extra = err.message;
-        if(err.code==='auth/user-not-found')      key='msg.user', extra='';
-        else if(err.code==='auth/wrong-password') key='msg.pass', extra='';
-        else if(err.code==='auth/too-many-requests') key='msg.too', extra='';
-        showMsg(i18n(key)+extra,'error');
-        form.classList.add('animate-shake'); setTimeout(()=>form.classList.remove('animate-shake'),500);
-      }finally{ setLoading(false); }
     });
-
-    // Enter navegação
-    form.querySelectorAll("input[required]").forEach((el,i,arr)=>{
-      el.addEventListener('keydown',e=>{
-        if(e.key==='Enter'){ e.preventDefault(); arr[i+1]?.focus()??form.requestSubmit(); }
-      });
-    });
-
-    /* ──────────  i18n  ──────────*/
-    const data = JSON.parse(document.getElementById('i18n-data').textContent);
-    const qs   = new URLSearchParams(location.search);
-    const lang = qs.get('lang') || (navigator.language||'pt').slice(0,2) || 'pt';
-    const tr   = data[lang] || data.pt;
-    function i18n(k){ return tr[k] || data.pt[k] || k; }
-
-    document.documentElement.lang = lang;
-    document.title = i18n('meta.title');
-    document.querySelector('meta[name="description"]').content = i18n('meta.desc');
-    document.getElementById('canonical-link').href = location.origin+location.pathname+'?lang='+lang;
-    document.querySelector('meta[property="og:title"]').content = i18n('og.title');
-    document.querySelector('meta[property="og:description"]').content = i18n('og.desc');
-
-    document.querySelectorAll('[data-i18n]').forEach(el=>{
-      el.innerHTML = i18n(el.dataset.i18n);
-    });
-
-    // Header Widget labels
-    const hw = document.getElementById('header-widget');
-    const cfg = JSON.parse(hw.dataset.config);
-    cfg.title = 'NovaStocks';
-    const lbls = ['nav.features','nav.contact','signup','footer.contato']; // exemplo se quiser
-    cfg.links[0].label = 'Início';
-    cfg.links[1].label = 'Conta';
-    cfg.links[2].label = 'Registo';
-    cfg.links[3].label = 'Contactos';
-    hw.dataset.config = JSON.stringify(cfg);
+  });
+</script>
+ <!-- ====== MULTILANG SCRIPT ====== -->
+  <script>
+    (function () {
+      const data = JSON.parse(document.getElementById('i18n-data').textContent);
+      const params = new URLSearchParams(location.search);
+      const lang = params.get('lang') || (navigator.language || 'pt').slice(0, 2) || 'pt';
+      const tr = data[lang] || data.pt;
+      document.documentElement.lang = lang;
+      document.title = tr['meta.title'];
+      document.querySelector('meta[name="description"]').content = tr['meta.desc'];
+      document.getElementById('canonical-link').href = location.origin + location.pathname + '?lang=' + lang;
+      document.querySelector('meta[property="og:title"]').content = tr['og.title'];
+      document.querySelector('meta[property="og:description"]').content = tr['og.desc'];
+      document.querySelectorAll('[data-i18n]').forEach(el => { const k = el.dataset.i18n; if (tr[k]) el.innerHTML = tr[k]; });
+      const sel = document.getElementById('lang-switch'); sel.value = lang; sel.onchange = e => { params.set('lang', e.target.value); location.search = params.toString() };
+      const cfg = JSON.parse(document.getElementById('header-widget').dataset.config);
+      cfg.links[0].label = tr['header.home']; cfg.links[1].label = tr['header.account']; cfg.links[2].label = tr['header.signup']; cfg.links[3].label = tr['header.contact'];
+      document.getElementById('header-widget').dataset.config = JSON.stringify(cfg);
+    })();
   </script>
 </body>
 </html>
