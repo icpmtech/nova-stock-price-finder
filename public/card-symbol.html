@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Análises com APIs separadas</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white p-6 transition-all duration-300">
+  <div class="max-w-5xl mx-auto space-y-6">
+    <div class="flex justify-between items-center">
+      <h1 class="text-2xl font-bold">Análises de Ações</h1>
+      <button id="toggleTheme" class="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700 transition">🌗 Tema</button>
+    </div>
+
+    <!-- Input -->
+    <div class="flex gap-2">
+      <input id="symbolInput" type="text" placeholder="Ex: PLTR" class="w-full p-3 rounded border dark:bg-gray-800" />
+      <button id="plotBtn" class="bg-blue-600 text-white px-4 py-2 rounded">📊 Plotar</button>
+      <button id="clearBtn" class="bg-gray-500 text-white px-4 py-2 rounded">🧹 Limpar</button>
+    </div>
+
+    <!-- Checkboxes -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <label><input type="checkbox" value="perfil" class="typeChk mr-2" /> Perfil</label>
+      <label><input type="checkbox" value="rsi" class="typeChk mr-2" /> RSI</label>
+      <label><input type="checkbox" value="macd" class="typeChk mr-2" /> MACD</label>
+      <label><input type="checkbox" value="sma" class="typeChk mr-2" /> SMA</label>
+    </div>
+
+    <!-- Result -->
+    <div id="result"></div>
+
+    <!-- Chart -->
+    <div id="chartContainer" class="hidden">
+      <h2 class="text-xl font-semibold my-4">📈 Gráfico</h2>
+      <div id="chart" class="rounded shadow bg-white dark:bg-gray-800"></div>
+      <div class="mt-4 flex gap-3">
+        <button id="exportPng" class="bg-green-600 text-white px-4 py-2 rounded">📷 PNG</button>
+        <button id="exportCsv" class="bg-yellow-500 text-white px-4 py-2 rounded">📊 CSV</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const input = document.getElementById('symbolInput');
+    const plotBtn = document.getElementById('plotBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const exportPng = document.getElementById('exportPng');
+    const exportCsv = document.getElementById('exportCsv');
+    const chartContainer = document.getElementById('chartContainer');
+    const chartDiv = document.getElementById('chart');
+    const result = document.getElementById('result');
+    let seriesData = [];
+
+    plotBtn.addEventListener('click', async () => {
+      const symbol = input.value.trim().toUpperCase();
+      if (!symbol) {
+        result.innerHTML = '<p class="text-red-500">Insira um símbolo válido.</p>';
+        return;
+      }
+
+      const types = Array.from(document.querySelectorAll('.typeChk:checked')).map(c => c.value);
+      if (!types.length) {
+        result.innerHTML = '<p class="text-red-500">Selecione ao menos uma análise.</p>';
+        return;
+      }
+
+      result.innerHTML = '';
+      chartDiv.innerHTML = '';
+      seriesData = [];
+
+      for (const tipo of types) {
+        let endpoint = tipo === 'perfil'
+          ? `/api/perfil?symbol=${encodeURIComponent(symbol)}`
+          : `/api/indicador?symbol=${encodeURIComponent(symbol)}&tipo=${tipo}`;
+
+        try {
+          const res = await fetch(endpoint);
+          const data = await res.json();
+
+          if (tipo === 'perfil') {
+            result.innerHTML += `
+              <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow border dark:border-gray-700 space-y-3 mb-4">
+                <div class="flex items-center space-x-4">
+                  <img src="${data.logo}" alt="${data.name} logo" class="w-12 h-12 rounded shadow" />
+                  <div>
+                    <h2 class="text-xl font-bold">${data.name} <span class="text-sm text-gray-500">(${data.symbol})</span></h2>
+                    <p class="text-sm text-gray-600 dark:text-gray-300">${data.sector} — ${data.industry}</p>
+                  </div>
+                </div>
+                <p class="text-sm"><strong>Fundada:</strong> ${data.founded}</p>
+                <p class="text-sm"><strong>Sede:</strong> ${data.headquarters}</p>
+                <p class="text-sm">${data.description}</p>
+                <a href="${data.website}" target="_blank" class="text-blue-600 dark:text-blue-400 underline text-sm">🌐 Website oficial</a>
+              </div>
+            `;
+          } else if (data.chart && data.chart.x && data.chart.y) {
+            seriesData.push({
+              x: data.chart.x,
+              y: data.chart.y,
+              mode: 'lines',
+              name: tipo.toUpperCase()
+            });
+          }
+        } catch {
+          result.innerHTML += `<p class="text-red-500">Erro ao obter ${tipo.toUpperCase()} para ${symbol}</p>`;
+        }
+      }
+
+      if (seriesData.length) {
+        chartContainer.classList.remove('hidden');
+        Plotly.newPlot(chartDiv, seriesData, {
+          title: `Análises de ${symbol}`,
+          paper_bgcolor: 'transparent',
+          plot_bgcolor: 'transparent',
+          font: { color: document.body.classList.contains('dark') ? '#fff' : '#000' }
+        }, { responsive: true });
+      }
+    });
+
+    clearBtn.addEventListener('click', () => {
+      input.value = '';
+      result.innerHTML = '';
+      chartDiv.innerHTML = '';
+      chartContainer.classList.add('hidden');
+      seriesData = [];
+    });
+
+    exportPng.addEventListener('click', () => {
+      if (!seriesData.length) return;
+      Plotly.toImage(chartDiv, { format: 'png' }).then(url => {
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'chart.png';
+        a.click();
+      });
+    });
+
+    exportCsv.addEventListener('click', () => {
+      if (!seriesData.length) return;
+      const maxLen = Math.max(...seriesData.map(s => s.x.length));
+      let csv = 'Date,' + seriesData.map(s => s.name).join(',') + '\n';
+      for (let i = 0; i < maxLen; i++) {
+        const row = seriesData.map(s => s.y[i] || '').join(',');
+        csv += (seriesData[0].x[i] || '') + ',' + row + '\n';
+      }
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'dados.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    document.getElementById('toggleTheme').addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+    });
+    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.body.classList.add('dark');
+    }
+  </script>
+</body>
+</html>
