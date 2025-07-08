@@ -1,35 +1,66 @@
 <!DOCTYPE html>
 <html lang="pt">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Análises com APIs separadas</title>
+  <title>Análises com APIs separadas – Autocomplete</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <style>
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
+
     @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.5;
+      }
     }
+
     @keyframes spin {
-      to { transform: rotate(360deg); }
+      to {
+        transform: rotate(360deg);
+      }
     }
-    .fade-in { animation: fadeIn 0.3s ease-out; }
-    .pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-    .spin { animation: spin 1s linear infinite; }
+
+    .fade-in {
+      animation: fadeIn .3s ease-out
+    }
+
+    .pulse {
+      animation: pulse 2s cubic-bezier(.4, 0, .6, 1) infinite
+    }
+
+    .spin {
+      animation: spin 1s linear infinite
+    }
+
     .glass {
       backdrop-filter: blur(10px);
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, .1);
+      border: 1px solid rgba(255, 255, 255, .2)
     }
+
     .dark .glass {
-      background: rgba(0, 0, 0, 0.2);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(0, 0, 0, .2);
+      border: 1px solid rgba(255, 255, 255, .1)
     }
+
     .checkbox-custom {
       appearance: none;
       width: 18px;
@@ -39,146 +70,132 @@
       background: white;
       position: relative;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all .2s
     }
+
     .checkbox-custom:checked {
       background: #3b82f6;
-      border-color: #3b82f6;
+      border-color: #3b82f6
     }
+
     .checkbox-custom:checked::after {
       content: '✓';
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      color: white;
+      color: #fff;
       font-size: 12px;
-      font-weight: bold;
+      font-weight: bold
     }
+
     .dark .checkbox-custom {
       background: #374151;
-      border-color: #4b5563;
+      border-color: #4b5563
     }
+
     .toast {
       position: fixed;
       top: 20px;
       right: 20px;
       z-index: 1000;
       transform: translateX(400px);
-      transition: transform 0.3s ease-out;
+      transition: transform .3s ease-out
     }
+
     .toast.show {
-      transform: translateX(0);
+      transform: translateX(0)
     }
   </style>
 </head>
-<body class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 text-gray-900 dark:text-white min-h-screen transition-all duration-300">
- <div id="header-widget"></div>
+
+<body
+  class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 text-gray-900 dark:text-white min-h-screen transition-all duration-300">
+  <div id="header-widget" ></div>
   <!-- 2) Include the widget script -->
 <script type="module" src="header.js"></script>
-  <!-- Toast Notifications -->
-  <div id="toastContainer"></div>
-
   <div class="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
     <!-- Header -->
     <div class="glass rounded-2xl p-6 mb-8 shadow-lg">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Análises de Ações
-          </h1>
-          <p class="text-gray-600 dark:text-gray-300 mt-1">
-            Visualize indicadores técnicos e informações de empresas
-          </p>
+            Análises de Ações</h1>
+          <p class="text-gray-600 dark:text-gray-300 mt-1">Visualize indicadores técnicos e informações de empresas</p>
         </div>
-        <button id="toggleTheme" class="glass px-6 py-3 rounded-xl hover:bg-opacity-20 transition-all duration-200 group">
-          <span class="mr-2">🌗</span>
-          <span class="group-hover:text-blue-400 transition-colors">Tema</span>
-        </button>
+        <button id="toggleTheme"
+          class="glass px-6 py-3 rounded-xl hover:bg-opacity-20 transition-all duration-200 group"><span
+            class="mr-2">🌗</span><span class="group-hover:text-blue-400 transition-colors">Tema</span></button>
       </div>
     </div>
 
     <!-- Input Section -->
     <div class="glass rounded-2xl p-6 mb-8 shadow-lg">
-      <h2 class="text-xl font-semibold mb-4 flex items-center">
-        <span class="mr-2">🔍</span>
-        Buscar Ação
-      </h2>
-      
-      <div class="flex flex-col sm:flex-row gap-3 mb-6">
+      <h2 class="text-xl font-semibold mb-4 flex items-center"><span class="mr-2">🔍</span>Buscar Ação</h2>
+      <div class="flex flex-col sm:flex-row gap-3 mb-6 relative">
         <div class="flex-1 relative">
-          <input 
-            id="symbolInput" 
-            type="text" 
-            placeholder="Ex: PLTR, AAPL, MSFT..." 
-            class="w-full p-4 rounded-xl border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-800 focus:border-blue-500 dark:focus:border-blue-400 transition-all duration-200 outline-none text-lg" 
+          <!-- Added datalist for native suggestion dropdown -->
+          <input list="symbolSuggestions" id="symbolInput" type="text" placeholder="Ex: PLTR, AAPL, MSFT..."
             maxlength="10"
-          />
-          <div id="symbolValidation" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-500 opacity-0 transition-opacity">
-            ✓
+            class="w-full p-4 rounded-xl border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-800 focus:border-blue-500 dark:focus:border-blue-400 transition-all duration-200 outline-none text-lg" />
+          <datalist id="symbolSuggestions"></datalist>
+          <div id="symbolValidation"
+            class="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-500 opacity-0 transition-opacity">✓
           </div>
         </div>
-        
         <div class="flex gap-3">
-          <button 
-            id="plotBtn" 
-            class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-4 rounded-xl transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-            disabled
-          >
-            <span id="plotBtnText">📊 Analisar</span>
-            <span id="plotBtnSpinner" class="hidden">
-              <svg class="spin w-5 h-5 inline ml-2" fill="none" viewBox="0 0 24 24">
+          <button id="plotBtn" disabled
+            class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-4 rounded-xl transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"><span
+              id="plotBtnText">📊 Analisar</span><span id="plotBtnSpinner" class="hidden"><svg
+                class="spin w-5 h-5 inline ml-2" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-            </span>
-          </button>
-          
-          <button 
-            id="clearBtn" 
-            class="bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white px-6 py-4 rounded-xl transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-          >
-            🧹 Limpar
-          </button>
+                <path class="opacity-75" fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                </path>
+              </svg></span></button>
+          <button id="clearBtn"
+            class="bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white px-6 py-4 rounded-xl transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">🧹
+            Limpar</button>
         </div>
       </div>
-
       <!-- Analysis Type Selection -->
       <div class="space-y-4">
-        <h3 class="text-lg font-semibold flex items-center">
-          <span class="mr-2">⚙️</span>
-          Tipos de Análise
-        </h3>
-        
+        <h3 class="text-lg font-semibold flex items-center"><span class="mr-2">⚙️</span>Tipos de Análise</h3>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <label class="flex items-center space-x-3 p-4 rounded-xl border-2 border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200 cursor-pointer group">
-            <input type="checkbox" value="perfil" class="typeChk checkbox-custom" />
+          <!-- Checkbox cards (unchanged) -->
+          <label
+            class="flex items-center space-x-3 p-4 rounded-xl border-2 border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200 cursor-pointer group"><input
+              type="checkbox" value="perfil" class="typeChk checkbox-custom" />
             <div class="flex-1">
-              <div class="font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Perfil</div>
+              <div class="font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Perfil
+              </div>
               <div class="text-sm text-gray-500 dark:text-gray-400">Informações da empresa</div>
             </div>
           </label>
-          
-          <label class="flex items-center space-x-3 p-4 rounded-xl border-2 border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200 cursor-pointer group">
-            <input type="checkbox" value="rsi" class="typeChk checkbox-custom" />
+          <label
+            class="flex items-center space-x-3 p-4 rounded-xl border-2 border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200 cursor-pointer group"><input
+              type="checkbox" value="rsi" class="typeChk checkbox-custom" />
             <div class="flex-1">
-              <div class="font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">RSI</div>
+              <div class="font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">RSI
+              </div>
               <div class="text-sm text-gray-500 dark:text-gray-400">Força relativa</div>
             </div>
           </label>
-          
-          <label class="flex items-center space-x-3 p-4 rounded-xl border-2 border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200 cursor-pointer group">
-            <input type="checkbox" value="macd" class="typeChk checkbox-custom" />
+          <label
+            class="flex items-center space-x-3 p-4 rounded-xl border-2 border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200 cursor-pointer group"><input
+              type="checkbox" value="macd" class="typeChk checkbox-custom" />
             <div class="flex-1">
-              <div class="font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">MACD</div>
+              <div class="font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">MACD
+              </div>
               <div class="text-sm text-gray-500 dark:text-gray-400">Convergência/Divergência</div>
             </div>
           </label>
-          
-          <label class="flex items-center space-x-3 p-4 rounded-xl border-2 border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200 cursor-pointer group">
-            <input type="checkbox" value="sma" class="typeChk checkbox-custom" />
+          <label
+            class="flex items-center space-x-3 p-4 rounded-xl border-2 border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200 cursor-pointer group"><input
+              type="checkbox" value="sma" class="typeChk checkbox-custom" />
             <div class="flex-1">
-              <div class="font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">SMA</div>
+              <div class="font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">SMA
+              </div>
               <div class="text-sm text-gray-500 dark:text-gray-400">Média móvel simples</div>
             </div>
           </label>
@@ -189,44 +206,29 @@
     <!-- Progress Bar -->
     <div id="progressContainer" class="hidden mb-8">
       <div class="glass rounded-xl p-4 shadow-lg">
-        <div class="flex items-center justify-between mb-2">
-          <span class="text-sm font-medium">Analisando...</span>
-          <span id="progressText" class="text-sm text-gray-600 dark:text-gray-400">0%</span>
-        </div>
+        <div class="flex items-center justify-between mb-2"><span class="text-sm font-medium">Analisando...</span><span
+            id="progressText" class="text-sm text-gray-600 dark:text-gray-400">0%</span></div>
         <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-          <div id="progressBar" class="bg-gradient-to-r from-blue-600 to-purple-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+          <div id="progressBar"
+            class="bg-gradient-to-r from-blue-600 to-purple-600 h-2 rounded-full transition-all duration-300"
+            style="width:0%"></div>
         </div>
       </div>
     </div>
 
     <!-- Results Section -->
     <div id="result" class="space-y-6"></div>
-
     <!-- Chart Section -->
     <div id="chartContainer" class="hidden">
       <div class="glass rounded-2xl p-6 shadow-lg">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-          <h2 class="text-2xl font-semibold flex items-center">
-            <span class="mr-2">📈</span>
-            Gráfico de Análise
-          </h2>
-          
-          <div class="flex gap-3">
-            <button 
-              id="exportPng" 
-              class="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-4 py-2 rounded-lg transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-            >
-              📷 PNG
-            </button>
-            <button 
-              id="exportCsv" 
-              class="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white px-4 py-2 rounded-lg transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-            >
-              📊 CSV
-            </button>
-          </div>
+          <h2 class="text-2xl font-semibold flex items-center"><span class="mr-2">📈</span>Gráfico de Análise</h2>
+          <div class="flex gap-3"><button id="exportPng"
+              class="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-4 py-2 rounded-lg transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5">📷
+              PNG</button><button id="exportCsv"
+              class="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white px-4 py-2 rounded-lg transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5">📊
+              CSV</button></div>
         </div>
-        
         <div id="chart" class="rounded-xl shadow-inner bg-white dark:bg-gray-800 min-h-96"></div>
       </div>
     </div>
@@ -234,355 +236,140 @@
     <!-- Empty State -->
     <div id="emptyState" class="text-center py-16">
       <div class="text-6xl mb-4">📊</div>
-      <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-300 mb-2">
-        Pronto para começar?
-      </h3>
-      <p class="text-gray-500 dark:text-gray-400 max-w-md mx-auto">
-        Digite o símbolo de uma ação, selecione os tipos de análise e clique em "Analisar" para visualizar os dados.
-      </p>
+      <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-300 mb-2">Pronto para começar?</h3>
+      <p class="text-gray-500 dark:text-gray-400 max-w-md mx-auto">Digite o símbolo de uma ação, selecione os tipos de
+        análise e clique em "Analisar" para visualizar os dados.</p>
     </div>
   </div>
 
+  <!-- Toast Container -->
+  <div id="toastContainer"></div>
+
   <script>
-    // DOM Elements
-    const input = document.getElementById('symbolInput');
-    const plotBtn = document.getElementById('plotBtn');
-    const plotBtnText = document.getElementById('plotBtnText');
-    const plotBtnSpinner = document.getElementById('plotBtnSpinner');
-    const clearBtn = document.getElementById('clearBtn');
-    const exportPng = document.getElementById('exportPng');
-    const exportCsv = document.getElementById('exportCsv');
-    const chartContainer = document.getElementById('chartContainer');
-    const chartDiv = document.getElementById('chart');
-    const result = document.getElementById('result');
-    const emptyState = document.getElementById('emptyState');
-    const progressContainer = document.getElementById('progressContainer');
-    const progressBar = document.getElementById('progressBar');
-    const progressText = document.getElementById('progressText');
-    const symbolValidation = document.getElementById('symbolValidation');
-    const toastContainer = document.getElementById('toastContainer');
-    
+    /********************
+     * Helper utilities *
+     ********************/
+    const debounce = (fn, delay = 300) => {
+      let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), delay); };
+    };
+
+    const validateSymbol = s => s && s.length >= 1 && s.length <= 10 && /^[A-Z0-9]+$/.test(s);
+
+    /***********************
+     * DOM Element handles *
+     ***********************/
+    const $ = sel => document.querySelector(sel);
+    const $$ = sel => document.querySelectorAll(sel);
+
+    const input = $('#symbolInput');
+    const datalist = $('#symbolSuggestions');
+    const plotBtn = $('#plotBtn');
+    const plotBtnText = $('#plotBtnText');
+    const plotBtnSpinner = $('#plotBtnSpinner');
+    const clearBtn = $('#clearBtn');
+    const exportPng = $('#exportPng');
+    const exportCsv = $('#exportCsv');
+    const chartContainer = $('#chartContainer');
+    const chartDiv = $('#chart');
+    const resultDiv = $('#result');
+    const emptyState = $('#emptyState');
+    const progressContainer = $('#progressContainer');
+    const progressBar = $('#progressBar');
+    const progressText = $('#progressText');
+    const symbolValidation = $('#symbolValidation');
+    const toastContainer = $('#toastContainer');
+
     let seriesData = [];
     let isLoading = false;
 
-    // Utility Functions
-    function showToast(message, type = 'info') {
+    /* ==================== Toast ==================== */
+    function showToast(msg, type = 'info', ms = 3000) {
       const toast = document.createElement('div');
-      toast.className = `toast glass p-4 rounded-xl shadow-lg max-w-sm ${
-        type === 'error' ? 'border-l-4 border-red-500' :
-        type === 'success' ? 'border-l-4 border-green-500' :
-        'border-l-4 border-blue-500'
-      }`;
-      
-      toast.innerHTML = `
-        <div class="flex items-center">
-          <span class="mr-2">${type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️'}</span>
-          <span>${message}</span>
-        </div>
-      `;
-      
+      toast.className = `toast glass p-4 rounded-xl shadow-lg max-w-sm ${type === 'error' ? 'border-l-4 border-red-500' : type === 'success' ? 'border-l-4 border-green-500' : 'border-l-4 border-blue-500'}`;
+      toast.innerHTML = `<div class="flex items-center"><span class="mr-2">${type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️'}</span><span>${msg}</span></div>`;
       toastContainer.appendChild(toast);
-      setTimeout(() => toast.classList.add('show'), 100);
-      
-      setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => toast.remove(), 300);
-      }, 3000);
+      requestAnimationFrame(() => toast.classList.add('show'));
+      setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, ms);
     }
 
-    function validateSymbol(symbol) {
-      return symbol && symbol.length >= 1 && symbol.length <= 10 && /^[A-Z0-9]+$/.test(symbol);
-    }
+    /* ============== Autocomplete logic ============== */
+    const fetchSuggestions = debounce(async (q) => {
+      if (q.length < 2) { datalist.innerHTML = ''; return; }
+      try {
+        const res = await fetch(`/api/analises?query=${encodeURIComponent(q)}`);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const suggestions = await res.json();
+        datalist.innerHTML = suggestions.slice(0, 10).map(s => `<option value="${s.symbol}">${s.name} (${s.exchange})</option>`).join('');
+      } catch (e) { console.error(e); datalist.innerHTML = ''; }
+    }, 350);
 
-    function updateProgress(current, total) {
-      const percentage = Math.round((current / total) * 100);
-      progressBar.style.width = percentage + '%';
-      progressText.textContent = percentage + '%';
-    }
-
-    function setLoadingState(loading) {
-      isLoading = loading;
-      plotBtn.disabled = loading;
-      
-      if (loading) {
-        plotBtnText.classList.add('hidden');
-        plotBtnSpinner.classList.remove('hidden');
-        progressContainer.classList.remove('hidden');
-        emptyState.classList.add('hidden');
-      } else {
-        plotBtnText.classList.remove('hidden');
-        plotBtnSpinner.classList.add('hidden');
-        progressContainer.classList.add('hidden');
-        updateProgress(0, 1);
-      }
-    }
-
-    function hideEmptyState() {
-      emptyState.classList.add('hidden');
-    }
-
-    function showEmptyState() {
-      if (result.innerHTML === '' && chartContainer.classList.contains('hidden')) {
-        emptyState.classList.remove('hidden');
-      }
-    }
-
-    // Input validation
-    input.addEventListener('input', function() {
-      const symbol = this.value.trim().toUpperCase();
-      const isValid = validateSymbol(symbol);
-      
-      this.value = symbol;
-      plotBtn.disabled = !isValid || isLoading;
-      
-      if (symbol && isValid) {
-        symbolValidation.style.opacity = '1';
-      } else {
-        symbolValidation.style.opacity = '0';
-      }
+    /**************** Input validation & events ****************/
+    input.addEventListener('input', e => {
+      const val = e.target.value.trim().toUpperCase();
+      e.target.value = val; // keep uppercase
+      const valid = validateSymbol(val);
+      plotBtn.disabled = !valid || isLoading || $$('.typeChk:checked').length === 0;
+      symbolValidation.style.opacity = val && valid ? '1' : '0';
+      fetchSuggestions(val);
     });
 
-    // Enable/disable plot button based on checkboxes
-    document.querySelectorAll('.typeChk').forEach(checkbox => {
-      checkbox.addEventListener('change', function() {
-        const hasChecked = Array.from(document.querySelectorAll('.typeChk:checked')).length > 0;
-        const hasValidSymbol = validateSymbol(input.value.trim());
-        plotBtn.disabled = !hasChecked || !hasValidSymbol || isLoading;
-      });
-    });
+    // Enter key triggers plot when enabled
+    input.addEventListener('keypress', e => { if (e.key === 'Enter' && !plotBtn.disabled) plotBtn.click(); });
 
-    // Main analysis function
+    /**************** Checkbox behaviour ****************/
+    $$('.typeChk').forEach(cb => cb.addEventListener('change', () => {
+      const hasChecked = $$('.typeChk:checked').length > 0;
+      plotBtn.disabled = !hasChecked || !validateSymbol(input.value.trim()) || isLoading;
+    }));
+
+    /********************** Progress **********************/
+    function updateProgress(cur, total) { const pct = Math.round(cur / total * 100); progressBar.style.width = pct + '%'; progressText.textContent = pct + '%'; }
+    function setLoadingState(state) { isLoading = state; plotBtn.disabled = state; if (state) { plotBtnText.classList.add('hidden'); plotBtnSpinner.classList.remove('hidden'); progressContainer.classList.remove('hidden'); emptyState.classList.add('hidden'); } else { plotBtnText.classList.remove('hidden'); plotBtnSpinner.classList.add('hidden'); progressContainer.classList.add('hidden'); updateProgress(0, 1); } }
+
+    /********************* Theme toggle *********************/
+    $('#toggleTheme').addEventListener('click', () => { document.body.classList.toggle('dark'); localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light'); if (seriesData.length) Plotly.relayout(chartDiv, { 'font.color': document.body.classList.contains('dark') ? '#fff' : '#000' }); });
+    /* Set initial theme */
+    const savedTheme = localStorage.getItem('theme'); if (savedTheme === 'dark' || (!savedTheme && matchMedia('(prefers-color-scheme:dark)').matches)) { document.body.classList.add('dark'); }
+
+    /****************** Main analysis handler ******************/
     plotBtn.addEventListener('click', async () => {
       const symbol = input.value.trim().toUpperCase();
-      if (!validateSymbol(symbol)) {
-        showToast('Por favor, insira um símbolo válido (1-10 caracteres, apenas letras e números)', 'error');
-        return;
-      }
-
-      const types = Array.from(document.querySelectorAll('.typeChk:checked')).map(c => c.value);
-      if (!types.length) {
-        showToast('Selecione pelo menos um tipo de análise', 'error');
-        return;
-      }
-
-      setLoadingState(true);
-      hideEmptyState();
-      result.innerHTML = '';
-      chartDiv.innerHTML = '';
-      seriesData = [];
-
-      let completed = 0;
-      const total = types.length;
-
+      if (!validateSymbol(symbol)) { showToast('Símbolo inválido', 'error'); return; }
+      const types = [...$$('.typeChk:checked')].map(el => el.value);
+      if (!types.length) { showToast('Selecione pelo menos um tipo', 'error'); return; }
+      setLoadingState(true); resultDiv.innerHTML = ''; chartDiv.innerHTML = ''; seriesData = [];
+      let done = 0, total = types.length;
       for (const tipo of types) {
         try {
-          const res = await fetch(
-            `/api/analises?symbol=${encodeURIComponent(symbol)}&tipo=${tipo}`
-          );
-          
-          if (!res.ok) {
-            throw new Error(`HTTP ${res.status}`);
-          }
-          
+          const res = await fetch(`/api/analises?symbol=${encodeURIComponent(symbol)}&tipo=${tipo}`);
+          if (!res.ok) throw new Error('HTTP ' + res.status);
           const data = await res.json();
-
-          if (tipo === 'perfil') {
-            const s = data.summary ?? {};
-            
-            const profileCard = document.createElement('div');
-            profileCard.className = 'glass rounded-2xl p-6 shadow-lg fade-in';
-            profileCard.innerHTML = `
-              <div class="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-6 mb-6">
-                ${data.logo ? `<img src="${data.logo}" alt="${data.name ?? symbol} logo" class="w-16 h-16 rounded-xl shadow-md" />` : `<div class="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl">${symbol.charAt(0)}</div>`}
-                <div class="flex-1">
-                  <h2 class="text-2xl font-bold mb-1">
-                    ${data.name ?? symbol}
-                    <span class="text-lg text-gray-500 dark:text-gray-400 font-normal ml-2">(${data.symbol ?? symbol})</span>
-                  </h2>
-                  ${s.sector && s.industry ? `<p class="text-gray-600 dark:text-gray-300 font-medium">${s.sector} • ${s.industry}</p>` : ''}
-                  <div class="flex flex-wrap gap-4 mt-2 text-sm text-gray-500 dark:text-gray-400">
-                    ${data.founded ? `<span><strong>Fundada:</strong> ${data.founded}</span>` : ''}
-                    ${data.headquarters ? `<span><strong>Sede:</strong> ${data.headquarters}</span>` : ''}
-                  </div>
-                </div>
-              </div>
-
-              ${s.businessSummary ? `<div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 mb-4"><p class="text-gray-700 dark:text-gray-300 leading-relaxed">${s.businessSummary}</p></div>` : ''}
-
-              ${s.website ? `<div class="flex justify-end"><a href="${s.website}" target="_blank" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 font-medium"><span class="mr-2">🌐</span>Website oficial</a></div>` : ''}
-            `;
-            
-            result.appendChild(profileCard);
+          if (tipo === 'perfil') { /* build profile card */
+            const s = data.summary || {}; const card = document.createElement('div'); card.className = 'glass rounded-2xl p-6 shadow-lg fade-in';
+            card.innerHTML = `<div class='flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-6 mb-6'>${data.logo ? `<img src='${data.logo}' alt='${data.name || symbol} logo' class='w-16 h-16 rounded-xl shadow-md'/>` : `<div class='w-16 h-16 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl'>${symbol.charAt(0)}</div>`}<div class='flex-1'><h2 class='text-2xl font-bold mb-1'>${data.name || symbol}<span class='text-lg text-gray-500 dark:text-gray-400 font-normal ml-2'>(${data.symbol || symbol})</span></h2>${s.sector && s.industry ? `<p class='text-gray-600 dark:text-gray-300 font-medium'>${s.sector} • ${s.industry}</p>` : ''}<div class='flex flex-wrap gap-4 mt-2 text-sm text-gray-500 dark:text-gray-400'>${data.founded ? `<span><strong>Fundada:</strong>${data.founded}</span>` : ''}${data.headquarters ? `<span><strong>Sede:</strong>${data.headquarters}</span>` : ''}</div></div></div>${s.businessSummary ? `<div class='bg-gray-50 dark:bg-gray-700 rounded-xl p-4 mb-4'><p class='text-gray-700 dark:text-gray-300 leading-relaxed'>${s.businessSummary}</p></div>` : ''}${s.website ? `<div class='flex justify-end'><a href='${s.website}' target='_blank' class='inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 font-medium'><span class='mr-2'>🌐</span>Website oficial</a></div>` : ''}`;
+            resultDiv.appendChild(card);
           } else if (data.chart && Array.isArray(data.chart.x) && Array.isArray(data.chart.y)) {
-            seriesData.push({
-              x: data.chart.x,
-              y: data.chart.y,
-              mode: 'lines',
-              name: tipo.toUpperCase(),
-              line: {
-                width: 2,
-                color: tipo === 'rsi' ? '#ef4444' : 
-                       tipo === 'macd' ? '#10b981' : 
-                       tipo === 'sma' ? '#8b5cf6' : '#3b82f6'
-              }
-            });
+            seriesData.push({ x: data.chart.x, y: data.chart.y, mode: 'lines', name: tipo.toUpperCase(), line: { width: 2, color: tipo === 'rsi' ? '#ef4444' : tipo === 'macd' ? '#10b981' : tipo === 'sma' ? '#8b5cf6' : '#3b82f6' } });
           }
-
-          completed++;
-          updateProgress(completed, total);
-          
-        } catch (err) {
-          console.error(`Error fetching ${tipo}:`, err);
-          showToast(`Erro ao obter ${tipo.toUpperCase()} para ${symbol}`, 'error');
-          completed++;
-          updateProgress(completed, total);
-        }
+        } catch (err) { console.error(err); showToast(`Erro ao obter ${tipo.toUpperCase()}`, 'error'); }
+        done++; updateProgress(done, total);
       }
-
-      if (seriesData.length) {
-        chartContainer.classList.remove('hidden');
-        
-        const isDark = document.body.classList.contains('dark');
-        const layout = {
-          title: {
-            text: `Análises Técnicas - ${symbol}`,
-            font: { 
-              size: 20, 
-              color: isDark ? '#fff' : '#000',
-              family: 'system-ui, -apple-system, sans-serif'
-            }
-          },
-          paper_bgcolor: 'transparent',
-          plot_bgcolor: 'transparent',
-          font: { color: isDark ? '#fff' : '#000' },
-          xaxis: {
-            gridcolor: isDark ? '#374151' : '#e5e7eb',
-            linecolor: isDark ? '#6b7280' : '#d1d5db'
-          },
-          yaxis: {
-            gridcolor: isDark ? '#374151' : '#e5e7eb',
-            linecolor: isDark ? '#6b7280' : '#d1d5db'
-          },
-          margin: { l: 60, r: 40, t: 60, b: 60 },
-          hovermode: 'x unified'
-        };
-
-        const config = { 
-          responsive: true, 
-          displayModeBar: true,
-          modeBarButtonsToRemove: ['pan2d', 'lasso2d', 'select2d', 'autoScale2d'],
-          displaylogo: false
-        };
-
-        await Plotly.newPlot(chartDiv, seriesData, layout, config);
-      }
-
+      /* Plot chart if we have series */
+      if (seriesData.length) { chartContainer.classList.remove('hidden'); const dark = document.body.classList.contains('dark'); const layout = { title: { text: `Análises Técnicas - ${symbol}`, font: { size: 20, color: dark ? '#fff' : '#000', family: 'system-ui,-apple-system,sans-serif' } }, paper_bgcolor: 'transparent', plot_bgcolor: 'transparent', font: { color: dark ? '#fff' : '#000' }, xaxis: { gridcolor: dark ? '#374151' : '#e5e7eb', linecolor: dark ? '#6b7280' : '#d1d5db' }, yaxis: { gridcolor: dark ? '#374151' : '#e5e7eb', linecolor: dark ? '#6b7280' : '#d1d5db' }, margin: { l: 60, r: 40, t: 60, b: 60 }, hovermode: 'x unified' }; const config = { responsive: true, displayModeBar: true, modeBarButtonsToRemove: ['pan2d', 'lasso2d', 'select2d', 'autoScale2d'], displaylogo: false }; await Plotly.newPlot(chartDiv, seriesData, layout, config); }
       setLoadingState(false);
-      
-      if (result.innerHTML === '' && seriesData.length === 0) {
-        showToast('Nenhum dado encontrado para este símbolo', 'error');
-        showEmptyState();
-      } else {
-        showToast(`Análise concluída para ${symbol}`, 'success');
-      }
+      if (!resultDiv.innerHTML && !seriesData.length) showToast('Nenhum dado encontrado', 'error'); else showToast(`Análise concluída para ${symbol}`, 'success');
     });
 
-    // Clear function
-    clearBtn.addEventListener('click', () => {
-      input.value = '';
-      result.innerHTML = '';
-      chartDiv.innerHTML = '';
-      chartContainer.classList.add('hidden');
-      seriesData = [];
-      symbolValidation.style.opacity = '0';
-      plotBtn.disabled = true;
-      document.querySelectorAll('.typeChk').forEach(cb => cb.checked = false);
-      showEmptyState();
-      showToast('Dados limpos', 'success');
-    });
+    /********************** Clear ************************/
+    clearBtn.addEventListener('click', () => { input.value = ''; datalist.innerHTML = ''; resultDiv.innerHTML = ''; chartDiv.innerHTML = ''; chartContainer.classList.add('hidden'); seriesData = []; symbolValidation.style.opacity = '0'; plotBtn.disabled = true; $$('.typeChk').forEach(cb => cb.checked = false); emptyState.classList.remove('hidden'); showToast('Dados limpos', 'success'); });
 
-    // Export functions
-    exportPng.addEventListener('click', () => {
-      if (!seriesData.length) {
-        showToast('Nenhum gráfico para exportar', 'error');
-        return;
-      }
-      
-      Plotly.toImage(chartDiv, { format: 'png', width: 1200, height: 800 })
-        .then(url => {
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = `analise_${input.value.trim()}_${new Date().toISOString().split('T')[0]}.png`;
-          a.click();
-          showToast('Gráfico exportado como PNG', 'success');
-        })
-        .catch(() => showToast('Erro ao exportar PNG', 'error'));
-    });
+    /******************** Export functions *******************/
+    exportPng.addEventListener('click', () => { if (!seriesData.length) return showToast('Nenhum gráfico para exportar', 'error'); Plotly.toImage(chartDiv, { format: 'png', width: 1200, height: 800 }).then(url => { const a = document.createElement('a'); a.href = url; a.download = `analise_${input.value.trim()}_${new Date().toISOString().split('T')[0]}.png`; a.click(); showToast('Gráfico exportado', 'success'); }); });
+    exportCsv.addEventListener('click', () => { if (!seriesData.length) return showToast('Nenhum dado para exportar', 'error'); try { const maxLen = Math.max(...seriesData.map(s => s.x.length)); let csv = 'Date,' + seriesData.map(s => s.name).join(',') + '\n'; for (let i = 0; i < maxLen; i++) { const row = seriesData.map(s => s.y[i] || '').join(','); csv += (seriesData[0].x[i] || '') + ',' + row + '\n'; } const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `dados_${input.value.trim()}_${new Date().toISOString().split('T')[0]}.csv`; a.click(); URL.revokeObjectURL(url); showToast('CSV exportado', 'success'); } catch (e) { showToast('Erro ao exportar CSV', 'error'); } });
 
-    exportCsv.addEventListener('click', () => {
-      if (!seriesData.length) {
-        showToast('Nenhum dado para exportar', 'error');
-        return;
-      }
-      
-      try {
-        const maxLen = Math.max(...seriesData.map(s => s.x.length));
-        let csv = 'Date,' + seriesData.map(s => s.name).join(',') + '\n';
-        
-        for (let i = 0; i < maxLen; i++) {
-          const row = seriesData.map(s => s.y[i] || '').join(',');
-          csv += (seriesData[0].x[i] || '') + ',' + row + '\n';
-        }
-        
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `dados_${input.value.trim()}_${new Date().toISOString().split('T')[0]}.csv`;
-        a.click();
-        URL.revokeObjectURL(url);
-        showToast('Dados exportados como CSV', 'success');
-      } catch (err) {
-        showToast('Erro ao exportar CSV', 'error');
-      }
-    });
-
-    // Theme toggle
-    document.getElementById('toggleTheme').addEventListener('click', () => {
-      document.body.classList.toggle('dark');
-      localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
-      
-      // Update chart colors if chart exists
-      if (seriesData.length) {
-        const isDark = document.body.classList.contains('dark');
-        const update = {
-          'paper_bgcolor': 'transparent',
-          'plot_bgcolor': 'transparent',
-          'font.color': isDark ? '#fff' : '#000',
-          'xaxis.gridcolor': isDark ? '#374151' : '#e5e7eb',
-          'xaxis.linecolor': isDark ? '#6b7280' : '#d1d5db',
-          'yaxis.gridcolor': isDark ? '#374151' : '#e5e7eb',
-          'yaxis.linecolor': isDark ? '#6b7280' : '#d1d5db'
-        };
-        Plotly.relayout(chartDiv, update);
-      }
-    });
-
-    // Initialize theme
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      document.body.classList.add('dark');
-    }
-
-    // Enter key support
-    input.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter' && !plotBtn.disabled) {
-        plotBtn.click();
-      }
-    });
-
-    // Initialize
-    showEmptyState();
+    /******************* Initial state ********************/
+    emptyState.classList.remove('hidden');
   </script>
 </body>
+
 </html>

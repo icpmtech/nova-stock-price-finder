@@ -11,6 +11,7 @@ const defaultConfig = {
   { icon: '🖥️', label: 'Painel',           href: 'watchlist.html' },       // screen / monitor
   { icon: '💼', label: 'Carteira',         href: 'wallet.html' },          // portfolio / briefcase
   { icon: '📈', label: 'Análises de Ações',href: 'card-symbol.html' },     // stock chart
+  { icon: '📈', label: 'Cotação',          href: 'cotacao.html' },     // cotacao chart
   { icon: '📆', label: 'Eventos',          href: 'events.html' },          // calendar
   { icon: '⭐',  label: 'Favoritos',        href: 'watchlist.html' },       // favorite / star
   { icon: '📤', label: 'Exportar',         href: 'tax-report.html' },      // out-tray
