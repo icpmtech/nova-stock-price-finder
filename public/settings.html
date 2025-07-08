@@ -6,129 +6,627 @@
   <title>Configurações</title>
   <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .fade-in { animation: fadeIn 0.5s ease-out; }
+    .slide-in { animation: slideIn 0.3s ease-out; }
+    .pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    .spin { animation: spin 1s linear infinite; }
+    
+    .glass {
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .dark .glass {
+      background: rgba(31, 41, 55, 0.9);
+      border: 1px solid rgba(75, 85, 99, 0.3);
+    }
+    
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 48px;
+      height: 24px;
+    }
+    
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: 0.3s;
+      border-radius: 24px;
+    }
+    
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.3s;
+      border-radius: 50%;
+    }
+    
+    input:checked + .toggle-slider {
+      background-color: #3b82f6;
+    }
+    
+    input:checked + .toggle-slider:before {
+      transform: translateX(24px);
+    }
+    
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      transform: translateX(400px);
+      transition: transform 0.3s ease-out;
+    }
+    .toast.show {
+      transform: translateX(0);
+    }
+    
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 text-gray-800 dark:text-white min-h-screen transition-all duration-300">
+  <!-- Toast Container -->
+  <div id="toastContainer"></div>
+  
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" class="loading-overlay hidden">
+    <div class="glass rounded-2xl p-8 text-center">
+      <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full spin mx-auto mb-4"></div>
+      <p class="text-lg font-medium">Carregando configurações...</p>
+    </div>
+  </div>
+
   <div id="header-widget"></div>
   <script type="module" src="header.js"></script>
 
-  <div id="content" class="max-w-4xl mx-auto my-8 opacity-50 pointer-events-none">
-    <!-- Cabeçalho da Página -->
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-3xl font-semibold">Configurações de Conta</h1>
-      <button id="signOutBtn" class="px-4 py-2 border border-red-500 text-red-500 rounded hover:bg-red-50">
-        Sair
-      </button>
+  <div id="content" class="max-w-5xl mx-auto my-8 px-4 sm:px-6 lg:px-8 opacity-50 pointer-events-none">
+    <!-- Header Section -->
+    <div class="glass rounded-2xl p-6 mb-8 shadow-lg fade-in">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Configurações de Conta
+          </h1>
+          <p class="text-gray-600 dark:text-gray-300 mt-1">
+            Gerencie suas preferências e configurações pessoais
+          </p>
+        </div>
+        <button id="signOutBtn" class="glass px-6 py-3 border-2 border-red-400 text-red-500 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5 group">
+          <span class="mr-2">🚪</span>
+          <span class="group-hover:text-red-600 transition-colors">Sair</span>
+        </button>
+      </div>
     </div>
 
-    <!-- Navegação Interna -->
-    <nav class="mb-8">
-      <ul class="flex space-x-4">
-        <li><a href="relatorios.html" class="text-blue-600 hover:underline">Relatórios</a></li>
-        <li><a href="settings.html" class="font-semibold">Configurações</a></li>
-      </ul>
-    </nav>
+    <!-- Navigation Tabs -->
+    <div class="glass rounded-2xl p-2 mb-8 shadow-lg slide-in">
+      <nav class="flex space-x-2">
+        <a href="relatorios.html" class="flex-1 text-center px-4 py-3 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-all duration-200 font-medium">
+          <span class="mr-2">📊</span>
+          Relatórios
+        </a>
+        <a href="settings.html" class="flex-1 text-center px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold shadow-md">
+          <span class="mr-2">⚙️</span>
+          Configurações
+        </a>
+      </nav>
+    </div>
 
-    <!-- Formulário de Configurações -->
-    <form id="settingsForm" class="bg-white rounded shadow p-6 space-y-6">
-      <!-- Seção: Informações Pessoais -->
-      <section>
-        <h2 class="text-xl font-medium mb-4">Informações Pessoais</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label for="displayName" class="block mb-1 font-medium">Nome de Exibição</label>
-            <input type="text" id="displayName" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
+    <!-- Settings Form -->
+    <form id="settingsForm" class="space-y-8">
+      <!-- Personal Information Section -->
+      <div class="glass rounded-2xl p-6 shadow-lg fade-in">
+        <div class="flex items-center mb-6">
+          <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center mr-4">
+            <span class="text-white text-xl">👤</span>
           </div>
           <div>
-            <label for="email" class="block mb-1 font-medium">Email</label>
-            <input type="email" id="email" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400" disabled>
+            <h2 class="text-2xl font-bold">Informações Pessoais</h2>
+            <p class="text-gray-600 dark:text-gray-300 text-sm">Atualize suas informações básicas</p>
           </div>
         </div>
-      </section>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-2">
+            <label for="displayName" class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+              Nome de Exibição
+            </label>
+            <input 
+              type="text" 
+              id="displayName" 
+              class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 transition-all duration-200 text-lg"
+              placeholder="Seu nome completo"
+            >
+            <p class="text-xs text-gray-500 dark:text-gray-400">Este nome será exibido em sua conta</p>
+          </div>
+          
+          <div class="space-y-2">
+            <label for="email" class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+              Email
+            </label>
+            <input 
+              type="email" 
+              id="email" 
+              class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed text-lg" 
+              disabled
+            >
+            <p class="text-xs text-gray-500 dark:text-gray-400">Email não pode ser alterado</p>
+          </div>
+        </div>
+      </div>
 
-      <!-- Seção: Preferências -->
-      <section>
-        <h2 class="text-xl font-medium mb-4">Preferências</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- Preferences Section -->
+      <div class="glass rounded-2xl p-6 shadow-lg fade-in">
+        <div class="flex items-center mb-6">
+          <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-teal-600 rounded-xl flex items-center justify-center mr-4">
+            <span class="text-white text-xl">🎨</span>
+          </div>
           <div>
-            <label for="themeSelect" class="block mb-1 font-medium">Tema</label>
-            <select id="themeSelect" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
-              <option value="light">Claro</option>
-              <option value="dark">Escuro</option>
+            <h2 class="text-2xl font-bold">Preferências</h2>
+            <p class="text-gray-600 dark:text-gray-300 text-sm">Personalize sua experiência</p>
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="space-y-2">
+            <label for="themeSelect" class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+              Tema da Interface
+            </label>
+            <select 
+              id="themeSelect" 
+              class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 transition-all duration-200 text-lg"
+            >
+              <option value="light">🌞 Claro</option>
+              <option value="dark">🌙 Escuro</option>
+              <option value="auto">🔄 Automático</option>
             </select>
           </div>
-          <div>
-            <label for="dateFormat" class="block mb-1 font-medium">Formato de Data</label>
-            <select id="dateFormat" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
-              <option value="dd/mm/yyyy">DD/MM/YYYY</option>
-              <option value="yyyy-mm-dd">YYYY-MM-DD</option>
+          
+          <div class="space-y-2">
+            <label for="dateFormat" class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
+              Formato de Data
+            </label>
+            <select 
+              id="dateFormat" 
+              class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 transition-all duration-200 text-lg"
+            >
+              <option value="dd/mm/yyyy">📅 DD/MM/YYYY</option>
+              <option value="yyyy-mm-dd">📅 YYYY-MM-DD</option>
+              <option value="mm/dd/yyyy">📅 MM/DD/YYYY</option>
             </select>
           </div>
         </div>
-      </section>
+      </div>
 
-      <!-- Seção: Notificações -->
-      <section>
-        <h2 class="text-xl font-medium mb-4">Notificações</h2>
-        <div class="space-y-3">
-          <label class="flex items-center space-x-3">
-            <input type="checkbox" id="notifEmail" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-            <span>Email sobre novas transações</span>
-          </label>
-          <label class="flex items-center space-x-3">
-            <input type="checkbox" id="notifSummary" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
-            <span>Resumo diário por email</span>
-          </label>
+      <!-- Notifications Section -->
+      <div class="glass rounded-2xl p-6 shadow-lg fade-in">
+        <div class="flex items-center mb-6">
+          <div class="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-600 rounded-xl flex items-center justify-center mr-4">
+            <span class="text-white text-xl">🔔</span>
+          </div>
+          <div>
+            <h2 class="text-2xl font-bold">Notificações</h2>
+            <p class="text-gray-600 dark:text-gray-300 text-sm">Configure como você quer ser notificado</p>
+          </div>
         </div>
-      </section>
+        
+        <div class="space-y-6">
+          <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
+            <div class="flex items-center space-x-4">
+              <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+                <span class="text-blue-600 dark:text-blue-400">📧</span>
+              </div>
+              <div>
+                <h3 class="font-semibold">Email sobre novas transações</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Receba notificações por email quando uma nova transação for registrada</p>
+              </div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="notifEmail">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          
+          <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
+            <div class="flex items-center space-x-4">
+              <div class="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
+                <span class="text-green-600 dark:text-green-400">📈</span>
+              </div>
+              <div>
+                <h3 class="font-semibold">Resumo diário por email</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Receba um resumo das suas transações diárias</p>
+              </div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="notifSummary">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          
+          <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
+            <div class="flex items-center space-x-4">
+              <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
+                <span class="text-purple-600 dark:text-purple-400">🔔</span>
+              </div>
+              <div>
+                <h3 class="font-semibold">Notificações push</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Receba notificações em tempo real no navegador</p>
+              </div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="notifPush">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
 
-      <!-- Botões de Ação -->
-      <div class="flex justify-end space-x-4">
-        <button type="reset" class="px-4 py-2 border border-gray-400 text-gray-700 rounded hover:bg-gray-50">
-          Cancelar
-        </button>
-        <button type="submit" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded">
-          Salvar Alterações
-        </button>
+      <!-- Security Section -->
+      <div class="glass rounded-2xl p-6 shadow-lg fade-in">
+        <div class="flex items-center mb-6">
+          <div class="w-12 h-12 bg-gradient-to-r from-red-500 to-pink-600 rounded-xl flex items-center justify-center mr-4">
+            <span class="text-white text-xl">🔐</span>
+          </div>
+          <div>
+            <h2 class="text-2xl font-bold">Segurança</h2>
+            <p class="text-gray-600 dark:text-gray-300 text-sm">Mantenha sua conta segura</p>
+          </div>
+        </div>
+        
+        <div class="space-y-4">
+          <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
+            <div class="flex items-center space-x-4">
+              <div class="w-10 h-10 bg-yellow-100 dark:bg-yellow-900 rounded-lg flex items-center justify-center">
+                <span class="text-yellow-600 dark:text-yellow-400">🔑</span>
+              </div>
+              <div>
+                <h3 class="font-semibold">Autenticação de dois fatores</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Adicione uma camada extra de segurança</p>
+              </div>
+            </div>
+            <button type="button" id="setup2fa" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 font-medium">
+              Configurar
+            </button>
+          </div>
+          
+          <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
+            <div class="flex items-center space-x-4">
+              <div class="w-10 h-10 bg-red-100 dark:bg-red-900 rounded-lg flex items-center justify-center">
+                <span class="text-red-600 dark:text-red-400">🔒</span>
+              </div>
+              <div>
+                <h3 class="font-semibold">Alterar senha</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Atualize sua senha regularmente</p>
+              </div>
+            </div>
+            <button type="button" id="changePassword" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors duration-200 font-medium">
+              Alterar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="glass rounded-2xl p-6 shadow-lg fade-in">
+        <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4">
+          <button 
+            type="reset" 
+            class="px-6 py-3 border-2 border-gray-400 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+          >
+            <span class="mr-2">↩️</span>
+            Cancelar
+          </button>
+          <button 
+            type="submit" 
+            id="saveBtn"
+            class="px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+          >
+            <span id="saveBtnText">
+              <span class="mr-2">💾</span>
+              Salvar Alterações
+            </span>
+            <span id="saveBtnSpinner" class="hidden">
+              <svg class="spin w-5 h-5 inline mr-2" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Salvando...
+            </span>
+          </button>
+        </div>
       </div>
     </form>
   </div>
 
   <script type="module">
-    import { auth }  from './firebase-init.js';
-    import { getAuth, onAuthStateChanged, signOut, updateProfile } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-    // TODO: carregar e salvar configurações do usuário via Firestore
+   // settings.js – versão com integração ao Firestore
+// -----------------------------------------------------
+// Firebase imports (ajuste o caminho conforme a sua configuração)
+import { app, auth, db } from './firebase-init.js';
+import {
+  getAuth,
+  onAuthStateChanged,
+  signOut,
+  updateProfile
+} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc
+} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-    const contentEl = document.getElementById('content');
-    const signOutBtn = document.getElementById('signOutBtn');
-    const settingsForm = document.getElementById('settingsForm');
 
-    onAuthStateChanged(auth, user => {
-      if (!user) {
-        window.location.href = '/login.html';
-      } else {
-        // Habilita o conteúdo
-        contentEl.classList.remove('opacity-50', 'pointer-events-none');
-        // Preenche dados iniciais
-        document.getElementById('displayName').value = user.displayName || '';
-        document.getElementById('email').value = user.email;
-        // TODO: carregar preferências e marcar campos
-      }
-    });
 
-    signOutBtn.addEventListener('click', () => signOut(auth));
+// DOM Elements
+const contentEl = document.getElementById('content');
+const signOutBtn = document.getElementById('signOutBtn');
+const settingsForm = document.getElementById('settingsForm');
+const loadingOverlay = document.getElementById('loadingOverlay');
+const toastContainer = document.getElementById('toastContainer');
+const saveBtn = document.getElementById('saveBtn');
+const saveBtnText = document.getElementById('saveBtnText');
+const saveBtnSpinner = document.getElementById('saveBtnSpinner');
 
-    settingsForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const newName = document.getElementById('displayName').value.trim();
-      try {
-        if (newName) await updateProfile(auth.currentUser, { displayName: newName });
-        // TODO: salvar preferências e notificações no Firestore
-        alert('Configurações salvas com sucesso!');
-      } catch (err) {
-        console.error(err);
-        alert('Erro ao salvar configurações.');
-      }
-    });
+// Utility Functions ----------------------------------------------------------
+function showToast(message, type = 'info') {
+  const toast = document.createElement('div');
+  toast.className = `toast glass p-4 rounded-xl shadow-lg max-w-sm ${
+    type === 'error'
+      ? 'border-l-4 border-red-500'
+      : type === 'success'
+      ? 'border-l-4 border-green-500'
+      : 'border-l-4 border-blue-500'
+  }`;
+
+  toast.innerHTML = `
+    <div class="flex items-center">
+      <span class="mr-3 text-xl">${
+        type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️'
+      }</span>
+      <div>
+        <p class="font-medium">${message}</p>
+      </div>
+    </div>
+  `;
+
+  toastContainer.appendChild(toast);
+  setTimeout(() => toast.classList.add('show'), 100);
+
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  }, 4000);
+}
+
+function showLoading(show = true) {
+  loadingOverlay.classList.toggle('hidden', !show);
+}
+
+function setSaveButtonLoading(loading = true) {
+  saveBtn.disabled = loading;
+  saveBtnText.classList.toggle('hidden', loading);
+  saveBtnSpinner.classList.toggle('hidden', !loading);
+}
+
+function applyTheme(theme) {
+  if (theme === 'dark') {
+    document.documentElement.classList.add('dark');
+  } else if (theme === 'light') {
+    document.documentElement.classList.remove('dark');
+  } else {
+    // Auto theme
+    document.documentElement.classList.toggle(
+      'dark',
+      window.matchMedia('(prefers-color-scheme: dark)').matches
+    );
+  }
+}
+
+// ----------------------------------------------------------------------------
+// Auth observer
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = '/login.html';
+    return;
+  }
+
+  // Enable content while carregamos dados
+  contentEl.classList.remove('opacity-50', 'pointer-events-none');
+
+  try {
+    showLoading(true);
+
+    // Preencher campos padrão do Firebase Auth
+    document.getElementById('displayName').value = user.displayName || '';
+    document.getElementById('email').value = user.email;
+
+    // Carregar preferências do Firestore
+    const userRef = doc(db, 'users', user.uid);
+    const snap = await getDoc(userRef);
+    const data = snap.exists()
+      ? snap.data()
+      : {
+          theme: 'light',
+          dateFormat: 'dd/mm/yyyy',
+          notifEmail: false,
+          notifSummary: false,
+          notifPush: false
+        };
+
+    // Preencher formulário com dados obtidos
+    document.getElementById('themeSelect').value = data.theme;
+    document.getElementById('dateFormat').value = data.dateFormat;
+    document.getElementById('notifEmail').checked = data.notifEmail;
+    document.getElementById('notifSummary').checked = data.notifSummary;
+    document.getElementById('notifPush').checked = data.notifPush;
+
+    applyTheme(data.theme);
+    showToast('Configurações carregadas com sucesso!', 'success');
+  } catch (error) {
+    console.error(error);
+    showToast('Erro ao carregar preferências', 'error');
+  } finally {
+    showLoading(false);
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Theme change handler
+document
+  .getElementById('themeSelect')
+  .addEventListener('change', function () {
+    applyTheme(this.value);
+    showToast('Tema alterado!', 'success');
+  });
+
+// Sign‑out handler -----------------------------------------------------------
+signOutBtn.addEventListener('click', () => {
+  if (confirm('Tem certeza que deseja sair?')) {
+    signOut(auth);
+  }
+});
+
+// Form submission ------------------------------------------------------------
+settingsForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  setSaveButtonLoading(true);
+
+  try {
+    const newName = document.getElementById('displayName').value.trim();
+    const theme = document.getElementById('themeSelect').value;
+    const dateFormat = document.getElementById('dateFormat').value;
+    const notifEmail = document.getElementById('notifEmail').checked;
+    const notifSummary = document.getElementById('notifSummary').checked;
+    const notifPush = document.getElementById('notifPush').checked;
+
+    if (!newName) throw new Error('Nome de exibição é obrigatório');
+
+    // Actualizar displayName no Firebase Auth
+    if (newName !== auth.currentUser.displayName) {
+      await updateProfile(auth.currentUser, { displayName: newName });
+    }
+
+    // Salvar / atualizar documento de preferências no Firestore
+    const userRef = doc(db, 'users', auth.currentUser.uid);
+    await setDoc(
+      userRef,
+      {
+        displayName: newName,
+        theme,
+        dateFormat,
+        notifEmail,
+        notifSummary,
+        notifPush
+      },
+      { merge: true }
+    );
+
+    showToast('Configurações salvas com sucesso!', 'success');
+  } catch (err) {
+    console.error(err);
+    showToast(err.message || 'Erro ao salvar configurações', 'error');
+  } finally {
+    setSaveButtonLoading(false);
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Reset form handler
+settingsForm.addEventListener('reset', async () => {
+  if (!confirm('Tem certeza que deseja cancelar as alterações?')) return;
+
+  try {
+    showLoading(true);
+
+    // Re‑carrega preferências do Firestore
+    const userRef = doc(db, 'users', auth.currentUser.uid);
+    const snap = await getDoc(userRef);
+    const data = snap.exists() ? snap.data() : {};
+
+    document.getElementById('displayName').value = auth.currentUser.displayName || '';
+    document.getElementById('themeSelect').value = data.theme || 'light';
+    document.getElementById('dateFormat').value = data.dateFormat || 'dd/mm/yyyy';
+    document.getElementById('notifEmail').checked = !!data.notifEmail;
+    document.getElementById('notifSummary').checked = !!data.notifSummary;
+    document.getElementById('notifPush').checked = !!data.notifPush;
+
+    applyTheme(data.theme || 'light');
+    showToast('Alterações canceladas', 'info');
+  } catch (error) {
+    console.error(error);
+    showToast('Erro ao restaurar preferências', 'error');
+  } finally {
+    showLoading(false);
+  }
+});
+
+// ---------------------------------------------------------------------------
+// Security placeholders
+['setup2fa', 'changePassword'].forEach((id) => {
+  document.getElementById(id)?.addEventListener('click', () => {
+    showToast('Funcionalidade em desenvolvimento', 'info');
+  });
+});
+
+// Auto‑save indicators -------------------------------------------------------
+const inputs = document.querySelectorAll('input, select');
+inputs.forEach((input) => {
+  input.addEventListener('change', () => {
+    saveBtn.classList.add('pulse');
+    setTimeout(() => saveBtn.classList.remove('pulse'), 2000);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Inicializa tema com valor salvo/capricho
+// (Reaproveitamos as preferências carregadas; se falhar, assume light)
+applyTheme('light');
+
   </script>
 </body>
 </html>
