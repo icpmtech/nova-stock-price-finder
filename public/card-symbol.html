@@ -71,39 +71,64 @@
       chartDiv.innerHTML = '';
       seriesData = [];
 
-      for (const tipo of types) {
-        try {
-         const res = await fetch(`https://novastocks.vercel.app/api/analises?symbol=${encodeURIComponent(symbol)}&tipo=${tipo}`);
-          const data = await res.json();
+     for (const tipo of types) {
+  try {
+    const res   = await fetch(
+      `https://novastocks.vercel.app/api/analises?symbol=${encodeURIComponent(symbol)}&tipo=${tipo}`
+    );
+    const data  = await res.json();
 
-          if (tipo === 'perfil') {
-            result.innerHTML += `
-              <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow border dark:border-gray-700 space-y-3 mb-4">
-                <div class="flex items-center space-x-4">
-                  <img src="${data.logo}" alt="${data.name} logo" class="w-12 h-12 rounded shadow" />
-                  <div>
-                    <h2 class="text-xl font-bold">${data.name} <span class="text-sm text-gray-500">(${data.symbol})</span></h2>
-                    <p class="text-sm text-gray-600 dark:text-gray-300">${data.sector} — ${data.industry}</p>
-                  </div>
-                </div>
-                <p class="text-sm"><strong>Fundada:</strong> ${data.founded}</p>
-                <p class="text-sm"><strong>Sede:</strong> ${data.headquarters}</p>
-                <p class="text-sm">${data.description}</p>
-                <a href="${data.website}" target="_blank" class="text-blue-600 dark:text-blue-400 underline text-sm">🌐 Website oficial</a>
-              </div>
-            `;
-          } else if (data.chart && data.chart.x && data.chart.y) {
-            seriesData.push({
-              x: data.chart.x,
-              y: data.chart.y,
-              mode: 'lines',
-              name: tipo.toUpperCase()
-            });
-          }
-        } catch {
-          result.innerHTML += `<p class="text-red-500">Erro ao obter ${tipo.toUpperCase()} para ${symbol}</p>`;
-        }
-      }
+    /* ---------- PERFIL (company profile) ---------- */
+    if (tipo === 'perfil') {
+      const s = data.summary ?? {};          // nested summary object
+
+      result.innerHTML += `
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow border dark:border-gray-700 space-y-3 mb-4">
+          <div class="flex items-center space-x-4">
+            ${data.logo ? `<img src="${data.logo}" alt="${data.name ?? symbol} logo" class="w-12 h-12 rounded shadow" />` : ''}
+            <div>
+              <h2 class="text-xl font-bold">
+                ${data.name ?? symbol}
+                <span class="text-sm text-gray-500">(${data.symbol ?? symbol})</span>
+              </h2>
+              ${s.sector && s.industry
+                ? `<p class="text-sm text-gray-600 dark:text-gray-300">${s.sector} — ${s.industry}</p>`
+                : ''}
+            </div>
+          </div>
+
+          ${data.founded
+            ? `<p class="text-sm"><strong>Fundada:</strong> ${data.founded}</p>`
+            : ''}
+          ${data.headquarters
+            ? `<p class="text-sm"><strong>Sede:</strong> ${data.headquarters}</p>`
+            : ''}
+
+          ${s.businessSummary
+            ? `<p class="text-sm">${s.businessSummary}</p>`
+            : ''}
+
+          ${s.website
+            ? `<a href="${s.website}" target="_blank" class="text-blue-600 dark:text-blue-400 underline text-sm">🌐 Website oficial</a>`
+            : ''}
+        </div>
+      `;
+    }
+
+    /* ---------- OUTRAS SÉRIES (e.g., indicadores) ---------- */
+    else if (data.chart && Array.isArray(data.chart.x) && Array.isArray(data.chart.y)) {
+      seriesData.push({
+        x:    data.chart.x,
+        y:    data.chart.y,
+        mode: 'lines',
+        name: tipo.toUpperCase(),
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    result.innerHTML += `<p class="text-red-500">Erro ao obter ${tipo.toUpperCase()} para ${symbol}</p>`;
+  }
+}
 
       if (seriesData.length) {
         chartContainer.classList.remove('hidden');
