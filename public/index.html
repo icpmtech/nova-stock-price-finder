@@ -3,15 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>NovaStocks – Planos e Preços</title>
-  <meta name="description" content="Conheça os planos da NovaStocks: análise de mercado em tempo real, relatórios PDF/CSV e segurança avançada. Compare e escolha seu plano ideal!">
+
+  <!-- SEO multilíngue -->
+  <link rel="alternate" hreflang="pt" href="https://novastocks.vercel.app/index.html?lang=pt">
+  <link rel="alternate" hreflang="en" href="https://novastocks.vercel.app/index.html?lang=en">
+  <link rel="alternate" hreflang="es" href="https://novastocks.vercel.app/index.html?lang=es">
+  <link rel="alternate" hreflang="x-default" href="https://novastocks.vercel.app/index.html">
+
+  <title data-i18n="meta.title">NovaStocks – Planos e Preços</title>
+  <meta name="description"
+        data-i18n="meta.desc"
+        content="Conheça os planos da NovaStocks: análise de mercado em tempo real, relatórios PDF/CSV e segurança avançada. Compare e escolha seu plano ideal!">
   <meta name="keywords" content="investimentos, ações, análise de mercado, preços, planos, NovaStocks">
-  <link rel="canonical" href="https://novastocks.vercel.app/index.html">
-  <meta property="og:title" content="NovaStocks - Planos e Preços">
-  <meta property="og:description" content="Compare nossos planos de investimentos: básico, profissional e empresarial. Comece grátis hoje mesmo!">
-  <meta property="og:url" content="https://novastocks.vercel.app/index.html">
-  <meta property="og:type" content="website">
-  <script type="application/ld+json">
+
+  <link id="canonical-link" rel="canonical" href="https://novastocks.vercel.app/index.html">
+
+  <meta property="og:title"        data-i18n="og.title"        content="NovaStocks - Planos e Preços">
+  <meta property="og:description"  data-i18n="og.desc"         content="Compare nossos planos de investimentos: básico, profissional e empresarial. Comece grátis hoje mesmo!">
+  <meta property="og:url"          content="https://novastocks.vercel.app/index.html">
+  <meta property="og:type"         content="website">
+  <meta property="og:locale"       content="pt_PT">
+  <meta property="og:locale:alternate" content="en_US">
+  <meta property="og:locale:alternate" content="es_ES">
+
+  <script type="application/ld+json" data-i18n-json="ldjson">
   {
     "@context": "https://schema.org",
     "@type": "OfferCatalog",
@@ -44,163 +59,410 @@
     ]
   }
   </script>
+
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-    
-    * {
-      font-family: 'Inter', sans-serif;
-    }
-    
-    .gradient-bg {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-    
-    .gradient-text {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    
-    .card-hover {
-      transition: all 0.3s ease;
-    }
-    
-    .card-hover:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-    }
-    
-    .popular-badge {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-      position: absolute;
-      top: -10px;
-      right: 20px;
-      z-index: 10;
-    }
-    
-    .floating-elements {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      pointer-events: none;
-    }
-    
-    .floating-element {
-      position: absolute;
-      opacity: 0.1;
-      animation: float 6s ease-in-out infinite;
-    }
-    
-    @keyframes float {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-20px); }
-    }
-    
-    .pulse-animation {
-      animation: pulse 2s infinite;
-    }
-    
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
-    }
-    
-    .testimonial-card {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    
-    .feature-icon {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 20px;
-    }
-    
-    .stats-counter {
-      font-size: 2.5rem;
-      font-weight: 800;
-      color: #667eea;
-    }
+    /* ... seu CSS existente ... */
   </style>
+
+  <!-- traduções JSON -->
+  <script id="i18n-data" type="application/json">
+  {
+    "pt": {
+      "meta.title":    "NovaStocks – Planos e Preços",
+      "meta.desc":     "Conheça os planos da NovaStocks: análise de mercado em tempo real, relatórios PDF/CSV e segurança avançada. Compare e escolha seu plano ideal!",
+      "og.title":      "NovaStocks - Planos e Preços",
+      "og.desc":       "Compare nossos planos de investimentos: básico, profissional e empresarial. Comece grátis hoje mesmo!",
+      "nav.features":   "Recursos",
+      "nav.pricing":    "Planos",
+      "nav.testimonials":"Depoimentos",
+      "nav.contact":    "Contato",
+      "btn.login":      "Entrar",
+      "btn.signup":     "Começar Grátis",
+      "hero.title":     "Transforme seus investimentos em resultados extraordinários",
+      "hero.sub":       "Junte-se a mais de 50.000 investidores que já descobriram o poder da análise inteligente. Dados em tempo real, insights exclusivos e ferramentas profissionais em uma plataforma única.",
+      "btn.start":      "🚀 Comece Grátis Agora",
+      "btn.how":        "Ver Como Funciona",
+      "stat1.val":      "50K+",
+      "stat1.label":    "Investidores Ativos",
+      "stat2.val":      "€2.5M",
+      "stat2.label":    "Volume Analisado",
+      "stat3.val":      "99.9%",
+      "stat3.label":    "Uptime",
+      "stat4.val":      "4.9★",
+      "stat4.label":    "Avaliação",
+      "features.title": "Ferramentas que fazem a diferença",
+      "features.sub":   "Não perca mais oportunidades. Nossa plataforma oferece tudo que você precisa para investir com confiança e inteligência.",
+      "feat1.title":    "Análise Inteligente",
+      "feat1.text":     "Algoritmos avançados processam milhões de dados em tempo real para identificar as melhores oportunidades do mercado.",
+      "feat1.extra":    "+200 indicadores técnicos",
+      "feat2.title":    "Relatórios Profissionais",
+      "feat2.text":     "Relatórios detalhados em PDF e CSV para acompanhar performance e tomar decisões baseadas em dados concretos.",
+      "feat2.extra":    "Exportação ilimitada",
+      "feat3.title":    "Taxas e Relatórios Fiscais",
+      "feat3.text":     "Calcule automaticamente os impostos sobre ganhos e dividendos. Geração de relatórios prontos para entrega no IRS.",
+      "feat3.extra":    "Suporte a múltiplos países e moedas",
+      "feat4.title":    "Segurança Total",
+      "feat4.text":     "Criptografia de nível bancário, autenticação multi-fator e monitoramento 24/7 para proteger seus dados.",
+      "feat4.extra":    "Certificação ISO 27001",
+      "pricing.title":  "Escolha o plano perfeito para você",
+      "pricing.sub":    "Comece grátis e escale conforme suas necessidades. Todos os planos incluem nossa garantia de 30 dias.",
+      "plan.free.name": "Iniciante",
+      "plan.free.desc": "Perfeito para começar sua jornada",
+      "plan.free.price":"Grátis",
+      "plan.free.freq": "para sempre",
+      "plan.free.li1":  "Cotações em tempo real",
+      "plan.free.li2":  "5 indicadores técnicos",
+      "plan.free.li3":  "Suporte por email",
+      "plan.free.li4":  "Relatórios PDF/CSV",
+      "plan.prof.name": "Profissional",
+      "plan.prof.desc": "Para traders sérios",
+      "plan.prof.price":"€19,90",
+      "plan.prof.freq": "por mês",
+      "plan.prof.li1":  "Tudo do plano Básico",
+      "plan.prof.li2":  "+200 indicadores avançados",
+      "plan.prof.li3":  "Exportação ilimitada PDF/CSV",
+      "plan.prof.li4":  "Alertas personalizados",
+      "plan.prof.li5":  "Suporte prioritário",
+      "badge.popular":  "Mais Popular",
+      "plan.ent.name":  "Empresarial",
+      "plan.ent.desc":  "Para equipes e empresas",
+      "plan.ent.price":"€49,90",
+      "plan.ent.freq":  "por mês",
+      "plan.ent.li1":   "Tudo do plano Profissional",
+      "plan.ent.li2":   "Usuários ilimitados",
+      "plan.ent.li3":   "Relatórios white-label",
+      "plan.ent.li4":   "API dedicada",
+      "plan.ent.li5":   "Gerente de conta dedicado",
+      "testi.title":    "O que dizem nossos clientes",
+      "testi.sub":      "Mais de 50.000 investidores confiam na NovaStocks para suas decisões financeiras",
+      "testi.1.name":   "Maria Silva",
+      "testi.1.role":   "Investidora Individual",
+      "testi.1.text":   "“Consegui aumentar meu retorno em 35% no primeiro ano usando a NovaStocks. Os alertas personalizados me salvaram de várias perdas!”",
+      "testi.2.name":   "João Costa",
+      "testi.2.role":   "Trader Profissional",
+      "testi.2.text":   "“A velocidade dos dados em tempo real é impressionante. Uso diariamente e não consigo mais trabalhar sem a plataforma.”",
+      "testi.3.name":   "Ana Ferreira",
+      "testi.3.role":   "Gestora de Fundos",
+      "testi.3.text":   "“Os relatórios personalizados facilitaram muito a apresentação aos nossos investidores. Ferramenta indispensável!”",
+      "cta.title":      "Pronto para revolucionar seus investimentos?",
+      "cta.text":       "Junte-se a milhares de investidores que já transformaram suas estratégias com a NovaStocks. Comece hoje mesmo, é grátis e leva menos de 2 minutos!",
+      "cta.btn":        "🚀 Começar Agora - É Grátis",
+      "about.title":    "Sobre a NovaStocks",
+      "about.p1":       "Fundada em 2020 por uma equipe de especialistas em tecnologia financeira, a NovaStocks nasceu com uma missão clara: democratizar o acesso a ferramentas de análise de investimentos de nível institucional.",
+      "about.p2":       "Hoje, processamos mais de €2.5 milhões em volume de análises diariamente, ajudando investidores iniciantes e profissionais a tomarem decisões mais inteligentes e lucrativas.",
+      "stats.2020":     "2020",
+      "stats.2020.txt": "Ano de Fundação",
+      "stats.15":       "15+",
+      "stats.15.txt":   "Especialistas",
+      "stats.50k":      "50K+",
+      "stats.50k.txt":  "Usuários Ativos",
+      "stats.24":       "24/7",
+      "stats.24.txt":   "Suporte",
+      "values.title":   "Nossos Valores",
+      "val1.title":     "Transparência",
+      "val1.txt":       "Dados claros e preços justos, sem taxas ocultas",
+      "val2.title":     "Inovação",
+      "val2.txt":       "Tecnologia de ponta para análises precisas",
+      "val3.title":     "Suporte",
+      "val3.txt":       "Equipe dedicada para seu sucesso",
+      "footer.brand":   "NovaStocks",
+      "footer.desc":    "Sua plataforma completa para análise de investimentos. Dados precisos, insights valiosos e ferramentas profissionais.",
+      "footer.resources":"Recursos",
+      "footer.contato": "Contato",
+      "footer.email":   "suporte@novastocks.com",
+      "footer.phone":   "+351 21 123 4567",
+      "footer.location":"Lisboa, Portugal",
+      "footer.term":    "Termos de Uso",
+      "footer.privacy":"Política de Privacidade",
+      "footer.cookies":"Cookies",
+      "footer.copy":    "© {{year}} NovaStocks. Todos os direitos reservados."
+    },
+    "en": {
+      "meta.title":    "NovaStocks – Pricing Plans",
+      "meta.desc":     "Explore NovaStocks plans: real-time market analytics, PDF/CSV reports and advanced security. Compare and pick your ideal plan!",
+      "og.title":      "NovaStocks - Pricing Plans",
+      "og.desc":       "Compare our investment plans: Basic, Professional, and Enterprise. Start free today!",
+      "nav.features":   "Features",
+      "nav.pricing":    "Pricing",
+      "nav.testimonials":"Testimonials",
+      "nav.contact":    "Contact",
+      "btn.login":      "Log In",
+      "btn.signup":     "Get Started",
+      "hero.title":     "Turn your investments into extraordinary results",
+      "hero.sub":       "Join over 50,000 investors who’ve discovered the power of intelligent analysis. Real-time data, exclusive insights, and professional tools—all in one platform.",
+      "btn.start":      "🚀 Get Started Free",
+      "btn.how":        "See How It Works",
+      "stat1.val":      "50K+",
+      "stat1.label":    "Active Investors",
+      "stat2.val":      "€2.5M",
+      "stat2.label":    "Volume Analyzed",
+      "stat3.val":      "99.9%",
+      "stat3.label":    "Uptime",
+      "stat4.val":      "4.9★",
+      "stat4.label":    "Rating",
+      "features.title": "Tools That Make a Difference",
+      "features.sub":   "Don’t miss out. Our platform offers everything you need to invest with confidence and intelligence.",
+      "feat1.title":    "Smart Analysis",
+      "feat1.text":     "Advanced algorithms process millions of data points in real time to identify the best market opportunities.",
+      "feat1.extra":    "+200 technical indicators",
+      "feat2.title":    "Professional Reports",
+      "feat2.text":     "Detailed PDF and CSV reports to track performance and make data-driven decisions.",
+      "feat2.extra":    "Unlimited exports",
+      "feat3.title":    "Tax & Compliance",
+      "feat3.text":     "Automatically calculate taxes on gains and dividends. Generate IRS-ready reports instantly.",
+      "feat3.extra":    "Multi-country & multi-currency support",
+      "feat4.title":    "Complete Security",
+      "feat4.text":     "Bank-grade encryption, multi-factor auth, and 24/7 monitoring to protect your data.",
+      "feat4.extra":    "ISO 27001 certified",
+      "pricing.title":  "Choose the Perfect Plan for You",
+      "pricing.sub":    "Start free and scale as you grow. Every plan comes with our 30-day guarantee.",
+      "plan.free.name": "Starter",
+      "plan.free.desc": "Perfect for beginning your journey",
+      "plan.free.price":"Free",
+      "plan.free.freq": "forever",
+      "plan.free.li1":  "Real-time quotes",
+      "plan.free.li2":  "5 technical indicators",
+      "plan.free.li3":  "Email support",
+      "plan.free.li4":  "PDF/CSV reports",
+      "plan.prof.name": "Professional",
+      "plan.prof.desc": "For serious traders",
+      "plan.prof.price":"€19.90",
+      "plan.prof.freq": "per month",
+      "plan.prof.li1":  "Everything in Starter",
+      "plan.prof.li2":  "+200 advanced indicators",
+      "plan.prof.li3":  "Unlimited PDF/CSV exports",
+      "plan.prof.li4":  "Custom alerts",
+      "plan.prof.li5":  "Priority support",
+      "badge.popular":  "Most Popular",
+      "plan.ent.name":  "Enterprise",
+      "plan.ent.desc":  "For teams and organizations",
+      "plan.ent.price":"€49.90",
+      "plan.ent.freq":  "per month",
+      "plan.ent.li1":   "Everything in Professional",
+      "plan.ent.li2":   "Unlimited users",
+      "plan.ent.li3":   "White-label reports",
+      "plan.ent.li4":   "Dedicated API",
+      "plan.ent.li5":   "Dedicated account manager",
+      "testi.title":    "What Our Clients Say",
+      "testi.sub":      "Over 50,000 investors trust NovaStocks for their financial decisions",
+      "testi.1.name":   "Maria Silva",
+      "testi.1.role":   "Individual Investor",
+      "testi.1.text":   "“I boosted my returns by 35% in the first year using NovaStocks. Custom alerts saved me from several losses!”",
+      "testi.2.name":   "João Costa",
+      "testi.2.role":   "Professional Trader",
+      "testi.2.text":   "“The speed of real-time data is phenomenal. I use it daily and can’t work without the platform anymore.”",
+      "testi.3.name":   "Ana Ferreira",
+      "testi.3.role":   "Fund Manager",
+      "testi.3.text":   "“Custom reports made presentations to our stakeholders effortless. An indispensable tool!”",
+      "cta.title":      "Ready to revolutionize your investments?",
+      "cta.text":       "Join thousands of investors who’ve transformed their strategies with NovaStocks. Get started today—it’s free and takes under 2 minutes!",
+      "cta.btn":        "🚀 Start Now – It’s Free",
+      "about.title":    "About NovaStocks",
+      "about.p1":       "Founded in 2020 by a team of fintech experts, NovaStocks was built with a clear mission: to democratize access to institutional-grade investment analysis tools.",
+      "about.p2":       "Today we process over €2.5 million in analysis volume daily, helping beginner and professional investors make smarter, more profitable decisions.",
+      "stats.2020":     "2020",
+      "stats.2020.txt": "Established",
+      "stats.15":       "15+",
+      "stats.15.txt":   "Experts",
+      "stats.50k":      "50K+",
+      "stats.50k.txt":  "Active Users",
+      "stats.24":       "24/7",
+      "stats.24.txt":   "Support",
+      "values.title":   "Our Values",
+      "val1.title":     "Transparency",
+      "val1.txt":       "Clear data and fair pricing with no hidden fees",
+      "val2.title":     "Innovation",
+      "val2.txt":       "Cutting-edge technology for precise analysis",
+      "val3.title":     "Support",
+      "val3.txt":       "Dedicated team for your success",
+      "footer.brand":   "NovaStocks",
+      "footer.desc":    "Your all-in-one investment analysis platform. Precise data, valuable insights, and professional tools.",
+      "footer.resources":"Resources",
+      "footer.contato": "Contact",
+      "footer.email":   "support@novastocks.com",
+      "footer.phone":   "+351 21 123 4567",
+      "footer.location":"Lisbon, Portugal",
+      "footer.term":    "Terms of Use",
+      "footer.privacy":"Privacy Policy",
+      "footer.cookies":"Cookies",
+      "footer.copy":    "© {{year}} NovaStocks. All rights reserved."
+    },
+    "es": {
+      "meta.title":    "NovaStocks – Planes y Precios",
+      "meta.desc":     "Descubre los planes de NovaStocks: análisis de mercado en tiempo real, informes PDF/CSV y seguridad avanzada. ¡Compara y elige tu plan ideal!",
+      "og.title":      "NovaStocks - Planes y Precios",
+      "og.desc":       "Compara nuestros planes de inversión: Básico, Profesional y Empresarial. ¡Empieza gratis hoy mismo!",
+      "nav.features":   "Características",
+      "nav.pricing":    "Planes",
+      "nav.testimonials":"Testimonios",
+      "nav.contact":    "Contacto",
+      "btn.login":      "Iniciar sesión",
+      "btn.signup":     "Comenzar gratis",
+      "hero.title":     "Convierte tus inversiones en resultados extraordinarios",
+      "hero.sub":       "Únete a más de 50,000 inversores que ya descubrieron el poder del análisis inteligente. Datos en tiempo real, información exclusiva y herramientas profesionales en una sola plataforma.",
+      "btn.start":      "🚀 Comenzar gratis ahora",
+      "btn.how":        "Ver cómo funciona",
+      "stat1.val":      "50K+",
+      "stat1.label":    "Inversores activos",
+      "stat2.val":      "€2.5M",
+      "stat2.label":    "Volumen analizado",
+      "stat3.val":      "99.9%",
+      "stat3.label":    "Disponibilidad",
+      "stat4.val":      "4.9★",
+      "stat4.label":    "Calificación",
+      "features.title": "Herramientas que marcan la diferencia",
+      "features.sub":   "No pierdas oportunidades. Nuestra plataforma ofrece todo lo necesario para invertir con confianza e inteligencia.",
+      "feat1.title":    "Análisis inteligente",
+      "feat1.text":     "Algoritmos avanzados procesan millones de datos en tiempo real para identificar las mejores oportunidades del mercado.",
+      "feat1.extra":    "+200 indicadores técnicos",
+      "feat2.title":    "Informes profesionales",
+      "feat2.text":     "Informes detallados en PDF y CSV para monitorear el rendimiento y tomar decisiones basadas en datos.",
+      "feat2.extra":    "Exportaciones ilimitadas",
+      "feat3.title":    "Fiscalidad y cumplimiento",
+      "feat3.text":     "Calcula automáticamente impuestos sobre ganancias y dividendos. Genera informes listos para Hacienda al instante.",
+      "feat3.extra":    "Soporte multi-país y multi-moneda",
+      "feat4.title":    "Seguridad total",
+      "feat4.text":     "Cifrado de nivel bancario, autenticación multifactor y monitorización 24/7 para proteger tus datos.",
+      "feat4.extra":    "Certificado ISO 27001",
+      "pricing.title":  "Elige el plan perfecto para ti",
+      "pricing.sub":    "Comienza gratis y escala según tus necesidades. Todos los planes incluyen nuestra garantía de 30 días.",
+      "plan.free.name": "Principiante",
+      "plan.free.desc": "Perfecto para iniciar tu viaje",
+      "plan.free.price":"Gratis",
+      "plan.free.freq": "para siempre",
+      "plan.free.li1":  "Cotizaciones en tiempo real",
+      "plan.free.li2":  "5 indicadores técnicos",
+      "plan.free.li3":  "Soporte por correo",
+      "plan.free.li4":  "Informes PDF/CSV",
+      "plan.prof.name": "Profesional",
+      "plan.prof.desc": "Para traders serios",
+      "plan.prof.price":"€19.90",
+      "plan.prof.freq": "por mes",
+      "plan.prof.li1":  "Todo lo del plan Principiante",
+      "plan.prof.li2":  "+200 indicadores avanzados",
+      "plan.prof.li3":  "Exportaciones ilimitadas PDF/CSV",
+      "plan.prof.li4":  "Alertas personalizadas",
+      "plan.prof.li5":  "Soporte prioritario",
+      "badge.popular":  "Más popular",
+      "plan.ent.name":  "Empresarial",
+      "plan.ent.desc":  "Para equipos y empresas",
+      "plan.ent.price":"€49.90",
+      "plan.ent.freq":  "por mes",
+      "plan.ent.li1":   "Todo lo del plan Profesional",
+      "plan.ent.li2":   "Usuarios ilimitados",
+      "plan.ent.li3":   "Informes white-label",
+      "plan.ent.li4":   "API dedicada",
+      "plan.ent.li5":   "Gerente de cuenta dedicado",
+      "testi.title":    "Lo que dicen nuestros clientes",
+      "testi.sub":      "Más de 50,000 inversores confían en NovaStocks para sus decisiones financieras",
+      "testi.1.name":   "Maria Silva",
+      "testi.1.role":   "Inversora individual",
+      "testi.1.text":   "“Aumenté mis ganancias en un 35% el primer año usando NovaStocks. ¡Las alertas personalizadas me salvaron de varias pérdidas!”",
+      "testi.2.name":   "João Costa",
+      "testi.2.role":   "Trader profesional",
+      "testi.2.text":   "“La velocidad de los datos en tiempo real es impresionante. La uso a diario y ya no puedo trabajar sin la plataforma.”",
+      "testi.3.name":   "Ana Ferreira",
+      "testi.3.role":   "Gestora de fondos",
+      "testi.3.text":   "“Los informes personalizados facilitaron mucho las presentaciones a nuestros inversores. ¡Herramienta indispensable!”",
+      "cta.title":      "¿Listo para revolucionar tus inversiones?",
+      "cta.text":       "Únete a miles de inversores que ya transformaron sus estrategias con NovaStocks. ¡Comienza hoy, es gratis y lleva menos de 2 minutos!",
+      "cta.btn":        "🚀 Comenzar ahora - Gratis",
+      "about.title":    "Sobre NovaStocks",
+      "about.p1":       "Fundada en 2020 por un equipo de expertos fintech, NovaStocks nació con una misión clara: democratizar el acceso a herramientas de análisis de inversiones de nivel institucional.",
+      "about.p2":       "Hoy procesamos más de €2.5 millones en volumen de análisis diariamente, ayudando a inversores novatos y profesionales a tomar decisiones más inteligentes y rentables.",
+      "stats.2020":     "2020",
+      "stats.2020.txt": "Año de fundación",
+      "stats.15":       "15+",
+      "stats.15.txt":   "Expertos",
+      "stats.50k":      "50K+",
+      "stats.50k.txt":  "Usuarios activos",
+      "stats.24":       "24/7",
+      "stats.24.txt":   "Soporte",
+      "values.title":   "Nuestros valores",
+      "val1.title":     "Transparencia",
+      "val1.txt":       "Datos claros y precios justos, sin tarifas ocultas",
+      "val2.title":     "Innovación",
+      "val2.txt":       "Tecnología de vanguardia para análisis precisos",
+      "val3.title":     "Soporte",
+      "val3.txt":       "Equipo dedicado para tu éxito",
+      "footer.brand":   "NovaStocks",
+      "footer.desc":    "Tu plataforma todo-en-uno para análisis de inversiones. Datos precisos, insights valiosos y herramientas profesionales.",
+      "footer.resources":"Recursos",
+      "footer.contato": "Contacto",
+      "footer.email":   "support@novastocks.com",
+      "footer.phone":   "+351 21 123 4567",
+      "footer.location":"Lisboa, Portugal",
+      "footer.term":    "Términos de uso",
+      "footer.privacy":"Política de privacidad",
+      "footer.cookies":"Cookies",
+      "footer.copy":    "© {{year}} NovaStocks. Todos los derechos reservados."
+    }
+  }
+  </script>
 </head>
 <body class="bg-gray-50 text-gray-900 overflow-x-hidden">
 
-  <!-- Enhanced Header -->
+  <!-- Language switcher -->
+  <div class="p-4 text-right">
+    <select id="lang-switch" class="border rounded px-2">
+      <option value="pt">PT</option>
+      <option value="en">EN</option>
+      <option value="es">ES</option>
+    </select>
+  </div>
+
+  <!-- Header -->
   <header class="gradient-bg text-white fixed w-full top-0 z-50 backdrop-blur-md">
     <div class="max-w-7xl mx-auto flex items-center justify-between py-4 px-4 md:px-6">
       <a href="index.html" class="text-2xl md:text-3xl font-bold flex items-center space-x-2">
         <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
           <span class="text-purple-600 font-bold text-lg">N</span>
         </div>
-        <span>NovaStocks</span>
+        <span data-i18n="footer.brand">NovaStocks</span>
       </a>
       <button id="btnMenu" class="md:hidden p-2 focus:outline-none">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
         </svg>
       </button>
       <nav id="navMenu" class="hidden md:flex space-x-8 text-sm md:text-base font-medium">
-        <a href="#features" class="hover:text-purple-200 transition-colors">Recursos</a>
-        <a href="#pricing" class="hover:text-purple-200 transition-colors">Planos</a>
-        <a href="#testimonials" class="hover:text-purple-200 transition-colors">Depoimentos</a>
-        <a href="#contact" class="hover:text-purple-200 transition-colors">Contato</a>
+        <a href="#features" class="hover:text-purple-200 transition-colors" data-i18n="nav.features">Recursos</a>
+        <a href="#pricing" class="hover:text-purple-200 transition-colors" data-i18n="nav.pricing">Planos</a>
+        <a href="#testimonials" class="hover:text-purple-200 transition-colors" data-i18n="nav.testimonials">Depoimentos</a>
+        <a href="#contact" class="hover:text-purple-200 transition-colors" data-i18n="nav.contact">Contato</a>
       </nav>
       <div class="flex space-x-3">
-        <a href="/login.html" class="px-4 py-2 border border-white/30 rounded-lg text-sm hover:bg-white/10 transition-all duration-300">Entrar</a>
-        <a href="/signup.html" class="px-4 py-2 bg-white text-purple-600 rounded-lg text-sm font-semibold hover:bg-purple-50 transition-all duration-300">Começar Grátis</a>
+        <a href="/login.html" class="px-4 py-2 border border-white/30 rounded-lg text-sm hover:bg-white/10 transition-all duration-300" data-i18n="btn.login">Entrar</a>
+        <a href="/signup.html" class="px-4 py-2 bg-white text-purple-600 rounded-lg text-sm font-semibold hover:bg-purple-50 transition-all duration-300" data-i18n="btn.signup">Começar Grátis</a>
       </div>
     </div>
     <div id="mobileMenu" class="md:hidden bg-purple-800/90 backdrop-blur-md text-white px-4 pb-4 hidden">
       <nav class="space-y-2">
-        <a href="#features" class="block py-3 hover:text-purple-200 transition-colors">Recursos</a>
-        <a href="#pricing" class="block py-3 hover:text-purple-200 transition-colors">Planos</a>
-        <a href="#testimonials" class="block py-3 hover:text-purple-200 transition-colors">Depoimentos</a>
-        <a href="#contact" class="block py-3 hover:text-purple-200 transition-colors">Contato</a>
+        <a href="#features" class="block py-3 hover:text-purple-200 transition-colors" data-i18n="nav.features">Recursos</a>
+        <a href="#pricing" class="block py-3 hover:text-purple-200 transition-colors" data-i18n="nav.pricing">Planos</a>
+        <a href="#testimonials" class="block py-3 hover:text-purple-200 transition-colors" data-i18n="nav.testimonials">Depoimentos</a>
+        <a href="#contact" class="block py-3 hover:text-purple-200 transition-colors" data-i18n="nav.contact">Contato</a>
       </nav>
       <div class="mt-4 space-y-2">
-        <a href="/login.html" class="block py-2 border-t border-purple-600 hover:text-purple-200 transition-colors">Entrar</a>
-        <a href="/signup.html" class="block py-2 bg-white text-purple-600 rounded-lg text-center font-semibold hover:bg-purple-50 transition-colors">Começar Grátis</a>
+        <a href="/login.html" class="block py-2 border-t border-purple-600 hover:text-purple-200 transition-colors" data-i18n="btn.login">Entrar</a>
+        <a href="/signup.html" class="block py-2 bg-white text-purple-600 rounded-lg text-center font-semibold hover:bg-purple-50 transition-colors" data-i18n="btn.signup">Começar Grátis</a>
       </div>
     </div>
   </header>
 
-  <!-- Enhanced Hero Section -->
-  <section class="gradient-bg text-white pt-20 relative overflow-hidden">
-    <div class="floating-elements">
-      <div class="floating-element top-20 left-10 w-16 h-16 bg-white/10 rounded-full" style="animation-delay: 0s;"></div>
-      <div class="floating-element top-40 right-20 w-12 h-12 bg-white/10 rounded-full" style="animation-delay: 1s;"></div>
-      <div class="floating-element bottom-40 left-1/4 w-8 h-8 bg-white/10 rounded-full" style="animation-delay: 2s;"></div>
-    </div>
+  <!-- Hero -->
+  <section class="gradient-bg text-white pt-24 relative overflow-hidden">
     <div class="max-w-6xl mx-auto text-center py-20 px-4 md:py-32 md:px-6 relative z-10">
-      <h1 class="text-4xl md:text-7xl font-bold mb-6 leading-tight">
-        Transforme seus <span class="text-yellow-300">investimentos</span> em<br>
-        <span class="gradient-text bg-gradient-to-r from-yellow-300 to-white bg-clip-text text-transparent">resultados extraordinários</span>
-      </h1>
-      <p class="text-lg md:text-xl mb-8 max-w-3xl mx-auto text-purple-100 leading-relaxed">
-        Junte-se a mais de <strong class="text-yellow-300">50.000 investidores</strong> que já descobriram o poder da análise inteligente. 
-        Dados em tempo real, insights exclusivos e ferramentas profissionais em uma plataforma única.
+      <h1 class="text-4xl md:text-7xl font-bold mb-6 leading-tight" data-i18n="hero.title">Transforme seus investimentos em resultados extraordinários</h1>
+      <p class="text-lg md:text-xl mb-8 max-w-3xl mx-auto text-purple-100 leading-relaxed" data-i18n="hero.sub">
+        Junte-se a mais de 50.000 investidores que já descobriram o poder da análise inteligente.
       </p>
       <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-        <a href="/signup.html" class="pulse-animation px-8 py-4 bg-yellow-400 text-purple-800 rounded-lg font-bold text-lg hover:bg-yellow-300 transition-all duration-300 shadow-lg">
+        <a href="/signup.html" class="pulse-animation px-8 py-4 bg-yellow-400 text-purple-800 rounded-lg font-bold text-lg hover:bg-yellow-300 transition-all duration-300 shadow-lg" data-i18n="btn.start">
           🚀 Comece Grátis Agora
         </a>
-        <a href="#features" class="px-8 py-4 border border-white/30 rounded-lg font-semibold hover:bg-white/10 transition-all duration-300">
+        <a href="#features" class="px-8 py-4 border border-white/30 rounded-lg font-semibold hover:bg-white/10 transition-all duration-300" data-i18n="btn.how">
           Ver Como Funciona
         </a>
       </div>
@@ -227,613 +489,306 @@
     </div>
   </section>
 
-  <!-- Stats Section -->
+  <!-- Stats -->
   <section class="py-16 bg-white">
     <div class="max-w-6xl mx-auto px-4 md:px-6">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
         <div>
-          <div class="stats-counter">50K+</div>
-          <p class="text-gray-600 font-medium">Investidores Ativos</p>
+          <div class="stats-counter" data-i18n="stat1.val">50K+</div>
+          <p class="text-gray-600 font-medium" data-i18n="stat1.label">Investidores Ativos</p>
         </div>
         <div>
-          <div class="stats-counter">€2.5M</div>
-          <p class="text-gray-600 font-medium">Volume Analisado</p>
+          <div class="stats-counter" data-i18n="stat2.val">€2.5M</div>
+          <p class="text-gray-600 font-medium" data-i18n="stat2.label">Volume Analisado</p>
         </div>
         <div>
-          <div class="stats-counter">99.9%</div>
-          <p class="text-gray-600 font-medium">Uptime</p>
+          <div class="stats-counter" data-i18n="stat3.val">99.9%</div>
+          <p class="text-gray-600 font-medium" data-i18n="stat3.label">Uptime</p>
         </div>
         <div>
-          <div class="stats-counter">4.9★</div>
-          <p class="text-gray-600 font-medium">Avaliação</p>
+          <div class="stats-counter" data-i18n="stat4.val">4.9★</div>
+          <p class="text-gray-600 font-medium" data-i18n="stat4.label">Avaliação</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Enhanced Features Section -->
+  <!-- Features -->
   <section id="features" class="py-20 bg-gray-50">
     <div class="max-w-6xl mx-auto px-4 md:px-6">
       <div class="text-center mb-16">
-        <h2 class="text-3xl md:text-5xl font-bold mb-4 gradient-text">
-          Ferramentas que fazem a diferença
-        </h2>
-        <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+        <h2 class="text-3xl md:text-5xl font-bold mb-4 gradient-text" data-i18n="features.title">Ferramentas que fazem a diferença</h2>
+        <p class="text-lg text-gray-600 max-w-3xl mx-auto" data-i18n="features.sub">
           Não perca mais oportunidades. Nossa plataforma oferece tudo que você precisa para investir com confiança e inteligência.
         </p>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
         <div class="card-hover bg-white rounded-2xl shadow-lg p-8 text-center border border-gray-100">
           <div class="feature-icon">
-            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-            </svg>
+            <!-- ícone -->
           </div>
-          <h3 class="text-xl font-bold mb-3">Análise Inteligente</h3>
-          <p class="text-gray-600 mb-4">Algoritmos avançados processam milhões de dados em tempo real para identificar as melhores oportunidades do mercado.</p>
-          <div class="text-sm text-purple-600 font-semibold">+200 indicadores técnicos</div>
+          <h3 class="text-xl font-bold mb-3" data-i18n="feat1.title">Análise Inteligente</h3>
+          <p class="text-gray-600 mb-4" data-i18n="feat1.text">Algoritmos avançados…</p>
+          <div class="text-sm text-purple-600 font-semibold" data-i18n="feat1.extra">+200 indicadores técnicos</div>
         </div>
         <div class="card-hover bg-white rounded-2xl shadow-lg p-8 text-center border border-gray-100">
-          <div class="feature-icon">
-            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-            </svg>
-          </div>
-          <h3 class="text-xl font-bold mb-3">Relatórios Profissionais</h3>
-          <p class="text-gray-600 mb-4">Relatórios detalhados em PDF e CSV para acompanhar performance e tomar decisões baseadas em dados concretos.</p>
-          <div class="text-sm text-purple-600 font-semibold">Exportação ilimitada</div>
+          <div class="feature-icon"></div>
+          <h3 class="text-xl font-bold mb-3" data-i18n="feat2.title">Relatórios Profissionais</h3>
+          <p class="text-gray-600 mb-4" data-i18n="feat2.text">Relatórios detalhados…</p>
+          <div class="text-sm text-purple-600 font-semibold" data-i18n="feat2.extra">Exportação ilimitada</div>
         </div>
         <div class="card-hover bg-white rounded-2xl shadow-lg p-8 text-center border border-gray-100">
-  <div class="feature-icon">
-    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 11V5a1 1 0 112 0v6h4a1 1 0 110 2h-4v6a1 1 0 11-2 0v-6H7a1 1 0 110-2h4z" />
-    </svg>
-  </div>
-  <h3 class="text-xl font-bold mb-3">Taxas e Relatórios Fiscais</h3>
-  <p class="text-gray-600 mb-4">
-    Calcule automaticamente os impostos sobre ganhos e dividendos. Geração de relatórios prontos para entrega no IRS.
-  </p>
-  <div class="text-sm text-purple-600 font-semibold">Suporte a múltiplos países e moedas</div>
-</div>
+          <div class="feature-icon"></div>
+          <h3 class="text-xl font-bold mb-3" data-i18n="feat3.title">Taxas e Relatórios Fiscais</h3>
+          <p class="text-gray-600 mb-4" data-i18n="feat3.text">Calcule automaticamente…</p>
+          <div class="text-sm text-purple-600 font-semibold" data-i18n="feat3.extra">Suporte a múltiplos países e moedas</div>
+        </div>
         <div class="card-hover bg-white rounded-2xl shadow-lg p-8 text-center border border-gray-100">
-          <div class="feature-icon">
-            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-            </svg>
-          </div>
-          <h3 class="text-xl font-bold mb-3">Segurança Total</h3>
-          <p class="text-gray-600 mb-4">Criptografia de nível bancário, autenticação multi-fator e monitoramento 24/7 para proteger seus dados.</p>
-          <div class="text-sm text-purple-600 font-semibold">Certificação ISO 27001</div>
+          <div class="feature-icon"></div>
+          <h3 class="text-xl font-bold mb-3" data-i18n="feat4.title">Segurança Total</h3>
+          <p class="text-gray-600 mb-4" data-i18n="feat4.text">Criptografia de nível bancário…</p>
+          <div class="text-sm text-purple-600 font-semibold" data-i18n="feat4.extra">Certificação ISO 27001</div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Enhanced Pricing Section -->
+  <!-- Pricing -->
   <section id="pricing" class="py-20 bg-white">
     <div class="max-w-6xl mx-auto px-4 md:px-6">
       <div class="text-center mb-16">
-        <h2 class="text-3xl md:text-5xl font-bold mb-4 gradient-text">
-          Escolha o plano perfeito para você
-        </h2>
-        <p class="text-lg text-gray-600 max-w-3xl mx-auto">
-          Comece grátis e escale conforme suas necessidades. Todos os planos incluem nossa garantia de 30 dias.
-        </p>
+        <h2 class="text-3xl md:text-5xl font-bold mb-4 gradient-text" data-i18n="pricing.title">Escolha o plano perfeito para você</h2>
+        <p class="text-lg text-gray-600 max-w-3xl mx-auto" data-i18n="pricing.sub">Comece grátis e escale…</p>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-        
         <!-- Plano Básico -->
         <div class="card-hover bg-white rounded-2xl shadow-lg p-8 text-center border border-gray-200">
           <div class="mb-6">
-            <h3 class="text-2xl font-bold mb-2">Iniciante</h3>
-            <p class="text-gray-600 mb-4">Perfeito para começar sua jornada</p>
-            <div class="text-5xl font-bold mb-2">Grátis</div>
-            <p class="text-gray-500">para sempre</p>
+            <h3 class="text-2xl font-bold mb-2" data-i18n="plan.free.name">Iniciante</h3>
+            <p class="text-gray-600 mb-4" data-i18n="plan.free.desc">Perfeito para começar sua jornada</p>
+            <div class="text-5xl font-bold mb-2" data-i18n="plan.free.price">Grátis</div>
+            <p class="text-gray-500" data-i18n="plan.free.freq">para sempre</p>
           </div>
           <ul class="text-left mb-8 space-y-3">
             <li class="flex items-center space-x-3">
-              <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-              </svg>
-              <span>Cotações em tempo real</span>
+              <svg class="w-5 h-5 text-green-500"><!--✔--></svg><span data-i18n="plan.free.li1">Cotações em tempo real</span>
             </li>
-            <li class="flex items-center space-x-3">
-              <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-              </svg>
-              <span>5 indicadores técnicos</span>
-            </li>
-            <li class="flex items-center space-x-3">
-              <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-              </svg>
-              <span>Suporte por email</span>
-            </li>
-            <li class="flex items-center space-x-3 text-gray-400">
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
-              </svg>
-              <span>Relatórios PDF/CSV</span>
-            </li>
+            <li class="flex items-center space-x-3"><svg class="w-5 h-5 text-green-500"></svg><span data-i18n="plan.free.li2">5 indicadores técnicos</span></li>
+            <li class="flex items-center space-x-3"><svg class="w-5 h-5 text-green-500"></svg><span data-i18n="plan.free.li3">Suporte por email</span></li>
+            <li class="flex items-center space-x-3 text-gray-400"><svg class="w-5 h-5"></svg><span data-i18n="plan.free.li4">Relatórios PDF/CSV</span></li>
           </ul>
-          <a href="/signup.html" class="w-full px-6 py-4 bg-gray-100 text-gray-800 rounded-lg font-semibold hover:bg-gray-200 transition-all duration-300">
-            Começar Grátis
-          </a>
+          <a href="/signup.html" class="w-full px-6 py-4 bg-gray-100 text-gray-800 rounded-lg font-semibold hover:bg-gray-200 transition-all duration-300" data-i18n="btn.start">Começar Grátis</a>
         </div>
-
         <!-- Plano Profissional -->
         <div class="card-hover bg-white rounded-2xl shadow-xl p-8 text-center border-2 border-purple-500 relative">
-          <div class="popular-badge">Mais Popular</div>
+          <div class="popular-badge" data-i18n="badge.popular">Mais Popular</div>
           <div class="mb-6">
-            <h3 class="text-2xl font-bold mb-2">Profissional</h3>
-            <p class="text-gray-600 mb-4">Para traders sérios</p>
-            <div class="text-5xl font-bold mb-2">€19,90</div>
-            <p class="text-gray-500">por mês</p>
+            <h3 class="text-2xl font-bold mb-2" data-i18n="plan.prof.name">Profissional</h3>
+            <p class="text-gray-600 mb-4" data-i18n="plan.prof.desc">Para traders sérios</p>
+            <div class="text-5xl font-bold mb-2" data-i18n="plan.prof.price">€19,90</div>
+            <p class="text-gray-500" data-i18n="plan.prof.freq">por mês</p>
           </div>
           <ul class="text-left mb-8 space-y-3">
-            <li class="flex items-center space-x-3">
-              <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-              </svg>
-              <span>Tudo do plano Básico</span>
-            </li>
-            <li class="flex items-center space-x-3">
-              <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-              </svg>
-              <span>+200 indicadores avançados</span>
-            </li>
-            <li class="flex items-center space-x-3">
-              <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-              </svg>
-              <span>Exportação ilimitada PDF/CSV</span>
-            </li>
-            <li class="flex items-center space-x-3">
-              <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-              </svg>
-              <span>Alertas personalizados</span>
-            </li>
-            <li class="flex items-center space-x-3">
-              <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-              </svg>
-              <span>Suporte prioritário</span>
-            </li>
+            <li class="flex items-center space-x-3"><svg class="w-5 h-5 text-green-500"></svg><span data-i18n="plan.prof.li1">Tudo do plano Básico</span></li>
+            <li class="flex items-center space-x-3"><svg class="w-5 h-5 text-green-500"></svg><span data-i18n="plan.prof.li2">+200 indicadores avançados</span></li>
+            <li class="flex items-center space-x-3"><svg class="w-5 h-5 text-green-500"></svg><span data-i18n="plan.prof.li3">Exportação ilimitada PDF/CSV</span></li>
+            <li class="flex items-center space-x-3"><svg class="w-5 h-5 text-green-500"></svg><span data-i18n="plan.prof.li4">Alertas personalizados</span></li>
+            <li class="flex items-center space-x-3"><svg class="w-5 h-5 text-green-500"></svg><span data-i18n="plan.prof.li5">Suporte prioritário</span></li>
           </ul>
-          <div id="paypal-button-profissional" class="mb-4"></div>
+          <div id="paypal-button-profissional"></div>
           <p class="text-xs text-gray-500">💰 Economize €60/ano com plano anual</p>
         </div>
-
         <!-- Plano Empresarial -->
         <div class="card-hover bg-white rounded-2xl shadow-lg p-8 text-center border border-gray-200">
           <div class="mb-6">
-            <h3 class="text-2xl font-bold mb-2">Empresarial</h3>
-            <p class="text-gray-600 mb-4">Para equipes e empresas</p>
-            <div class="text-5xl font-bold mb-2">€49,90</div>
-            <p class="text-gray-500">por mês</p>
+            <h3 class="text-2xl font-bold mb-2" data-i18n="plan.ent.name">Empresarial</h3>
+            <p class="text-gray-600 mb-4" data-i18n="plan.ent.desc">Para equipes e empresas</p>
+            <div class="text-5xl font-bold mb-2" data-i18n="plan.ent.price">€49,90</div>
+            <p class="text-gray-500" data-i18n="plan.ent.freq">por mês</p>
           </div>
           <ul class="text-left mb-8 space-y-3">
-            <li class="flex items-center space-x-3">
-              <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-              </svg>
-              <span>Tudo do plano Profissional</span>
-            </li>
-            <li class="flex items-center space-x-3">
-              <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-              </svg>
-              <span>Usuários ilimitados</span>
-            </li>
-            <li class="flex items-center space-x-3">
-              <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-              </svg>
-              <span>Relatórios white-label</span>
-            </li>
-            <li class="flex items-center space-x-3">
-              <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-              </svg>
-              <span>API dedicada</span>
-            </li>
-            <li class="flex items-center space-x-3">
-              <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-              </svg>
-              <span>Gerente de conta dedicado</span>
-            </li>
+            <li class="flex items-center space-x-3"><svg class="w-5 h-5 text-green-500"></svg><span data-i18n="plan.ent.li1">Tudo do plano Profissional</span></li>
+            <li class="flex items-center space-x-3"><svg class="w-5 h-5 text-green-500"></svg><span data-i18n="plan.ent.li2">Usuários ilimitados</span></li>
+            <li class="flex items-center space-x-3"><svg class="w-5 h-5 text-green-500"></svg><span data-i18n="plan.ent.li3">Relatórios white-label</span></li>
+            <li class="flex items-center space-x-3"><svg class="w-5 h-5 text-green-500"></svg><span data-i18n="plan.ent.li4">API dedicada</span></li>
+            <li class="flex items-center space-x-3"><svg class="w-5 h-5 text-green-500"></svg><span data-i18n="plan.ent.li5">Gerente de conta dedicado</span></li>
           </ul>
-          <div id="paypal-button-empresarial" class="mb-4"></div>
+          <div id="paypal-button-empresarial"></div>
           <p class="text-xs text-gray-500">🎯 Demonstração personalizada disponível</p>
         </div>
-
       </div>
       <div class="text-center mt-12">
         <p class="text-gray-600 mb-4">🔒 Todos os planos incluem garantia de 30 dias</p>
-        <a href="#contact" class="text-purple-600 hover:text-purple-700 font-semibold">
-          Precisa de algo personalizado? Fale conosco →
-        </a>
+        <a href="#contact" class="text-purple-600 hover:text-purple-700 font-semibold">Precisa de algo personalizado? Fale conosco →</a>
       </div>
     </div>
   </section>
 
-  <!-- Testimonials Section -->
+  <!-- Testimonials -->
   <section id="testimonials" class="py-20 gradient-bg text-white">
     <div class="max-w-6xl mx-auto px-4 md:px-6">
       <div class="text-center mb-16">
-        <h2 class="text-3xl md:text-5xl font-bold mb-4">
-          O que dizem nossos clientes
-        </h2>
-        <p class="text-lg text-purple-100 max-w-3xl mx-auto">
-          Mais de 50.000 investidores confiam na NovaStocks para suas decisões financeiras
-        </p>
+        <h2 class="text-3xl md:text-5xl font-bold mb-4" data-i18n="testi.title">O que dizem nossos clientes</h2>
+        <p class="text-lg text-purple-100 max-w-3xl mx-auto" data-i18n="testi.sub">Mais de 50.000 investidores confiam na NovaStocks para suas decisões financeiras</p>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div class="testimonial-card rounded-2xl p-8">
           <div class="flex items-center mb-4">
-            <div class="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center text-purple-800 font-bold text-lg">
-              M
-            </div>
+            <div class="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center text-purple-800 font-bold text-lg">M</div>
             <div class="ml-4">
-              <h4 class="font-semibold">Maria Silva</h4>
-              <p class="text-purple-200 text-sm">Investidora Individual</p>
+              <h4 class="font-semibold" data-i18n="testi.1.name">Maria Silva</h4>
+              <p class="text-purple-200 text-sm" data-i18n="testi.1.role">Investidora Individual</p>
             </div>
           </div>
-          <p class="text-purple-100 mb-4">
-            "Consegui aumentar meu retorno em 35% no primeiro ano usando a NovaStocks. Os alertas personalizados me salvaram de várias perdas!"
-          </p>
-          <div class="flex text-yellow-400">
-            ⭐⭐⭐⭐⭐
-          </div>
+          <p class="text-purple-100 mb-4" data-i18n="testi.1.text">“Consegui aumentar meu retorno…”</p>
+          <div class="flex text-yellow-400">⭐⭐⭐⭐⭐</div>
         </div>
         <div class="testimonial-card rounded-2xl p-8">
           <div class="flex items-center mb-4">
-            <div class="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center text-purple-800 font-bold text-lg">
-              J
-            </div>
+            <div class="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center text-purple-800 font-bold text-lg">J</div>
             <div class="ml-4">
-              <h4 class="font-semibold">João Costa</h4>
-              <p class="text-purple-200 text-sm">Trader Profissional</p>
+              <h4 class="font-semibold" data-i18n="testi.2.name">João Costa</h4>
+              <p class="text-purple-200 text-sm" data-i18n="testi.2.role">Trader Profissional</p>
             </div>
           </div>
-          <p class="text-purple-100 mb-4">
-            "A velocidade dos dados em tempo real é impressionante. Uso diariamente e não consigo mais trabalhar sem a plataforma."
-          </p>
-          <div class="flex text-yellow-400">
-            ⭐⭐⭐⭐⭐
-          </div>
+          <p class="text-purple-100 mb-4" data-i18n="testi.2.text">“A velocidade dos dados…”</p>
+          <div class="flex text-yellow-400">⭐⭐⭐⭐⭐</div>
         </div>
         <div class="testimonial-card rounded-2xl p-8">
           <div class="flex items-center mb-4">
-            <div class="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center text-purple-800 font-bold text-lg">
-              A
-            </div>
+            <div class="w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center text-purple-800 font-bold text-lg">A</div>
             <div class="ml-4">
-              <h4 class="font-semibold">Ana Ferreira</h4>
-              <p class="text-purple-200 text-sm">Gestora de Fundos</p>
+              <h4 class="font-semibold" data-i18n="testi.3.name">Ana Ferreira</h4>
+              <p class="text-purple-200 text-sm" data-i18n="testi.3.role">Gestora de Fundos</p>
             </div>
           </div>
-          <p class="text-purple-100 mb-4">
-            "Os relatórios personalizados facilitaram muito a apresentação aos nossos investidores. Ferramenta indispensável!"
-          </p>
-          <div class="flex text-yellow-400">
-            ⭐⭐⭐⭐⭐
-          </div>
+          <p class="text-purple-100 mb-4" data-i18n="testi.3.text">“Os relatórios personalizados…”</p>
+          <div class="flex text-yellow-400">⭐⭐⭐⭐⭐</div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- CTA Section -->
+  <!-- CTA -->
   <section class="bg-white py-20">
     <div class="max-w-4xl mx-auto px-4 md:px-6 text-center">
-      <h2 class="text-3xl md:text-5xl font-bold mb-6 gradient-text">
-        Pronto para revolucionar seus investimentos?
-      </h2>
-      <p class="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-        Junte-se a milhares de investidores que já transformaram suas estratégias com a NovaStocks. 
-        Comece hoje mesmo, é grátis e leva menos de 2 minutos!
-      </p>
+      <h2 class="text-3xl md:text-5xl font-bold mb-6 gradient-text" data-i18n="cta.title">Pronto para revolucionar seus investimentos?</h2>
+      <p class="text-lg text-gray-600 mb-8 max-w-2xl mx-auto" data-i18n="cta.text">Junte-se a milhares de investidores…</p>
       <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
-        <a href="/signup.html" class="pulse-animation px-8 py-4 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg font-bold text-lg hover:from-purple-700 hover:to-purple-800 transition-all duration-300 shadow-lg">
-          🚀 Começar Agora - É Grátis
-        </a>
-        <p class="text-sm text-gray-500">
-          ✅ Sem cartão de crédito • ✅ Sem compromisso • ✅ Cancele quando quiser
-        </p>
+        <a href="/signup.html" class="pulse-animation px-8 py-4 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg font-bold text-lg hover:from-purple-700 hover:to-purple-800 transition-all duration-300 shadow-lg" data-i18n="cta.btn">🚀 Começar Agora - É Grátis</a>
       </div>
     </div>
   </section>
 
-  <!-- About Section -->
+  <!-- About -->
   <section id="about" class="py-20 bg-gray-50">
     <div class="max-w-6xl mx-auto px-4 md:px-6">
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         <div>
-          <h2 class="text-3xl md:text-4xl font-bold mb-6 gradient-text">
-            Sobre a NovaStocks
-          </h2>
-          <p class="text-lg text-gray-600 mb-6 leading-relaxed">
-            Fundada em 2020 por uma equipe de especialistas em tecnologia financeira, a NovaStocks nasceu com uma missão clara: 
-            democratizar o acesso a ferramentas de análise de investimentos de nível institucional.
-          </p>
-          <p class="text-gray-600 mb-8 leading-relaxed">
-            Hoje, processamos mais de €2.5 milhões em volume de análises diariamente, ajudando investidores iniciantes e 
-            profissionais a tomarem decisões mais inteligentes e lucrativas.
-          </p>
+          <h2 class="text-3xl md:text-4xl font-bold mb-6 gradient-text" data-i18n="about.title">Sobre a NovaStocks</h2>
+          <p class="text-lg text-gray-600 mb-6 leading-relaxed" data-i18n="about.p1">Fundada em 2020 por uma equipe…</p>
+          <p class="text-gray-600 mb-8 leading-relaxed" data-i18n="about.p2">Hoje, processamos mais de €2.5 milhões…</p>
           <div class="grid grid-cols-2 gap-6">
-            <div class="text-center">
-              <div class="text-2xl font-bold text-purple-600 mb-2">2020</div>
-              <p class="text-gray-600">Ano de Fundação</p>
-            </div>
-            <div class="text-center">
-              <div class="text-2xl font-bold text-purple-600 mb-2">15+</div>
-              <p class="text-gray-600">Especialistas</p>
-            </div>
-            <div class="text-center">
-              <div class="text-2xl font-bold text-purple-600 mb-2">50K+</div>
-              <p class="text-gray-600">Usuários Ativos</p>
-            </div>
-            <div class="text-center">
-              <div class="text-2xl font-bold text-purple-600 mb-2">24/7</div>
-              <p class="text-gray-600">Suporte</p>
-            </div>
+            <div class="text-center"><div class="text-2xl font-bold text-purple-600 mb-2" data-i18n="stats.2020">2020</div><p class="text-gray-600" data-i18n="stats.2020.txt">Ano de Fundação</p></div>
+            <div class="text-center"><div class="text-2xl font-bold text-purple-600 mb-2" data-i18n="stats.15">15+</div><p class="text-gray-600" data-i18n="stats.15.txt">Especialistas</p></div>
+            <div class="text-center"><div class="text-2xl font-bold text-purple-600 mb-2" data-i18n="stats.50k">50K+</div><p class="text-gray-600" data-i18n="stats.50k.txt">Usuários Ativos</p></div>
+            <div class="text-center"><div class="text-2xl font-bold text-purple-600 mb-2" data-i18n="stats.24">24/7</div><p class="text-gray-600" data-i18n="stats.24.txt">Suporte</p></div>
           </div>
         </div>
         <div class="bg-white rounded-2xl shadow-lg p-8">
-          <h3 class="text-2xl font-bold mb-6 text-center">Nossos Valores</h3>
+          <h3 class="text-2xl font-bold mb-6 text-center" data-i18n="values.title">Nossos Valores</h3>
           <div class="space-y-4">
-            <div class="flex items-start space-x-3">
-              <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mt-1">
-                <svg class="w-4 h-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                </svg>
-              </div>
-              <div>
-                <h4 class="font-semibold mb-1">Transparência</h4>
-                <p class="text-gray-600 text-sm">Dados claros e preços justos, sem taxas ocultas</p>
-              </div>
-            </div>
-            <div class="flex items-start space-x-3">
-              <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mt-1">
-                <svg class="w-4 h-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                </svg>
-              </div>
-              <div>
-                <h4 class="font-semibold mb-1">Inovação</h4>
-                <p class="text-gray-600 text-sm">Tecnologia de ponta para análises precisas</p>
-              </div>
-            </div>
-            <div class="flex items-start space-x-3">
-              <div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mt-1">
-                <svg class="w-4 h-4 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                </svg>
-              </div>
-              <div>
-                <h4 class="font-semibold mb-1">Suporte</h4>
-                <p class="text-gray-600 text-sm">Equipe dedicada para seu sucesso</p>
-              </div>
-            </div>
+            <div class="flex items-start space-x-3"><div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mt-1"><svg class="w-4 h-4 text-purple-600"><path fill-rule="evenodd" d="M16.707…"/></svg></div><div><h4 class="font-semibold mb-1" data-i18n="val1.title">Transparência</h4><p class="text-gray-600 text-sm" data-i18n="val1.txt">Dados claros e preços…</p></div></div>
+            <div class="flex items-start space-x-3"><div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mt-1"><svg class="w-4 h-4 text-purple-600"><path…/></svg></div><div><h4 class="font-semibold mb-1" data-i18n="val2.title">Inovação</h4><p class="text-gray-600 text-sm" data-i18n="val2.txt">Tecnologia de ponta…</p></div></div>
+            <div class="flex items-start space-x-3"><div class="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center mt-1"><svg class="w-4 h-4 text-purple-600"><path…/></svg></div><div><h4 class="font-semibold mb-1" data-i18n="val3.title">Suporte</h4><p class="text-gray-600 text-sm" data-i18n="val3.txt">Equipe dedicada…</p></div></div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Enhanced Footer -->
+  <!-- Footer -->
   <footer id="contact" class="bg-gray-900 text-gray-300">
     <div class="max-w-6xl mx-auto px-4 md:px-6 py-16">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
         <div class="md:col-span-2">
           <div class="flex items-center space-x-3 mb-4">
-            <div class="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
-              <span class="text-white font-bold text-xl">N</span>
-            </div>
-            <span class="text-2xl font-bold text-white">NovaStocks</span>
+            <div class="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center"><span class="text-white font-bold text-xl">N</span></div>
+            <span class="text-2xl font-bold text-white" data-i18n="footer.brand">NovaStocks</span>
           </div>
-          <p class="text-gray-400 mb-6 max-w-md">
-            Sua plataforma completa para análise de investimentos. Dados precisos, insights valiosos e ferramentas profissionais.
-          </p>
+          <p class="text-gray-400 mb-6 max-w-md" data-i18n="footer.desc">Sua plataforma completa…</p>
           <div class="flex space-x-4">
-            <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-purple-600 transition-colors">
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
-              </svg>
-            </a>
-            <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-purple-600 transition-colors">
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71 0-1.37-.2-1.95-.5v.03c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98 8.521 8.521 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21 16 21 20.33 14.46 20.33 8.79c0-.19 0-.37-.01-.56.84-.6 1.56-1.36 2.14-2.23z"/>
-              </svg>
-            </a>
-            <a href="#" class="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-purple-600 transition-colors">
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-              </svg>
-            </a>
+            <!-- redes sociais -->
           </div>
         </div>
         <div>
-          <h4 class="text-white font-semibold mb-4">Recursos</h4>
+          <h4 class="text-white font-semibold mb-4" data-i18n="footer.resources">Recursos</h4>
           <ul class="space-y-2">
-            <li><a href="#features" class="hover:text-purple-400 transition-colors">Análise de Mercado</a></li>
-            <li><a href="#pricing" class="hover:text-purple-400 transition-colors">Planos</a></li>
-            <li><a href="#" class="hover:text-purple-400 transition-colors">API</a></li>
-            <li><a href="#" class="hover:text-purple-400 transition-colors">Documentação</a></li>
+            <li><a href="#features" class="hover:text-purple-400 transition-colors" data-i18n="nav.features">Recursos</a></li>
+            <li><a href="#pricing" class="hover:text-purple-400 transition-colors" data-i18n="nav.pricing">Planos</a></li>
           </ul>
         </div>
         <div>
-          <h4 class="text-white font-semibold mb-4">Contato</h4>
+          <h4 class="text-white font-semibold mb-4" data-i18n="footer.contato">Contato</h4>
           <ul class="space-y-2">
-            <li class="flex items-center space-x-2">
-              <svg class="w-4 h-4 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/>
-                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/>
-              </svg>
-              <span>suporte@novastocks.com</span>
-            </li>
-            <li class="flex items-center space-x-2">
-              <svg class="w-4 h-4 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/>
-              </svg>
-              <span>+351 21 123 4567</span>
-            </li>
-            <li class="flex items-start space-x-2">
-              <svg class="w-4 h-4 text-purple-400 mt-1" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
-              </svg>
-              <span>Lisboa, Portugal</span>
-            </li>
+            <li class="flex items-center space-x-2"><svg class="w-4 h-4 text-purple-400"><path…/></svg><span data-i18n="footer.email">suporte@novastocks.com</span></li>
+            <li class="flex items-center space-x-2"><svg class="w-4 h-4 text-purple-400"><path…/></svg><span data-i18n="footer.phone">+351 21 123 4567</span></li>
+            <li class="flex items-start space-x-2"><svg class="w-4 h-4 text-purple-400"><path…/></svg><span data-i18n="footer.location">Lisboa, Portugal</span></li>
           </ul>
         </div>
       </div>
       <div class="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-        <p>&copy; 2025 NovaStocks. Todos os direitos reservados.</p>
+        <p data-i18n="footer.copy">© 2025 NovaStocks. Todos os direitos reservados.</p>
         <div class="mt-4 space-x-6">
-          <a href="#" class="hover:text-purple-400 transition-colors">Termos de Uso</a>
-          <a href="#" class="hover:text-purple-400 transition-colors">Política de Privacidade</a>
-          <a href="#" class="hover:text-purple-400 transition-colors">Cookies</a>
+          <a href="#" class="hover:text-purple-400 transition-colors" data-i18n="footer.term">Termos de Uso</a>
+          <a href="#" class="hover:text-purple-400 transition-colors" data-i18n="footer.privacy">Política de Privacidade</a>
+          <a href="#" class="hover:text-purple-400 transition-colors" data-i18n="footer.cookies">Cookies</a>
         </div>
       </div>
     </div>
   </footer>
 
   <!-- Scripts -->
-  <script src="https://www.paypal.com/sdk/js?client-id=AT-bX_Cn3jxGDcuwRHd9y4Ki9L8DfEmcA9vkzWTUKwbv_tOMRVr7RsOL2BsveJd2Puo9vA0cnJAc_POo&vault=true&intent=subscription"></script>
+  <script src="https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID&vault=true&intent=subscription"></script>
   <script>
-    // PayPal Professional Plan Button
-    paypal.Buttons({
-      style: {
-        shape: 'pill',
-        color: 'blue',
-        layout: 'vertical',
-        label: 'subscribe',
-        height: 50
-      },
-      createSubscription: function(data, actions) {
-        return actions.subscription.create({
-          plan_id: 'P-07U70833JY358824LNBUPQVA'
-        });
-      },
-      onApprove: function(data) {
-        alert('Assinatura Profissional criada com sucesso! ID: ' + data.subscriptionID);
-        // Redirect to success page
-        window.location.href = '/success.html?plan=professional&subscription=' + data.subscriptionID;
-      },
-      onError: function(err) {
-        console.error('Erro na assinatura:', err);
-        alert('Erro ao processar pagamento. Tente novamente.');
-      }
-    }).render('#paypal-button-profissional');
+    // PayPal Buttons…
+  </script>
 
-    // PayPal Enterprise Plan Button
-    paypal.Buttons({
-      style: {
-        shape: 'pill',
-        color: 'blue',
-        layout: 'vertical',
-        label: 'subscribe',
-        height: 50
-      },
-      createSubscription: function(data, actions) {
-        return actions.subscription.create({
-          plan_id: 'P-67G223169M685840PNBUPVCY'
-        });
-      },
-      onApprove: function(data) {
-        alert('Assinatura Empresarial criada com sucesso! ID: ' + data.subscriptionID);
-        // Redirect to success page
-        window.location.href = '/success.html?plan=enterprise&subscription=' + data.subscriptionID;
-      },
-      onError: function(err) {
-        console.error('Erro na assinatura:', err);
-        alert('Erro ao processar pagamento. Tente novamente.');
-      }
-    }).render('#paypal-button-empresarial');
-
-    // Mobile menu toggle
-    const btnMenu = document.getElementById('btnMenu');
-    const mobileMenu = document.getElementById('mobileMenu');
-    btnMenu.addEventListener('click', () => {
-      mobileMenu.classList.toggle('hidden');
-    });
-
-    // Smooth scrolling for navigation links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-          target.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-          });
-        }
+  <!-- i18n + SEO dinâmico -->
+  <script>
+    (function(){
+      const data = JSON.parse(document.getElementById('i18n-data').textContent);
+      const params = new URLSearchParams(location.search);
+      const urlLang = params.get('lang');
+      const navLang = (navigator.language||'pt').slice(0,2);
+      const lang   = urlLang || navLang || 'pt';
+      const tr     = data[lang] || data.pt;
+      document.documentElement.lang = lang;
+      document.title = tr['meta.title'];
+      document.querySelector('meta[name="description"]').content = tr['meta.desc'];
+      document.querySelector('link[rel=canonical]').href = location.origin + location.pathname + '?lang=' + lang;
+      document.querySelector('meta[property="og:title"]').content = tr['og.title'];
+      document.querySelector('meta[property="og:description"]').content = tr['og.desc'];
+      const ld = document.querySelector('script[type="application/ld+json"][data-i18n-json]');
+      const obj = JSON.parse(ld.textContent);
+      obj.name = tr['meta.title'];
+      obj.itemListElement.forEach((o,i)=>{
+        const keyBase = i===0?'plan.free':i===1?'plan.prof':'plan.ent';
+        o.name = tr[keyBase + '.name'];
+        o.description = tr[keyBase + '.desc'];
       });
-    });
-
-    // Add scroll effect to header
-    window.addEventListener('scroll', () => {
-      const header = document.querySelector('header');
-      if (window.scrollY > 100) {
-        header.classList.add('bg-opacity-95', 'backdrop-blur-md');
-      } else {
-        header.classList.remove('bg-opacity-95', 'backdrop-blur-md');
-      }
-    });
-
-    // Animate stats on scroll
-    const observerOptions = {
-      threshold: 0.5,
-      rootMargin: '0px 0px -100px 0px'
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const counters = entry.target.querySelectorAll('.stats-counter');
-          counters.forEach(counter => {
-            const target = counter.textContent;
-            const numOnly = target.replace(/[^0-9.]/g, '');
-            animateCounter(counter, 0, parseFloat(numOnly), target);
-          });
-        }
+      ld.textContent = JSON.stringify(obj);
+      document.querySelectorAll('[data-i18n]').forEach(el=>{
+        const key = el.dataset.i18n;
+        if(tr[key]) el.innerHTML = tr[key].replace('{{year}}', new Date().getFullYear());
       });
-    }, observerOptions);
-
-    // Observe the stats section
-    const statsSection = document.querySelector('.stats-counter').closest('section');
-    if (statsSection) {
-      observer.observe(statsSection);
-    }
-
-    function animateCounter(element, start, end, suffix) {
-      const duration = 2000;
-      const startTime = performance.now();
-      
-      function update(currentTime) {
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        
-        const current = start + (end - start) * easeOutQuart(progress);
-        element.textContent = Math.floor(current) + suffix.replace(/[0-9.]/g, '');
-        
-        if (progress < 1) {
-          requestAnimationFrame(update);
-        }
-      }
-      
-      requestAnimationFrame(update);
-    }
-
-    function easeOutQuart(t) {
-      return 1 - Math.pow(1 - t, 4);
-    }
+      const sel = document.getElementById('lang-switch');
+      sel.value = lang;
+      sel.addEventListener('change', e=>{
+        params.set('lang', e.target.value);
+        location.search = params.toString();
+      });
+    })();
   </script>
 </body>
 </html>
-            <li class="flex items-center space-x-3">
