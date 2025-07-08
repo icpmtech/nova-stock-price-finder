@@ -509,7 +509,7 @@
         row.innerHTML = `
           <td class="px-4 py-4 font-semibold">${t.symbol}</td>
           <td class="px-4 py-4"><span class="px-3 py-1 rounded-full text-xs text-white ${opClass}">${opText}</span></td>
-          <td class="px-4 py-4">${t.amount.toLocaleString()}</td>
+          <td class="px-4 py-4">${t.amount ? t.amount.toLocaleString() : 'N/A' }</td>
           <td class="px-4 py-4">€${t.price.toFixed(4)}</td>
           <td class="px-4 py-4">€${t.fee.toFixed(4)}</td>
           <td class="px-4 py-4">${fmtDate(t.date)}</td>
