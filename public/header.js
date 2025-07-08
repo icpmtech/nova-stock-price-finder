@@ -2,21 +2,22 @@ const defaultConfig = {
   containerId: 'header-widget',
   title: 'NovaStocks',
   logoUrl: '/assets/logo.png',
-   links : [
-  { icon: '📁', label: 'Dashboard',        href: 'dashboard.html' },
-  { icon: '💱', label: 'Transações',       href: 'real-time.html' },
-  { icon: '🔍', label: 'Análise',          href: 'symbol-analysis.html' },
-  { icon: '💹', label: 'Mercados',         href: 'global-markets.html' },
-  { icon: '📑', label: 'Relatórios',       href: 'report-transactions.html' },
-  { icon: '⬆️', label: 'Importar',         href: 'importer.html' },
-  { icon: '🖥️', label: 'Painel',           href: 'watchlist.html' },
-  { icon: '💼', label: 'Carteira',         href: 'wallet.html' },
-  { icon: '⚡', label: 'Performance',      href: 'report-transactions.html' },
-  { icon: '📆', label: 'Eventos',          href: 'events.html' },
-  { icon: '❤️', label: 'Favoritos',        href: 'watchlist.html' },
-  { icon: '⬆️', label: 'Exportar',         href: 'tax-report.html' },
-  { icon: '🔧', label: 'Definições',       href: 'settings.html' }
+   links :[
+  { icon: '📊', label: 'Dashboard',        href: 'dashboard.html' },       // overview / KPIs
+  { icon: '💱', label: 'Transações',       href: 'real-time.html' },       // currency-style arrows
+  { icon: '🔍', label: 'Análise',          href: 'symbol-analysis.html' }, // deep dive
+  { icon: '🌐', label: 'Mercados',         href: 'global-markets.html' },  // global view
+  { icon: '📑', label: 'Relatórios',       href: 'report-transactions.html' }, // documents
+  { icon: '🖥️', label: 'Painel',           href: 'watchlist.html' },       // screen / monitor
+  { icon: '💼', label: 'Carteira',         href: 'wallet.html' },          // portfolio / briefcase
+  { icon: '📈', label: 'Análises de Ações',href: 'card-symbol.html' },     // stock chart
+  { icon: '📆', label: 'Eventos',          href: 'events.html' },          // calendar
+  { icon: '⭐',  label: 'Favoritos',        href: 'watchlist.html' },       // favorite / star
+  { icon: '📤', label: 'Exportar',         href: 'tax-report.html' },      // out-tray
+  { icon: '📥', label: 'Importar',         href: 'importer.html' },        // in-tray
+  { icon: '⚙️', label: 'Definições',       href: 'settings.html' }         // cog
 ]
+
 };
 
 function buildHeader(cfg) {
