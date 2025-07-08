@@ -506,18 +506,18 @@
         const row = document.createElement('tr');
         row.className = 'transaction-row border-b border-gray-100';
         row.style.animationDelay = `${i * 0.1}s`;
-        row.innerHTML = `
-          <td class="px-4 py-4 font-semibold">${t.symbol}</td>
-          <td class="px-4 py-4"><span class="px-3 py-1 rounded-full text-xs text-white ${opClass}">${opText}</span></td>
-          <td class="px-4 py-4">${t.amount ? t.amount.toLocaleString() : 'N/A' }</td>
-          <td class="px-4 py-4">€${t.price.toFixed(4)}</td>
-          <td class="px-4 py-4">€${t.fee.toFixed(4)}</td>
-          <td class="px-4 py-4">${fmtDate(t.date)}</td>
-          <td class="px-4 py-4 flex space-x-2">
-            <button data-id="${t.id}" class="del-btn p-2 text-red-600 hover:bg-red-50 rounded-lg">🗑️</button>
-            <button data-t="${encodeURIComponent(JSON.stringify(t))}" class="edit-btn p-2 text-blue-600 hover:bg-blue-50 rounded-lg">✏️</button>
-          </td>`;
-        els.tbody.appendChild(row);
+       row.innerHTML = `
+    <td class="px-4 py-4 font-semibold">${t.symbol || 'N/A'}</td>
+    <td class="px-4 py-4"><span class="px-3 py-1 rounded-full text-xs text-white ${opClass}">${opText || 'N/A'}</span></td>
+    <td class="px-4 py-4">${t.amount ? t.amount.toLocaleString() : 'N/A'}</td>
+    <td class="px-4 py-4">€${t.price ? t.price.toFixed(4) : 'N/A'}</td>
+    <td class="px-4 py-4">€${t.fee ? t.fee.toFixed(4) : 'N/A'}</td>
+    <td class="px-4 py-4">${fmtDate(t.date) || 'N/A'}</td>
+    <td class="px-4 py-4 flex space-x-2">
+        <button data-id="${t.id}" class="del-btn p-2 text-red-600 hover:bg-red-50 rounded-lg">🗑️</button>
+        <button data-t="${encodeURIComponent(JSON.stringify(t))}" class="edit-btn p-2 text-blue-600 hover:bg-blue-50 rounded-lg">✏️</button>
+    </td>`;
+els.tbody.appendChild(row);
 
         // MOBILE CARD
         const card = document.createElement('div');
