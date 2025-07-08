@@ -1,87 +1,159 @@
-
 <!DOCTYPE html>
 <html lang="pt">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Registo - Criar nova conta</title>
+
+  <!-- ===== Multilingual SEO ===== -->
+  <title data-i18n="meta.title">NovaStocks – Criar Nova Conta</title>
+  <meta name="description" data-i18n="meta.desc"
+    content="Registe‑se gratuitamente na NovaStocks e junte‑se à nossa comunidade de investidores.">
+  <link id="canonical-link" rel="canonical" href="https://novastocks.vercel.app/signup.html">
+  <link rel="alternate" hreflang="pt" href="https://novastocks.vercel.app/signup.html?lang=pt">
+  <link rel="alternate" hreflang="en" href="https://novastocks.vercel.app/signup.html?lang=en">
+  <link rel="alternate" hreflang="es" href="https://novastocks.vercel.app/signup.html?lang=es">
+  <link rel="alternate" hreflang="x-default" href="https://novastocks.vercel.app/signup.html">
+  <meta property="og:title" data-i18n="og.title" content="NovaStocks – Criar Conta">
+  <meta property="og:description" data-i18n="og.desc"
+    content="Abra a sua conta na NovaStocks de forma rápida e segura.">
+
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
   <style>
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+    * {
+      font-family: 'Inter', sans-serif
     }
-    .slide-in { animation: slideIn 0.6s ease-out; }
-    .strength-bar { height: 4px; border-radius: 2px; transition: all 0.3s ease; }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    .slide-in {
+      animation: slideIn .6s ease-out
+    }
+
+    .strength-bar {
+      height: 4px;
+      border-radius: 2px;
+      transition: .3s
+    }
+
     .glass-effect {
       backdrop-filter: blur(10px);
-      background: rgba(31, 41, 55, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(31, 41, 55, .8);
+      border: 1px solid rgba(255, 255, 255, .1)
     }
   </style>
+
+  <!-- ========= Translation JSON ========= -->
+  <script id="i18n-data" type="application/json">{
+    "pt":{
+      "meta.title":"NovaStocks – Criar Nova Conta",
+      "meta.desc":"Registe‑se gratuitamente na NovaStocks e junte‑se à nossa comunidade de investidores.",
+      "og.title":"NovaStocks – Criar Conta",
+      "og.desc":"Abra a sua conta na NovaStocks de forma rápida e segura.",
+      "header.home":"Início","header.account":"Conta","header.signup":"Registo","header.contact":"Contactos",
+      "page.title":"Criar Conta","page.subtitle":"Junte-se à nossa comunidade",
+      "label.email":"Email","label.password":"Palavra‑passe","label.confirm":"Confirmar Palavra‑passe","label.terms":"Aceito os <a href='#' class='underline'>Termos</a>",
+      "btn.create":"Criar Conta","btn.loading":"A criar conta...",
+      "login.link.q":"Já tens conta?","login.link":"Entrar",
+      "strength.base":"Força da password","strength.1":"Muito fraca","strength.2":"Fraca","strength.3":"Média","strength.4":"Forte",
+      "err.match":"As palavras‑passe não coincidem.",
+      "msg.success":"Conta criada com sucesso! A redirecionar..."
+    },
+    "en":{
+      "meta.title":"NovaStocks – Sign Up","meta.desc":"Register for free on NovaStocks and join our investor community.","og.title":"NovaStocks – Create Account","og.desc":"Open your NovaStocks account quickly and securely.","header.home":"Home","header.account":"Account","header.signup":"Sign Up","header.contact":"Contact","page.title":"Create Account","page.subtitle":"Join our community","label.email":"Email","label.password":"Password","label.confirm":"Confirm Password","label.terms":"I accept the <a href='#' class='underline'>Terms</a>","btn.create":"Create Account","btn.loading":"Creating account...","login.link.q":"Already have an account?","login.link":"Log In","strength.base":"Password strength","strength.1":"Very weak","strength.2":"Weak","strength.3":"Medium","strength.4":"Strong","err.match":"Passwords do not match.","msg.success":"Account created successfully! Redirecting..."},
+    "es":{
+      "meta.title":"NovaStocks – Crear Cuenta","meta.desc":"Regístrate gratis en NovaStocks y únete a nuestra comunidad de inversores.","og.title":"NovaStocks – Crear Cuenta","og.desc":"Abre tu cuenta NovaStocks rápida y seguramente.","header.home":"Inicio","header.account":"Cuenta","header.signup":"Registro","header.contact":"Contactos","page.title":"Crear Cuenta","page.subtitle":"Únete a nuestra comunidad","label.email":"Correo","label.password":"Contraseña","label.confirm":"Confirmar Contraseña","label.terms":"Acepto los <a href='#' class='underline'>Términos</a>","btn.create":"Crear Cuenta","btn.loading":"Creando cuenta...","login.link.q":"¿Ya tienes cuenta?","login.link":"Entrar","strength.base":"Fortaleza de la contraseña","strength.1":"Muy débil","strength.2":"Débil","strength.3":"Media","strength.4":"Fuerte","err.match":"Las contraseñas no coinciden.","msg.success":"¡Cuenta creada con éxito! Redirigiendo..."}
+  }</script>
 </head>
-<body >
-<div id="header-widget" data-config='{"title":"NovaStocks","links":[{"icon":"📈","label":"Início","href":"index.html"},{"icon":"👤","label":"Conta","href":"settings.html"},{"icon":"✍️","label":"Registo","href":"signup.html"},{"icon":"📞","label":"Contactos","href":"contact.html"}]}'></div>
-  <!-- 2) Include the widget script -->
-<script type="module" src="header.js"></script>
-<main class="bg-gradient-to-br from-purple-700 to-blue-600 min-h-screen flex items-center justify-center p-4 text-white">
-  <div class="w-full max-w-md">
-    <div class="text-center mb-8 slide-in">
-      <h1 class="text-3xl font-bold">Criar Conta</h1>
-      <p class="text-gray-300">Junte-se à nossa comunidade</p>
-    </div>
 
-    <div class="glass-effect p-8 rounded-xl shadow-xl slide-in">
-      <form id="registerForm" class="space-y-6">
-        <div>
-          <label for="email" class="block text-sm">Email</label>
-          <input id="email" type="email" required class="w-full mt-1 px-3 py-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring focus:ring-blue-500" />
-        </div>
+<body class="text-white">
+  <div class="p-4 text-right"><select id="lang-switch" class="border rounded px-2 bg-slate-800 text-white">
+      <option value="pt">PT</option>
+      <option value="en">EN</option>
+      <option value="es">ES</option>
+    </select></div>
 
-        <div>
-          <label for="password" class="block text-sm">Palavra-passe</label>
-          <input id="password" type="password" required class="w-full mt-1 px-3 py-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring focus:ring-blue-500" />
-          <div class="mt-2 flex space-x-1">
-            <div id="bar1" class="flex-1 strength-bar bg-gray-600"></div>
-            <div id="bar2" class="flex-1 strength-bar bg-gray-600"></div>
-            <div id="bar3" class="flex-1 strength-bar bg-gray-600"></div>
-            <div id="bar4" class="flex-1 strength-bar bg-gray-600"></div>
-          </div>
-          <p id="strengthText" class="text-xs mt-1 text-gray-300">Força da password</p>
-        </div>
-
-        <div>
-          <label for="confirmPassword" class="block text-sm">Confirmar Palavra-passe</label>
-          <input id="confirmPassword" type="password" required class="w-full mt-1 px-3 py-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring focus:ring-blue-500" />
-        </div>
-
-        <div class="flex items-center">
-          <input type="checkbox" id="terms" required class="mr-2 text-blue-600 focus:ring-blue-500" />
-          <label for="terms" class="text-sm">Aceito os <a href="#" class="underline">Termos</a></label>
-        </div>
-
-        <button id="submitBtn" type="submit" class="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded-lg font-semibold transition-all">
-          <span id="btnText">Criar Conta</span>
-          <svg id="btnSpinner" class="hidden animate-spin h-5 w-5 inline ml-2 text-white" viewBox="0 0 24 24" fill="none">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-          </svg>
-        </button>
-
-        <div id="message" class="text-sm text-center mt-4"></div>
-
-        <p class="text-sm text-center mt-4">Já tens conta? <a href="/login.html" class="text-blue-300 underline">Entrar</a></p>
-      </form>
-    </div>
+  <!-- HEADER WIDGET -->
+  <div id="header-widget"
+    data-config='{"title":"NovaStocks","links":[{"icon":"📈","label":"","href":"index.html"},{"icon":"👤","label":"","href":"settings.html"},{"icon":"✍️","label":"","href":"signup.html"},{"icon":"📞","label":"","href":"contact.html"}]}'>
   </div>
-</main>
-  
+  <script type="module" src="header.js"></script>
+
+  <main class="bg-gradient-to-br from-purple-700 to-blue-600 min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+      <div class="text-center mb-8 slide-in">
+        <h1 class="text-3xl font-bold" data-i18n="page.title">Criar Conta</h1>
+        <p class="text-gray-300" data-i18n="page.subtitle">Junte-se à nossa comunidade</p>
+      </div>
+
+      <div class="glass-effect p-8 rounded-xl shadow-xl slide-in">
+        <form id="registerForm" class="space-y-6" novalidate>
+          <div>
+            <label for="email" class="block text-sm" data-i18n="label.email">Email</label>
+            <input id="email" type="email" required autocomplete="email"
+              class="w-full mt-1 px-3 py-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring focus:ring-blue-500" />
+          </div>
+
+          <div>
+            <label for="password" class="block text-sm" data-i18n="label.password">Palavra‑passe</label>
+            <input id="password" type="password" required autocomplete="new-password"
+              class="w-full mt-1 px-3 py-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring focus:ring-blue-500" />
+            <div class="mt-2 flex space-x-1">
+              <div id="bar1" class="flex-1 strength-bar bg-gray-600"></div>
+              <div id="bar2" class="flex-1 strength-bar bg-gray-600"></div>
+              <div id="bar3" class="flex-1 strength-bar bg-gray-600"></div>
+              <div id="bar4" class="flex-1 strength-bar bg-gray-600"></div>
+            </div>
+            <p id="strengthText" class="text-xs mt-1 text-gray-300" data-i18n="strength.base">Força da password</p>
+          </div>
+
+          <div>
+            <label for="confirmPassword" class="block text-sm" data-i18n="label.confirm">Confirmar Palavra‑passe</label>
+            <input id="confirmPassword" type="password" required autocomplete="new-password"
+              class="w-full mt-1 px-3 py-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring focus:ring-blue-500" />
+          </div>
+
+          <div class="flex items-center gap-2">
+            <input type="checkbox" id="terms" required
+              class="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500">
+            <label for="terms" class="text-sm" data-i18n="label.terms">Aceito os <a href="#"
+                class="underline">Termos</a></label>
+          </div>
+
+          <button id="submitBtn" type="submit"
+            class="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded-lg font-semibold transition-all flex items-center justify-center gap-2">
+            <span id="btnText" data-i18n="btn.create">Criar Conta</span>
+            <svg id="btnSpinner" class="hidden animate-spin h-5 w-5 text-white" viewBox="0 0 24 24" fill="none">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+            </svg>
+          </button>
+          <div id="message" class="text-sm text-center mt-4"></div>
+          <p class="text-sm text-center mt-4"><span data-i18n="login.link.q">Já tens conta?</span> <a href="/login.html"
+              class="text-blue-300 underline" data-i18n="login.link">Entrar</a></p>
+        </form>
+      </div>
+    </div>
+  </main>
+
   <div id="footer-widget"></div>
   <script type="module" src="footer.js"></script>
   <!-- Firebase + Script -->
   <script type="module">
     import { auth } from './firebase-init.js';
-       import { createUserWithEmailAndPassword  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 
     const form = document.getElementById('registerForm');
@@ -147,5 +219,26 @@
       strengthText.textContent = val ? texts[strength - 1] || "Muito fraca" : "Força da password";
     });
   </script>
+  <!-- ====== MULTILANG SCRIPT ====== -->
+  <script>
+    (function () {
+      const data = JSON.parse(document.getElementById('i18n-data').textContent);
+      const params = new URLSearchParams(location.search);
+      const lang = params.get('lang') || (navigator.language || 'pt').slice(0, 2) || 'pt';
+      const tr = data[lang] || data.pt;
+      document.documentElement.lang = lang;
+      document.title = tr['meta.title'];
+      document.querySelector('meta[name="description"]').content = tr['meta.desc'];
+      document.getElementById('canonical-link').href = location.origin + location.pathname + '?lang=' + lang;
+      document.querySelector('meta[property="og:title"]').content = tr['og.title'];
+      document.querySelector('meta[property="og:description"]').content = tr['og.desc'];
+      document.querySelectorAll('[data-i18n]').forEach(el => { const k = el.dataset.i18n; if (tr[k]) el.innerHTML = tr[k]; });
+      const sel = document.getElementById('lang-switch'); sel.value = lang; sel.onchange = e => { params.set('lang', e.target.value); location.search = params.toString() };
+      const cfg = JSON.parse(document.getElementById('header-widget').dataset.config);
+      cfg.links[0].label = tr['header.home']; cfg.links[1].label = tr['header.account']; cfg.links[2].label = tr['header.signup']; cfg.links[3].label = tr['header.contact'];
+      document.getElementById('header-widget').dataset.config = JSON.stringify(cfg);
+    })();
+  </script>
 </body>
+
 </html>
