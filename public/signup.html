@@ -19,11 +19,23 @@
     content="Abra a sua conta na NovaStocks de forma rápida e segura.">
 
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-    rel="stylesheet" />
+
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
     * {
-      font-family: 'Inter', sans-serif
+      font-family: 'Inter', sans-serif;
+    }
+
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     @keyframes slideIn {
@@ -72,17 +84,21 @@
       "msg.success":"Conta criada com sucesso! A redirecionar..."
     },
     "en":{
-      "meta.title":"NovaStocks – Sign Up","meta.desc":"Register for free on NovaStocks and join our investor community.","og.title":"NovaStocks – Create Account","og.desc":"Open your NovaStocks account quickly and securely.","header.home":"Home","header.account":"Account","header.signup":"Sign Up","header.contact":"Contact","page.title":"Create Account","page.subtitle":"Join our community","label.email":"Email","label.password":"Password","label.confirm":"Confirm Password","label.terms":"I accept the <a href='#' class='underline'>Terms</a>","btn.create":"Create Account","btn.loading":"Creating account...","login.link.q":"Already have an account?","login.link":"Log In","strength.base":"Password strength","strength.1":"Very weak","strength.2":"Weak","strength.3":"Medium","strength.4":"Strong","err.match":"Passwords do not match.","msg.success":"Account created successfully! Redirecting..."},
+      "meta.title":"NovaStocks – Sign Up","meta.desc":"Register for free on NovaStocks and join our investor community.",
+      "og.title":"NovaStocks – Create Account","og.desc":"Open your NovaStocks account quickly and securely.",
+      "header.home":"Home","header.account":"Account","header.signup":"Sign Up","header.contact":"Contact",
+      "page.title":"Create Account","page.subtitle":"Join our community","label.email":"Email","label.password":"Password","label.confirm":"Confirm Password","label.terms":"I accept the <a href='#' class='underline'>Terms & Conditions</a>","btn.create":"Create Account","btn.loading":"Creating account...","login.link.q":"Already have an account?","login.link":"Log In","strength.base":"Password strength","strength.1":"Very weak","strength.2":"Weak","strength.3":"Medium","strength.4":"Strong","err.match":"Passwords do not match.","msg.success":"Account created successfully! Redirecting..."},
     "es":{
-      "meta.title":"NovaStocks – Crear Cuenta","meta.desc":"Regístrate gratis en NovaStocks y únete a nuestra comunidad de inversores.","og.title":"NovaStocks – Crear Cuenta","og.desc":"Abre tu cuenta NovaStocks rápida y seguramente.","header.home":"Inicio","header.account":"Cuenta","header.signup":"Registro","header.contact":"Contactos","page.title":"Crear Cuenta","page.subtitle":"Únete a nuestra comunidad","label.email":"Correo","label.password":"Contraseña","label.confirm":"Confirmar Contraseña","label.terms":"Acepto los <a href='#' class='underline'>Términos</a>","btn.create":"Crear Cuenta","btn.loading":"Creando cuenta...","login.link.q":"¿Ya tienes cuenta?","login.link":"Entrar","strength.base":"Fortaleza de la contraseña","strength.1":"Muy débil","strength.2":"Débil","strength.3":"Media","strength.4":"Fuerte","err.match":"Las contraseñas no coinciden.","msg.success":"¡Cuenta creada con éxito! Redirigiendo..."}
+      "meta.title":"NovaStocks – Crear Cuenta","meta.desc":"Regístrate gratis en NovaStocks y únete a nuestra comunidad de inversores.",
+      "og.title":"NovaStocks – Crear Cuenta","og.desc":"Abre tu cuenta NovaStocks rápida y seguramente.",
+      "header.home":"Inicio","header.account":"Cuenta","header.signup":"Registro","header.contact":"Contactos","page.title":"Crear Cuenta",
+      "page.subtitle":"Únete a nuestra comunidad","label.email":"Correo","label.password":"Contraseña","label.confirm":"Confirmar Contraseña","label.terms":"Acepto los <a href='#' class='underline'>Términos</a>","btn.create":"Crear Cuenta","btn.loading":"Creando cuenta...","login.link.q":"¿Ya tienes cuenta?","login.link":"Entrar","strength.base":"Fortaleza de la contraseña","strength.1":"Muy débil","strength.2":"Débil","strength.3":"Media","strength.4":"Fuerte","err.match":"Las contraseñas no coinciden.","msg.success":"¡Cuenta creada con éxito! Redirigiendo..."}
   }</script>
 </head>
 
-<body>
-
-
+<body class="gradient-bg bg-gray-50 text-gray-900 overflow-x-hidden">
   <!-- HEADER WIDGET -->
-  <div id="header-widget"
+  <div class="gradient-bg text-white" id="header-widget"
     data-config='{"title":"NovaStocks","links":[{"icon":"📈","label":"","href":"index.html"},{"icon":"👤","label":"","href":"settings.html"},{"icon":"✍️","label":"","href":"signup.html"},{"icon":"📞","label":"","href":"contact.html"}]}'>
   </div>
   <script type="module" src="header.js"></script>
@@ -93,8 +109,7 @@
       <option value="es">ES</option>
     </select>
   </div>
-  <main
-    class="text-white bg-gradient-to-br from-purple-700 to-blue-600 min-h-screen flex items-center justify-center p-4">
+  <main class="text-white gradient-bg from-purple-700 to-blue-600 min-h-screen flex items-center justify-center p-4">
     <div class="w-full max-w-md">
       <div class="text-center mb-8 slide-in">
         <h1 class="text-3xl font-bold" data-i18n="page.title">Criar Conta</h1>
@@ -131,8 +146,8 @@
           <div class="flex items-center gap-2">
             <input type="checkbox" id="terms" required
               class="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500">
-            <label for="terms" class="text-sm" data-i18n="label.terms">Aceito os <a href="#"
-                class="underline">Termos</a></label>
+            <label for="terms" class="text-sm" data-i18n="label.terms">Aceito os <a href="#" class="underline">Termos &
+                Condições</a></label>
           </div>
 
           <button id="submitBtn" type="submit"

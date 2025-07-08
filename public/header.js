@@ -24,7 +24,7 @@ function buildHeader(cfg) {
   if (!container) return;
 
   const header = document.createElement('div');
-  header.className = 'flex justify-between items-center bg-white p-4 shadow-lg relative';
+  header.className = 'flex justify-between items-center  p-4 shadow-lg relative';
 
   const btnMenu = document.createElement('button');
   btnMenu.className = 'p-1 rounded-lg';
@@ -56,7 +56,7 @@ function buildHeader(cfg) {
 
   const notifMenu = document.createElement('div');
   notifMenu.className =
-    'hidden absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 overflow-auto max-h-64';
+    'hidden absolute right-0 mt-2 w-64 rounded-xl shadow-lg ring-1 ring-black ring-opacity-5 overflow-auto max-h-64';
 
   if (upcoming.length) {
     upcoming.forEach(ev => {

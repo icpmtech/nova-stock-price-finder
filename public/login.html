@@ -25,11 +25,25 @@
 
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* … estilos originais sem alterações … */
+     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    
+    * {
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .gradient-text {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
     @keyframes slideIn { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
     @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
     .animate-slide-in{animation:slideIn .3s ease-out}.animate-shake{animation:shake .5s ease-in-out}
-    .gradient-bg{background:linear-gradient(135deg,#1e293b 0%,#0f172a 50%,#020617 100%)}
     .glass-effect{background:rgba(30,41,59,.8);backdrop-filter:blur(16px);border:1px solid rgba(148,163,184,.1)}
     .input-focus{transition:all .3s ease}.input-focus:focus{transform:translateY(-2px);box-shadow:0 10px 25px rgba(59,130,246,.2)}
     .btn-hover{transition:all .3s ease;position:relative;overflow:hidden}
@@ -42,6 +56,7 @@
   {
     "pt": {
       "meta.title":  "Login Seguro",
+       "header.home":"Início","header.account":"Conta","header.signup":"Registo","header.contact":"Contactos",
       "meta.desc":   "Entre com segurança na sua conta NovaStocks — dados criptografados, MFA e suporte 24/7.",
       "og.title":    "Login Seguro",
       "og.desc":     "Entre com segurança na sua conta NovaStocks — dados criptografados, MFA e suporte 24/7.",
@@ -66,6 +81,7 @@
     },
     "en": {
       "meta.title":  "Secure Login",
+      "header.home":"Home","header.account":"Account","header.signup":"Sign Up","header.contact":"Contact",
       "meta.desc":   "Sign in securely to your NovaStocks account — encrypted data, MFA & 24/7 support.",
       "og.title":    "Secure Login",
       "og.desc":     "Sign in securely to your NovaStocks account — encrypted data, MFA & 24/7 support.",
@@ -90,6 +106,7 @@
     },
     "es": {
       "meta.title":  "Inicio de sesión seguro",
+       "header.home":"Inicio","header.account":"Cuenta","header.signup":"Registro","header.contact":"Contactos","page.title":"Crear Cuenta",
       "meta.desc":   "Inicia sesión de forma segura en tu cuenta NovaStocks — datos cifrados, MFA y soporte 24/7.",
       "og.title":    "Inicio de sesión seguro",
       "og.desc":     "Inicia sesión de forma segura en tu cuenta NovaStocks — datos cifrados, MFA y soporte 24/7.",
@@ -116,9 +133,9 @@
   </script>
 </head>
 
-<body>
+<body class="gradient-bg bg-gray-50 text-gray-900 overflow-x-hidden">
   <!-- 🔹 HEADER 🔹 -->
-  <div id="header-widget"
+  <div class="gradient-bg text-white" id="header-widget"
        data-config='{"title":"","links":[
          {"icon":"📈","label":"","href":"index.html"},
          {"icon":"👤","label":"","href":"settings.html"},
