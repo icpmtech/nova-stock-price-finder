@@ -838,10 +838,136 @@
     </div>
   </footer>
 
-  <!-- Scripts -->
-  <script src="https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID&vault=true&intent=subscription"></script>
+  <script src="https://www.paypal.com/sdk/js?client-id=AT-bX_Cn3jxGDcuwRHd9y4Ki9L8DfEmcA9vkzWTUKwbv_tOMRVr7RsOL2BsveJd2Puo9vA0cnJAc_POo&vault=true&intent=subscription"></script>
   <script>
-    // PayPal Buttons…
+    // PayPal Professional Plan Button
+    paypal.Buttons({
+      style: {
+        shape: 'pill',
+        color: 'blue',
+        layout: 'vertical',
+        label: 'subscribe',
+        height: 50
+      },
+      createSubscription: function(data, actions) {
+        return actions.subscription.create({
+          plan_id: 'P-07U70833JY358824LNBUPQVA'
+        });
+      },
+      onApprove: function(data) {
+        alert('Assinatura Profissional criada com sucesso! ID: ' + data.subscriptionID);
+        // Redirect to success page
+        window.location.href = '/success.html?plan=professional&subscription=' + data.subscriptionID;
+      },
+      onError: function(err) {
+        console.error('Erro na assinatura:', err);
+        alert('Erro ao processar pagamento. Tente novamente.');
+      }
+    }).render('#paypal-button-profissional');
+
+    // PayPal Enterprise Plan Button
+    paypal.Buttons({
+      style: {
+        shape: 'pill',
+        color: 'blue',
+        layout: 'vertical',
+        label: 'subscribe',
+        height: 50
+      },
+      createSubscription: function(data, actions) {
+        return actions.subscription.create({
+          plan_id: 'P-67G223169M685840PNBUPVCY'
+        });
+      },
+      onApprove: function(data) {
+        alert('Assinatura Empresarial criada com sucesso! ID: ' + data.subscriptionID);
+        // Redirect to success page
+        window.location.href = '/success.html?plan=enterprise&subscription=' + data.subscriptionID;
+      },
+      onError: function(err) {
+        console.error('Erro na assinatura:', err);
+        alert('Erro ao processar pagamento. Tente novamente.');
+      }
+    }).render('#paypal-button-empresarial');
+
+    // Mobile menu toggle
+    const btnMenu = document.getElementById('btnMenu');
+    const mobileMenu = document.getElementById('mobileMenu');
+    btnMenu.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+
+    // Smooth scrolling for navigation links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      });
+    });
+
+    // Add scroll effect to header
+    window.addEventListener('scroll', () => {
+      const header = document.querySelector('header');
+      if (window.scrollY > 100) {
+        header.classList.add('bg-opacity-95', 'backdrop-blur-md');
+      } else {
+        header.classList.remove('bg-opacity-95', 'backdrop-blur-md');
+      }
+    });
+
+    // Animate stats on scroll
+    const observerOptions = {
+      threshold: 0.5,
+      rootMargin: '0px 0px -100px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const counters = entry.target.querySelectorAll('.stats-counter');
+          counters.forEach(counter => {
+            const target = counter.textContent;
+            const numOnly = target.replace(/[^0-9.]/g, '');
+            animateCounter(counter, 0, parseFloat(numOnly), target);
+          });
+        }
+      });
+    }, observerOptions);
+
+    // Observe the stats section
+    const statsSection = document.querySelector('.stats-counter').closest('section');
+    if (statsSection) {
+      observer.observe(statsSection);
+    }
+
+    function animateCounter(element, start, end, suffix) {
+      const duration = 2000;
+      const startTime = performance.now();
+      
+      function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        const current = start + (end - start) * easeOutQuart(progress);
+        element.textContent = Math.floor(current) + suffix.replace(/[0-9.]/g, '');
+        
+        if (progress < 1) {
+          requestAnimationFrame(update);
+        }
+      }
+      
+      requestAnimationFrame(update);
+    }
+
+    function easeOutQuart(t) {
+      return 1 - Math.pow(1 - t, 4);
+    }
   </script>
 
   <!-- i18n + SEO dinâmico -->
