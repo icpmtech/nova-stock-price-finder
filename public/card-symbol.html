@@ -6,182 +6,580 @@
   <title>Análises com APIs separadas</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .fade-in { animation: fadeIn 0.3s ease-out; }
+    .pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    .spin { animation: spin 1s linear infinite; }
+    .glass {
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .dark .glass {
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .checkbox-custom {
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid #d1d5db;
+      border-radius: 4px;
+      background: white;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .checkbox-custom:checked {
+      background: #3b82f6;
+      border-color: #3b82f6;
+    }
+    .checkbox-custom:checked::after {
+      content: '✓';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    .dark .checkbox-custom {
+      background: #374151;
+      border-color: #4b5563;
+    }
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      transform: translateX(400px);
+      transition: transform 0.3s ease-out;
+    }
+    .toast.show {
+      transform: translateX(0);
+    }
+  </style>
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white p-6 transition-all duration-300">
-  <div class="max-w-5xl mx-auto space-y-6">
-    <div class="flex justify-between items-center">
-      <h1 class="text-2xl font-bold">Análises de Ações</h1>
-      <button id="toggleTheme" class="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700 transition">🌗 Tema</button>
-    </div>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 text-gray-900 dark:text-white min-h-screen transition-all duration-300">
+  <!-- Toast Notifications -->
+  <div id="toastContainer"></div>
 
-    <!-- Input -->
-    <div class="flex gap-2">
-      <input id="symbolInput" type="text" placeholder="Ex: PLTR" class="w-full p-3 rounded border dark:bg-gray-800" />
-      <button id="plotBtn" class="bg-blue-600 text-white px-4 py-2 rounded">📊 Plotar</button>
-      <button id="clearBtn" class="bg-gray-500 text-white px-4 py-2 rounded">🧹 Limpar</button>
-    </div>
-
-    <!-- Checkboxes -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-      <label><input type="checkbox" value="perfil" class="typeChk mr-2" /> Perfil</label>
-      <label><input type="checkbox" value="rsi" class="typeChk mr-2" /> RSI</label>
-      <label><input type="checkbox" value="macd" class="typeChk mr-2" /> MACD</label>
-      <label><input type="checkbox" value="sma" class="typeChk mr-2" /> SMA</label>
-    </div>
-
-    <!-- Result -->
-    <div id="result"></div>
-
-    <!-- Chart -->
-    <div id="chartContainer" class="hidden">
-      <h2 class="text-xl font-semibold my-4">📈 Gráfico</h2>
-      <div id="chart" class="rounded shadow bg-white dark:bg-gray-800"></div>
-      <div class="mt-4 flex gap-3">
-        <button id="exportPng" class="bg-green-600 text-white px-4 py-2 rounded">📷 PNG</button>
-        <button id="exportCsv" class="bg-yellow-500 text-white px-4 py-2 rounded">📊 CSV</button>
+  <div class="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
+    <!-- Header -->
+    <div class="glass rounded-2xl p-6 mb-8 shadow-lg">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Análises de Ações
+          </h1>
+          <p class="text-gray-600 dark:text-gray-300 mt-1">
+            Visualize indicadores técnicos e informações de empresas
+          </p>
+        </div>
+        <button id="toggleTheme" class="glass px-6 py-3 rounded-xl hover:bg-opacity-20 transition-all duration-200 group">
+          <span class="mr-2">🌗</span>
+          <span class="group-hover:text-blue-400 transition-colors">Tema</span>
+        </button>
       </div>
+    </div>
+
+    <!-- Input Section -->
+    <div class="glass rounded-2xl p-6 mb-8 shadow-lg">
+      <h2 class="text-xl font-semibold mb-4 flex items-center">
+        <span class="mr-2">🔍</span>
+        Buscar Ação
+      </h2>
+      
+      <div class="flex flex-col sm:flex-row gap-3 mb-6">
+        <div class="flex-1 relative">
+          <input 
+            id="symbolInput" 
+            type="text" 
+            placeholder="Ex: PLTR, AAPL, MSFT..." 
+            class="w-full p-4 rounded-xl border-2 border-gray-200 dark:border-gray-600 dark:bg-gray-800 focus:border-blue-500 dark:focus:border-blue-400 transition-all duration-200 outline-none text-lg" 
+            maxlength="10"
+          />
+          <div id="symbolValidation" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-500 opacity-0 transition-opacity">
+            ✓
+          </div>
+        </div>
+        
+        <div class="flex gap-3">
+          <button 
+            id="plotBtn" 
+            class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-4 rounded-xl transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            disabled
+          >
+            <span id="plotBtnText">📊 Analisar</span>
+            <span id="plotBtnSpinner" class="hidden">
+              <svg class="spin w-5 h-5 inline ml-2" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </span>
+          </button>
+          
+          <button 
+            id="clearBtn" 
+            class="bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white px-6 py-4 rounded-xl transition-all duration-200 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+          >
+            🧹 Limpar
+          </button>
+        </div>
+      </div>
+
+      <!-- Analysis Type Selection -->
+      <div class="space-y-4">
+        <h3 class="text-lg font-semibold flex items-center">
+          <span class="mr-2">⚙️</span>
+          Tipos de Análise
+        </h3>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <label class="flex items-center space-x-3 p-4 rounded-xl border-2 border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200 cursor-pointer group">
+            <input type="checkbox" value="perfil" class="typeChk checkbox-custom" />
+            <div class="flex-1">
+              <div class="font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Perfil</div>
+              <div class="text-sm text-gray-500 dark:text-gray-400">Informações da empresa</div>
+            </div>
+          </label>
+          
+          <label class="flex items-center space-x-3 p-4 rounded-xl border-2 border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200 cursor-pointer group">
+            <input type="checkbox" value="rsi" class="typeChk checkbox-custom" />
+            <div class="flex-1">
+              <div class="font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">RSI</div>
+              <div class="text-sm text-gray-500 dark:text-gray-400">Força relativa</div>
+            </div>
+          </label>
+          
+          <label class="flex items-center space-x-3 p-4 rounded-xl border-2 border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200 cursor-pointer group">
+            <input type="checkbox" value="macd" class="typeChk checkbox-custom" />
+            <div class="flex-1">
+              <div class="font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">MACD</div>
+              <div class="text-sm text-gray-500 dark:text-gray-400">Convergência/Divergência</div>
+            </div>
+          </label>
+          
+          <label class="flex items-center space-x-3 p-4 rounded-xl border-2 border-gray-200 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200 cursor-pointer group">
+            <input type="checkbox" value="sma" class="typeChk checkbox-custom" />
+            <div class="flex-1">
+              <div class="font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">SMA</div>
+              <div class="text-sm text-gray-500 dark:text-gray-400">Média móvel simples</div>
+            </div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div id="progressContainer" class="hidden mb-8">
+      <div class="glass rounded-xl p-4 shadow-lg">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-sm font-medium">Analisando...</span>
+          <span id="progressText" class="text-sm text-gray-600 dark:text-gray-400">0%</span>
+        </div>
+        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+          <div id="progressBar" class="bg-gradient-to-r from-blue-600 to-purple-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Section -->
+    <div id="result" class="space-y-6"></div>
+
+    <!-- Chart Section -->
+    <div id="chartContainer" class="hidden">
+      <div class="glass rounded-2xl p-6 shadow-lg">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <h2 class="text-2xl font-semibold flex items-center">
+            <span class="mr-2">📈</span>
+            Gráfico de Análise
+          </h2>
+          
+          <div class="flex gap-3">
+            <button 
+              id="exportPng" 
+              class="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white px-4 py-2 rounded-lg transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+            >
+              📷 PNG
+            </button>
+            <button 
+              id="exportCsv" 
+              class="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white px-4 py-2 rounded-lg transition-all duration-200 font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+            >
+              📊 CSV
+            </button>
+          </div>
+        </div>
+        
+        <div id="chart" class="rounded-xl shadow-inner bg-white dark:bg-gray-800 min-h-96"></div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="text-center py-16">
+      <div class="text-6xl mb-4">📊</div>
+      <h3 class="text-xl font-semibold text-gray-600 dark:text-gray-300 mb-2">
+        Pronto para começar?
+      </h3>
+      <p class="text-gray-500 dark:text-gray-400 max-w-md mx-auto">
+        Digite o símbolo de uma ação, selecione os tipos de análise e clique em "Analisar" para visualizar os dados.
+      </p>
     </div>
   </div>
 
   <script>
+    // DOM Elements
     const input = document.getElementById('symbolInput');
     const plotBtn = document.getElementById('plotBtn');
+    const plotBtnText = document.getElementById('plotBtnText');
+    const plotBtnSpinner = document.getElementById('plotBtnSpinner');
     const clearBtn = document.getElementById('clearBtn');
     const exportPng = document.getElementById('exportPng');
     const exportCsv = document.getElementById('exportCsv');
     const chartContainer = document.getElementById('chartContainer');
     const chartDiv = document.getElementById('chart');
     const result = document.getElementById('result');
+    const emptyState = document.getElementById('emptyState');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const symbolValidation = document.getElementById('symbolValidation');
+    const toastContainer = document.getElementById('toastContainer');
+    
     let seriesData = [];
+    let isLoading = false;
 
+    // Utility Functions
+    function showToast(message, type = 'info') {
+      const toast = document.createElement('div');
+      toast.className = `toast glass p-4 rounded-xl shadow-lg max-w-sm ${
+        type === 'error' ? 'border-l-4 border-red-500' :
+        type === 'success' ? 'border-l-4 border-green-500' :
+        'border-l-4 border-blue-500'
+      }`;
+      
+      toast.innerHTML = `
+        <div class="flex items-center">
+          <span class="mr-2">${type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️'}</span>
+          <span>${message}</span>
+        </div>
+      `;
+      
+      toastContainer.appendChild(toast);
+      setTimeout(() => toast.classList.add('show'), 100);
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    function validateSymbol(symbol) {
+      return symbol && symbol.length >= 1 && symbol.length <= 10 && /^[A-Z0-9]+$/.test(symbol);
+    }
+
+    function updateProgress(current, total) {
+      const percentage = Math.round((current / total) * 100);
+      progressBar.style.width = percentage + '%';
+      progressText.textContent = percentage + '%';
+    }
+
+    function setLoadingState(loading) {
+      isLoading = loading;
+      plotBtn.disabled = loading;
+      
+      if (loading) {
+        plotBtnText.classList.add('hidden');
+        plotBtnSpinner.classList.remove('hidden');
+        progressContainer.classList.remove('hidden');
+        emptyState.classList.add('hidden');
+      } else {
+        plotBtnText.classList.remove('hidden');
+        plotBtnSpinner.classList.add('hidden');
+        progressContainer.classList.add('hidden');
+        updateProgress(0, 1);
+      }
+    }
+
+    function hideEmptyState() {
+      emptyState.classList.add('hidden');
+    }
+
+    function showEmptyState() {
+      if (result.innerHTML === '' && chartContainer.classList.contains('hidden')) {
+        emptyState.classList.remove('hidden');
+      }
+    }
+
+    // Input validation
+    input.addEventListener('input', function() {
+      const symbol = this.value.trim().toUpperCase();
+      const isValid = validateSymbol(symbol);
+      
+      this.value = symbol;
+      plotBtn.disabled = !isValid || isLoading;
+      
+      if (symbol && isValid) {
+        symbolValidation.style.opacity = '1';
+      } else {
+        symbolValidation.style.opacity = '0';
+      }
+    });
+
+    // Enable/disable plot button based on checkboxes
+    document.querySelectorAll('.typeChk').forEach(checkbox => {
+      checkbox.addEventListener('change', function() {
+        const hasChecked = Array.from(document.querySelectorAll('.typeChk:checked')).length > 0;
+        const hasValidSymbol = validateSymbol(input.value.trim());
+        plotBtn.disabled = !hasChecked || !hasValidSymbol || isLoading;
+      });
+    });
+
+    // Main analysis function
     plotBtn.addEventListener('click', async () => {
       const symbol = input.value.trim().toUpperCase();
-      if (!symbol) {
-        result.innerHTML = '<p class="text-red-500">Insira um símbolo válido.</p>';
+      if (!validateSymbol(symbol)) {
+        showToast('Por favor, insira um símbolo válido (1-10 caracteres, apenas letras e números)', 'error');
         return;
       }
 
       const types = Array.from(document.querySelectorAll('.typeChk:checked')).map(c => c.value);
       if (!types.length) {
-        result.innerHTML = '<p class="text-red-500">Selecione ao menos uma análise.</p>';
+        showToast('Selecione pelo menos um tipo de análise', 'error');
         return;
       }
 
+      setLoadingState(true);
+      hideEmptyState();
       result.innerHTML = '';
       chartDiv.innerHTML = '';
       seriesData = [];
 
-     for (const tipo of types) {
-  try {
-    const res   = await fetch(
-      `https://novastocks.vercel.app/api/analises?symbol=${encodeURIComponent(symbol)}&tipo=${tipo}`
-    );
-    const data  = await res.json();
+      let completed = 0;
+      const total = types.length;
 
-    /* ---------- PERFIL (company profile) ---------- */
-    if (tipo === 'perfil') {
-      const s = data.summary ?? {};          // nested summary object
+      for (const tipo of types) {
+        try {
+          const res = await fetch(
+            `/api/analises?symbol=${encodeURIComponent(symbol)}&tipo=${tipo}`
+          );
+          
+          if (!res.ok) {
+            throw new Error(`HTTP ${res.status}`);
+          }
+          
+          const data = await res.json();
 
-      result.innerHTML += `
-        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow border dark:border-gray-700 space-y-3 mb-4">
-          <div class="flex items-center space-x-4">
-            ${data.logo ? `<img src="${data.logo}" alt="${data.name ?? symbol} logo" class="w-12 h-12 rounded shadow" />` : ''}
-            <div>
-              <h2 class="text-xl font-bold">
-                ${data.name ?? symbol}
-                <span class="text-sm text-gray-500">(${data.symbol ?? symbol})</span>
-              </h2>
-              ${s.sector && s.industry
-                ? `<p class="text-sm text-gray-600 dark:text-gray-300">${s.sector} — ${s.industry}</p>`
-                : ''}
-            </div>
-          </div>
+          if (tipo === 'perfil') {
+            const s = data.summary ?? {};
+            
+            const profileCard = document.createElement('div');
+            profileCard.className = 'glass rounded-2xl p-6 shadow-lg fade-in';
+            profileCard.innerHTML = `
+              <div class="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-6 mb-6">
+                ${data.logo ? `<img src="${data.logo}" alt="${data.name ?? symbol} logo" class="w-16 h-16 rounded-xl shadow-md" />` : `<div class="w-16 h-16 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl">${symbol.charAt(0)}</div>`}
+                <div class="flex-1">
+                  <h2 class="text-2xl font-bold mb-1">
+                    ${data.name ?? symbol}
+                    <span class="text-lg text-gray-500 dark:text-gray-400 font-normal ml-2">(${data.symbol ?? symbol})</span>
+                  </h2>
+                  ${s.sector && s.industry ? `<p class="text-gray-600 dark:text-gray-300 font-medium">${s.sector} • ${s.industry}</p>` : ''}
+                  <div class="flex flex-wrap gap-4 mt-2 text-sm text-gray-500 dark:text-gray-400">
+                    ${data.founded ? `<span><strong>Fundada:</strong> ${data.founded}</span>` : ''}
+                    ${data.headquarters ? `<span><strong>Sede:</strong> ${data.headquarters}</span>` : ''}
+                  </div>
+                </div>
+              </div>
 
-          ${data.founded
-            ? `<p class="text-sm"><strong>Fundada:</strong> ${data.founded}</p>`
-            : ''}
-          ${data.headquarters
-            ? `<p class="text-sm"><strong>Sede:</strong> ${data.headquarters}</p>`
-            : ''}
+              ${s.businessSummary ? `<div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 mb-4"><p class="text-gray-700 dark:text-gray-300 leading-relaxed">${s.businessSummary}</p></div>` : ''}
 
-          ${s.businessSummary
-            ? `<p class="text-sm">${s.businessSummary}</p>`
-            : ''}
+              ${s.website ? `<div class="flex justify-end"><a href="${s.website}" target="_blank" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 font-medium"><span class="mr-2">🌐</span>Website oficial</a></div>` : ''}
+            `;
+            
+            result.appendChild(profileCard);
+          } else if (data.chart && Array.isArray(data.chart.x) && Array.isArray(data.chart.y)) {
+            seriesData.push({
+              x: data.chart.x,
+              y: data.chart.y,
+              mode: 'lines',
+              name: tipo.toUpperCase(),
+              line: {
+                width: 2,
+                color: tipo === 'rsi' ? '#ef4444' : 
+                       tipo === 'macd' ? '#10b981' : 
+                       tipo === 'sma' ? '#8b5cf6' : '#3b82f6'
+              }
+            });
+          }
 
-          ${s.website
-            ? `<a href="${s.website}" target="_blank" class="text-blue-600 dark:text-blue-400 underline text-sm">🌐 Website oficial</a>`
-            : ''}
-        </div>
-      `;
-    }
-
-    /* ---------- OUTRAS SÉRIES (e.g., indicadores) ---------- */
-    else if (data.chart && Array.isArray(data.chart.x) && Array.isArray(data.chart.y)) {
-      seriesData.push({
-        x:    data.chart.x,
-        y:    data.chart.y,
-        mode: 'lines',
-        name: tipo.toUpperCase(),
-      });
-    }
-  } catch (err) {
-    console.error(err);
-    result.innerHTML += `<p class="text-red-500">Erro ao obter ${tipo.toUpperCase()} para ${symbol}</p>`;
-  }
-}
+          completed++;
+          updateProgress(completed, total);
+          
+        } catch (err) {
+          console.error(`Error fetching ${tipo}:`, err);
+          showToast(`Erro ao obter ${tipo.toUpperCase()} para ${symbol}`, 'error');
+          completed++;
+          updateProgress(completed, total);
+        }
+      }
 
       if (seriesData.length) {
         chartContainer.classList.remove('hidden');
-        Plotly.newPlot(chartDiv, seriesData, {
-          title: `Análises de ${symbol}`,
+        
+        const isDark = document.body.classList.contains('dark');
+        const layout = {
+          title: {
+            text: `Análises Técnicas - ${symbol}`,
+            font: { 
+              size: 20, 
+              color: isDark ? '#fff' : '#000',
+              family: 'system-ui, -apple-system, sans-serif'
+            }
+          },
           paper_bgcolor: 'transparent',
           plot_bgcolor: 'transparent',
-          font: { color: document.body.classList.contains('dark') ? '#fff' : '#000' }
-        }, { responsive: true });
+          font: { color: isDark ? '#fff' : '#000' },
+          xaxis: {
+            gridcolor: isDark ? '#374151' : '#e5e7eb',
+            linecolor: isDark ? '#6b7280' : '#d1d5db'
+          },
+          yaxis: {
+            gridcolor: isDark ? '#374151' : '#e5e7eb',
+            linecolor: isDark ? '#6b7280' : '#d1d5db'
+          },
+          margin: { l: 60, r: 40, t: 60, b: 60 },
+          hovermode: 'x unified'
+        };
+
+        const config = { 
+          responsive: true, 
+          displayModeBar: true,
+          modeBarButtonsToRemove: ['pan2d', 'lasso2d', 'select2d', 'autoScale2d'],
+          displaylogo: false
+        };
+
+        await Plotly.newPlot(chartDiv, seriesData, layout, config);
+      }
+
+      setLoadingState(false);
+      
+      if (result.innerHTML === '' && seriesData.length === 0) {
+        showToast('Nenhum dado encontrado para este símbolo', 'error');
+        showEmptyState();
+      } else {
+        showToast(`Análise concluída para ${symbol}`, 'success');
       }
     });
 
+    // Clear function
     clearBtn.addEventListener('click', () => {
       input.value = '';
       result.innerHTML = '';
       chartDiv.innerHTML = '';
       chartContainer.classList.add('hidden');
       seriesData = [];
+      symbolValidation.style.opacity = '0';
+      plotBtn.disabled = true;
+      document.querySelectorAll('.typeChk').forEach(cb => cb.checked = false);
+      showEmptyState();
+      showToast('Dados limpos', 'success');
     });
 
+    // Export functions
     exportPng.addEventListener('click', () => {
-      if (!seriesData.length) return;
-      Plotly.toImage(chartDiv, { format: 'png' }).then(url => {
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'chart.png';
-        a.click();
-      });
+      if (!seriesData.length) {
+        showToast('Nenhum gráfico para exportar', 'error');
+        return;
+      }
+      
+      Plotly.toImage(chartDiv, { format: 'png', width: 1200, height: 800 })
+        .then(url => {
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `analise_${input.value.trim()}_${new Date().toISOString().split('T')[0]}.png`;
+          a.click();
+          showToast('Gráfico exportado como PNG', 'success');
+        })
+        .catch(() => showToast('Erro ao exportar PNG', 'error'));
     });
 
     exportCsv.addEventListener('click', () => {
-      if (!seriesData.length) return;
-      const maxLen = Math.max(...seriesData.map(s => s.x.length));
-      let csv = 'Date,' + seriesData.map(s => s.name).join(',') + '\n';
-      for (let i = 0; i < maxLen; i++) {
-        const row = seriesData.map(s => s.y[i] || '').join(',');
-        csv += (seriesData[0].x[i] || '') + ',' + row + '\n';
+      if (!seriesData.length) {
+        showToast('Nenhum dado para exportar', 'error');
+        return;
       }
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'dados.csv';
-      a.click();
-      URL.revokeObjectURL(url);
+      
+      try {
+        const maxLen = Math.max(...seriesData.map(s => s.x.length));
+        let csv = 'Date,' + seriesData.map(s => s.name).join(',') + '\n';
+        
+        for (let i = 0; i < maxLen; i++) {
+          const row = seriesData.map(s => s.y[i] || '').join(',');
+          csv += (seriesData[0].x[i] || '') + ',' + row + '\n';
+        }
+        
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `dados_${input.value.trim()}_${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('Dados exportados como CSV', 'success');
+      } catch (err) {
+        showToast('Erro ao exportar CSV', 'error');
+      }
     });
 
+    // Theme toggle
     document.getElementById('toggleTheme').addEventListener('click', () => {
       document.body.classList.toggle('dark');
+      localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+      
+      // Update chart colors if chart exists
+      if (seriesData.length) {
+        const isDark = document.body.classList.contains('dark');
+        const update = {
+          'paper_bgcolor': 'transparent',
+          'plot_bgcolor': 'transparent',
+          'font.color': isDark ? '#fff' : '#000',
+          'xaxis.gridcolor': isDark ? '#374151' : '#e5e7eb',
+          'xaxis.linecolor': isDark ? '#6b7280' : '#d1d5db',
+          'yaxis.gridcolor': isDark ? '#374151' : '#e5e7eb',
+          'yaxis.linecolor': isDark ? '#6b7280' : '#d1d5db'
+        };
+        Plotly.relayout(chartDiv, update);
+      }
     });
-    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+
+    // Initialize theme
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
       document.body.classList.add('dark');
     }
+
+    // Enter key support
+    input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && !plotBtn.disabled) {
+        plotBtn.click();
+      }
+    });
+
+    // Initialize
+    showEmptyState();
   </script>
 </body>
 </html>
