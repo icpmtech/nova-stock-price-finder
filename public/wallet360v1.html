@@ -4,53 +4,55 @@
   <meta charset="UTF-8">
   <title>Wallet 360 - Complete Financial Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Tailwind -->
-     <script>
-    window.tailwind = {
-      config: {
-        darkMode: 'class',
-        theme: {
-          extend: {
-            colors: {
-              primary:   { DEFAULT: '#6366f1', light: '#818cf8', dark: '#4f46e5' },
-              success:   '#10b981',
-              warning:   '#f59e0b',
-              danger:    '#ef4444',
-              card:      '#ffffff',
-              cardDark:  '#1f2937',
-              bgSoft:    '#f8fafc',
-              bgSoftDark:'#0f172a'
+  <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
+  <!-- Tailwind Config & CDN -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              DEFAULT: '#6366f1',
+              light: '#818cf8',
+              dark: '#4f46e5'
             },
-            fontFamily: {
-              sans: ['Inter','ui-sans-serif','system-ui']
+            success: '#10b981',
+            warning: '#f59e0b',
+            danger: '#ef4444',
+            card: '#ffffff',
+            cardDark: '#1f2937',
+            bgSoft: '#f8fafc',
+            bgSoftDark: '#0f172a'
+          },
+          fontFamily: {
+            sans: ['Inter', 'ui-sans-serif', 'system-ui']
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.5s ease-in-out',
+            'slide-up': 'slideUp 0.3s ease-out',
+            'pulse-slow': 'pulse 3s infinite',
+            'bounce-subtle': 'bounceSubtle 2s infinite'
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0', transform: 'translateY(10px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' }
             },
-            animation: {
-              'fade-in':      'fadeIn 0.5s ease-in-out',
-              'slide-up':     'slideUp 0.3s ease-out',
-              'pulse-slow':   'pulse 3s infinite',
-              'bounce-subtle':'bounceSubtle 2s infinite'
+            slideUp: {
+              '0%': { transform: 'translateY(20px)', opacity: '0' },
+              '100%': { transform: 'translateY(0)', opacity: '1' }
             },
-            keyframes: {
-              fadeIn: {
-                '0%':   { opacity: '0', transform: 'translateY(10px)' },
-                '100%': { opacity: '1', transform: 'translateY(0)' }
-              },
-              slideUp: {
-                '0%': { transform: 'translateY(20px)', opacity: '0' },
-                '100%': { transform: 'translateY(0)',    opacity: '1' }
-              },
-              bounceSubtle: {
-                '0%, 100%': { transform: 'translateY(0)' },
-                '50%':      { transform: 'translateY(-5px)' }
-              }
+            bounceSubtle: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-5px)' }
             }
           }
         }
       }
-    }
+    };
   </script>
-  <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
-
+  
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- Lucide Icons -->
@@ -295,7 +297,7 @@
 
   <script>
     // CSS for quick action buttons
-    const style = window.document.createElement('style');
+    const style = document.createElement('style');
     style.textContent = `
       .quick-action-btn {
         @apply flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all duration-200 transform hover:scale-105;
@@ -307,7 +309,7 @@
         @apply h-full transition-all duration-500 ease-out;
       }
     `;
-    window.document.head.appendChild(style);
+    document.head.appendChild(style);
 
     /***** GLOBAL STATE & ELEMENTS *****/
     const state = {
@@ -932,7 +934,7 @@
     // Language change
     $('#languageSelect').addEventListener('change', (e) => {
       currentLang = e.target.value;
-      window.document.documentElement.lang = currentLang;
+      document.documentElement.lang = currentLang;
       renderAll();
     });
 
@@ -945,14 +947,14 @@
     // Dark mode toggle
     $('#darkToggle').addEventListener('click', () => {
       isDark = !isDark;
-      window.document.documentElement.classList.toggle('dark', isDark);
+      document.documentElement.classList.toggle('dark', isDark);
       const icon = $('#darkToggle i');
       icon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
       lucide.createIcons();
     });
 
     // Quick action buttons
-    window.document.addEventListener('click', (e) => {
+    document.addEventListener('click', (e) => {
       if (e.target.closest('.quick-action-btn')) {
         const btn = e.target.closest('.quick-action-btn');
         const action = btn.querySelector('span').id;
@@ -1089,7 +1091,7 @@
     }
 
     // Initialize the dashboard
-    window.document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', () => {
       // Hide loading screen
       hideLoadingScreen();
       
@@ -1100,7 +1102,7 @@
       renderAll();
       
       // Add some animations
-      window.document.querySelectorAll('.animate-fade-in, .animate-slide-up').forEach((el, index) => {
+      document.querySelectorAll('.animate-fade-in, .animate-slide-up').forEach((el, index) => {
         el.style.animationDelay = `${index * 0.1}s`;
       });
     });
