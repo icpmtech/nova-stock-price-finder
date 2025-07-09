@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <title>Wallet 360 - Complete Financial Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Tailwind (CDN) -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: { DEFAULT: '#6366f1', light: '#818cf8', dark: '#4f46e5' },
+            success: '#10b981', warning: '#f59e0b', danger: '#ef4444',
+            card: '#ffffff', cardDark: '#1f2937',
+            bgSoft: '#f8fafc', bgSoftDark: '#0f172a'
+          },
+          fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui'] },
+          animation: {
+            'fade-in': 'fadeIn 0.5s ease-in-out',
+            'slide-up': 'slideUp 0.3s ease-out',
+            'pulse-slow': 'pulse 3s infinite',
+            'bounce-subtle': 'bounceSubtle 2s infinite'
+          },
+          keyframes: {
+            fadeIn: { '0%': { opacity: 0, transform: 'translateY(10px)' },
+                      '100%': { opacity: 1, transform: 'translateY(0)' } },
+            slideUp:{ '0%': { transform: 'translateY(20px)', opacity: 0 },
+                      '100%': { transform: 'translateY(0)',     opacity: 1 } },
+            bounceSubtle:{ '0%,100%':{ transform:'translateY(0)' },
+                           '50%':{ transform:'translateY(-5px)' } }
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- Chart.js & Lucide -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <!-- Firebase SDKs (apenas app/auth/firestore) -->
+  <script type="module"
+          src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
+  <script type="module"
+          src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
+  <script type="module"
+          src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+</head>
+
+<body class="bg-bgSoft dark:bg-bgSoftDark text-gray-900 dark:text-gray-200
+             min-h-screen transition-all duration-300">
+
+  <!-- Header widget (se usares) -->
+  <div id="header-widget"></div>
+  <script type="module" src="header.js"></script>
+
+  <!-- Loading Screen -->
+  <div id="loadingScreen"
+       class="fixed inset-0 bg-white dark:bg-gray-900 z-50 flex items-center
+              justify-center">
+    <div class="text-center">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary
+                  mx-auto mb-4"></div>
+      <p class="text-lg font-medium">Loading Wallet 360...</p>
+    </div>
+  </div>
+
+  <!-- =====  DASHBOARD ===== -->
+  <div class="container mx-auto p-4 max-w-7xl">
+    <!-- Header -->
+    <div class="flex flex-col lg:flex-row items-start lg:items-center
+                justify-between gap-4 mb-6 animate-fade-in">
+      <div class="flex items-center gap-3">
+        <div class="bg-gradient-to-r from-primary to-primary-light p-3
+                    rounded-2xl">
+          <i data-lucide="wallet" class="w-8 h-8 text-white"></i>
+        </div>
+        <div>
+          <h1 id="title"
+              class="text-3xl font-bold bg-gradient-to-r from-primary
+                     to-primary-light bg-clip-text text-transparent">
+            Wallet 360
+          </h1>
+          <p id="subtitle"
+             class="text-sm text-gray-600 dark:text-gray-400">
+            Complete Financial Dashboard
+          </p>
+        </div>
+      </div>
+
+      <!-- user / i18n / theme -->
+      <div class="flex items-center flex-wrap gap-3">
+        <button id="darkToggle"
+                class="p-2 rounded-full bg-primary hover:bg-primary-dark
+                       text-white transition-colors" aria-label="Toggle dark">
+          <i data-lucide="moon" class="w-5 h-5"></i>
+        </button>
+        <select id="languageSelect"
+                class="border rounded-lg px-3 py-2 bg-card dark:bg-cardDark">
+          <option value="en" selected>English</option>
+          <option value="pt">Português</option>
+        </select>
+        <select id="currencySelect"
+                class="border rounded-lg px-3 py-2 bg-card dark:bg-cardDark">
+          <option value="USD" selected>USD $</option>
+          <option value="EUR">EUR €</option>
+        </select>
+        <div class="flex items-center gap-2 bg-card dark:bg-cardDark
+                    rounded-lg px-3 py-2">
+          <i data-lucide="user" class="w-4 h-4"></i>
+          <span id="userName" class="text-sm font-medium"></span>
+        </div>
+        <button id="signOut"
+                class="text-xs text-danger hover:underline hidden">
+          Sign out
+        </button>
+      </div>
+    </div>
+
+    <!-- Quick-action buttons -->
+    <div class="flex flex-wrap gap-3 mb-6 animate-slide-up">
+      <button type="button"
+              class="quick-action-btn flex items-center gap-2 px-4 py-2
+                     rounded-xl font-medium bg-success text-white
+                     hover:bg-success-dark transform-gpu hover:scale-105">
+        <i data-lucide="plus" class="w-4 h-4"></i>
+        <span id="addIncome">Add Income</span>
+      </button>
+
+      <button type="button"
+              class="quick-action-btn flex items-center gap-2 px-4 py-2
+                     rounded-xl font-medium bg-danger text-white
+                     hover:bg-danger-dark transform-gpu hover:scale-105">
+        <i data-lucide="minus" class="w-4 h-4"></i>
+        <span id="addExpense">Add Expense</span>
+      </button>
+
+      <button type="button"
+              class="quick-action-btn flex items-center gap-2 px-4 py-2
+                     rounded-xl font-medium bg-primary text-white
+                     hover:bg-primary-dark transform-gpu hover:scale-105">
+        <i data-lucide="trending-up" class="w-4 h-4"></i>
+        <span id="addInvestment">Add Investment</span>
+      </button>
+
+      <button type="button"
+              class="quick-action-btn flex items-center gap-2 px-4 py-2
+                     rounded-xl font-medium bg-warning text-white
+                     hover:bg-warning-dark transform-gpu hover:scale-105">
+        <i data-lucide="flag" class="w-4 h-4"></i>
+        <span id="setGoal">Set Goal</span>
+      </button>
+    </div>
+
+    <!-- Summary Cards -->
+    <div id="summaryCards"
+         class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4 mb-6
+                animate-fade-in"></div>
+
+    <!-- === MAIN GRID === -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- LEFT (charts) -->
+      <div class="lg:col-span-2 space-y-6">
+
+        <!-- Portfolio -->
+        <div class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6
+                    animate-slide-up">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold flex items-center gap-2">
+              <i data-lucide="trending-up"
+                 class="w-5 h-5 text-primary"></i>
+              <span id="portfolioOverview">Portfolio Overview</span>
+            </h2>
+            <div class="flex gap-2">
+              <button class="text-sm px-3 py-1 bg-primary/10 text-primary
+                             rounded-full">1M</button>
+              <button class="text-sm px-3 py-1
+                             bg-gray-100 dark:bg-gray-700 rounded-full">
+                3M
+              </button>
+              <button class="text-sm px-3 py-1
+                             bg-gray-100 dark:bg-gray-700 rounded-full">
+                1Y
+              </button>
+            </div>
+          </div>
+          <canvas id="portfolioChart" style="max-height:500px"></canvas>
+        </div>
+
+        <!-- Income vs Expenses -->
+        <div class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6
+                    animate-slide-up">
+          <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+            <i data-lucide="bar-chart-3" class="w-5 h-5 text-success"></i>
+            <span id="incomeExpenses">Income vs Expenses</span>
+          </h2>
+          <canvas id="incomeExpensesChart" style="max-height:500px"></canvas>
+        </div>
+
+        <!-- Category doughnut -->
+        <div class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6
+                    animate-slide-up">
+          <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+            <i data-lucide="pie-chart" class="w-5 h-5 text-warning"></i>
+            <span id="spendingByCategory">Spending by Category</span>
+          </h2>
+          <canvas id="categoryChart" style="max-height:500px"></canvas>
+        </div>
+      </div>
+
+      <!-- RIGHT widgets -->
+      <div class="space-y-6">
+        <!-- Budget -->
+        <div class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6
+                    animate-slide-up">
+          <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+            <i data-lucide="target" class="w-5 h-5 text-primary"></i>
+            <span id="budgetProgress">Budget Progress</span>
+          </h2>
+          <div id="budgetList" class="space-y-3"></div>
+        </div>
+
+        <!-- Recent tx -->
+        <div class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6
+                    animate-slide-up">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold flex items-center gap-2">
+              <i data-lucide="history" class="w-5 h-5 text-gray-600"></i>
+              <span id="recentTransactions">Recent Transactions</span>
+            </h2>
+            <button class="text-sm text-primary hover:underline">
+              View All
+            </button>
+          </div>
+          <div id="transactionsList" class="space-y-3"></div>
+        </div>
+
+        <!-- Goals -->
+        <div class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6
+                    animate-slide-up">
+          <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+            <i data-lucide="flag" class="w-5 h-5 text-success"></i>
+            <span id="financialGoals">Financial Goals</span>
+          </h2>
+          <div id="goalsList" class="space-y-3"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DETAIL SECTIONS -->
+    <div class="mt-8 space-y-6">
+      <!-- Assets -->
+      <section class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6
+                      animate-fade-in">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-semibold flex items-center gap-2">
+            <i data-lucide="briefcase" class="w-5 h-5 text-primary"></i>
+            <span id="assetsPortfolio">Assets Portfolio</span>
+          </h2>
+          <div class="flex gap-2">
+            <button class="text-sm px-3 py-1 bg-primary text-white
+                           rounded-full">Stocks</button>
+            <button class="text-sm px-3 py-1 bg-gray-100 dark:bg-gray-700
+                           rounded-full">Crypto</button>
+            <button class="text-sm px-3 py-1 bg-gray-100 dark:bg-gray-700
+                           rounded-full">Bonds</button>
+          </div>
+        </div>
+        <div id="assetsList"
+             class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        </div>
+      </section>
+
+      <!-- All tx table -->
+      <section class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6
+                      animate-fade-in">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-semibold flex items-center gap-2">
+            <i data-lucide="list" class="w-5 h-5 text-gray-600"></i>
+            <span id="allTransactions">All Transactions</span>
+          </h2>
+          <div class="flex gap-2">
+            <input id="searchTransactions" type="text"
+                   placeholder="Search transactions…"
+                   class="px-3 py-1 border rounded-lg text-sm bg-transparent" />
+            <select id="filterTransactions"
+                    class="px-3 py-1 border rounded-lg text-sm bg-transparent">
+              <option value="all">All Types</option>
+              <option value="income">Income</option>
+              <option value="expense">Expense</option>
+              <option value="investment">Investment</option>
+            </select>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200
+                        dark:divide-gray-700 text-sm">
+            <thead id="transactionsThead"
+                   class="bg-gray-50 dark:bg-gray-800"></thead>
+            <tbody id="transactionsBody"
+                   class="divide-y divide-gray-200 dark:divide-gray-700">
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- TRANSACTION MODAL -->
+  <div id="transactionModal"
+       class="fixed inset-0 bg-black/50 hidden flex items-center justify-center
+              z-50">
+    <div class="bg-card dark:bg-cardDark rounded-2xl p-6 w-full max-w-md mx-4">
+      <div class="flex items-center justify-between mb-4">
+        <h3 id="modalTitle" class="text-lg font-semibold">Add Transaction</h3>
+        <button id="closeModal" class="text-gray-500 hover:text-gray-700">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <form id="transactionForm" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">Type</label>
+          <select id="transactionType"
+                  class="w-full border rounded-lg px-3 py-2 bg-transparent">
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+            <option value="investment">Investment</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Amount</label>
+          <input id="transactionAmount" type="number" required
+                 class="w-full border rounded-lg px-3 py-2 bg-transparent" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Category</label>
+          <select id="transactionCategory"
+                  class="w-full border rounded-lg px-3 py-2 bg-transparent">
+            <option value="food">Food & Dining</option>
+            <option value="transport">Transportation</option>
+            <option value="shopping">Shopping</option>
+            <option value="bills">Bills & Utilities</option>
+            <option value="entertainment">Entertainment</option>
+            <option value="health">Health & Fitness</option>
+            <option value="investment">Investment</option>
+            <option value="salary">Salary</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Description</label>
+          <input id="transactionDescription" type="text" required
+                 class="w-full border rounded-lg px-3 py-2 bg-transparent" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Date</label>
+          <input id="transactionDate" type="date" required
+                 class="w-full border rounded-lg px-3 py-2 bg-transparent" />
+        </div>
+        <div class="flex gap-3 pt-4">
+          <button id="cancelTransaction" type="button"
+                  class="flex-1 px-4 py-2 border rounded-lg
+                         hover:bg-gray-50 dark:hover:bg-gray-700">
+            Cancel
+          </button>
+          <button type="submit"
+                  class="flex-1 px-4 py-2 bg-primary text-white rounded-lg
+                         hover:bg-primary-dark">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+<script type="module">
+  /* ──────────────────────────────────────────────
+   *  IMPORTS & VARIÁVEIS GLOBAIS
+   * ──────────────────────────────────────────────*/
+  import FirebaseAPI from './firebaseApi.js';
+
+  // Placeholders que serão preenchidos no init
+  let walletData               = null;
+  let assetsData               = null;
+  let recentTransactionsData   = null;
+
+  // Estado global de UI
+  const state = {
+    transactions: [],
+    budgets: [],
+    goals: [],
+    userEmail: '',
+    currentView: 'dashboard'
+  };
+
+  const exchangeRates = { USD: 1, EUR: 0.92 };
+
+  /* ──────────────────────────────────────────────
+   *  INTERNATIONALIZAÇÃO
+   * ──────────────────────────────────────────────*/
+  const i18n = {
+    en: {
+      title: 'Wallet 360',
+      subtitle: 'Complete Financial Dashboard',
+      cards: {
+        totalBalance: 'Total Balance',
+        investments: 'Investments',
+        savings: 'Savings',
+        checking: 'Checking',
+        monthlyIncome: 'Monthly Income',
+        monthlyExpenses: 'Monthly Expenses'
+      },
+      sections: {
+        portfolioOverview: 'Portfolio Overview',
+        incomeExpenses: 'Income vs Expenses',
+        spendingByCategory: 'Spending by Category',
+        budgetProgress: 'Budget Progress',
+        recentTransactions: 'Recent Transactions',
+        financialGoals: 'Financial Goals',
+        assetsPortfolio: 'Assets Portfolio',
+        allTransactions: 'All Transactions'
+      },
+      actions: {
+        addIncome: 'Add Income',
+        addExpense: 'Add Expense',
+        addInvestment: 'Add Investment',
+        setGoal: 'Set Goal'
+      },
+      table: {
+        date: 'Date',
+        type: 'Type',
+        category: 'Category',
+        description: 'Description',
+        amount: 'Amount'
+      }
+    },
+    pt: {
+      title: 'Carteira 360',
+      subtitle: 'Painel Financeiro Completo',
+      cards: {
+        totalBalance: 'Saldo Total',
+        investments: 'Investimentos',
+        savings: 'Poupança',
+        checking: 'Conta Corrente',
+        monthlyIncome: 'Renda Mensal',
+        monthlyExpenses: 'Despesas Mensais'
+      },
+      sections: {
+        portfolioOverview: 'Visão Geral do Portfólio',
+        incomeExpenses: 'Receitas vs Despesas',
+        spendingByCategory: 'Gastos por Categoria',
+        budgetProgress: 'Progresso do Orçamento',
+        recentTransactions: 'Transações Recentes',
+        financialGoals: 'Metas Financeiras',
+        assetsPortfolio: 'Portfólio de Ativos',
+        allTransactions: 'Todas as Transações'
+      },
+      actions: {
+        addIncome: 'Adicionar Receita',
+        addExpense: 'Adicionar Despesa',
+        addInvestment: 'Adicionar Investimento',
+        setGoal: 'Definir Meta'
+      },
+      table: {
+        date: 'Data',
+        type: 'Tipo',
+        category: 'Categoria',
+        description: 'Descrição',
+        amount: 'Valor'
+      }
+    }
+  };
+
+  /* ──────────────────────────────────────────────
+   *  FLAGS DE UI
+   * ──────────────────────────────────────────────*/
+  let currentLang     = 'en';
+  let currentCurrency = 'USD';
+  let isDark          = false;
+
+  /* ──────────────────────────────────────────────
+   *  HELPERS DOM & UTIL
+   * ──────────────────────────────────────────────*/
+  const $  = sel => document.querySelector(sel);
+  const $$ = sel => document.querySelectorAll(sel);
+
+  function translate(path) {
+    return path.split('.').reduce((o, k) => o[k], i18n[currentLang]);
+  }
+
+  function formatCurrency(usd) {
+    const value  = usd * exchangeRates[currentCurrency];
+    const locale = currentLang === 'en' ? 'en-US' : 'pt-PT';
+    return new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency: currentCurrency
+    }).format(value);
+  }
+
+  /* ──────────────────────────────────────────────
+   *  🔄  SINCRONIZAÇÃO COM FIRESTORE
+   * ──────────────────────────────────────────────*/
+  // 1. Carteira / histórico
+  async function saveWalletSnapshot() {
+    if (!walletData) return;
+    await FirebaseAPI.setWalletData(walletData);
+  }
+
+  async function addPortfolioSnapshot(entry) {
+    const id = await FirebaseAPI.addPortfolioEntry(entry);
+    entry.id = id;
+
+    if (!walletData) walletData = {};
+    if (!walletData.portfolioHistory) walletData.portfolioHistory = [];
+
+    walletData.portfolioHistory.push(entry);
+  }
+
+  // 2. Registos mensais
+  async function addMonthlyRecord(record) {
+    const id = await FirebaseAPI.addMonthlyRecord(record);
+    record.id = id;
+
+    if (!walletData) walletData = {};
+    if (!walletData.monthlyData) walletData.monthlyData = [];
+
+    walletData.monthlyData.push(record);
+  }
+
+  // 3. Transacções
+  async function addTransaction(tx) {
+    const id = await FirebaseAPI.addTransaction(tx);
+    tx.id = id;
+
+    if (!recentTransactionsData) recentTransactionsData = [];
+    recentTransactionsData.unshift(tx);
+
+    renderRecentTransactions();
+    renderAllTransactions();
+  }
+
+  // 4. CRUD genérico
+  const saveBudget = async b => b.id
+    ? FirebaseAPI.updateBudget(b.id, b)
+    : FirebaseAPI.addBudget(b);
+
+  const saveGoal = async g => g.id
+    ? FirebaseAPI.updateGoal(g.id, g)
+    : FirebaseAPI.addGoal(g);
+
+  const saveAsset = async a => a.id
+    ? FirebaseAPI.updateAsset(a.id, a)
+    : FirebaseAPI.addAsset(a);
+
+  /* ──────────────────────────────────────────────
+   *  EVENTOS (SEM DUPLICADOS)
+   * ──────────────────────────────────────────────*/
+  $('#transactionForm').addEventListener('submit', async e => {
+    e.preventDefault();
+
+    const formData = {
+      type:        $('#transactionType').value,
+      amount:      +$('#transactionAmount').value,
+      category:    $('#transactionCategory').value,
+      description: $('#transactionDescription').value,
+      date:        $('#transactionDate').value,
+      icon:        getIconForCategory($('#transactionCategory').value)
+    };
+
+    try {
+      await addTransaction(formData);
+      $('#transactionModal').classList.add('hidden');
+      e.target.reset();
+    } catch (err) {
+      console.error(err);
+      alert('Falha ao gravar transacção. Tenta de novo.');
+    }
+  });
+
+  /* ──────────────────────────────────────────────
+   *  GESTÃO DE GRÁFICOS
+   * ──────────────────────────────────────────────*/
+  let charts = {};
+  function destroyChart(name) {
+    if (charts[name]) {
+      charts[name].destroy();
+      delete charts[name];
+    }
+  }
+
+  /* ──────────────────────────────────────────────
+   *  FUNÇÕES DE RENDERIZAÇÃO
+   * ──────────────────────────────────────────────*/
+  function renderSummaryCards() {
+    if (!walletData?.portfolioHistory) return;
+    const container = $('#summaryCards');
+    container.innerHTML = '';
+
+    const latest  = walletData.portfolioHistory.at(-1);
+    const monthly = walletData.monthlyData?.at(-1) || { income: 0, expenses: 0 };
+
+    const cards = [
+      { title: translate('cards.totalBalance'),     value: formatCurrency(latest.total),       icon: 'wallet',       color: 'bg-gradient-to-r from-blue-500 to-blue-600',     change: '+5.2%' },
+      { title: translate('cards.investments'),      value: formatCurrency(latest.investments), icon: 'trending-up',  color: 'bg-gradient-to-r from-green-500 to-green-600',    change: '+8.1%' },
+      { title: translate('cards.savings'),          value: formatCurrency(latest.savings),     icon: 'piggy-bank',   color: 'bg-gradient-to-r from-purple-500 to-purple-600',  change: '+0.6%' },
+      { title: translate('cards.checking'),         value: formatCurrency(latest.checking),    icon: 'credit-card',  color: 'bg-gradient-to-r from-orange-500 to-orange-600',  change: '0.0%' },
+      { title: translate('cards.monthlyIncome'),    value: formatCurrency(monthly.income),     icon: 'arrow-up',     color: 'bg-gradient-to-r from-emerald-500 to-emerald-600',change: '+2.3%' },
+      { title: translate('cards.monthlyExpenses'),  value: formatCurrency(monthly.expenses),   icon: 'arrow-down',   color: 'bg-gradient-to-r from-red-500 to-red-600',        change: '-3.5%' }
+    ];
+
+    cards.forEach(card => {
+      const el = document.createElement('div');
+      el.className = 'bg-card dark:bg-cardDark rounded-2xl shadow-lg p-4 transition-all duration-300 hover:shadow-xl hover:scale-105';
+      el.innerHTML = `
+        <div class="flex items-center justify-between mb-2">
+          <div class="${card.color} p-2 rounded-xl"><i data-lucide="${card.icon}" class="w-4 h-4 text-white"></i></div>
+          <span class="text-xs font-medium ${card.change.startsWith('+') ? 'text-success' : card.change.startsWith('-') ? 'text-danger' : 'text-gray-500'}">${card.change}</span>
+        </div>
+        <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">${card.title}</p>
+        <p class="text-lg font-bold">${card.value}</p>`;
+      container.appendChild(el);
+    });
+  }
+
+  function renderPortfolioChart() {
+    if (!walletData?.portfolioHistory) return;
+    destroyChart('portfolio');
+    const ctx = $('#portfolioChart').getContext('2d');
+
+    charts.portfolio = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: walletData.portfolioHistory.map(d => new Date(d.date).toLocaleDateString()),
+        datasets: [
+          { label: 'Total Portfolio', data: walletData.portfolioHistory.map(d => d.total       * exchangeRates[currentCurrency]), borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,0.1)', fill: true,  tension: 0.4 },
+          { label: 'Investments',    data: walletData.portfolioHistory.map(d => d.investments * exchangeRates[currentCurrency]), borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.1)',  fill: false, tension: 0.4 },
+          { label: 'Savings',        data: walletData.portfolioHistory.map(d => d.savings     * exchangeRates[currentCurrency]), borderColor: '#8b5cf6', backgroundColor: 'rgba(139,92,246,0.1)',  fill: false, tension: 0.4 }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'top', labels: { usePointStyle: true, padding: 20 } } },
+        scales: { y: { beginAtZero: false, ticks: { callback: v => formatCurrency(v) } } }
+      }
+    });
+  }
+
+  function renderIncomeExpensesChart() {
+    if (!walletData?.monthlyData) return;
+    destroyChart('incomeExpenses');
+    const ctx = $('#incomeExpensesChart').getContext('2d');
+
+    charts.incomeExpenses = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: walletData.monthlyData.map(d => d.month),
+        datasets: [
+          { label: 'Income',   data: walletData.monthlyData.map(d => d.income   * exchangeRates[currentCurrency]), backgroundColor: 'rgba(16,185,129,0.8)', borderColor: '#10b981', borderWidth: 1 },
+          { label: 'Expenses', data: walletData.monthlyData.map(d => d.expenses * exchangeRates[currentCurrency]), backgroundColor: 'rgba(239,68,68,0.8)',  borderColor: '#ef4444', borderWidth: 1 }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'top' } },
+        scales: { y: { beginAtZero: true, ticks: { callback: v => formatCurrency(v) } } }
+      }
+    });
+  }
+
+  function renderCategoryChart() {
+    if (!walletData?.spendingCategories) return;
+    destroyChart('category');
+    const ctx  = $('#categoryChart').getContext('2d');
+    const cats = Object.keys(walletData.spendingCategories);
+    const vals = cats.map(c => walletData.spendingCategories[c] * exchangeRates[currentCurrency]);
+
+    charts.category = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: cats,
+        datasets: [{
+          data: vals,
+          backgroundColor: ['#ef4444', '#f59e0b', '#8b5cf6', '#06b6d4', '#84cc16', '#ec4899', '#6366f1', '#10b981'],
+          borderWidth: 2,
+          borderColor: '#fff'
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom', labels: { padding: 20, usePointStyle: true } } }
+      }
+    });
+  }
+
+  function renderBudgetProgress() {
+    if (!walletData?.budgets) return;
+    const container = $('#budgetList');
+    container.innerHTML = '';
+
+    walletData.budgets.forEach(b => {
+      const pct  = (b.spent / b.budget) * 100;
+      const rem  = b.budget - b.spent;
+      const el   = document.createElement('div');
+      el.className = 'space-y-2';
+      el.innerHTML = `
+        <div class="flex justify-between items-center">
+          <span class="text-sm font-medium">${b.category}</span>
+          <span class="text-sm text-gray-600 dark:text-gray-400">${formatCurrency(b.spent)} / ${formatCurrency(b.budget)}</span>
+        </div>
+        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+          <div class="h-full transition-all duration-500 ease-out" style="width:${Math.min(pct, 100)}%;background-color:${b.color}"></div>
+        </div>
+        <div class="flex justify-between items-center text-xs">
+          <span class="${pct > 90 ? 'text-danger' : pct > 70 ? 'text-warning' : 'text-success'}">${pct.toFixed(1)}% used</span>
+          <span class="text-gray-500">${formatCurrency(rem)} left</span>
+        </div>`;
+      container.appendChild(el);
+    });
+  }
+
+  function renderRecentTransactions() {
+    if (!recentTransactionsData) return;
+    const container = $('#transactionsList');
+    container.innerHTML = '';
+
+    recentTransactionsData.slice(0, 5).forEach(tx => {
+      const el    = document.createElement('div');
+      const color = tx.type === 'income' ? 'text-success'
+                  : tx.type === 'expense' ? 'text-danger'
+                  : 'text-primary';
+
+      el.className = 'flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors';
+      el.innerHTML = `
+        <div class="p-2 rounded-full bg-gray-100 dark:bg-gray-700">
+          <i data-lucide="${tx.icon}" class="w-4 h-4 ${color}"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium truncate">${tx.description}</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400">${new Date(tx.date).toLocaleDateString()}</p>
+        </div>
+        <div class="text-right">
+          <p class="text-sm font-medium ${tx.type === 'income' ? 'text-success' : 'text-danger'}">${tx.type === 'income' ? '+' : '-'}${formatCurrency(tx.amount)}</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400 capitalize">${tx.category}</p>
+        </div>`;
+      container.appendChild(el);
+    });
+  }
+
+  function renderFinancialGoals() {
+    if (!walletData?.goals) return;
+    const container = $('#goalsList');
+    container.innerHTML = '';
+
+    walletData.goals.forEach(g => {
+      const pct  = (g.current / g.target) * 100;
+      const el   = document.createElement('div');
+      el.className = 'space-y-2';
+      el.innerHTML = `
+        <div class="flex justify-between items-center">
+          <span class="text-sm font-medium">${g.name}</span>
+          <span class="text-xs text-gray-500 dark:text-gray-400">${new Date(g.deadline).toLocaleDateString()}</span>
+        </div>
+        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+          <div class="h-full transition-all duration-500 ease-out" style="width:${pct}%;background-color:${g.color}"></div>
+        </div>
+        <div class="flex justify-between items-center text-xs">
+          <span class="text-gray-600 dark:text-gray-400">${formatCurrency(g.current)} / ${formatCurrency(g.target)}</span>
+          <span class="font-medium ${pct >= 100 ? 'text-success' : 'text-primary'}">${pct.toFixed(1)}%</span>
+        </div>`;
+      container.appendChild(el);
+    });
+  }
+
+  function renderAssets() {
+    if (!assetsData) return;
+    const container = $('#assetsList');
+    container.innerHTML = '';
+
+    assetsData.forEach(a => {
+      const total = a.quantity * a.priceUSD;
+      const cls   = a.change >= 0 ? 'text-success' : 'text-danger';
+      const ico   = a.change >= 0 ? 'trending-up' : 'trending-down';
+
+      const el = document.createElement('div');
+      el.className = 'bg-gray-50 dark:bg-gray-800 rounded-xl p-4 hover:shadow-md transition-all duration-200';
+      el.innerHTML = `
+        <div class="flex justify-between items-start mb-3">
+          <div>
+            <h3 class="font-semibold text-lg">${a.name}</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400">${a.type} • ${a.sector}</p>
+          </div>
+          <div class="text-right">
+            <p class="font-bold text-lg">${formatCurrency(total)}</p>
+            <div class="flex items-center gap-1 ${cls}">
+              <i data-lucide="${ico}" class="w-3 h-3"></i>
+              <span class="text-sm">${a.change >= 0 ? '+' : ''}${a.change}%</span>
+            </div>
+          </div>
+        </div>
+        <div class="flex justify-between items-center text-sm">
+          <span class="text-gray-600 dark:text-gray-400">${a.quantity} × ${formatCurrency(a.priceUSD)}</span>
+          <span class="px-2 py-1 rounded-full text-xs font-medium ${
+            a.risk === 'Low'    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
+            a.risk === 'Medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' :
+                                  'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+          }">${a.risk} Risk</span>
+        </div>`;
+      container.appendChild(el);
+    });
+  }
+
+  function renderAllTransactions() {
+    if (!recentTransactionsData) return;
+    const thead  = $('#transactionsThead');
+    const tbody  = $('#transactionsBody');
+
+    thead.innerHTML = `
+      <tr>
+        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">${translate('table.date')}</th>
+        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">${translate('table.type')}</th>
+        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">${translate('table.category')}</th>
+        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">${translate('table.description')}</th>
+        <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">${translate('table.amount')}</th>
+      </tr>`;
+
+    tbody.innerHTML = '';
+
+    recentTransactionsData.forEach(tx => {
+      const row     = document.createElement('tr');
+      const typeCls = tx.type === 'income'  ? 'text-success bg-green-100 dark:bg-green-900'
+                    : tx.type === 'expense' ? 'text-danger bg-red-100 dark:bg-red-900'
+                    : 'text-primary bg-blue-100 dark:bg-blue-900';
+
+      row.className = 'hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors';
+      row.innerHTML = `
+        <td class="px-4 py-3 whitespace-nowrap text-sm">${new Date(tx.date).toLocaleDateString()}</td>
+        <td class="px-4 py-3 whitespace-nowrap">
+          <span class="px-2 py-1 text-xs font-medium rounded-full ${typeCls}">${tx.type}</span>
+        </td>
+        <td class="px-4 py-3 whitespace-nowrap text-sm capitalize">${tx.category}</td>
+        <td class="px-4 py-3 text-sm">${tx.description}</td>
+        <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium ${tx.type === 'income' ? 'text-success' : 'text-danger'}">
+          ${tx.type === 'income' ? '+' : '-'}${formatCurrency(tx.amount)}
+        </td>`;
+      tbody.appendChild(row);
+    });
+  }
+
+  function updateTranslations() {
+    $('#title').textContent               = translate('title');
+    $('#subtitle').textContent            = translate('subtitle');
+    $('#portfolioOverview').textContent   = translate('sections.portfolioOverview');
+    $('#incomeExpenses').textContent      = translate('sections.incomeExpenses');
+    $('#spendingByCategory').textContent  = translate('sections.spendingByCategory');
+    $('#budgetProgress').textContent      = translate('sections.budgetProgress');
+    $('#recentTransactions').textContent  = translate('sections.recentTransactions');
+    $('#financialGoals').textContent      = translate('sections.financialGoals');
+    $('#assetsPortfolio').textContent     = translate('sections.assetsPortfolio');
+    $('#allTransactions').textContent     = translate('sections.allTransactions');
+    $('#addIncome').textContent           = translate('actions.addIncome');
+    $('#addExpense').textContent          = translate('actions.addExpense');
+    $('#addInvestment').textContent       = translate('actions.addInvestment');
+    $('#setGoal').textContent             = translate('actions.setGoal');
+  }
+
+  function renderAll() {
+    renderSummaryCards();
+    renderPortfolioChart();
+    renderIncomeExpensesChart();
+    renderCategoryChart();
+    renderBudgetProgress();
+    renderRecentTransactions();
+    renderFinancialGoals();
+    renderAssets();
+    renderAllTransactions();
+    updateTranslations();
+    lucide.createIcons();
+  }
+
+  /* ──────────────────────────────────────────────
+   *  INICIALIZAÇÃO / LOADING SCREEN
+   * ──────────────────────────────────────────────*/
+  function initializeUser() {
+    state.userEmail = 'user@example.com';
+    $('#userName').textContent = 'John Doe';
+    $('#signOut').classList.remove('hidden');
+  }
+
+  function hideLoadingScreen() {
+    setTimeout(() => {
+      $('#loadingScreen').style.opacity = '0';
+      setTimeout(() => $('#loadingScreen').style.display = 'none', 300);
+    }, 1000);
+  }
+
+  async function initDashboard() {
+    hideLoadingScreen();
+    initializeUser();
+
+    [walletData, assetsData, recentTransactionsData] = await Promise.all([
+      FirebaseAPI.fetchWalletData(),
+      FirebaseAPI.fetchAssetsData(),
+      FirebaseAPI.fetchRecentTransactions()
+    ]);
+
+    renderAll();
+
+    $$('.animate-fade-in, .animate-slide-up').forEach((el, i) => {
+      el.style.animationDelay = `${i * 0.1}s`;
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', initDashboard);
+
+  /* ──────────────────────────────────────────────
+   *  OUTROS LISTENERS (linguagem, tema, filtros…)
+   * ──────────────────────────────────────────────*/
+  $('#languageSelect').addEventListener('change', e => {
+    currentLang = e.target.value;
+    document.documentElement.lang = currentLang;
+    renderAll();
+  });
+
+  $('#currencySelect').addEventListener('change', e => {
+    currentCurrency = e.target.value;
+    renderAll();
+  });
+
+  $('#darkToggle').addEventListener('click', () => {
+    isDark = !isDark;
+    document.documentElement.classList.toggle('dark', isDark);
+    const icon = $('#darkToggle svg');
+    icon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+    lucide.createIcons();
+  });
+
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('.quick-action-btn');
+    if (btn) showTransactionModal(btn.querySelector('span').id);
+  });
+
+  $('#closeModal, #cancelTransaction').addEventListener('click', () =>
+    $('#transactionModal').classList.add('hidden')
+  );
+
+  $('#transactionModal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) $('#transactionModal').classList.add('hidden');
+  });
+
+  function showTransactionModal(action) {
+    $('#transactionType').value = action === 'addIncome'  ? 'income'
+                              : action === 'addExpense' ? 'expense'
+                              : 'investment';
+    $('#transactionDate').value = new Date().toISOString().split('T')[0];
+    $('#transactionModal').classList.remove('hidden');
+  }
+
+  function getIconForCategory(cat) {
+    return {
+      food: 'utensils',
+      transport: 'car',
+      shopping: 'shopping-bag',
+      bills: 'receipt',
+      entertainment: 'film',
+      health: 'heart',
+      investment: 'trending-up',
+      salary: 'banknote',
+      other: 'more-horizontal'
+    }[cat] || 'circle';
+  }
+
+  $('#searchTransactions').addEventListener('input', filterTransactions);
+  $('#filterTransactions').addEventListener('change', filterTransactions);
+
+  function filterTransactions() {
+    const term = $('#searchTransactions').value.toLowerCase();
+    const type = $('#filterTransactions').value;
+
+    $$('#transactionsBody tr').forEach(row => {
+      const desc = row.cells[3].textContent.toLowerCase();
+      const tp   = row.cells[1].textContent.toLowerCase();
+      row.style.display = desc.includes(term) && (type === 'all' || tp.includes(type))
+        ? ''
+        : 'none';
+    });
+  }
+
+  window.addEventListener('resize', () =>
+    Object.values(charts).forEach(c => c.resize())
+  );
+</script>
+
+
+</body>
+</html>
