@@ -1,8 +1,10 @@
-<!DOCTYPE html><html lang="en" class="scroll-smooth">
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
 <head>
   <meta charset="UTF-8">
-  <title>Investment Dashboard</title>
+  <title>Wallet 360 - Complete Financial Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
   <!-- Tailwind Config & CDN -->
   <script>
     tailwind.config = {
@@ -11,206 +13,308 @@
         extend: {
           colors: {
             primary: {
-              DEFAULT: '#4f46e5',
-              light: '#6366f1',
-              dark: '#3730a3'
+              DEFAULT: '#6366f1',
+              light: '#818cf8',
+              dark: '#4f46e5'
             },
+            success: '#10b981',
+            warning: '#f59e0b',
+            danger: '#ef4444',
             card: '#ffffff',
             cardDark: '#1f2937',
-            bgSoft: '#f3f4f6',
-            bgSoftDark: '#111827'
+            bgSoft: '#f8fafc',
+            bgSoftDark: '#0f172a'
           },
           fontFamily: {
             sans: ['Inter', 'ui-sans-serif', 'system-ui']
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.5s ease-in-out',
+            'slide-up': 'slideUp 0.3s ease-out',
+            'pulse-slow': 'pulse 3s infinite',
+            'bounce-subtle': 'bounceSubtle 2s infinite'
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0', transform: 'translateY(10px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' }
+            },
+            slideUp: {
+              '0%': { transform: 'translateY(20px)', opacity: '0' },
+              '100%': { transform: 'translateY(0)', opacity: '1' }
+            },
+            bounceSubtle: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-5px)' }
+            }
           }
         }
       }
     };
   </script>
-  <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
+  
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 </head>
-<body class="bg-bgSoft dark:bg-bgSoftDark text-gray-900 dark:text-gray-200 min-h-screen transition-colors">
-  <div class="container mx-auto p-4">
+<body class="bg-bgSoft dark:bg-bgSoftDark text-gray-900 dark:text-gray-200 min-h-screen transition-all duration-300">
+  <div id="header-widget" ></div>
+  <!-- 2) Include the widget script -->
+<script type="module" src="header.js"></script>
+  <!-- Loading Screen -->
+  <div id="loadingScreen" class="fixed inset-0 bg-white dark:bg-gray-900 z-50 flex items-center justify-center">
+    <div class="text-center">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+      <p class="text-lg font-medium">Loading Wallet 360...</p>
+    </div>
+  </div>
+
+  <div class="container mx-auto p-4 max-w-7xl">
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
-      <h1 id="title" class="text-2xl font-bold text-primary"></h1>
-      <div class="flex items-center flex-wrap gap-2">
-        <button id="darkToggle" class="p-2 rounded-full bg-primary text-white inline-flex items-center justify-center" aria-label="Toggle dark mode">
-          <svg id="darkIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zM4.22 4.22a1 1 0 011.42 0l.7.7a1 1 0 01-1.42 1.42l-.7-.7a1 1 0 010-1.42zM17 9a1 1 0 100 2h1a1 1 0 100-2h-1zM4.22 15.78a1 1 0 100 1.42l.7.7a1 1 0 001.42-1.42l-.7-.7a1 1 0 00-1.42 0zM10 16a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM2 9a1 1 0 100 2H1a1 1 0 100-2h1zM15.78 4.22a1 1 0 010 1.42l-.7.7a1 1 0 11-1.42-1.42l.7-.7a1 1 0 011.42 0z" />
-          </svg>
+    <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-6 animate-fade-in">
+      <div class="flex items-center gap-3">
+        <div class="bg-gradient-to-r from-primary to-primary-light p-3 rounded-2xl">
+          <i data-lucide="wallet" class="w-8 h-8 text-white"></i>
+        </div>
+        <div>
+          <h1 id="title" class="text-3xl font-bold bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent">Wallet 360</h1>
+          <p class="text-sm text-gray-600 dark:text-gray-400" id="subtitle">Complete Financial Dashboard</p>
+        </div>
+      </div>
+      <div class="flex items-center flex-wrap gap-3">
+        <button id="darkToggle" class="p-2 rounded-full bg-primary hover:bg-primary-dark text-white transition-colors duration-200" aria-label="Toggle dark mode">
+          <i data-lucide="moon" class="w-5 h-5"></i>
         </button>
-        <select id="languageSelect" class="border rounded p-1 bg-card dark:bg-cardDark">
+        <select id="languageSelect" class="border rounded-lg px-3 py-2 bg-card dark:bg-cardDark transition-colors">
           <option value="en" selected>English</option>
           <option value="pt">Português</option>
         </select>
-        <select id="currencySelect" class="border rounded p-1 bg-card dark:bg-cardDark">
+        <select id="currencySelect" class="border rounded-lg px-3 py-2 bg-card dark:bg-cardDark transition-colors">
           <option value="USD" selected>USD $</option>
           <option value="EUR">EUR €</option>
         </select>
-        <!-- User info & sign‑out -->
-        <span id="userName" class="ml-2 text-sm font-medium"></span>
-        <button id="signOut" class="text-xs text-red-600 underline hidden">Sign out</button>
+        <div class="flex items-center gap-2 bg-card dark:bg-cardDark rounded-lg px-3 py-2">
+          <i data-lucide="user" class="w-4 h-4"></i>
+          <span id="userName" class="text-sm font-medium"></span>
+        </div>
+        <button id="signOut" class="text-xs text-danger hover:underline hidden transition-colors">Sign out</button>
       </div>
-    </div><!-- Value Cards -->
-<div id="cards" class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6"></div>
+    </div>
 
-<!-- Charts Row 1 -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-  <div class="bg-card dark:bg-cardDark rounded-2xl shadow p-4">
-    <canvas id="lineChart"></canvas>
+    <!-- Quick Actions -->
+    <div class="flex flex-wrap gap-3 mb-6 animate-slide-up">
+      <button type="button" class=" quick-action-btn flex items-center gap-2 px-4 py-2 rounded-xl font-medium 
+         transition-transform duration-200 transform hover:scale-105
+         bg-success hover:bg-success-dark text-white">
+        <i data-lucide="plus" class="w-4 h-4"></i>
+        <span id="addIncome">Add Income</span>
+      </button>
+      <button  type="button" class="quick-action-btn flex items-center gap-2 px-4 py-2 rounded-xl font-medium 
+         transition-transform duration-200 transform hover:scale-105
+         bg-danger hover:bg-danger-dark text-white">
+        <i data-lucide="minus" class="w-4 h-4"></i>
+        <span id="addExpense">Add Expense</span>
+      </button>
+      <button type="button" class=" quick-action-btn flex items-center gap-2 px-4 py-2 rounded-xl font-medium 
+         transition-transform duration-200 transform hover:scale-105
+         bg-primary hover:bg-primary-dark text-white">
+        <i data-lucide="trending-up" class="w-4 h-4"></i>
+        <span id="addInvestment">Add Investment</span>
+      </button>
+      <button type="button" class="quick-action-btn flex items-center gap-2 px-4 py-2 rounded-xl font-medium 
+         transition-transform duration-200 transform hover:scale-105
+         bg-warning hover:bg-warning-dark text-white">
+        <i data-lucide="goal" class="w-4 h-4"></i>
+        <span id="setGoal">Set Goal</span>
+      </button>
+    </div>
+
+    <!-- Summary Cards -->
+    <div id="summaryCards" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4 mb-6 animate-fade-in"></div>
+
+    <!-- Main Dashboard Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Left Column - Charts -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Portfolio Overview -->
+        <div class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6 animate-slide-up">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold flex items-center gap-2">
+              <i data-lucide="trending-up" class="w-5 h-5 text-primary"></i>
+              <span id="portfolioOverview">Portfolio Overview</span>
+            </h2>
+            <div class="flex gap-2">
+              <button class="text-sm px-3 py-1 bg-primary/10 text-primary rounded-full hover:bg-primary/20 transition-colors">1M</button>
+              <button class="text-sm px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">3M</button>
+              <button class="text-sm px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">1Y</button>
+            </div>
+          </div>
+          <canvas id="portfolioChart" style="max-height: 500px;"></canvas>
+        </div>
+
+        <!-- Income vs Expenses -->
+        <div class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6 animate-slide-up">
+          <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+            <i data-lucide="bar-chart-3" class="w-5 h-5 text-success"></i>
+            <span id="incomeExpenses">Income vs Expenses</span>
+          </h2>
+          <canvas id="incomeExpensesChart" style="max-height: 500px;"></canvas>
+        </div>
+
+        <!-- Spending by Category -->
+        <div class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6 animate-slide-up">
+          <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+            <i data-lucide="pie-chart" class="w-5 h-5 text-warning"></i>
+            <span id="spendingByCategory">Spending by Category</span>
+          </h2>
+          <canvas id="categoryChart" style="max-height: 500px;" ></canvas>
+        </div>
+      </div>
+
+      <!-- Right Column - Widgets -->
+      <div class="space-y-6">
+        <!-- Budget Progress -->
+        <div class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6 animate-slide-up">
+          <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+            <i data-lucide="target" class="w-5 h-5 text-primary"></i>
+            <span id="budgetProgress">Budget Progress</span>
+          </h2>
+          <div id="budgetList" class="space-y-3"></div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6 animate-slide-up">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold flex items-center gap-2">
+              <i data-lucide="history" class="w-5 h-5 text-gray-600"></i>
+              <span id="recentTransactions">Recent Transactions</span>
+            </h2>
+            <button class="text-sm text-primary hover:underline">View All</button>
+          </div>
+          <div id="transactionsList" class="space-y-3"></div>
+        </div>
+
+        <!-- Financial Goals -->
+        <div class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6 animate-slide-up">
+          <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+            <i data-lucide="flag" class="w-5 h-5 text-success"></i>
+            <span id="financialGoals">Financial Goals</span>
+          </h2>
+          <div id="goalsList" class="space-y-3"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detailed Sections -->
+    <div class="mt-8 space-y-6">
+      <!-- Assets Portfolio -->
+      <section class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6 animate-fade-in">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-semibold flex items-center gap-2">
+            <i data-lucide="briefcase" class="w-5 h-5 text-primary"></i>
+            <span id="assetsPortfolio">Assets Portfolio</span>
+          </h2>
+          <div class="flex gap-2">
+            <button class="text-sm px-3 py-1 bg-primary text-white rounded-full hover:bg-primary-dark transition-colors">Stocks</button>
+            <button class="text-sm px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">Crypto</button>
+            <button class="text-sm px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">Bonds</button>
+          </div>
+        </div>
+        <div id="assetsList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </section>
+
+      <!-- All Transactions -->
+      <section class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6 animate-fade-in">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-semibold flex items-center gap-2">
+            <i data-lucide="list" class="w-5 h-5 text-gray-600"></i>
+            <span id="allTransactions">All Transactions</span>
+          </h2>
+          <div class="flex gap-2">
+            <input type="text" id="searchTransactions" placeholder="Search transactions..." class="px-3 py-1 border rounded-lg text-sm bg-transparent">
+            <select id="filterTransactions" class="px-3 py-1 border rounded-lg text-sm bg-transparent">
+              <option value="all">All Types</option>
+              <option value="income">Income</option>
+              <option value="expense">Expense</option>
+              <option value="investment">Investment</option>
+            </select>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
+            <thead id="transactionsThead" class="bg-gray-50 dark:bg-gray-800"></thead>
+            <tbody id="transactionsBody" class="divide-y divide-gray-200 dark:divide-gray-700"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
   </div>
-  <div class="bg-card dark:bg-cardDark rounded-2xl shadow p-4">
-    <canvas id="pieChart"></canvas>
+
+  <!-- Add Transaction Modal -->
+  <div id="transactionModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+    <div class="bg-card dark:bg-cardDark rounded-2xl p-6 w-full max-w-md mx-4">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold" id="modalTitle">Add Transaction</h3>
+        <button id="closeModal" class="text-gray-500 hover:text-gray-700">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <form id="transactionForm" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">Type</label>
+          <select id="transactionType" class="w-full border rounded-lg px-3 py-2 bg-transparent">
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+            <option value="investment">Investment</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Amount</label>
+          <input type="number" id="transactionAmount" class="w-full border rounded-lg px-3 py-2 bg-transparent" required>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Category</label>
+          <select id="transactionCategory" class="w-full border rounded-lg px-3 py-2 bg-transparent">
+            <option value="food">Food & Dining</option>
+            <option value="transport">Transportation</option>
+            <option value="shopping">Shopping</option>
+            <option value="bills">Bills & Utilities</option>
+            <option value="entertainment">Entertainment</option>
+            <option value="health">Health & Fitness</option>
+            <option value="investment">Investment</option>
+            <option value="salary">Salary</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Description</label>
+          <input type="text" id="transactionDescription" class="w-full border rounded-lg px-3 py-2 bg-transparent" required>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Date</label>
+          <input type="date" id="transactionDate" class="w-full border rounded-lg px-3 py-2 bg-transparent" required>
+        </div>
+        <div class="flex gap-3 pt-4">
+          <button type="button" id="cancelTransaction" class="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">Cancel</button>
+          <button type="submit" class="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors">Save</button>
+        </div>
+      </form>
+    </div>
   </div>
-</div>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<!-- Charts Row 2 -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-6">
-  <div class="bg-card dark:bg-cardDark rounded-2xl shadow p-4">
-    <canvas id="sectorChart"></canvas>
-  </div>
-  <div class="bg-card dark:bg-cardDark rounded-2xl shadow p-4">
-    <canvas id="countryChart"></canvas>
-  </div>
-</div>
+<!-- ES-modules (order matters for plain <script type="module"> use) -->
+  <script type="module" src="src/utils.js"></script>
+<script type="module" src="src/data.js"></script>
+<script type="module" src="src/i18n.js"></script>
 
-<!-- Risk Chart -->
-<div class="bg-card dark:bg-cardDark rounded-2xl shadow p-4 mt-6">
-  <canvas id="riskChart"></canvas>
-</div>
-
-<!-- Assets -->
-<section class="bg-card dark:bg-cardDark rounded-2xl shadow p-4 mt-6" aria-labelledby="assetsHeader">
-  <h2 class="text-lg font-semibold mb-4" id="assetsHeader"></h2>
-  <div id="assetsList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-</section>
-
-<!-- Transactions -->
-<section class="bg-card dark:bg-cardDark rounded-2xl shadow p-4 mt-6 overflow-x-auto" aria-labelledby="transactionsHeader">
-  <h2 class="text-lg font-semibold mb-4" id="transactionsHeader"></h2>
-  <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm" id="transactionsTable">
-    <thead id="transactionsThead" class="bg-gray-50 dark:bg-gray-800"></thead>
-    <tbody id="transactionsBody" class="divide-y divide-gray-200 dark:divide-gray-700"></tbody>
-  </table>
-</section>
-
-  </div><script>
-/***** GLOBAL STATE & ELEMENTS *****/
-const state = { transactions: [], userEmail: '' };
-const els = {
-  userName: document.getElementById('userName'),
-  signOutBtn: document.getElementById('signOut')
-};
-
-/***** STATIC DATA (assets etc.) *****/
-const investmentData = {
-  history: [
-    { date: '2025-01-01', valueUSD: 10000 },
-    { date: '2025-02-01', valueUSD: 10500 },
-    { date: '2025-03-01', valueUSD: 10250 },
-    { date: '2025-04-01', valueUSD: 11000 },
-    { date: '2025-05-01', valueUSD: 12000 },
-    { date: '2025-06-01', valueUSD: 12500 },
-    { date: '2025-07-01', valueUSD: 13000 },
-  ],
-  allocationUSD: {
-    Stocks: 9000,
-    Bonds: 3000,
-    Crypto: 1000,
-    Cash: 1000,
-  }
-};
-
-const assetsData = [
-  { name: 'AAPL', sector: 'Technology', country: 'USA', risk: 'Medium', quantity: 20, priceUSD: 200 },
-  { name: 'GOOGL', sector: 'Technology', country: 'USA', risk: 'Medium', quantity: 5, priceUSD: 2700 },
-  { name: 'JNJ', sector: 'Healthcare', country: 'USA', risk: 'Low', quantity: 15, priceUSD: 170 },
-  { name: 'SAP', sector: 'Technology', country: 'Germany', risk: 'Medium', quantity: 10, priceUSD: 150 },
-  { name: 'BTC', sector: 'Crypto', country: 'International', risk: 'High', quantity: 0.1, priceUSD: 65000 },
-  { name: 'XOM', sector: 'Energy', country: 'USA', risk: 'Medium', quantity: 30, priceUSD: 60 },
-];
-
-const exchangeRates = { USD: 1, EUR: 0.92 };
-
-/***** I18N *****/
-const i18n = {
-  en: {
-    title: 'Investment Dashboard',
-    cards: { total: 'Total Value', profit: 'Profit/Loss', yearlyReturn: 'Yearly Return', invested: 'Capital Invested' },
-    lineLabel: 'Portfolio Value Over Time', pieLabel: 'Asset Allocation',
-    sectorLabel: 'Allocation by Sector', countryLabel: 'Allocation by Country', riskLabel: 'Portfolio by Risk',
-    assetsHeader: 'Assets', transactionsHeader: 'Transactions',
-    table: { date: 'Date', asset: 'Asset', type: 'Type', qty: 'Qty', price: 'Price', total: 'Total' }
-  },
-  pt: {
-    title: 'Painel de Investimentos',
-    cards: { total: 'Valor Total', profit: 'Lucro/Perda', yearlyReturn: 'Retorno Anual', invested: 'Capital Investido' },
-    lineLabel: 'Valor do Portfólio ao Longo do Tempo', pieLabel: 'Alocação de Ativos',
-    sectorLabel: 'Alocação por Setor', countryLabel: 'Alocação por País', riskLabel: 'Carteira por Risco',
-    assetsHeader: 'Ativos', transactionsHeader: 'Transações',
-    table: { date: 'Data', asset: 'Ativo', type: 'Tipo', qty: 'Qtd', price: 'Preço', total: 'Total' }
-  }
-};
-
-/***** LOCAL STATE *****/
-let currentLang = 'en';
-let currentCurrency = 'USD';
-let dark = false;
-
-/***** DOM UTILS *****/
-const $ = sel => document.querySelector(sel);
-function translate(path){return path.split('.').reduce((o,k)=>o[k], i18n[currentLang]);}
-function formatCurrency(usd){const val=usd*exchangeRates[currentCurrency];const loc=currentLang==='en'?'en-US':'pt-PT';return new Intl.NumberFormat(loc,{style:'currency',currency:currentCurrency}).format(val);} 
-
-/***** CHART HELPERS *****/
-function aggregateBy(key){return assetsData.reduce((acc,a)=>{const v=a.quantity*a.priceUSD;acc[a[key]]=(acc[a[key]]||0)+v;return acc;},{});} 
-function aggregateRisk(){return assetsData.reduce((m,a)=>{const v=a.quantity*a.priceUSD;m[a.risk]=(m[a.risk]||0)+v;return m;},{Low:0,Medium:0,High:0});}
-
-/***** RENDER FUNCTIONS *****/
-function renderCards(){const c=$('#cards');c.innerHTML='';const total=investmentData.history.at(-1).valueUSD;const invested=investmentData.history[0].valueUSD;const profit=total-invested;const yr=((total/invested-1)*100).toFixed(2)+'%';[[translate('cards.total'),formatCurrency(total)],[translate('cards.profit'),formatCurrency(profit)],[translate('cards.yearlyReturn'),yr],[translate('cards.invested'),formatCurrency(invested)]].forEach(([l,v])=>{const d=document.createElement('div');d.className='bg-card dark:bg-cardDark rounded-2xl shadow p-4';d.innerHTML=`<p class="text-xs uppercase text-gray-500 dark:text-gray-400">${l}</p><p class="text-xl font-bold">${v}</p>`;c.appendChild(d);});}
-
-let lineChart,pieChart,sectorChart,countryChart,riskChart;function destroyCharts(){[lineChart,pieChart,sectorChart,countryChart,riskChart].forEach(ch=>ch&&ch.destroy());}
-function renderCharts(){destroyCharts();lineChart=new Chart($('#lineChart'),{type:'line',data:{labels:investmentData.history.map(h=>h.date),datasets:[{label:translate('lineLabel'),data:investmentData.history.map(h=>h.valueUSD*exchangeRates[currentCurrency]),fill:false,tension:.3}]},options:{responsive:true,plugins:{legend:{display:false}}}});
-const allocLabels=Object.keys(investmentData.allocationUSD);pieChart=new Chart($('#pieChart'),{type:'pie',data:{labels:allocLabels,datasets:[{data:allocLabels.map(k=>investmentData.allocationUSD[k]*exchangeRates[currentCurrency])}]},options:{responsive:true,plugins:{legend:{position:'bottom'},title:{display:true,text:translate('pieLabel')}}}});
-const sector=aggregateBy('sector'),sLabels=Object.keys(sector);sectorChart=new Chart($('#sectorChart'),{type:'doughnut',data:{labels:sLabels,datasets:[{data:sLabels.map(k=>sector[k]*exchangeRates[currentCurrency])}]},options:{responsive:true,plugins:{legend:{position:'bottom'},title:{display:true,text:translate('sectorLabel')}}}});
-const country=aggregateBy('country'),cLabels=Object.keys(country);countryChart=new Chart($('#countryChart'),{type:'doughnut',data:{labels:cLabels,datasets:[{data:cLabels.map(k=>country[k]*exchangeRates[currentCurrency])}]},options:{responsive:true,plugins:{legend:{position:'bottom'},title:{display:true,text:translate('countryLabel')}}}});
-const riskObj=aggregateRisk(),rLabels=Object.keys(riskObj);riskChart=new Chart($('#riskChart'),{type:'bar',data:{labels:rLabels,datasets:[{label:translate('riskLabel'),data:rLabels.map(k=>riskObj[k]*exchangeRates[currentCurrency])}]},options:{responsive:true,plugins:{legend:{display:false},title:{display:true,text:translate('riskLabel')}},scales:{y:{beginAtZero:true}}});}
-
-function renderAssets(){$('#assetsHeader').textContent=translate('assetsHeader');const l=$('#assetsList');l.innerHTML='';assetsData.forEach(a=>{const val=a.quantity*a.priceUSD;const card=document.createElement('div');card.className='border border-gray-200 dark:border-gray-700 rounded-xl p-3';card.innerHTML=`<div class="flex justify-between"><span>${a.name}</span><span class="font-semibold">${formatCurrency(val)}</span></div><p class="text-sm text-gray-500 dark:text-gray-400 mt-1">${a.quantity} @ ${formatCurrency(a.priceUSD)} | ${a.sector} | ${a.country} | ${a.risk}</p>`;l.appendChild(card);});}
-
-function renderTransactions(){$('#transactionsHeader').textContent=translate('transactionsHeader');const thead=$('#transactionsThead'),tbody=$('#transactionsBody');thead.innerHTML=`<tr>${['date','asset','type','qty','price','total'].map(k=>`<th class="px-2 py-1 text-left font-medium">${translate('table.'+k)}</th>`).join('')}</tr>`;tbody.innerHTML='';(state.transactions.length?state.transactions:[]).forEach(t=>{const total=t.qty*t.priceUSD;const tr=document.createElement('tr');tr.innerHTML=`<td class="px-2 py-1 whitespace-nowrap">${t.date}</td><td class="px-2 py-1">${t.asset}</td><td class="px-2 py-1">${t.type}</td><td class="px-2 py-1">${t.qty}</td><td class="px-2 py-1">${formatCurrency(t.priceUSD)}</td><td class="px-2 py-1 font-semibold">${formatCurrency(total)}</td>`;tbody.appendChild(tr);});}
-
-function renderAll(){renderCards();renderCharts();renderAssets();renderTransactions();}
-function render(){renderAll();}
-
-/***** EVENT LISTENERS *****/
-$('#languageSelect').addEventListener('change',e=>{currentLang=e.target.value;document.documentElement.lang=currentLang;$('#title').textContent=translate('title');renderAll();});
-$('#currencySelect').addEventListener('change',e=>{currentCurrency=e.target.value;renderAll();});
-$('#darkToggle').addEventListener('click',()=>{dark=!dark;document.documentElement.classList.toggle('dark',dark);});
-
-/***** AUTH & API INTEGRATION (Firebase) *****/
-const getAPI=()=>`/api/transactions?user=${encodeURIComponent(state.userEmail)}`;
-async function fetchTransactions(){try{const res=await fetch(getAPI());state.transactions=await res.json();render();}catch(err){console.error('Erro ao carregar transações',err);}}
-
-// Dynamically import firebase-init and auth
-import('./firebase-init.js').then(({auth})=>{
-  import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js').then(({onAuthStateChanged,signOut})=>{
-    onAuthStateChanged(auth,u=>{
-      if(!u) return location='/login.html';
-      state.userEmail=u.email;
-      els.userName.textContent=u.displayName||u.email.split('@')[0];
-      els.signOutBtn.classList.remove('hidden');
-      fetchTransactions();
-    });
-    els.signOutBtn.addEventListener('click',async()=>{els.signOutBtn.disabled=true;await signOut(auth);location='/login.html';});
-  });
-});
-
-/***** INITIAL RENDER *****/
-$('#title').textContent=translate('title');
-renderAll();
-</script></body>
+<script type="module" src="src/charts.js"></script>
+<script type="module" src="src/helpers.js"></script>
+<script type="module" src="src/render.js"></script>
+<script type="module" src="src/events.js"></script>
+<script type="module" src="src/auth.js"></script>
+<script type="module" src="src/main.js"></script>
+</body>
 </html>
