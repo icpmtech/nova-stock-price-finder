@@ -104,19 +104,27 @@
 
     <!-- Quick Actions -->
     <div class="flex flex-wrap gap-3 mb-6 animate-slide-up">
-      <button type="button" class="quick-action-btn bg-success hover:bg-green-600 text-white">
+      <button type="button" class=" quick-action-btn flex items-center gap-2 px-4 py-2 rounded-xl font-medium 
+         transition-transform duration-200 transform hover:scale-105
+         bg-success hover:bg-success-dark text-white">
         <i data-lucide="plus" class="w-4 h-4"></i>
         <span id="addIncome">Add Income</span>
       </button>
-      <button  type="button" class="quick-action-btn bg-danger hover:bg-red-600 text-white">
+      <button  type="button" class="quick-action-btn flex items-center gap-2 px-4 py-2 rounded-xl font-medium 
+         transition-transform duration-200 transform hover:scale-105
+         bg-danger hover:bg-danger-dark text-white">
         <i data-lucide="minus" class="w-4 h-4"></i>
         <span id="addExpense">Add Expense</span>
       </button>
-      <button type="button" class="quick-action-btn bg-primary hover:bg-primary-dark text-white">
+      <button type="button" class=" quick-action-btn flex items-center gap-2 px-4 py-2 rounded-xl font-medium 
+         transition-transform duration-200 transform hover:scale-105
+         bg-primary hover:bg-primary-dark text-white">
         <i data-lucide="trending-up" class="w-4 h-4"></i>
         <span id="addInvestment">Add Investment</span>
       </button>
-      <button type="button" class="quick-action-btn bg-warning hover:bg-yellow-600 text-white">
+      <button type="button" class="quick-action-btn flex items-center gap-2 px-4 py-2 rounded-xl font-medium 
+         transition-transform duration-200 transform hover:scale-105
+         bg-warning hover:bg-warning-dark text-white">
         <i data-lucide="goal" class="w-4 h-4"></i>
         <span id="setGoal">Set Goal</span>
       </button>
@@ -805,8 +813,8 @@
             <span class="text-sm font-medium">${goal.name}</span>
             <span class="text-xs text-gray-500 dark:text-gray-400">${new Date(goal.deadline).toLocaleDateString()}</span>
           </div>
-          <div class="progress-bar">
-            <div class="progress-fill" style="width: ${progress}%; background-color: ${goal.color}"></div>
+          <div class="progress-bar w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden;  ">
+            <div class="progress-fill  h-full transition-all duration-500 ease-out; " style="width: ${progress}%; background-color: ${goal.color}"></div>
           </div>
           <div class="flex justify-between items-center text-xs">
             <span class="text-gray-600 dark:text-gray-400">${formatCurrency(goal.current)} / ${formatCurrency(goal.target)}</span>
@@ -948,7 +956,7 @@
     $('#darkToggle').addEventListener('click', () => {
       isDark = !isDark;
       document.documentElement.classList.toggle('dark', isDark);
-      const icon = $('#darkToggle i');
+      const icon = $('#darkToggle svg');
       icon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
       lucide.createIcons();
     });
