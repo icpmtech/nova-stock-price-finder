@@ -271,6 +271,155 @@ function getATRInterpretation(volatilityPercent) {
   return 'Moderate volatility';
 }
 
+// Generate overall summary for multiple analyses
+function generateOverallSummary(results, analysisTypes) {
+  const summary = {
+    technicalSignals: [],
+    fundamentalInsights: [],
+    riskFactors: [],
+    overallSentiment: 'NEUTRAL'
+  };
+  
+  let bullishSignals = 0;
+  let bearishSignals = 0;
+  let totalSignals = 0;
+  
+  // Technical Analysis Summary
+  if (results.rsi && !results.rsi.error) {
+    const rsi = results.rsi.summary;
+    summary.technicalSignals.push({
+      indicator: 'RSI',
+      signal: rsi.signal,
+      value: rsi.latest,
+      interpretation: rsi.interpretation
+    });
+    
+    if (rsi.signal === 'BUY') bullishSignals++;
+    else if (rsi.signal === 'SELL') bearishSignals++;
+    totalSignals++;
+  }
+  
+  if (results.sma && !results.sma.error) {
+    const sma = results.sma.summary;
+    summary.technicalSignals.push({
+      indicator: 'SMA',
+      signal: sma.signal,
+      difference: sma.difference + '%',
+      interpretation: `Price is ${sma.signal === 'BUY' ? 'above' : 'below'} SMA`
+    });
+    
+    if (sma.signal === 'BUY') bullishSignals++;
+    else if (sma.signal === 'SELL') bearishSignals++;
+    totalSignals++;
+  }
+  
+  if (results.ema && !results.ema.error) {
+    const ema = results.ema.summary;
+    summary.technicalSignals.push({
+      indicator: 'EMA',
+      signal: ema.signal,
+      difference: ema.difference + '%',
+      interpretation: `Price is ${ema.signal === 'BUY' ? 'above' : 'below'} EMA`
+    });
+    
+    if (ema.signal === 'BUY') bullishSignals++;
+    else if (ema.signal === 'SELL') bearishSignals++;
+    totalSignals++;
+  }
+  
+  if (results.macd && !results.macd.error) {
+    const macd = results.macd.summary;
+    summary.technicalSignals.push({
+      indicator: 'MACD',
+      signal: macd.trend,
+      interpretation: macd.trend.replace('_', ' ').toLowerCase()
+    });
+    
+    if (macd.trend === 'BULLISH_CROSSOVER') bullishSignals++;
+    else if (macd.trend === 'BEARISH_CROSSOVER') bearishSignals++;
+    totalSignals++;
+  }
+  
+  if (results.bollinger && !results.bollinger.error) {
+    const bb = results.bollinger.summary;
+    summary.technicalSignals.push({
+      indicator: 'Bollinger Bands',
+      position: bb.position,
+      bandwidth: bb.bandwidth + '%',
+      interpretation: `Price at ${bb.position.toLowerCase()} band`
+    });
+    
+    summary.riskFactors.push({
+      factor: 'Volatility',
+      level: parseFloat(bb.bandwidth) > 10 ? 'High' : parseFloat(bb.bandwidth) < 5 ? 'Low' : 'Medium',
+      value: bb.bandwidth + '%'
+    });
+  }
+  
+  if (results.atr && !results.atr.error) {
+    const atr = results.atr.summary;
+    summary.riskFactors.push({
+      factor: 'Average True Range',
+      level: atr.interpretation,
+      value: atr.volatilityPercent + '%'
+    });
+  }
+  
+  // Fundamental Analysis Summary
+  if (results.dcf && !results.dcf.error && !results.dcf.summary.error) {
+    const dcf = results.dcf.summary;
+    summary.fundamentalInsights.push({
+      metric: 'DCF Valuation',
+      value: `${dcf.valuePerShare?.toFixed(2) || 'N/A'}`,
+      interpretation: 'Intrinsic value per share'
+    });
+  }
+  
+  if (results.dividendos && !results.dividendos.error) {
+    const div = results.dividendos.summary;
+    if (div.count > 0) {
+      summary.fundamentalInsights.push({
+        metric: 'Dividend Yield',
+        value: div.annualizedYield + '%',
+        interpretation: `${div.count} dividends in past year`
+      });
+    }
+  }
+  
+  if (results.perfil && !results.perfil.error) {
+    const profile = results.perfil.summary;
+    summary.fundamentalInsights.push({
+      metric: 'Company Profile',
+      sector: profile.sector,
+      industry: profile.industry,
+      interpretation: 'Business classification'
+    });
+  }
+  
+  // Calculate Overall Sentiment
+  if (totalSignals > 0) {
+    const bullishRatio = bullishSignals / totalSignals;
+    const bearishRatio = bearishSignals / totalSignals;
+    
+    if (bullishRatio > 0.6) {
+      summary.overallSentiment = 'BULLISH';
+    } else if (bearishRatio > 0.6) {
+      summary.overallSentiment = 'BEARISH';
+    } else {
+      summary.overallSentiment = 'NEUTRAL';
+    }
+  }
+  
+  summary.signalStrength = {
+    bullish: bullishSignals,
+    bearish: bearishSignals,
+    total: totalSignals,
+    confidence: totalSignals > 0 ? Math.round(Math.abs(bullishSignals - bearishSignals) / totalSignals * 100) : 0
+  };
+  
+  return summary;
+}
+
 // Main handler
 export default async function handler(req, res) {
   try {
@@ -343,108 +492,173 @@ export default async function handler(req, res) {
 
     // 📊 TECHNICAL AND FUNDAMENTAL ANALYSIS
     if (symbol && tipo) {
-      const cacheKey = getCacheKey('analysis', symbol, { tipo });
+      // Handle multiple analysis types
+      const analysisTypes = typeof tipo === 'string' ? tipo.split(',') : [tipo];
+      const validTypes = ['rsi', 'sma', 'ema', 'macd', 'bollinger', 'atr', 'dcf', 'dividendos', 'perfil'];
+      
+      // Validate all requested types
+      const invalidTypes = analysisTypes.filter(t => !validTypes.includes(t.trim()));
+      if (invalidTypes.length > 0) {
+        return res.status(400).json({ 
+          error: 'Invalid analysis type(s)', 
+          invalidTypes,
+          supportedTypes: validTypes
+        });
+      }
+      
+      const cleanTypes = analysisTypes.map(t => t.trim());
+      const cacheKey = getCacheKey('analysis', symbol, { tipos: cleanTypes.sort() });
       let cachedResult = getCachedData(cacheKey);
       
       if (cachedResult) {
         return res.status(200).json(cachedResult);
       }
       
-      let result;
+      const results = {};
+      let historicalData = null;
+      let profileData = null;
       
-      if (tipo === 'perfil') {
-        const profile = await yahooFinance.quoteSummary(symbol.toUpperCase(), {
-          modules: ['assetProfile']
-        });
-        const ap = profile.assetProfile;
-        
-        result = {
-          summary: {
-            businessSummary: ap?.longBusinessSummary || 'N/A',
-            sector: ap?.sector || 'N/A',
-            industry: ap?.industry || 'N/A',
-            website: ap?.website || 'N/A',
-            employees: ap?.fullTimeEmployees || 'N/A',
-            country: ap?.country || 'N/A',
-            city: ap?.city || 'N/A'
-          },
-          chart: {}
-        };
-      } else if (tipo === 'dcf') {
-        result = await performDCFAnalysis(symbol);
-      } else {
-        // Get historical data for technical analysis
+      // Determine what data we need to fetch
+      const needsHistorical = cleanTypes.some(t => 
+        ['rsi', 'sma', 'ema', 'macd', 'bollinger', 'atr', 'dividendos'].includes(t)
+      );
+      const needsProfile = cleanTypes.includes('perfil');
+      const needsDCF = cleanTypes.includes('dcf');
+      
+      // Fetch historical data if needed
+      if (needsHistorical) {
         const to = new Date();
         const from = new Date();
         from.setFullYear(to.getFullYear() - 1);
         
-        const hist = await yahooFinance.historical(symbol.toUpperCase(), {
-          period1: from,
-          period2: to,
-          interval: '1d',
-          events: tipo === 'dividendos' ? 'dividends' : undefined
-        });
+        const needsDividends = cleanTypes.includes('dividendos');
         
-        if (!hist || hist.length === 0) {
-          return res.status(404).json({ error: 'No historical data found' });
-        }
-        
-        const dates = hist.map(d => d.date.toISOString().split('T')[0]);
-        const closes = hist.map(d => d.close);
-        const highs = hist.map(d => d.high);
-        const lows = hist.map(d => d.low);
-        
-        switch (tipo) {
-          case 'rsi':
-            result = await performRSIAnalysis(symbol, closes, dates);
-            break;
-          case 'sma':
-            result = await performSMAAnalysis(symbol, closes, dates);
-            break;
-          case 'ema':
-            result = await performEMAAnalysis(symbol, closes, dates);
-            break;
-          case 'macd':
-            result = await performMACDAnalysis(symbol, closes, dates);
-            break;
-          case 'bollinger':
-            result = await performBollingerAnalysis(symbol, closes, dates);
-            break;
-          case 'atr':
-            result = await performATRAnalysis(symbol, highs, lows, closes, dates);
-            break;
-          case 'dividendos':
-            const dividends = hist
-              .filter(d => d.dividends && d.dividends > 0)
-              .map(d => ({ 
-                date: d.date.toISOString().split('T')[0], 
-                dividend: d.dividends 
-              }));
-            
-            const totalDividends = dividends.reduce((sum, d) => sum + d.dividend, 0);
-            const avgDividend = dividends.length > 0 ? totalDividends / dividends.length : 0;
-            
-            result = {
-              summary: { 
-                latest: dividends[dividends.length - 1] || null,
-                count: dividends.length,
-                totalDividends,
-                avgDividend,
-                annualizedYield: dividends.length > 0 ? (totalDividends / closes[closes.length - 1] * 100).toFixed(2) : 0
-              },
-              chart: { 
-                x: dividends.map(d => d.date), 
-                y: dividends.map(d => d.dividend) 
-              }
-            };
-            break;
-          default:
-            return res.status(400).json({ error: 'Unsupported analysis type' });
+        try {
+          historicalData = await yahooFinance.historical(symbol.toUpperCase(), {
+            period1: from,
+            period2: to,
+            interval: '1d',
+            events: needsDividends ? 'dividends' : undefined
+          });
+          
+          if (!historicalData || historicalData.length === 0) {
+            return res.status(404).json({ error: 'No historical data found' });
+          }
+        } catch (error) {
+          return res.status(404).json({ error: 'Failed to fetch historical data' });
         }
       }
       
-      setCachedData(cacheKey, result);
-      return res.status(200).json(result);
+      // Fetch profile data if needed
+      if (needsProfile) {
+        try {
+          profileData = await yahooFinance.quoteSummary(symbol.toUpperCase(), {
+            modules: ['assetProfile']
+          });
+        } catch (error) {
+          results.perfil = { error: 'Failed to fetch profile data' };
+        }
+      }
+      
+      // Prepare common data for technical analysis
+      let dates, closes, highs, lows;
+      if (historicalData) {
+        dates = historicalData.map(d => d.date.toISOString().split('T')[0]);
+        closes = historicalData.map(d => d.close);
+        highs = historicalData.map(d => d.high);
+        lows = historicalData.map(d => d.low);
+      }
+      
+      // Process each analysis type
+      for (const analysisType of cleanTypes) {
+        try {
+          switch (analysisType) {
+            case 'rsi':
+              results.rsi = await performRSIAnalysis(symbol, closes, dates);
+              break;
+            case 'sma':
+              results.sma = await performSMAAnalysis(symbol, closes, dates);
+              break;
+            case 'ema':
+              results.ema = await performEMAAnalysis(symbol, closes, dates);
+              break;
+            case 'macd':
+              results.macd = await performMACDAnalysis(symbol, closes, dates);
+              break;
+            case 'bollinger':
+              results.bollinger = await performBollingerAnalysis(symbol, closes, dates);
+              break;
+            case 'atr':
+              results.atr = await performATRAnalysis(symbol, highs, lows, closes, dates);
+              break;
+            case 'dcf':
+              results.dcf = await performDCFAnalysis(symbol);
+              break;
+            case 'dividendos':
+              const dividends = historicalData
+                .filter(d => d.dividends && d.dividends > 0)
+                .map(d => ({ 
+                  date: d.date.toISOString().split('T')[0], 
+                  dividend: d.dividends 
+                }));
+              
+              const totalDividends = dividends.reduce((sum, d) => sum + d.dividend, 0);
+              const avgDividend = dividends.length > 0 ? totalDividends / dividends.length : 0;
+              
+              results.dividendos = {
+                summary: { 
+                  latest: dividends[dividends.length - 1] || null,
+                  count: dividends.length,
+                  totalDividends,
+                  avgDividend,
+                  annualizedYield: dividends.length > 0 ? (totalDividends / closes[closes.length - 1] * 100).toFixed(2) : 0
+                },
+                chart: { 
+                  x: dividends.map(d => d.date), 
+                  y: dividends.map(d => d.dividend) 
+                }
+              };
+              break;
+            case 'perfil':
+              if (profileData) {
+                const ap = profileData.assetProfile;
+                results.perfil = {
+                  summary: {
+                    businessSummary: ap?.longBusinessSummary || 'N/A',
+                    sector: ap?.sector || 'N/A',
+                    industry: ap?.industry || 'N/A',
+                    website: ap?.website || 'N/A',
+                    employees: ap?.fullTimeEmployees || 'N/A',
+                    country: ap?.country || 'N/A',
+                    city: ap?.city || 'N/A'
+                  },
+                  chart: {}
+                };
+              }
+              break;
+          }
+        } catch (error) {
+          results[analysisType] = { 
+            error: `Failed to perform ${analysisType} analysis: ${error.message}` 
+          };
+        }
+      }
+      
+      // Create response structure
+      const response = {
+        symbol: symbol.toUpperCase(),
+        analysisTypes: cleanTypes,
+        timestamp: new Date().toISOString(),
+        results
+      };
+      
+      // Add overall summary if multiple analyses were performed
+      if (cleanTypes.length > 1) {
+        response.overallSummary = generateOverallSummary(results, cleanTypes);
+      }
+      
+      setCachedData(cacheKey, response);
+      return res.status(200).json(response);
     }
 
     // Invalid request
