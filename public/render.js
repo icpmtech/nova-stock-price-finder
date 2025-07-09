@@ -1,6 +1,16 @@
 import { $, formatCurrency, translate } from './utils.js';
-import { walletData, assetsData, recentTransactionsData } from './data.js';
-import { renderPortfolioChart, renderIncomeExpensesChart, renderCategoryChart } from './charts.js';
+import {
+  walletData,
+  budgets as budgetsCache,
+  goals   as goalsCache,
+  assetsData,
+  recentTransactionsData
+} from './data.js';
+import {
+  renderPortfolioChart,
+  renderIncomeExpensesChart,
+  renderCategoryChart
+} from './charts.js';
 import { settings } from './utils.js';
 
 /* -------------------------------------------------------------------------- */
@@ -10,22 +20,20 @@ export function renderSummaryCards() {
   const container = $('#summaryCards');
   container.innerHTML = '';
 
-  const latestData   = walletData.portfolioHistory.at(-1);
-  const monthlyData  = walletData.monthlyData.at(-1);
+  // 🔒 null-safe fall-backs
+  const history     = walletData.portfolioHistory ?? [];
+  const latestData  = history.at(-1) ?? { total: 0, investments: 0, savings: 0, checking: 0 };
+
+  const monthly     = walletData.monthlyData ?? [];
+  const monthlyData = monthly.at(-1) ?? { income: 0, expenses: 0 };
 
   const cards = [
-    { title: translate('cards.totalBalance'),  value: formatCurrency(latestData.total),
-      icon: 'wallet',       color: 'bg-gradient-to-r from-blue-500 to-blue-600',     change: '+5.2%' },
-    { title: translate('cards.investments'),   value: formatCurrency(latestData.investments),
-      icon: 'trending-up', color: 'bg-gradient-to-r from-green-500 to-green-600',   change: '+8.1%' },
-    { title: translate('cards.savings'),       value: formatCurrency(latestData.savings),
-      icon: 'piggy-bank',  color: 'bg-gradient-to-r from-purple-500 to-purple-600', change: '+0.6%' },
-    { title: translate('cards.checking'),      value: formatCurrency(latestData.checking),
-      icon: 'credit-card', color: 'bg-gradient-to-r from-orange-500 to-orange-600', change: '0.0%' },
-    { title: translate('cards.monthlyIncome'), value: formatCurrency(monthlyData.income),
-      icon: 'arrow-up',    color: 'bg-gradient-to-r from-emerald-500 to-emerald-600',change:'+2.3%' },
-    { title: translate('cards.monthlyExpenses'),value: formatCurrency(monthlyData.expenses),
-      icon: 'arrow-down',  color: 'bg-gradient-to-r from-red-500 to-red-600',       change:'-3.5%' }
+    { title: translate('cards.totalBalance'),   value: formatCurrency(latestData.total),        icon: 'wallet',      color: 'bg-gradient-to-r from-blue-500 to-blue-600',     change: '+0.0%' },
+    { title: translate('cards.investments'),    value: formatCurrency(latestData.investments),  icon: 'trending-up', color: 'bg-gradient-to-r from-green-500 to-green-600',   change: '+0.0%' },
+    { title: translate('cards.savings'),        value: formatCurrency(latestData.savings),      icon: 'piggy-bank',  color: 'bg-gradient-to-r from-purple-500 to-purple-600', change: '+0.0%' },
+    { title: translate('cards.checking'),       value: formatCurrency(latestData.checking),     icon: 'credit-card', color: 'bg-gradient-to-r from-orange-500 to-orange-600', change: '+0.0%' },
+    { title: translate('cards.monthlyIncome'),  value: formatCurrency(monthlyData.income),      icon: 'arrow-up',    color: 'bg-gradient-to-r from-emerald-500 to-emerald-600',change:'+0.0%' },
+    { title: translate('cards.monthlyExpenses'),value: formatCurrency(monthlyData.expenses),    icon: 'arrow-down',  color: 'bg-gradient-to-r from-red-500 to-red-600',       change:'-0.0%' }
   ];
 
   cards.forEach(card => {
@@ -33,10 +41,8 @@ export function renderSummaryCards() {
     cardEl.className = 'bg-card dark:bg-cardDark rounded-2xl shadow-lg p-4 transition-all duration-300 hover:shadow-xl hover:scale-105';
     cardEl.innerHTML = `
       <div class="flex items-center justify-between mb-2">
-        <div class="${card.color} p-2 rounded-xl">
-          <i data-lucide="${card.icon}" class="w-4 h-4 text-white"></i>
-        </div>
-        <span class="text-xs font-medium ${card.change.startsWith('+') ? 'text-success' : card.change.startsWith('-') ? 'text-danger' : 'text-gray-500'}">${card.change}</span>
+        <div class="${card.color} p-2 rounded-xl"><i data-lucide="${card.icon}" class="w-4 h-4 text-white"></i></div>
+        <span class="text-xs font-medium text-gray-500">${card.change}</span>
       </div>
       <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">${card.title}</p>
       <p class="text-lg font-bold">${card.value}</p>
@@ -52,7 +58,11 @@ export function renderBudgetProgress() {
   const container = $('#budgetList');
   container.innerHTML = '';
 
-  walletData.budgets.forEach(budget => {
+  // use Firestore cache if walletData.budgets not set
+  const list = walletData.budgets ?? budgetsCache ?? [];
+  if (!list.length) return;
+
+  list.forEach(budget => {
     const progress  = (budget.spent / budget.budget) * 100;
     const remaining = budget.budget - budget.spent;
 
@@ -72,6 +82,38 @@ export function renderBudgetProgress() {
       </div>
     `;
     container.appendChild(item);
+  });
+}
+
+/* -------------------------------------------------------------------------- */
+/* Financial goals progress bars                                              */
+/* -------------------------------------------------------------------------- */
+export function renderFinancialGoals() {
+  const container = $('#goalsList');
+  container.innerHTML = '';
+
+  const list = walletData.goals ?? goalsCache ?? [];
+  if (!list.length) return;
+
+  list.forEach(goal => {
+    const progress  = (goal.current / goal.target) * 100;
+
+    const goalEl = document.createElement('div');
+    goalEl.className = 'space-y-2';
+    goalEl.innerHTML = `
+      <div class="flex justify-between items-center">
+        <span class="text-sm font-medium">${goal.name}</span>
+        <span class="text-xs text-gray-500 dark:text-gray-400">${new Date(goal.deadline).toLocaleDateString()}</span>
+      </div>
+      <div class="progress-bar w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+        <div class="progress-fill h-full transition-all duration-500 ease-out" style="width:${progress}%;background-color:${goal.color}"></div>
+      </div>
+      <div class="flex justify-between items-center text-xs">
+        <span class="text-gray-600 dark:text-gray-400">${formatCurrency(goal.current)} / ${formatCurrency(goal.target)}</span>
+        <span class="font-medium ${progress>=100?'text-success':'text-primary'}">${progress.toFixed(1)}%</span>
+      </div>
+    `;
+    container.appendChild(goalEl);
   });
 }
 
@@ -105,34 +147,6 @@ export function renderRecentTransactions() {
       </div>
     `;
     container.appendChild(txEl);
-  });
-}
-
-/* -------------------------------------------------------------------------- */
-/* Financial goals progress bars                                              */
-/* -------------------------------------------------------------------------- */
-export function renderFinancialGoals() {
-  const container = $('#goalsList');
-  container.innerHTML = '';
-
-  walletData.goals.forEach(goal => {
-    const progress  = (goal.current / goal.target) * 100;
-    const goalEl = document.createElement('div');
-    goalEl.className = 'space-y-2';
-    goalEl.innerHTML = `
-      <div class="flex justify-between items-center">
-        <span class="text-sm font-medium">${goal.name}</span>
-        <span class="text-xs text-gray-500 dark:text-gray-400">${new Date(goal.deadline).toLocaleDateString()}</span>
-      </div>
-      <div class="progress-bar w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
-        <div class="progress-fill h-full transition-all duration-500 ease-out" style="width:${progress}%;background-color:${goal.color}"></div>
-      </div>
-      <div class="flex justify-between items-center text-xs">
-        <span class="text-gray-600 dark:text-gray-400">${formatCurrency(goal.current)} / ${formatCurrency(goal.target)}</span>
-        <span class="font-medium ${progress>=100?'text-success':'text-primary'}">${progress.toFixed(1)}%</span>
-      </div>
-    `;
-    container.appendChild(goalEl);
   });
 }
 

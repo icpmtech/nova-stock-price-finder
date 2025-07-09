@@ -1,10 +1,26 @@
+import { $ } from './utils.js';
+import { renderAll } from './render.js';
+import { registerEventHandlers } from './events.js';
+import { initializeUser, registerAuthHandlers } from './auth.js';
+import { loadInitialData } from './firebaseSync.js';
 
-import { renderHeader }         from "./widgets/header/header.js";
-import { renderSummaryCards }   from "./widgets/summary-cards/summary-cards.js";
-import { renderPortfolioChart } from "./widgets/portfolio-chart/portfolio-chart.js";
+function hideLoadingScreen() {
+  setTimeout(() => {
+    $('#loadingScreen').style.opacity = '0';
+    setTimeout(() => ($('#loadingScreen').style.display = 'none'), 300);
+  }, 1000);
+}
 
-window.addEventListener("DOMContentLoaded", async () => {
-  await renderHeader();
-  await renderSummaryCards();
-  await renderPortfolioChart();
+document.addEventListener('DOMContentLoaded', async () => {
+  hideLoadingScreen();
+  initializeUser();
+
+  await loadInitialData();   // ⬅ wait for Firestore
+  renderAll();               // first paint with live data
+
+  registerEventHandlers();
+  registerAuthHandlers();
+
+  document.querySelectorAll('.animate-fade-in, .animate-slide-up')
+          .forEach((el, i) => (el.style.animationDelay = `${i * 0.1}s`));
 });
