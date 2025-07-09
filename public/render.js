@@ -124,63 +124,108 @@ export function renderSummaryCards() {
 
 /* ==========================================================================
    Budgets                                                                   */
+/* ==========================================================================
+   Budgets – dynamic % based on current-month expense transactions           */
+import { recentTransactionsData } from './data.js';   // ⬅ add this near top
+
 export function renderBudgetProgress() {
   const wrap = $('#budgetList');
   wrap.innerHTML = '';
 
-  const list = walletData.budgets ?? budgetsCache ?? [];
+  const list = walletData.budgets ?? [];
   if (!list.length) return;
 
-  list.forEach(budget => {
-    const pct = (budget.spent / budget.budget) * 100;
-    const remain = budget.budget - budget.spent;
+  const monthKey = new Date().toISOString().slice(0, 7); // "2025-07"
 
-    const item = document.createElement('div');
-    item.className = 'space-y-2';
-    item.innerHTML = `
+  list.forEach(budget => {
+    /* ---- 1. Calculate “spent” from transactions ----------------------- */
+    const spent = recentTransactionsData
+      .filter(tx =>
+        tx.type === 'expense' &&
+        tx.date.startsWith(monthKey) &&
+        (tx.category === budget.category ||   // exact match e.g. "Food & Dining"
+         tx.category === budget.category.toLowerCase().replace(/ & | /g, ''))) // fallback slug match
+      .reduce((sum, tx) => sum + tx.amount, 0);
+
+    const pct  = (spent / budget.budget) * 100;
+    const left = budget.budget - spent;
+
+    /* ---- 2. Render bar ------------------------------------------------- */
+    const bar = document.createElement('div');
+    bar.className = 'space-y-2';
+    bar.innerHTML = `
       <div class="flex justify-between items-center">
         <span class="text-sm font-medium">${budget.category}</span>
         <span class="text-sm text-gray-600 dark:text-gray-400">
-          ${formatCurrency(budget.spent)} / ${formatCurrency(budget.budget)}
+          ${formatCurrency(spent)} / ${formatCurrency(budget.budget)}
         </span>
       </div>
-      <div class="progress-bar"><div class="progress-fill" style="width:${Math.min(pct,100)}%;background-color:${budget.color}"></div></div>
+      <div class="progress-bar">
+        <div class="progress-fill"
+             style="width:${Math.min(pct, 100)}%;background-color:${budget.color}"></div>
+      </div>
       <div class="flex justify-between items-center text-xs">
-        <span class="${pct>90?'text-danger':pct>70?'text-warning':'text-success'}">${pct.toFixed(1)}% used</span>
-        <span class="text-gray-500">${formatCurrency(remain)} left</span>
+        <span class="${pct > 90 ? 'text-danger' : pct > 70 ? 'text-warning' : 'text-success'}">
+          ${pct.toFixed(1)}% used
+        </span>
+        <span class="text-gray-500">${formatCurrency(left)} left</span>
       </div>
     `;
-    wrap.appendChild(item);
+    wrap.appendChild(bar);
   });
 }
-
 /* ==========================================================================
    Goals                                                                     */
+/* ==========================================================================
+   Goals – dynamic progress based on investment transactions                 */
+
 export function renderFinancialGoals() {
   const wrap = $('#goalsList');
   wrap.innerHTML = '';
 
-  const list = walletData.goals ?? goalsCache ?? [];
+  const list = walletData.goals ?? [];
   if (!list.length) return;
 
+  /* helper to slugify category names (“Emergency Fund” -> “emergencyfund”) */
+  const slug = s => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+
   list.forEach(goal => {
-    const pct = (goal.current / goal.target) * 100;
-    const line = document.createElement('div');
-    line.className = 'space-y-2';
-    line.innerHTML = `
+    /* ---- 1. Calculate contributions from transactions ------------------ */
+    const contrib = recentTransactionsData
+      .filter(tx =>
+        tx.type === 'investment' &&
+        slug(tx.category) === slug(goal.name)
+      )
+      .reduce((sum, tx) => sum + tx.amount, 0);
+
+    const current = (goal.current || 0) + contrib;
+    const pct     = (current / goal.target) * 100;
+    const left    = goal.target - current;
+
+    /* ---- 2. Render bar ------------------------------------------------- */
+    const row = document.createElement('div');
+    row.className = 'space-y-2';
+    row.innerHTML = `
       <div class="flex justify-between items-center">
         <span class="text-sm font-medium">${goal.name}</span>
-        <span class="text-xs text-gray-500 dark:text-gray-400">${new Date(goal.deadline).toLocaleDateString()}</span>
+        <span class="text-xs text-gray-500 dark:text-gray-400">
+          ${new Date(goal.deadline).toLocaleDateString()}
+        </span>
       </div>
       <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
-        <div class="h-full transition-all duration-500" style="width:${pct}%;background-color:${goal.color}"></div>
+        <div class="h-full transition-all duration-500"
+             style="width:${Math.min(pct,100)}%;background-color:${goal.color}"></div>
       </div>
       <div class="flex justify-between items-center text-xs">
-        <span class="text-gray-600 dark:text-gray-400">${formatCurrency(goal.current)} / ${formatCurrency(goal.target)}</span>
-        <span class="font-medium ${pct>=100?'text-success':'text-primary'}">${pct.toFixed(1)}%</span>
+        <span class="text-gray-600 dark:text-gray-400">
+          ${formatCurrency(current)} / ${formatCurrency(goal.target)}
+        </span>
+        <span class="font-medium ${pct>=100?'text-success':'text-primary'}">
+          ${pct.toFixed(1)}%
+        </span>
       </div>
     `;
-    wrap.appendChild(line);
+    wrap.appendChild(row);
   });
 }
 
