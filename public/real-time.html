@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="pt">
+<!DOCTYPE html><html lang="pt">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -40,10 +39,7 @@
     .profit-neutral    { color: #6b7280; }
   </style>
 </head>
-<body class="font-chakra bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 min-h-screen text-gray-800 antialiased">
-
-  <!-- Header -->
-  <header class="flex items-center justify-between p-4 bg-white bg-opacity-20 backdrop-blur-lg fixed top-0 w-full z-50 border-b border-white border-opacity-20">
+<body class="font-chakra bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 min-h-screen text-gray-800 antialiased">  <!-- Header -->  <header class="flex items-center justify-between p-4 bg-white bg-opacity-20 backdrop-blur-lg fixed top-0 w-full z-50 border-b border-white border-opacity-20">
     <div class="flex items-center space-x-3">
       <span class="text-3xl animate-pulse-slow">💼</span>
       <div>
@@ -60,26 +56,14 @@
         Sair
       </button>
     </div>
-  </header>
-
-  <!-- Loading Overlay -->
-  <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+  </header>  <!-- Loading Overlay -->  <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
     <div class="bg-white p-6 rounded-lg text-center">
       <div class="loading-spinner mx-auto mb-4"></div>
       <p class="text-gray-600">Carregando...</p>
     </div>
-  </div>
-
-  <!-- Floating Action Button -->
-  <button id="openFormBtn" class="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-primary-500 hover:bg-primary-600 text-white shadow-lg flex items-center justify-center z-40 focus:outline-none">
+  </div>  <!-- Floating Action Button -->  <button id="openFormBtn" class="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-primary-500 hover:bg-primary-600 text-white shadow-lg flex items-center justify-center z-40 focus:outline-none">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-  </button>
-
-  <!-- Drawer Overlay -->
-  <div id="drawerOverlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-40"></div>
-
-  <!-- Transaction Drawer -->
-  <aside id="formDrawer" class="fixed top-0 right-0 transform translate-x-full w-full sm:w-96 max-w-full h-full bg-white bg-opacity-95 backdrop-blur-lg shadow-xl transition-transform duration-300 z-50 overflow-y-auto">
+  </button>  <!-- Drawer Overlay -->  <div id="drawerOverlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-40"></div>  <!-- Transaction Drawer -->  <aside id="formDrawer" class="fixed top-0 right-0 transform translate-x-full w-full sm:w-96 max-w-full h-full bg-white bg-opacity-95 backdrop-blur-lg shadow-xl transition-transform duration-300 z-50 overflow-y-auto">
     <div class="flex items-center justify-between p-4 border-b border-gray-200">
       <h2 id="drawerTitle" class="text-lg font-semibold text-gray-800">Nova Transação</h2>
       <button id="closeFormBtn" class="text-gray-500 hover:text-gray-700">
@@ -126,10 +110,7 @@
         </div>
       </form>
     </div>
-  </aside>
-
-  <!-- Main Content -->
-  <main class="pt-24 p-4 max-w-6xl mx-auto">
+  </aside>  <!-- Main Content -->  <main class="pt-24 p-4 max-w-6xl mx-auto">
     <!-- Statistics -->
     <section class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
       <div class="bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-4 text-white">
@@ -148,55 +129,48 @@
         <h3 class="text-sm font-medium opacity-80">Tempo desde atualização</h3>
         <p id="updateTimer" class="text-2xl font-bold">--</p>
       </div>
-    </section>
+    </section><!-- Transactions Table -->
+<section class="bg-white rounded-lg shadow-lg overflow-hidden mb-6">
+  <div class="p-4 bg-primary-500 text-white flex justify-between items-center">
+    <h2 class="text-xl font-semibold">Transações</h2>
+    <button id="refreshBtn" class="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700 transition-colors duration-200">
+      <span id="refreshText">Atualizar</span>
+      <div id="refreshSpinner" class="loading-spinner hidden inline-block ml-2"></div>
+    </button>
+  </div>
+  <div class="hidden lg:block overflow-x-auto">
+    <table class="w-full">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Símbolo</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Operação</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantidade</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preço</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preço Atual</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lucro</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Taxa</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+        </tr>
+      </thead>
+      <tbody id="transactionTbody" class="bg-white divide-y divide-gray-200"></tbody>
+    </table>
+  </div>
+  <div id="mobileList" class="lg:hidden p-4 space-y-4"></div>
+  <div id="emptyState" class="text-center py-12 hidden">
+    <div class="text-6xl mb-4">📊</div>
+    <h3 class="text-xl font-semibold text-gray-700 mb-2">Nenhuma transação encontrada</h3>
+    <p class="text-gray-500 mb-4">Adicione sua primeira transação para começar a acompanhar seus investimentos.</p>
+  </div>
+</section>
 
-    <!-- Transactions Table -->
-    <section class="bg-white rounded-lg shadow-lg overflow-hidden mb-6">
-      <div class="p-4 bg-primary-500 text-white flex justify-between items-center">
-        <h2 class="text-xl font-semibold">Transações</h2>
-        <button id="refreshBtn" class="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700 transition-colors duration-200">
-          <span id="refreshText">Atualizar</span>
-          <div id="refreshSpinner" class="loading-spinner hidden inline-block ml-2"></div>
-        </button>
-      </div>
-      <div class="hidden lg:block overflow-x-auto">
-        <table class="w-full">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Símbolo</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Operação</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantidade</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preço</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preço Atual</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lucro</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Taxa</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
-            </tr>
-          </thead>
-          <tbody id="transactionTbody" class="bg-white divide-y divide-gray-200"></tbody>
-        </table>
-      </div>
-      <div id="mobileList" class="lg:hidden p-4 space-y-4"></div>
-      <div id="emptyState" class="text-center py-12 hidden">
-        <div class="text-6xl mb-4">📊</div>
-        <h3 class="text-xl font-semibold text-gray-700 mb-2">Nenhuma transação encontrada</h3>
-        <p class="text-gray-500 mb-4">Adicione sua primeira transação para começar a acompanhar seus investimentos.</p>
-      </div>
-    </section>
+<!-- Profit Chart -->
+<section class="bg-white rounded-lg shadow-lg p-6">
+  <h2 class="text-xl font-semibold text-gray-800 mb-4">Análise de Lucros</h2>
+  <div id="profitChart" class="w-full h-96"></div>
+</section>
 
-    <!-- Profit Chart -->
-    <section class="bg-white rounded-lg shadow-lg p-6">
-      <h2 class="text-xl font-semibold text-gray-800 mb-4">Análise de Lucros</h2>
-      <div id="profitChart" class="w-full h-96"></div>
-    </section>
-  </main>
-
-  <!-- Toast Container -->
-  <div id="toastContainer" class="fixed top-20 right-4 z-50 space-y-2"></div>
-
-  <!-- Delete Confirmation Modal -->
-  <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+  </main>  <!-- Toast Container -->  <div id="toastContainer" class="fixed top-20 right-4 z-50 space-y-2"></div>  <!-- Delete Confirmation Modal -->  <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
     <div class="bg-white p-6 rounded-lg max-w-md w-full mx-4">
       <h3 class="text-lg font-semibold mb-4">Confirmar Exclusão</h3>
       <p class="text-gray-600 mb-6">Tem certeza que deseja excluir esta transação? Esta ação não pode ser desfeita.</p>
@@ -205,9 +179,7 @@
         <button id="confirmDelete" class="px-4 py-2 bg-danger-500 text-white rounded hover:bg-red-600 transition-colors duration-200">Excluir</button>
       </div>
     </div>
-  </div>
-
-  <script type="module">
+  </div>  <script type="module">
     import('./firebase-init.js').then(({ auth }) => {
       import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js').then(({ onAuthStateChanged, signOut }) => {
         onAuthStateChanged(auth, user => {
@@ -217,7 +189,7 @@
           }
           app.state.userEmail = user.email;
           document.getElementById('userName').textContent = user.displayName || user.email.split('@')[0];
-          app.init();
+          app.init(); // <-- inicializa APENAS depois da autenticação
         });
         document.getElementById('signOutBtn').onclick = async () => {
           try {
@@ -234,8 +206,8 @@
     });
 
     const app = {
-      state:
-        { transactions: [], userEmail: '', marketPrices: {}, lastUpdate: null, deleteId: null },
+      state: { transactions: [], userEmail: '', marketPrices: {}, lastUpdate: null, deleteId: null },
+      _eventsBound: false, // garante que bindEvents corre só uma vez
       elements: {
         openFormBtn:     document.getElementById('openFormBtn'),
         closeFormBtn:    document.getElementById('closeFormBtn'),
@@ -272,7 +244,8 @@
       },
 
       init() {
-        this.bindEvents();
+        if (!this._eventsBound) this.bindEvents();
+        this._eventsBound = true;
         this.elements.date.value = new Date().toISOString().split('T')[0];
         this.fetchTransactions();
         this.startPriceUpdater();
@@ -585,12 +558,12 @@
           if(!this.state.lastUpdate) return;
           const diff = Math.floor((Date.now()-new Date(this.state.lastUpdate))/1000);
           const h = Math.floor(diff/3600), m = Math.floor((diff%3600)/60), s = diff%60;
-          this.elements.updateTimer.textContent = h?`${h}h ${m}m ${s}s`: m?`${m}m ${s}s}`:`${s}s}`;
+          this.elements.updateTimer.textContent =
+            h ? `${h}h ${m}m ${s}s` :
+            m ? `${m}m ${s}s` :
+                `${s}s`;
         },1000);
       }
     };
-
-    document.addEventListener('DOMContentLoaded',()=>app.init());
-  </script>
-</body>
+  </script></body>
 </html>
