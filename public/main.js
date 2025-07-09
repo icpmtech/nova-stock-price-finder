@@ -1,26 +1,38 @@
-import { $ } from './utils.js';
-import { renderAll } from './render.js';
-import { registerEventHandlers } from './events.js';
-import { initializeUser, registerAuthHandlers } from './auth.js';
-import { loadInitialData } from './firebaseSync.js';
+/* -------------------------------------------------------------------------- */
+/*  main.js – single-page bootstrap                                           */
+/* -------------------------------------------------------------------------- */
 
+import { $ } from './utils.js';
+import { registerEventHandlers } from './events.js';
+import { initializeAuth, registerAuthHandlers } from './auth.js';  // ✅ new names
+
+/* Optional splash-screen fade-out ----------------------------------------- */
 function hideLoadingScreen() {
+  const splash = $('#loadingScreen');
+  if (!splash) return;
   setTimeout(() => {
-    $('#loadingScreen').style.opacity = '0';
-    setTimeout(() => ($('#loadingScreen').style.display = 'none'), 300);
+    splash.style.opacity = '0';
+    setTimeout(() => (splash.style.display = 'none'), 300);
   }, 1000);
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
+/* -------------------------------------------------------------------------- */
+/*  App bootstrap                                                             */
+/* -------------------------------------------------------------------------- */
+document.addEventListener('DOMContentLoaded', () => {
   hideLoadingScreen();
-  initializeUser();
 
-  await loadInitialData();   // ⬅ wait for Firestore
-  renderAll();               // first paint with live data
-
+  /* 1. Wire up UI interactions (language, currency, dark mode, etc.) */
   registerEventHandlers();
+
+  /* 2. Wire up “Sign out” button */
   registerAuthHandlers();
 
-  document.querySelectorAll('.animate-fade-in, .animate-slide-up')
-          .forEach((el, i) => (el.style.animationDelay = `${i * 0.1}s`));
+  /* 3. Start Firebase Auth flow.
+        - When user is signed in, initializeAuth() will:
+            ▸ set state.userEmail
+            ▸ load all Firestore data (loadInitialData)
+            ▸ call renderAll()
+     */
+  initializeAuth();
 });
