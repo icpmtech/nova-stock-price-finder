@@ -17,29 +17,28 @@ import {
   renderCategoryChart
 } from './charts.js';
 
-/* -------------------------------------------------------------------------- */
-/* Dashboard summary cards (transaction-driven)                               */
-/* -------------------------------------------------------------------------- */
+/* ==========================================================================
+   Summary cards – driven by transactions                                    */
+/* ========================================================================== */
 export function renderSummaryCards() {
   const wrap = $('#summaryCards');
   wrap.innerHTML = '';
 
-  /* ---------- Group transactions by YYYY-MM → { monthKey: { income: sum … } } */
+  /* group by month */
   const monthBuckets = {};
   recentTransactionsData.forEach(tx => {
-    const key = tx.date.slice(0, 7);                   // "2025-07"
+    const key = tx.date.slice(0, 7);
     (monthBuckets[key] ??= { income: 0, expense: 0, investment: 0 })[tx.type] += tx.amount;
   });
 
-  /* ---------- Current & previous month keys -------------------------------- */
-  const now = new Date();
+  const now     = new Date();
   const curKey  = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   const prevKey = `${now.getFullYear()}-${String(now.getMonth()).padStart(2, '0')}`;
 
   const cur  = monthBuckets[curKey]  ?? { income: 0, expense: 0, investment: 0 };
   const prev = monthBuckets[prevKey] ?? { income: 0, expense: 0, investment: 0 };
 
-  /* ---------- Cumulative (all-time) sums ----------------------------------- */
+  /* cumulative all-time */
   const cum = recentTransactionsData.reduce(
     (acc, tx) => {
       acc[tx.type] += tx.amount;
@@ -49,58 +48,58 @@ export function renderSummaryCards() {
     { income: 0, expense: 0, investment: 0, net: 0 }
   );
 
-  /* ---------- helpers ------------------------------------------------------ */
+  /* helpers */
   const pct = (now, before) => before ? ((now - before) / before) * 100 : 0;
   const fmt = v => `${v >= 0 ? '+' : ''}${v.toFixed(1)}%`;
   const cls = v => v > 0 ? 'text-success' : v < 0 ? 'text-danger' : 'text-gray-500';
 
-  /* ---------- Card definitions -------------------------------------------- */
+  /* card definitions */
   const cards = [
     {
       title: 'Net Balance',
       value: formatCurrency(cum.net),
-      icon: 'wallet',
+      icon:  'wallet',
       color: 'bg-gradient-to-r from-blue-500 to-blue-600',
-      change: pct(cum.net, cum.net - (cur.income - cur.expense + cur.investment)) // change vs this month delta
+      change: pct(cum.net, cum.net - (cur.income - cur.expense + cur.investment))
     },
     {
       title: 'Investments (all time)',
       value: formatCurrency(cum.investment),
-      icon: 'trending-up',
+      icon:  'trending-up',
       color: 'bg-gradient-to-r from-green-500 to-green-600',
       change: pct(cur.investment, prev.investment)
     },
     {
       title: 'Income (this month)',
       value: formatCurrency(cur.income),
-      icon: 'arrow-up',
+      icon:  'arrow-up',
       color: 'bg-gradient-to-r from-emerald-500 to-emerald-600',
       change: pct(cur.income, prev.income)
     },
     {
       title: 'Expenses (this month)',
       value: formatCurrency(cur.expense),
-      icon: 'arrow-down',
+      icon:  'arrow-down',
       color: 'bg-gradient-to-r from-red-500 to-red-600',
       change: pct(cur.expense, prev.expense)
     },
     {
       title: 'Income Δ vs last month',
       value: fmt(pct(cur.income, prev.income)),
-      icon: 'activity',
+      icon:  'activity',
       color: 'bg-gradient-to-r from-purple-500 to-purple-600',
-      rawChange: pct(cur.income, prev.income)   // for colour
+      rawChange: pct(cur.income, prev.income)
     },
     {
       title: 'Expense Δ vs last month',
       value: fmt(pct(cur.expense, prev.expense)),
-      icon: 'trending-down',
+      icon:  'trending-down',
       color: 'bg-gradient-to-r from-orange-500 to-orange-600',
       rawChange: pct(cur.expense, prev.expense)
     }
   ];
 
-  /* ---------- Render cards ------------------------------------------------- */
+  /* render cards */
   cards.forEach(card => {
     const changeVal = card.rawChange ?? card.change;
     const el = document.createElement('div');
@@ -120,37 +119,31 @@ export function renderSummaryCards() {
   });
 }
 
-
-
 /* ==========================================================================
-   Budgets                                                                   */
-/* ==========================================================================
-   Budgets – dynamic % based on current-month expense transactions           */
-import { recentTransactionsData } from './data.js';   // ⬅ add this near top
-
+   Budgets – current-month spend from transactions                           */
+/* ========================================================================== */
 export function renderBudgetProgress() {
   const wrap = $('#budgetList');
   wrap.innerHTML = '';
 
-  const list = walletData.budgets ?? [];
+  const list = walletData.budgets ?? budgetsCache ?? [];
   if (!list.length) return;
 
-  const monthKey = new Date().toISOString().slice(0, 7); // "2025-07"
+  const monthKey = new Date().toISOString().slice(0, 7);
 
   list.forEach(budget => {
-    /* ---- 1. Calculate “spent” from transactions ----------------------- */
     const spent = recentTransactionsData
       .filter(tx =>
         tx.type === 'expense' &&
         tx.date.startsWith(monthKey) &&
-        (tx.category === budget.category ||   // exact match e.g. "Food & Dining"
-         tx.category === budget.category.toLowerCase().replace(/ & | /g, ''))) // fallback slug match
+        (tx.category === budget.category ||
+         tx.category === budget.category.toLowerCase().replace(/ & | /g, ''))
+      )
       .reduce((sum, tx) => sum + tx.amount, 0);
 
     const pct  = (spent / budget.budget) * 100;
     const left = budget.budget - spent;
 
-    /* ---- 2. Render bar ------------------------------------------------- */
     const bar = document.createElement('div');
     bar.className = 'space-y-2';
     bar.innerHTML = `
@@ -165,7 +158,7 @@ export function renderBudgetProgress() {
              style="width:${Math.min(pct, 100)}%;background-color:${budget.color}"></div>
       </div>
       <div class="flex justify-between items-center text-xs">
-        <span class="${pct > 90 ? 'text-danger' : pct > 70 ? 'text-warning' : 'text-success'}">
+        <span class="${pct>90?'text-danger':pct>70?'text-warning':'text-success'}">
           ${pct.toFixed(1)}% used
         </span>
         <span class="text-gray-500">${formatCurrency(left)} left</span>
@@ -174,35 +167,27 @@ export function renderBudgetProgress() {
     wrap.appendChild(bar);
   });
 }
-/* ==========================================================================
-   Goals                                                                     */
-/* ==========================================================================
-   Goals – dynamic progress based on investment transactions                 */
 
+/* ==========================================================================
+   Goals – progress from investment transactions                             */
+/* ========================================================================== */
 export function renderFinancialGoals() {
   const wrap = $('#goalsList');
   wrap.innerHTML = '';
 
-  const list = walletData.goals ?? [];
+  const list = walletData.goals ?? goalsCache ?? [];
   if (!list.length) return;
 
-  /* helper to slugify category names (“Emergency Fund” -> “emergencyfund”) */
   const slug = s => s.toLowerCase().replace(/[^a-z0-9]/g, '');
 
   list.forEach(goal => {
-    /* ---- 1. Calculate contributions from transactions ------------------ */
     const contrib = recentTransactionsData
-      .filter(tx =>
-        tx.type === 'investment' &&
-        slug(tx.category) === slug(goal.name)
-      )
+      .filter(tx => tx.type === 'investment' && slug(tx.category) === slug(goal.name))
       .reduce((sum, tx) => sum + tx.amount, 0);
 
     const current = (goal.current || 0) + contrib;
     const pct     = (current / goal.target) * 100;
-    const left    = goal.target - current;
 
-    /* ---- 2. Render bar ------------------------------------------------- */
     const row = document.createElement('div');
     row.className = 'space-y-2';
     row.innerHTML = `
@@ -231,11 +216,12 @@ export function renderFinancialGoals() {
 
 /* ==========================================================================
    Recent Transactions (sidebar)                                             */
+/* ========================================================================== */
 export function renderRecentTransactions() {
   const wrap = $('#transactionsList');
   wrap.innerHTML = '';
 
-  recentTransactionsData.slice(0,5).forEach(tx => {
+  recentTransactionsData.slice(0, 5).forEach(tx => {
     const iconC = tx.type==='income'?'text-success':tx.type==='expense'?'text-danger':'text-primary';
     const el = document.createElement('div');
     el.className = 'flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors';
@@ -259,15 +245,16 @@ export function renderRecentTransactions() {
 }
 
 /* ==========================================================================
-   Assets cards (with ✏️ Edit button)                                        */
+   Assets – cards with edit button                                           */
+/* ========================================================================== */
 export function renderAssets() {
   const wrap = $('#assetsList');
   wrap.innerHTML = '';
 
   assetsData.forEach(asset => {
     const total = asset.quantity * asset.priceUSD;
-    const chCls = asset.change>=0?'text-success':'text-danger';
-    const chIco = asset.change>=0?'trending-up':'trending-down';
+    const chCls = asset.change >= 0 ? 'text-success' : 'text-danger';
+    const chIco = asset.change >= 0 ? 'trending-up' : 'trending-down';
 
     const card = document.createElement('div');
     card.className = 'relative bg-gray-50 dark:bg-gray-800 rounded-xl p-4 hover:shadow-md transition-all duration-200';
@@ -304,7 +291,8 @@ export function renderAssets() {
 }
 
 /* ==========================================================================
-   All-transactions table                                                    */
+   All Transactions table                                                    */
+/* ========================================================================== */
 export function renderAllTransactions() {
   const thead = $('#transactionsThead');
   const tbody = $('#transactionsBody');
@@ -322,7 +310,7 @@ export function renderAllTransactions() {
   tbody.innerHTML = '';
   recentTransactionsData.forEach(tx => {
     const row = document.createElement('tr');
-    row.dataset.id = tx.id;   // enable click-to-edit
+    row.dataset.id = tx.id;
     row.className  = 'hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer';
 
     const typeCls = tx.type==='income'
@@ -348,6 +336,7 @@ export function renderAllTransactions() {
 
 /* ==========================================================================
    Static labels / translations                                              */
+/* ========================================================================== */
 export function updateTranslations() {
   $('#title').textContent               = translate('title');
   $('#subtitle').textContent            = translate('subtitle');
@@ -368,6 +357,7 @@ export function updateTranslations() {
 
 /* ==========================================================================
    Master render orchestrator                                                */
+/* ========================================================================== */
 export function renderAll() {
   renderSummaryCards();
   renderPortfolioChart($('#portfolioChart').getContext('2d'));
