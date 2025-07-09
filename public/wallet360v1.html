@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <title>Wallet 360 - Complete Financial Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Tailwind -->
+     <script>
+    window.tailwind = {
+      config: {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              primary:   { DEFAULT: '#6366f1', light: '#818cf8', dark: '#4f46e5' },
+              success:   '#10b981',
+              warning:   '#f59e0b',
+              danger:    '#ef4444',
+              card:      '#ffffff',
+              cardDark:  '#1f2937',
+              bgSoft:    '#f8fafc',
+              bgSoftDark:'#0f172a'
+            },
+            fontFamily: {
+              sans: ['Inter','ui-sans-serif','system-ui']
+            },
+            animation: {
+              'fade-in':      'fadeIn 0.5s ease-in-out',
+              'slide-up':     'slideUp 0.3s ease-out',
+              'pulse-slow':   'pulse 3s infinite',
+              'bounce-subtle':'bounceSubtle 2s infinite'
+            },
+            keyframes: {
+              fadeIn: {
+                '0%':   { opacity: '0', transform: 'translateY(10px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' }
+              },
+              slideUp: {
+                '0%': { transform: 'translateY(20px)', opacity: '0' },
+                '100%': { transform: 'translateY(0)',    opacity: '1' }
+              },
+              bounceSubtle: {
+                '0%, 100%': { transform: 'translateY(0)' },
+                '50%':      { transform: 'translateY(-5px)' }
+              }
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body class="bg-bgSoft dark:bg-bgSoftDark text-gray-900 dark:text-gray-200 min-h-screen transition-all duration-300">
+  <div id="header-widget" ></div>
+  <!-- 2) Include the widget script -->
+<script type="module" src="header.js"></script>
+  <!-- Loading Screen -->
+  <div id="loadingScreen" class="fixed inset-0 bg-white dark:bg-gray-900 z-50 flex items-center justify-center">
+    <div class="text-center">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+      <p class="text-lg font-medium">Loading Wallet 360...</p>
+    </div>
+  </div>
+
+  <div class="container mx-auto p-4 max-w-7xl">
+    <!-- Header -->
+    <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-6 animate-fade-in">
+      <div class="flex items-center gap-3">
+        <div class="bg-gradient-to-r from-primary to-primary-light p-3 rounded-2xl">
+          <i data-lucide="wallet" class="w-8 h-8 text-white"></i>
+        </div>
+        <div>
+          <h1 id="title" class="text-3xl font-bold bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent">Wallet 360</h1>
+          <p class="text-sm text-gray-600 dark:text-gray-400" id="subtitle">Complete Financial Dashboard</p>
+        </div>
+      </div>
+      <div class="flex items-center flex-wrap gap-3">
+        <button id="darkToggle" class="p-2 rounded-full bg-primary hover:bg-primary-dark text-white transition-colors duration-200" aria-label="Toggle dark mode">
+          <i data-lucide="moon" class="w-5 h-5"></i>
+        </button>
+        <select id="languageSelect" class="border rounded-lg px-3 py-2 bg-card dark:bg-cardDark transition-colors">
+          <option value="en" selected>English</option>
+          <option value="pt">Português</option>
+        </select>
+        <select id="currencySelect" class="border rounded-lg px-3 py-2 bg-card dark:bg-cardDark transition-colors">
+          <option value="USD" selected>USD $</option>
+          <option value="EUR">EUR €</option>
+        </select>
+        <div class="flex items-center gap-2 bg-card dark:bg-cardDark rounded-lg px-3 py-2">
+          <i data-lucide="user" class="w-4 h-4"></i>
+          <span id="userName" class="text-sm font-medium"></span>
+        </div>
+        <button id="signOut" class="text-xs text-danger hover:underline hidden transition-colors">Sign out</button>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="flex flex-wrap gap-3 mb-6 animate-slide-up">
+      <button type="button" class="quick-action-btn bg-success hover:bg-green-600 text-white">
+        <i data-lucide="plus" class="w-4 h-4"></i>
+        <span id="addIncome">Add Income</span>
+      </button>
+      <button  type="button" class="quick-action-btn bg-danger hover:bg-red-600 text-white">
+        <i data-lucide="minus" class="w-4 h-4"></i>
+        <span id="addExpense">Add Expense</span>
+      </button>
+      <button type="button" class="quick-action-btn bg-primary hover:bg-primary-dark text-white">
+        <i data-lucide="trending-up" class="w-4 h-4"></i>
+        <span id="addInvestment">Add Investment</span>
+      </button>
+      <button type="button" class="quick-action-btn bg-warning hover:bg-yellow-600 text-white">
+        <i data-lucide="goal" class="w-4 h-4"></i>
+        <span id="setGoal">Set Goal</span>
+      </button>
+    </div>
+
+    <!-- Summary Cards -->
+    <div id="summaryCards" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4 mb-6 animate-fade-in"></div>
+
+    <!-- Main Dashboard Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Left Column - Charts -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Portfolio Overview -->
+        <div class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6 animate-slide-up">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold flex items-center gap-2">
+              <i data-lucide="trending-up" class="w-5 h-5 text-primary"></i>
+              <span id="portfolioOverview">Portfolio Overview</span>
+            </h2>
+            <div class="flex gap-2">
+              <button class="text-sm px-3 py-1 bg-primary/10 text-primary rounded-full hover:bg-primary/20 transition-colors">1M</button>
+              <button class="text-sm px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">3M</button>
+              <button class="text-sm px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">1Y</button>
+            </div>
+          </div>
+          <canvas id="portfolioChart" style="max-height: 500px;"></canvas>
+        </div>
+
+        <!-- Income vs Expenses -->
+        <div class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6 animate-slide-up">
+          <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+            <i data-lucide="bar-chart-3" class="w-5 h-5 text-success"></i>
+            <span id="incomeExpenses">Income vs Expenses</span>
+          </h2>
+          <canvas id="incomeExpensesChart" style="max-height: 500px;"></canvas>
+        </div>
+
+        <!-- Spending by Category -->
+        <div class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6 animate-slide-up">
+          <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+            <i data-lucide="pie-chart" class="w-5 h-5 text-warning"></i>
+            <span id="spendingByCategory">Spending by Category</span>
+          </h2>
+          <canvas id="categoryChart" style="max-height: 500px;" ></canvas>
+        </div>
+      </div>
+
+      <!-- Right Column - Widgets -->
+      <div class="space-y-6">
+        <!-- Budget Progress -->
+        <div class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6 animate-slide-up">
+          <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+            <i data-lucide="target" class="w-5 h-5 text-primary"></i>
+            <span id="budgetProgress">Budget Progress</span>
+          </h2>
+          <div id="budgetList" class="space-y-3"></div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6 animate-slide-up">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold flex items-center gap-2">
+              <i data-lucide="history" class="w-5 h-5 text-gray-600"></i>
+              <span id="recentTransactions">Recent Transactions</span>
+            </h2>
+            <button class="text-sm text-primary hover:underline">View All</button>
+          </div>
+          <div id="transactionsList" class="space-y-3"></div>
+        </div>
+
+        <!-- Financial Goals -->
+        <div class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6 animate-slide-up">
+          <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
+            <i data-lucide="flag" class="w-5 h-5 text-success"></i>
+            <span id="financialGoals">Financial Goals</span>
+          </h2>
+          <div id="goalsList" class="space-y-3"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detailed Sections -->
+    <div class="mt-8 space-y-6">
+      <!-- Assets Portfolio -->
+      <section class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6 animate-fade-in">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-semibold flex items-center gap-2">
+            <i data-lucide="briefcase" class="w-5 h-5 text-primary"></i>
+            <span id="assetsPortfolio">Assets Portfolio</span>
+          </h2>
+          <div class="flex gap-2">
+            <button class="text-sm px-3 py-1 bg-primary text-white rounded-full hover:bg-primary-dark transition-colors">Stocks</button>
+            <button class="text-sm px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">Crypto</button>
+            <button class="text-sm px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">Bonds</button>
+          </div>
+        </div>
+        <div id="assetsList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </section>
+
+      <!-- All Transactions -->
+      <section class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6 animate-fade-in">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-semibold flex items-center gap-2">
+            <i data-lucide="list" class="w-5 h-5 text-gray-600"></i>
+            <span id="allTransactions">All Transactions</span>
+          </h2>
+          <div class="flex gap-2">
+            <input type="text" id="searchTransactions" placeholder="Search transactions..." class="px-3 py-1 border rounded-lg text-sm bg-transparent">
+            <select id="filterTransactions" class="px-3 py-1 border rounded-lg text-sm bg-transparent">
+              <option value="all">All Types</option>
+              <option value="income">Income</option>
+              <option value="expense">Expense</option>
+              <option value="investment">Investment</option>
+            </select>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
+            <thead id="transactionsThead" class="bg-gray-50 dark:bg-gray-800"></thead>
+            <tbody id="transactionsBody" class="divide-y divide-gray-200 dark:divide-gray-700"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- Add Transaction Modal -->
+  <div id="transactionModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+    <div class="bg-card dark:bg-cardDark rounded-2xl p-6 w-full max-w-md mx-4">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold" id="modalTitle">Add Transaction</h3>
+        <button id="closeModal" class="text-gray-500 hover:text-gray-700">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <form id="transactionForm" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">Type</label>
+          <select id="transactionType" class="w-full border rounded-lg px-3 py-2 bg-transparent">
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+            <option value="investment">Investment</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Amount</label>
+          <input type="number" id="transactionAmount" class="w-full border rounded-lg px-3 py-2 bg-transparent" required>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Category</label>
+          <select id="transactionCategory" class="w-full border rounded-lg px-3 py-2 bg-transparent">
+            <option value="food">Food & Dining</option>
+            <option value="transport">Transportation</option>
+            <option value="shopping">Shopping</option>
+            <option value="bills">Bills & Utilities</option>
+            <option value="entertainment">Entertainment</option>
+            <option value="health">Health & Fitness</option>
+            <option value="investment">Investment</option>
+            <option value="salary">Salary</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Description</label>
+          <input type="text" id="transactionDescription" class="w-full border rounded-lg px-3 py-2 bg-transparent" required>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Date</label>
+          <input type="date" id="transactionDate" class="w-full border rounded-lg px-3 py-2 bg-transparent" required>
+        </div>
+        <div class="flex gap-3 pt-4">
+          <button type="button" id="cancelTransaction" class="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">Cancel</button>
+          <button type="submit" class="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // CSS for quick action buttons
+    const style = window.document.createElement('style');
+    style.textContent = `
+      .quick-action-btn {
+        @apply flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all duration-200 transform hover:scale-105;
+      }
+      .progress-bar {
+        @apply w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden;
+      }
+      .progress-fill {
+        @apply h-full transition-all duration-500 ease-out;
+      }
+    `;
+    window.document.head.appendChild(style);
+
+    /***** GLOBAL STATE & ELEMENTS *****/
+    const state = {
+      transactions: [],
+      budgets: [],
+      goals: [],
+      userEmail: '',
+      currentView: 'dashboard'
+    };
+
+    /***** ENHANCED FINANCIAL DATA *****/
+    const walletData = {
+      // Portfolio history (enhanced)
+      portfolioHistory: [
+        { date: '2024-12-01', total: 45000, investments: 25000, savings: 15000, checking: 5000 },
+        { date: '2024-12-15', total: 46500, investments: 26000, savings: 15200, checking: 5300 },
+        { date: '2025-01-01', total: 48000, investments: 27500, savings: 15500, checking: 5000 },
+        { date: '2025-01-15', total: 49200, investments: 28500, savings: 15700, checking: 5000 },
+        { date: '2025-02-01', total: 50500, investments: 29800, savings: 15700, checking: 5000 },
+        { date: '2025-02-15', total: 51800, investments: 31000, savings: 15800, checking: 5000 },
+        { date: '2025-03-01', total: 53200, investments: 32500, savings: 15700, checking: 5000 },
+        { date: '2025-03-15', total: 54600, investments: 33800, savings: 15800, checking: 5000 },
+        { date: '2025-04-01', total: 56000, investments: 35200, savings: 15800, checking: 5000 },
+        { date: '2025-04-15', total: 57500, investments: 36700, savings: 15800, checking: 5000 },
+        { date: '2025-05-01', total: 59000, investments: 38200, savings: 15800, checking: 5000 },
+        { date: '2025-05-15', total: 60800, investments: 40000, savings: 15800, checking: 5000 },
+        { date: '2025-06-01', total: 62500, investments: 41700, savings: 15800, checking: 5000 },
+        { date: '2025-06-15', total: 64200, investments: 43400, savings: 15800, checking: 5000 },
+        { date: '2025-07-01', total: 66000, investments: 45200, savings: 15800, checking: 5000 }
+      ],
+
+      // Monthly income vs expenses
+      monthlyData: [
+        { month: 'Jan', income: 8500, expenses: 6200 },
+        { month: 'Feb', income: 8500, expenses: 5800 },
+        { month: 'Mar', income: 9000, expenses: 6400 },
+        { month: 'Apr', income: 8500, expenses: 5900 },
+        { month: 'May', income: 8500, expenses: 6100 },
+        { month: 'Jun', income: 8500, expenses: 5700 },
+        { month: 'Jul', income: 8500, expenses: 6000 }
+      ],
+
+      // Spending categories
+      spendingCategories: {
+        'Food & Dining': 1200,
+        'Transportation': 450,
+        'Shopping': 800,
+        'Bills & Utilities': 950,
+        'Entertainment': 350,
+        'Health & Fitness': 200,
+        'Investment': 2000,
+        'Other': 400
+      },
+
+      // Budget data
+      budgets: [
+        { category: 'Food & Dining', budget: 1500, spent: 1200, color: '#ef4444' },
+        { category: 'Transportation', budget: 500, spent: 450, color: '#f59e0b' },
+        { category: 'Shopping', budget: 1000, spent: 800, color: '#8b5cf6' },
+        { category: 'Bills & Utilities', budget: 1000, spent: 950, color: '#06b6d4' },
+        { category: 'Entertainment', budget: 600, spent: 350, color: '#84cc16' }
+      ],
+
+      // Financial goals
+      goals: [
+        { name: 'Emergency Fund', target: 20000, current: 15800, deadline: '2025-12-31', color: '#10b981' },
+        { name: 'Vacation Fund', target: 5000, current: 2800, deadline: '2025-08-15', color: '#f59e0b' },
+        { name: 'New Car', target: 25000, current: 18500, deadline: '2026-06-30', color: '#6366f1' },
+        { name: 'Investment Portfolio', target: 50000, current: 45200, deadline: '2025-12-31', color: '#8b5cf6' }
+      ]
+    };
+
+    // Enhanced assets data
+    const assetsData = [
+      { name: 'AAPL', type: 'Stock', sector: 'Technology', country: 'USA', risk: 'Medium', quantity: 25, priceUSD: 195.50, change: 2.34 },
+      { name: 'GOOGL', type: 'Stock', sector: 'Technology', country: 'USA', risk: 'Medium', quantity: 8, priceUSD: 2750.00, change: -1.23 },
+      { name: 'MSFT', type: 'Stock', sector: 'Technology', country: 'USA', risk: 'Medium', quantity: 15, priceUSD: 420.80, change: 0.87 },
+      { name: 'JNJ', type: 'Stock', sector: 'Healthcare', country: 'USA', risk: 'Low', quantity: 20, priceUSD: 165.30, change: 0.45 },
+      { name: 'BTC', type: 'Crypto', sector: 'Cryptocurrency', country: 'Global', risk: 'High', quantity: 0.15, priceUSD: 67500.00, change: 5.67 },
+      { name: 'ETH', type: 'Crypto', sector: 'Cryptocurrency', country: 'Global', risk: 'High', quantity: 2.5, priceUSD: 3800.00, change: 3.45 },
+      { name: 'Tesla', type: 'Stock', sector: 'Automotive', country: 'USA', risk: 'High', quantity: 12, priceUSD: 245.60, change: -2.10 },
+      { name: 'SPY', type: 'ETF', sector: 'Market Index', country: 'USA', risk: 'Medium', quantity: 50, priceUSD: 425.30, change: 1.12 }
+    ];
+
+    // Sample recent transactions
+    const recentTransactionsData = [
+      { id: 1, type: 'expense', category: 'food', amount: 45.50, description: 'Grocery shopping', date: '2025-07-08', icon: 'shopping-cart' },
+      { id: 2, type: 'income', category: 'salary', amount: 4250.00, description: 'Monthly salary', date: '2025-07-01', icon: 'banknote' },
+      { id: 3, type: 'expense', category: 'transport', amount: 25.00, description: 'Gas station', date: '2025-07-07', icon: 'fuel' },
+      { id: 4, type: 'investment', category: 'investment', amount: 1000.00, description: 'AAPL stock purchase', date: '2025-07-05', icon: 'trending-up' },
+      { id: 5, type: 'expense', category: 'entertainment', amount: 65.00, description: 'Movie night', date: '2025-07-06', icon: 'film' }
+    ];
+
+    const exchangeRates = { USD: 1, EUR: 0.92 };
+
+    /***** ENHANCED I18N *****/
+    const i18n = {
+      en: {
+        title: 'Wallet 360',
+        subtitle: 'Complete Financial Dashboard',
+        cards: {
+          totalBalance: 'Total Balance',
+          investments: 'Investments',
+          savings: 'Savings',
+          checking: 'Checking',
+          monthlyIncome: 'Monthly Income',
+          monthlyExpenses: 'Monthly Expenses'
+        },
+        sections: {
+          portfolioOverview: 'Portfolio Overview',
+          incomeExpenses: 'Income vs Expenses',
+          spendingByCategory: 'Spending by Category',
+          budgetProgress: 'Budget Progress',
+          recentTransactions: 'Recent Transactions',
+          financialGoals: 'Financial Goals',
+          assetsPortfolio: 'Assets Portfolio',
+          allTransactions: 'All Transactions'
+        },
+        actions: {
+          addIncome: 'Add Income',
+          addExpense: 'Add Expense',
+          addInvestment: 'Add Investment',
+          setGoal: 'Set Goal'
+        },
+        table: {
+          date: 'Date',
+          type: 'Type',
+          category: 'Category',
+          description: 'Description',
+          amount: 'Amount'
+        }
+      },
+      pt: {
+        title: 'Carteira 360',
+        subtitle: 'Painel Financeiro Completo',
+        cards: {
+          totalBalance: 'Saldo Total',
+          investments: 'Investimentos',
+          savings: 'Poupança',
+          checking: 'Conta Corrente',
+          monthlyIncome: 'Renda Mensal',
+          monthlyExpenses: 'Despesas Mensais'
+        },
+        sections: {
+          portfolioOverview: 'Visão Geral do Portfólio',
+          incomeExpenses: 'Receitas vs Despesas',
+          spendingByCategory: 'Gastos por Categoria',
+          budgetProgress: 'Progresso do Orçamento',
+          recentTransactions: 'Transações Recentes',
+          financialGoals: 'Metas Financeiras',
+          assetsPortfolio: 'Portfólio de Ativos',
+          allTransactions: 'Todas as Transações'
+        },
+        actions: {
+          addIncome: 'Adicionar Receita',
+          addExpense: 'Adicionar Despesa',
+          addInvestment: 'Adicionar Investimento',
+          setGoal: 'Definir Meta'
+        },
+        table: {
+          date: 'Data',
+          type: 'Tipo',
+          category: 'Categoria',
+          description: 'Descrição',
+          amount: 'Valor'
+        }
+      }
+    };
+
+    /***** STATE MANAGEMENT *****/
+    let currentLang = 'en';
+    let currentCurrency = 'USD';
+    let isDark = false;
+
+    /***** UTILITY FUNCTIONS *****/
+    const $ = sel => document.querySelector(sel);
+    const $$ = sel => document.querySelectorAll(sel);
+    function translate(path) {
+      return path.split('.').reduce((o, k) => o[k], i18n[currentLang]);
+    }
+    function formatCurrency(usd) {
+      const value = usd * exchangeRates[currentCurrency];
+      const locale = currentLang === 'en' ? 'en-US' : 'pt-PT';
+      return new Intl.NumberFormat(locale, {
+        style: 'currency',
+        currency: currentCurrency
+      }).format(value);
+    }
+    function formatPercent(value) {
+      return new Intl.NumberFormat(currentLang === 'en' ? 'en-US' : 'pt-PT', {
+        style: 'percent',
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 2
+      }).format(value / 100);
+    }
+
+    /***** CHART MANAGEMENT *****/
+    let charts = {};
+    function destroyChart(name) {
+      if (charts[name]) {
+        charts[name].destroy();
+        delete charts[name];
+      }
+    }
+    function destroyAllCharts() {
+      Object.keys(charts).forEach(destroyChart);
+    }
+
+    /***** RENDERING FUNCTIONS *****/
+    function renderSummaryCards() {
+      const container = $('#summaryCards');
+      container.innerHTML = '';
+      
+      const latestData = walletData.portfolioHistory.at(-1);
+      const monthlyData = walletData.monthlyData.at(-1);
+      
+      const cards = [
+        { 
+          title: translate('cards.totalBalance'),
+          value: formatCurrency(latestData.total),
+          icon: 'wallet',
+          color: 'bg-gradient-to-r from-blue-500 to-blue-600',
+          change: '+5.2%'
+        },
+        { 
+          title: translate('cards.investments'),
+          value: formatCurrency(latestData.investments),
+          icon: 'trending-up',
+          color: 'bg-gradient-to-r from-green-500 to-green-600',
+          change: '+8.1%'
+        },
+        { 
+          title: translate('cards.savings'),
+          value: formatCurrency(latestData.savings),
+          icon: 'piggy-bank',
+          color: 'bg-gradient-to-r from-purple-500 to-purple-600',
+          change: '+0.6%'
+        },
+        { 
+          title: translate('cards.checking'),
+          value: formatCurrency(latestData.checking),
+          icon: 'credit-card',
+          color: 'bg-gradient-to-r from-orange-500 to-orange-600',
+          change: '0.0%'
+        },
+        { 
+          title: translate('cards.monthlyIncome'),
+          value: formatCurrency(monthlyData.income),
+          icon: 'arrow-up',
+          color: 'bg-gradient-to-r from-emerald-500 to-emerald-600',
+          change: '+2.3%'
+        },
+        { 
+          title: translate('cards.monthlyExpenses'),
+          value: formatCurrency(monthlyData.expenses),
+          icon: 'arrow-down',
+          color: 'bg-gradient-to-r from-red-500 to-red-600',
+          change: '-3.5%'
+        }
+      ];
+
+      cards.forEach(card => {
+        const cardElement = document.createElement('div');
+        cardElement.className = 'bg-card dark:bg-cardDark rounded-2xl shadow-lg p-4 transition-all duration-300 hover:shadow-xl hover:scale-105';
+        cardElement.innerHTML = `
+          <div class="flex items-center justify-between mb-2">
+            <div class="${card.color} p-2 rounded-xl">
+              <i data-lucide="${card.icon}" class="w-4 h-4 text-white"></i>
+            </div>
+            <span class="text-xs font-medium ${card.change.startsWith('+') ? 'text-success' : card.change.startsWith('-') ? 'text-danger' : 'text-gray-500'}">${card.change}</span>
+          </div>
+          <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">${card.title}</p>
+          <p class="text-lg font-bold">${card.value}</p>
+        `;
+        container.appendChild(cardElement);
+      });
+    }
+
+    function renderPortfolioChart() {
+      destroyChart('portfolio');
+      const ctx = $('#portfolioChart').getContext('2d');
+      
+      charts.portfolio = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: walletData.portfolioHistory.map(d => new Date(d.date).toLocaleDateString()),
+          datasets: [
+            {
+              label: 'Total Portfolio',
+              data: walletData.portfolioHistory.map(d => d.total * exchangeRates[currentCurrency]),
+              borderColor: '#6366f1',
+              backgroundColor: 'rgba(99, 102, 241, 0.1)',
+              fill: true,
+              tension: 0.4
+            },
+            {
+              label: 'Investments',
+              data: walletData.portfolioHistory.map(d => d.investments * exchangeRates[currentCurrency]),
+              borderColor: '#10b981',
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              fill: false,
+              tension: 0.4
+            },
+            {
+              label: 'Savings',
+              data: walletData.portfolioHistory.map(d => d.savings * exchangeRates[currentCurrency]),
+              borderColor: '#8b5cf6',
+              backgroundColor: 'rgba(139, 92, 246, 0.1)',
+              fill: false,
+              tension: 0.4
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: {
+                usePointStyle: true,
+                padding: 20
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: false,
+              ticks: {
+                callback: function(value) {
+                  return formatCurrency(value);
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function renderIncomeExpensesChart() {
+      destroyChart('incomeExpenses');
+      const ctx = $('#incomeExpensesChart').getContext('2d');
+      
+      charts.incomeExpenses = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: walletData.monthlyData.map(d => d.month),
+          datasets: [
+            {
+              label: 'Income',
+              data: walletData.monthlyData.map(d => d.income * exchangeRates[currentCurrency]),
+              backgroundColor: 'rgba(16, 185, 129, 0.8)',
+              borderColor: '#10b981',
+              borderWidth: 1
+            },
+            {
+              label: 'Expenses',
+              data: walletData.monthlyData.map(d => d.expenses * exchangeRates[currentCurrency]),
+              backgroundColor: 'rgba(239, 68, 68, 0.8)',
+              borderColor: '#ef4444',
+              borderWidth: 1
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'top'
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(value) {
+                  return formatCurrency(value);
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function renderCategoryChart() {
+      destroyChart('category');
+      const ctx = $('#categoryChart').getContext('2d');
+      
+      const categories = Object.keys(walletData.spendingCategories);
+      const values = categories.map(cat => walletData.spendingCategories[cat] * exchangeRates[currentCurrency]);
+      
+      charts.category = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: categories,
+          datasets: [{
+            data: values,
+            backgroundColor: [
+              '#ef4444', '#f59e0b', '#8b5cf6', '#06b6d4',
+              '#84cc16', '#ec4899', '#6366f1', '#10b981'
+            ],
+            borderWidth: 2,
+            borderColor: '#ffffff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                padding: 20,
+                usePointStyle: true
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function renderBudgetProgress() {
+      const container = $('#budgetList');
+      container.innerHTML = '';
+      
+      walletData.budgets.forEach(budget => {
+        const progress = (budget.spent / budget.budget) * 100;
+        const remaining = budget.budget - budget.spent;
+        
+        const budgetItem = document.createElement('div');
+        budgetItem.className = 'space-y-2';
+        budgetItem.innerHTML = `
+          <div class="flex justify-between items-center">
+            <span class="text-sm font-medium">${budget.category}</span>
+            <span class="text-sm text-gray-600 dark:text-gray-400">${formatCurrency(budget.spent)} / ${formatCurrency(budget.budget)}</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: ${Math.min(progress, 100)}%; background-color: ${budget.color}"></div>
+          </div>
+          <div class="flex justify-between items-center text-xs">
+            <span class="${progress > 90 ? 'text-danger' : progress > 70 ? 'text-warning' : 'text-success'}">${progress.toFixed(1)}% used</span>
+            <span class="text-gray-500">${formatCurrency(remaining)} left</span>
+          </div>
+        `;
+        container.appendChild(budgetItem);
+      });
+    }
+
+    function renderRecentTransactions() {
+      const container = $('#transactionsList');
+      container.innerHTML = '';
+      
+      recentTransactionsData.slice(0, 5).forEach(transaction => {
+        const transactionItem = document.createElement('div');
+        transactionItem.className = 'flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors';
+        
+        const iconColor = transaction.type === 'income' ? 'text-success' : 
+                         transaction.type === 'expense' ? 'text-danger' : 'text-primary';
+        
+        transactionItem.innerHTML = `
+          <div class="p-2 rounded-full bg-gray-100 dark:bg-gray-700">
+            <i data-lucide="${transaction.icon}" class="w-4 h-4 ${iconColor}"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <p class="text-sm font-medium truncate">${transaction.description}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400">${new Date(transaction.date).toLocaleDateString()}</p>
+          </div>
+          <div class="text-right">
+            <p class="text-sm font-medium ${transaction.type === 'income' ? 'text-success' : 'text-danger'}">
+              ${transaction.type === 'income' ? '+' : '-'}${formatCurrency(transaction.amount)}
+            </p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 capitalize">${transaction.category}</p>
+          </div>
+        `;
+        container.appendChild(transactionItem);
+      });
+    }
+
+    function renderFinancialGoals() {
+      const container = $('#goalsList');
+      container.innerHTML = '';
+      
+      walletData.goals.forEach(goal => {
+        const progress = (goal.current / goal.target) * 100;
+        const remaining = goal.target - goal.current;
+        
+        const goalItem = document.createElement('div');
+        goalItem.className = 'space-y-2';
+        goalItem.innerHTML = `
+          <div class="flex justify-between items-center">
+            <span class="text-sm font-medium">${goal.name}</span>
+            <span class="text-xs text-gray-500 dark:text-gray-400">${new Date(goal.deadline).toLocaleDateString()}</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: ${progress}%; background-color: ${goal.color}"></div>
+          </div>
+          <div class="flex justify-between items-center text-xs">
+            <span class="text-gray-600 dark:text-gray-400">${formatCurrency(goal.current)} / ${formatCurrency(goal.target)}</span>
+            <span class="font-medium ${progress >= 100 ? 'text-success' : 'text-primary'}">${progress.toFixed(1)}%</span>
+          </div>
+        `;
+        container.appendChild(goalItem);
+      });
+    }
+
+    function renderAssets() {
+      const container = $('#assetsList');
+      container.innerHTML = '';
+      
+      assetsData.forEach(asset => {
+        const totalValue = asset.quantity * asset.priceUSD;
+        const changeClass = asset.change >= 0 ? 'text-success' : 'text-danger';
+        const changeIcon = asset.change >= 0 ? 'trending-up' : 'trending-down';
+        
+        const assetCard = document.createElement('div');
+        assetCard.className = 'bg-gray-50 dark:bg-gray-800 rounded-xl p-4 hover:shadow-md transition-all duration-200';
+        assetCard.innerHTML = `
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <h3 class="font-semibold text-lg">${asset.name}</h3>
+              <p class="text-sm text-gray-600 dark:text-gray-400">${asset.type} • ${asset.sector}</p>
+            </div>
+            <div class="text-right">
+              <p class="font-bold text-lg">${formatCurrency(totalValue)}</p>
+              <div class="flex items-center gap-1 ${changeClass}">
+                <i data-lucide="${changeIcon}" class="w-3 h-3"></i>
+                <span class="text-sm">${asset.change >= 0 ? '+' : ''}${asset.change}%</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex justify-between items-center text-sm">
+            <span class="text-gray-600 dark:text-gray-400">${asset.quantity} × ${formatCurrency(asset.priceUSD)}</span>
+            <span class="px-2 py-1 rounded-full text-xs font-medium ${
+              asset.risk === 'Low' ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' :
+              asset.risk === 'Medium' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200' :
+              'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+            }">${asset.risk} Risk</span>
+          </div>
+        `;
+        container.appendChild(assetCard);
+      });
+    }
+
+    function renderAllTransactions() {
+      const thead = $('#transactionsThead');
+      const tbody = $('#transactionsBody');
+      
+      thead.innerHTML = `
+        <tr>
+          <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">${translate('table.date')}</th>
+          <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">${translate('table.type')}</th>
+          <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">${translate('table.category')}</th>
+          <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">${translate('table.description')}</th>
+          <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">${translate('table.amount')}</th>
+        </tr>
+      `;
+      
+      tbody.innerHTML = '';
+      
+      recentTransactionsData.forEach(transaction => {
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors';
+        
+        const typeColor = transaction.type === 'income' ? 'text-success bg-green-100 dark:bg-green-900' :
+                         transaction.type === 'expense' ? 'text-danger bg-red-100 dark:bg-red-900' :
+                         'text-primary bg-blue-100 dark:bg-blue-900';
+        
+        row.innerHTML = `
+          <td class="px-4 py-3 whitespace-nowrap text-sm">${new Date(transaction.date).toLocaleDateString()}</td>
+          <td class="px-4 py-3 whitespace-nowrap">
+            <span class="px-2 py-1 text-xs font-medium rounded-full ${typeColor}">${transaction.type}</span>
+          </td>
+          <td class="px-4 py-3 whitespace-nowrap text-sm capitalize">${transaction.category}</td>
+          <td class="px-4 py-3 text-sm">${transaction.description}</td>
+          <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium ${transaction.type === 'income' ? 'text-success' : 'text-danger'}">
+            ${transaction.type === 'income' ? '+' : '-'}${formatCurrency(transaction.amount)}
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function updateTranslations() {
+      // Update main sections
+      $('#title').textContent = translate('title');
+      $('#subtitle').textContent = translate('subtitle');
+      $('#portfolioOverview').textContent = translate('sections.portfolioOverview');
+      $('#incomeExpenses').textContent = translate('sections.incomeExpenses');
+      $('#spendingByCategory').textContent = translate('sections.spendingByCategory');
+      $('#budgetProgress').textContent = translate('sections.budgetProgress');
+      $('#recentTransactions').textContent = translate('sections.recentTransactions');
+      $('#financialGoals').textContent = translate('sections.financialGoals');
+      $('#assetsPortfolio').textContent = translate('sections.assetsPortfolio');
+      $('#allTransactions').textContent = translate('sections.allTransactions');
+      
+      // Update action buttons
+      $('#addIncome').textContent = translate('actions.addIncome');
+      $('#addExpense').textContent = translate('actions.addExpense');
+      $('#addInvestment').textContent = translate('actions.addInvestment');
+      $('#setGoal').textContent = translate('actions.setGoal');
+    }
+
+    function renderAll() {
+      renderSummaryCards();
+      renderPortfolioChart();
+      renderIncomeExpensesChart();
+      renderCategoryChart();
+      renderBudgetProgress();
+      renderRecentTransactions();
+      renderFinancialGoals();
+      renderAssets();
+      renderAllTransactions();
+      updateTranslations();
+      
+      // Initialize Lucide icons
+      lucide.createIcons();
+    }
+
+    /***** EVENT LISTENERS *****/
+    // Language change
+    $('#languageSelect').addEventListener('change', (e) => {
+      currentLang = e.target.value;
+      window.document.documentElement.lang = currentLang;
+      renderAll();
+    });
+
+    // Currency change
+    $('#currencySelect').addEventListener('change', (e) => {
+      currentCurrency = e.target.value;
+      renderAll();
+    });
+
+    // Dark mode toggle
+    $('#darkToggle').addEventListener('click', () => {
+      isDark = !isDark;
+      window.document.documentElement.classList.toggle('dark', isDark);
+      const icon = $('#darkToggle i');
+      icon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+      lucide.createIcons();
+    });
+
+    // Quick action buttons
+    window.document.addEventListener('click', (e) => {
+      if (e.target.closest('.quick-action-btn')) {
+        const btn = e.target.closest('.quick-action-btn');
+        const action = btn.querySelector('span').id;
+        
+        // Show modal based on action
+        showTransactionModal(action);
+      }
+    });
+
+    // Modal functionality
+    function showTransactionModal(action) {
+      const modal = $('#transactionModal');
+      const typeSelect = $('#transactionType');
+      
+      // Set default type based on action
+      if (action === 'addIncome') typeSelect.value = 'income';
+      else if (action === 'addExpense') typeSelect.value = 'expense';
+      else if (action === 'addInvestment') typeSelect.value = 'investment';
+      
+      // Set today's date
+      $('#transactionDate').value = new Date().toISOString().split('T')[0];
+      
+      modal.classList.remove('hidden');
+    }
+
+    // Close modal
+    $('#closeModal, #cancelTransaction').addEventListener('click', () => {
+      $('#transactionModal').classList.add('hidden');
+    });
+
+    // Close modal on outside click
+    $('#transactionModal').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) {
+        $('#transactionModal').classList.add('hidden');
+      }
+    });
+
+    // Form submission
+    $('#transactionForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const formData = {
+        type: $('#transactionType').value,
+        amount: parseFloat($('#transactionAmount').value),
+        category: $('#transactionCategory').value,
+        description: $('#transactionDescription').value,
+        date: $('#transactionDate').value
+      };
+      
+      // Add to recent transactions (simulate API call)
+      const newTransaction = {
+        id: Date.now(),
+        ...formData,
+        icon: getIconForCategory(formData.category)
+      };
+      
+      recentTransactionsData.unshift(newTransaction);
+      
+      // Re-render affected sections
+      renderRecentTransactions();
+      renderAllTransactions();
+      
+      // Close modal and reset form
+      $('#transactionModal').classList.add('hidden');
+      $('#transactionForm').reset();
+      
+      // Show success message (could be enhanced with a proper notification system)
+      console.log('Transaction added:', newTransaction);
+    });
+
+    function getIconForCategory(category) {
+      const icons = {
+        food: 'utensils',
+        transport: 'car',
+        shopping: 'shopping-bag',
+        bills: 'receipt',
+        entertainment: 'film',
+        health: 'heart',
+        investment: 'trending-up',
+        salary: 'banknote',
+        other: 'more-horizontal'
+      };
+      return icons[category] || 'circle';
+    }
+
+    // Search and filter functionality
+    $('#searchTransactions').addEventListener('input', filterTransactions);
+    $('#filterTransactions').addEventListener('change', filterTransactions);
+
+    function filterTransactions() {
+      const searchTerm = $('#searchTransactions').value.toLowerCase();
+      const filterType = $('#filterTransactions').value;
+      
+      const rows = $('#transactionsBody tr');
+      
+      rows.forEach(row => {
+        const description = row.cells[3].textContent.toLowerCase();
+        const type = row.cells[1].textContent.toLowerCase();
+        
+        const matchesSearch = description.includes(searchTerm);
+        const matchesFilter = filterType === 'all' || type.includes(filterType);
+        
+        row.style.display = matchesSearch && matchesFilter ? '' : 'none';
+      });
+    }
+
+    /***** AUTHENTICATION & API INTEGRATION *****/
+    // Simulate user authentication
+    function initializeUser() {
+      state.userEmail = 'user@example.com';
+      $('#userName').textContent = 'John Doe';
+      $('#signOut').classList.remove('hidden');
+    }
+
+    // Sign out functionality
+    $('#signOut').addEventListener('click', () => {
+      // Simulate sign out
+      state.userEmail = '';
+      $('#userName').textContent = '';
+      $('#signOut').classList.add('hidden');
+      
+      // In a real app, redirect to login
+      console.log('User signed out');
+    });
+
+    /***** INITIALIZATION *****/
+    function hideLoadingScreen() {
+      setTimeout(() => {
+        $('#loadingScreen').style.opacity = '0';
+        setTimeout(() => {
+          $('#loadingScreen').style.display = 'none';
+        }, 300);
+      }, 1000);
+    }
+
+    // Initialize the dashboard
+    window.document.addEventListener('DOMContentLoaded', () => {
+      // Hide loading screen
+      hideLoadingScreen();
+      
+      // Initialize user (simulate authentication)
+      initializeUser();
+      
+      // Render all components
+      renderAll();
+      
+      // Add some animations
+      window.document.querySelectorAll('.animate-fade-in, .animate-slide-up').forEach((el, index) => {
+        el.style.animationDelay = `${index * 0.1}s`;
+      });
+    });
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+      // Redraw charts on resize
+      Object.values(charts).forEach(chart => {
+        chart.resize();
+      });
+    });
+  </script>
+</body>
+</html>
