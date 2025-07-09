@@ -1,0 +1,40 @@
+
+<div class="flex flex-col lg:flex-row items-start lg:items-center
+            justify-between gap-4 mb-6 animate-fade-in">
+  <div class="flex items-center gap-3">
+    <div class="bg-gradient-to-r from-primary to-primary-light p-3 rounded-2xl">
+      <i data-lucide="wallet" class="w-8 h-8 text-white"></i>
+    </div>
+    <div>
+      <h1 id="title" class="text-3xl font-bold bg-gradient-to-r
+                 from-primary to-primary-light bg-clip-text text-transparent"></h1>
+      <p id="subtitle" class="text-sm text-gray-600 dark:text-gray-400"></p>
+    </div>
+  </div>
+
+  <div class="flex items-center flex-wrap gap-3">
+    <button id="darkToggle"
+            class="p-2 rounded-full bg-primary hover:bg-primary-dark text-white"
+            aria-label="Toggle dark mode">
+      <i data-lucide="moon" class="w-5 h-5"></i>
+    </button>
+
+    <select id="languageSelect"
+            class="border rounded-lg px-3 py-2 bg-card dark:bg-cardDark">
+      <option value="en">English</option>
+      <option value="pt">Português</option>
+    </select>
+
+    <select id="currencySelect"
+            class="border rounded-lg px-3 py-2 bg-card dark:bg-cardDark">
+      <option value="USD">USD $</option>
+      <option value="EUR">EUR €</option>
+    </select>
+
+    <div class="flex items-center gap-2 bg-card dark:bg-cardDark
+                rounded-lg px-3 py-2">
+      <i data-lucide="user" class="w-4 h-4"></i>
+      <span id="userName" class="text-sm font-medium">John Doe</span>
+    </div>
+  </div>
+</div>
