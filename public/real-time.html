@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="pt">
+<!DOCTYPE html><html lang="pt">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -24,41 +23,25 @@
             },
             success: { 500: '#10b981' },
             warning: { 500: '#f59e0b' },
-            danger: { 500: '#ef4444' }
+            danger:  { 500: '#ef4444' }
           },
           animation: {
-            'fade-in': 'fadeIn 0.3s ease-in-out',
-            'slide-up': 'slideUp 0.3s ease-out',
-            'pulse-slow': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+            'fade-in':   'fadeIn 0.3s ease-in-out',
+            'slide-up':  'slideUp 0.3s ease-out',
+            'pulse-slow':'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
           }
         }
       }
     }
   </script>
   <style>
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    @keyframes slideUp {
-      from { transform: translateY(20px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-    .loading-spinner {
-      border: 2px solid #f3f3f3;
-      border-top: 2px solid #0ea5e9;
-      border-radius: 50%;
-      width: 20px;
-      height: 20px;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    .profit-positive { color: #10b981; }
-    .profit-negative { color: #ef4444; }
-    .profit-neutral { color: #6b7280; }
+    @keyframes fadeIn   { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp  { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .loading-spinner    { border: 2px solid #f3f3f3; border-top: 2px solid #0ea5e9; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
+    @keyframes spin     { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .profit-positive    { color: #10b981; }
+    .profit-negative    { color: #ef4444; }
+    .profit-neutral     { color: #6b7280; }
   </style>
 </head>
 <body class="font-chakra bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 min-h-screen text-gray-800 antialiased">
@@ -80,18 +63,12 @@
         Sair
       </button>
     </div>
-  </header>
-
-  <!-- Loading Overlay -->
-  <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+  </header>  <!-- Loading Overlay -->  <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
     <div class="bg-white p-6 rounded-lg text-center">
       <div class="loading-spinner mx-auto mb-4"></div>
       <p class="text-gray-600">Carregando...</p>
     </div>
-  </div>
-
-  <!-- Main Content -->
-  <main class="pt-24 p-4 max-w-6xl mx-auto">
+  </div>  <!-- Main Content -->  <main class="pt-24 p-4 max-w-6xl mx-auto">
     <!-- Statistics Cards -->
     <section class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
       <div class="bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-4 text-white">
@@ -107,125 +84,116 @@
         <p id="lastUpdate" class="text-sm font-medium">--</p>
       </div>
       <!-- Tempo desde a última actualização -->
-   <div class="bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-4 text-white">
-     <h3 class="text-sm font-medium opacity-80">Tempo desde actualização</h3>
-    <p id="updateTimer" class="text-2xl font-bold">--</p>
-   </div>
-    </section>
-
-    <!-- Transaction Form -->
-    <section class="mb-6 bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-6 border border-white border-opacity-20">
-      <h2 class="text-xl font-semibold text-white mb-4">
-        <span id="formTitle">Nova Transação</span>
-        <button id="cancelEdit" class="ml-4 text-sm bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600 transition-colors duration-200 hidden">
-          Cancelar
-        </button>
-      </h2>
-      <form id="transactionForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <input type="hidden" id="transactionId" />
-        
-        <div class="form-group">
-          <label class="block text-white mb-2 font-medium">Símbolo *</label>
-          <input id="symbol" type="text" class="w-full p-3 rounded-lg border border-gray-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 transition-all duration-200" placeholder="Ex: AAPL" required>
-        </div>
-        
-        <div class="form-group">
-          <label class="block text-white mb-2 font-medium">Operação *</label>
-          <select id="operation" class="w-full p-3 rounded-lg border border-gray-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 transition-all duration-200" required>
-            <option value="">Selecione uma operação</option>
-            <option value="buy">Compra</option>
-            <option value="sell">Venda</option>
-          </select>
-        </div>
-        
-        <div class="form-group">
-          <label class="block text-white mb-2 font-medium">Quantidade *</label>
-          <input id="amount" type="number" min="0" step="0.01" class="w-full p-3 rounded-lg border border-gray-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 transition-all duration-200" placeholder="0" required>
-        </div>
-        
-        <div class="form-group">
-          <label class="block text-white mb-2 font-medium">Preço (€) *</label>
-          <input id="price" type="number" min="0" step="0.0001" class="w-full p-3 rounded-lg border border-gray-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 transition-all duration-200" placeholder="0.0000" required>
-        </div>
-        
-        <div class="form-group">
-          <label class="block text-white mb-2 font-medium">Taxa (€) *</label>
-          <input id="fee" type="number" min="0" step="0.0001" class="w-full p-3 rounded-lg border border-gray-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 transition-all duration-200" placeholder="0.0000" required>
-        </div>
-        
-        <div class="form-group">
-          <label class="block text-white mb-2 font-medium">Data *</label>
-          <input id="date" type="date" class="w-full p-3 rounded-lg border border-gray-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 transition-all duration-200" required>
-        </div>
-        
-        <div class="md:col-span-2 lg:col-span-3">
-          <button id="submitBtn" type="submit" class="w-full md:w-auto px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed">
-            <span id="submitText">Guardar Transação</span>
-            <div id="submitSpinner" class="loading-spinner hidden inline-block ml-2"></div>
-          </button>
-        </div>
-      </form>
-    </section>
-
-    <!-- Transactions Table -->
-    <section class="bg-white rounded-lg shadow-lg overflow-hidden mb-6">
-      <div class="p-4 bg-primary-500 text-white flex justify-between items-center">
-        <h2 class="text-xl font-semibold">Transações</h2>
-        <button id="refreshBtn" class="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700 transition-colors duration-200">
-          <span id="refreshText">Atualizar</span>
-          <div id="refreshSpinner" class="loading-spinner hidden inline-block ml-2"></div>
-        </button>
+      <div class="bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-4 text-white">
+        <h3 class="text-sm font-medium opacity-80">Tempo desde atualização</h3>
+        <p id="updateTimer" class="text-2xl font-bold">--</p>
       </div>
-      
-      <!-- Desktop Table -->
-      <div class="hidden lg:block overflow-x-auto">
-        <table class="w-full">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Símbolo</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Operação</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantidade</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preço</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preço Atual</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lucro</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Taxa</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
-            </tr>
-          </thead>
-          <tbody id="transactionTbody" class="bg-white divide-y divide-gray-200">
-            <!-- Transactions will be populated here -->
-          </tbody>
-        </table>
-      </div>
-      
-      <!-- Mobile Cards -->
-      <div id="mobileList" class="lg:hidden p-4 space-y-4">
-        <!-- Mobile cards will be populated here -->
-      </div>
-      
-      <!-- Empty State -->
-      <div id="emptyState" class="text-center py-12 hidden">
-        <div class="text-6xl mb-4">📊</div>
-        <h3 class="text-xl font-semibold text-gray-700 mb-2">Nenhuma transação encontrada</h3>
-        <p class="text-gray-500 mb-4">Adicione sua primeira transação para começar a acompanhar seus investimentos.</p>
-      </div>
-    </section>
+    </section><!-- Transaction Form -->
+<section class="mb-6 bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-6 border border-white border-opacity-20">
+  <h2 class="text-xl font-semibold text-white mb-4">
+    <span id="formTitle">Nova Transação</span>
+    <button id="cancelEdit" class="ml-4 text-sm bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600 transition-colors duration-200 hidden">
+      Cancelar
+    </button>
+  </h2>
+  <form id="transactionForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <input type="hidden" id="transactionId" />
+    
+    <div class="form-group">
+      <label class="block text-white mb-2 font-medium">Símbolo *</label>
+      <input id="symbol" type="text" class="w-full p-3 rounded-lg border border-gray-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 transition-all duration-200" placeholder="Ex: AAPL" required>
+    </div>
+    
+    <div class="form-group">
+      <label class="block text-white mb-2 font-medium">Operação *</label>
+      <select id="operation" class="w-full p-3 rounded-lg border border-gray-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 transition-all duration-200" required>
+        <option value="">Selecione uma operação</option>
+        <option value="buy">Compra</option>
+        <option value="sell">Venda</option>
+      </select>
+    </div>
+    
+    <div class="form-group">
+      <label class="block text-white mb-2 font-medium">Quantidade *</label>
+      <input id="amount" type="number" min="0" step="0.01" class="w-full p-3 rounded-lg border border-gray-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 transition-all duration-200" placeholder="0" required>
+    </div>
+    
+    <div class="form-group">
+      <label class="block text-white mb-2 font-medium">Preço (€) *</label>
+      <input id="price" type="number" min="0" step="0.0001" class="w-full p-3 rounded-lg border border-gray-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 transition-all duration-200" placeholder="0.0000" required>
+    </div>
+    
+    <div class="form-group">
+      <label class="block text-white mb-2 font-medium">Taxa (€) *</label>
+      <input id="fee" type="number" min="0" step="0.0001" class="w-full p-3 rounded-lg border border-gray-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 transition-all duration-200" placeholder="0.0000" required>
+    </div>
+    
+    <div class="form-group">
+      <label class="block text-white mb-2 font-medium">Data *</label>
+      <input id="date" type="date" class="w-full p-3 rounded-lg border border-gray-300 focus:border-primary-500 focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50 transition-all duration-200" required>
+    </div>
+    
+    <div class="md:col-span-2 lg:col-span-3">
+      <button id="submitBtn" type="submit" class="w-full md:w-auto px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+        <span id="submitText">Guardar Transação</span>
+        <div id="submitSpinner" class="loading-spinner hidden inline-block ml-2"></div>
+      </button>
+    </div>
+  </form>
+</section>
 
-    <!-- Profit Chart -->
-    <section class="bg-white rounded-lg shadow-lg p-6">
-      <h2 class="text-xl font-semibold text-gray-800 mb-4">Análise de Lucros</h2>
-      <div id="profitChart" class="w-full h-96"></div>
-    </section>
-  </main>
-
-  <!-- Toast Notifications -->
-  <div id="toastContainer" class="fixed top-20 right-4 z-50 space-y-2">
-    <!-- Toast notifications will be added here -->
+<!-- Transactions Table -->
+<section class="bg-white rounded-lg shadow-lg overflow-hidden mb-6">
+  <div class="p-4 bg-primary-500 text-white flex justify-between items-center">
+    <h2 class="text-xl font-semibold">Transações</h2>
+    <button id="refreshBtn" class="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700 transition-colors duration-200">
+      <span id="refreshText">Atualizar</span>
+      <div id="refreshSpinner" class="loading-spinner hidden inline-block ml-2"></div>
+    </button>
   </div>
+  
+  <!-- Desktop Table -->
+  <div class="hidden lg:block overflow-x-auto">
+    <table class="w-full">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Símbolo</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Operação</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantidade</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preço</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preço Atual</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lucro</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Taxa</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
+          <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+        </tr>
+      </thead>
+      <tbody id="transactionTbody" class="bg-white divide-y divide-gray-200">
+        <!-- Transactions will be populated here -->
+      </tbody>
+    </table>
+  </div>
+  
+  <!-- Mobile Cards -->
+  <div id="mobileList" class="lg:hidden p-4 space-y-4">
+    <!-- Mobile cards will be populated here -->
+  </div>
+  
+  <!-- Empty State -->
+  <div id="emptyState" class="text-center py-12 hidden">
+    <div class="text-6xl mb-4">📊</div>
+    <h3 class="text-xl font-semibold text-gray-700 mb-2">Nenhuma transação encontrada</h3>
+    <p class="text-gray-500 mb-4">Adicione sua primeira transação para começar a acompanhar seus investimentos.</p>
+  </div>
+</section>
 
-  <!-- Delete Confirmation Modal -->
-  <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+<!-- Profit Chart -->
+<section class="bg-white rounded-lg shadow-lg p-6">
+  <h2 class="text-xl font-semibold text-gray-800 mb-4">Análise de Lucros</h2>
+  <div id="profitChart" class="w-full h-96"></div>
+</section>
+
+  </main>  <!-- Toast Notifications -->  <div id="toastContainer" class="fixed top-20 right-4 z-50 space-y-2"></div>  <!-- Delete Confirmation Modal -->  <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
     <div class="bg-white p-6 rounded-lg max-w-md w-full mx-4">
       <h3 class="text-lg font-semibold mb-4">Confirmar Exclusão</h3>
       <p class="text-gray-600 mb-6">Tem certeza que deseja excluir esta transação? Esta ação não pode ser desfeita.</p>
@@ -238,9 +206,7 @@
         </button>
       </div>
     </div>
-  </div>
-
-  <script type="module">
+  </div>  <script type="module">
     // Initialize Firebase Authentication
     import('./firebase-init.js').then(({ auth }) => {
       import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js').then(({ onAuthStateChanged, signOut }) => {
@@ -390,30 +356,23 @@
         const toast = document.createElement('div');
         toast.className = `animate-slide-up p-4 rounded-lg text-white font-medium ${
           type === 'success' ? 'bg-success-500' :
-          type === 'error' ? 'bg-danger-500' :
+          type === 'error'   ? 'bg-danger-500'  :
           type === 'warning' ? 'bg-warning-500' :
-          'bg-primary-500'
-        }`;
+                               'bg-primary-500'}`;
         toast.textContent = message;
         
         this.elements.toastContainer.appendChild(toast);
         
         setTimeout(() => {
           toast.style.opacity = '0';
-          setTimeout(() => {
-            if (toast.parentNode) {
-              toast.parentNode.removeChild(toast);
-            }
-          }, 300);
+          setTimeout(() => toast.remove(), 300);
         }, duration);
       },
 
       // Update connection status
       updateConnectionStatus(isOnline) {
         this.elements.connectionStatus.textContent = isOnline ? 'Conectado' : 'Offline';
-        this.elements.connectionStatus.className = `text-xs ${
-          isOnline ? 'text-white text-opacity-70' : 'text-red-300'
-        }`;
+        this.elements.connectionStatus.className = `text-xs ${isOnline ? 'text-white text-opacity-70' : 'text-red-300'}`;
       },
       
 
@@ -422,24 +381,19 @@
           ? (marketPrice - tx.price) * tx.amount - tx.fee   // compra
           : (tx.price - marketPrice) * tx.amount - tx.fee; // venda
       },
+
       startUpdateTimer() {
-  // corre a cada segundo
-  setInterval(() => {
-    if (!this.state.lastUpdate) return;
-
-    const diff = Math.floor((Date.now() - new Date(this.state.lastUpdate)) / 1000);
-    const h = Math.floor(diff / 3600);
-    const m = Math.floor((diff % 3600) / 60);
-    const s = diff % 60;
-
-    const str =
-      h ? `${h}h ${m}m ${s}s`
-      : m ? `${m}m ${s}s`
-      : `${s}s`;
-
-    this.elements.updateTimer.textContent = str;
-  }, 1000);
-},
+        setInterval(() => {
+          if (!this.state.lastUpdate) return;
+          const diff = Math.floor((Date.now() - new Date(this.state.lastUpdate)) / 1000);
+          const h = Math.floor(diff / 3600);
+          const m = Math.floor((diff % 3600) / 60);
+          const s = diff % 60;
+          const str = h ? `${h}h ${m}m ${s}s` : m ? `${m}m ${s}s` : `${s}s`;
+          this.elements.updateTimer.textContent = str;
+        }, 1000);
+      },
+      
       // Fetch transactions
       async fetchTransactions() {
         try {
@@ -447,9 +401,7 @@
           this.updateConnectionStatus(true);
           
           const response = await fetch(this.getAPI());
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
           
           this.state.transactions = await response.json();
           this.renderTransactions();
@@ -467,170 +419,103 @@
       // Render transactions
       renderTransactions() {
         const { tbody, mobileList, emptyState } = this.elements;
-        
-        // Clear existing content
         tbody.innerHTML = '';
         mobileList.innerHTML = '';
-        
         if (this.state.transactions.length === 0) {
           emptyState.classList.remove('hidden');
           return;
         }
-        
         emptyState.classList.add('hidden');
-        
-        this.state.transactions.forEach(transaction => {
-          this.renderDesktopRow(transaction);
-          this.renderMobileCard(transaction);
+        this.state.transactions.forEach(tx => {
+          this.renderDesktopRow(tx);
+          this.renderMobileCard(tx);
         });
-        
-        // Update market prices after rendering
         this.updateMarketPrices();
       },
 
       // Render desktop table row
-      renderDesktopRow(transaction) {
+      renderDesktopRow(tx) {
         const row = document.createElement('tr');
         row.className = 'hover:bg-gray-50 transition-colors duration-150';
-        
-        const operationText = transaction.operation === 'buy' ? 'Compra' : 'Venda';
-        const operationColor = transaction.operation === 'buy' ? 'text-success-500' : 'text-danger-500';
-        
+        const opText  = tx.operation === 'buy' ? 'Compra' : 'Venda';
+        const opColor = tx.operation === 'buy' ? 'text-success-500' : 'text-danger-500';
         row.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${tx.symbol}</td>
           <td class="px-6 py-4 whitespace-nowrap">
-            <div class="text-sm font-medium text-gray-900">${transaction.symbol}</div>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${opColor} bg-opacity-10">${opText}</span>
           </td>
-          <td class="px-6 py-4 whitespace-nowrap">
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${operationColor} bg-opacity-10">
-              ${operationText}
-            </span>
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${transaction.amount}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">€${transaction.price.toFixed(4)}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-            <span id="market-${transaction.id}" class="text-gray-400">Carregando...</span>
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm">
-            <span id="profit-${transaction.id}" class="font-medium">--</span>
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">€${transaction.fee.toFixed(4)}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-            ${new Date(transaction.date).toLocaleDateString('pt-PT')}
-          </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-            <button data-action="edit" data-id="${transaction.id}" class="text-primary-600 hover:text-primary-900 mr-3">
-              Editar
-            </button>
-            <button data-action="delete" data-id="${transaction.id}" class="text-danger-600 hover:text-red-900">
-              Excluir
-            </button>
-          </td>
-        `;
-        
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${tx.amount}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">€${tx.price.toFixed(4)}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><span id="market-${tx.id}" class="text-gray-400">Carregando...</span></td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm"><span id="profit-${tx.id}" class="font-medium">--</span></td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">€${tx.fee.toFixed(4)}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${new Date(tx.date).toLocaleDateString('pt-PT')}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-3">
+            <button data-action="edit"   data-id="${tx.id}" class="text-primary-600 hover:text-primary-900">Editar</button>
+            <button data-action="copy"   data-id="${tx.id}" class="text-warning-500 hover:text-warning-700">Copiar</button>
+            <button data-action="delete" data-id="${tx.id}" class="text-danger-600 hover:text-red-900">Excluir</button>
+          </td>`;
         this.elements.tbody.appendChild(row);
       },
 
       // Render mobile card
-      renderMobileCard(transaction) {
+      renderMobileCard(tx) {
         const card = document.createElement('div');
         card.className = 'bg-white border border-gray-200 rounded-lg p-4 animate-fade-in';
-        
-        const operationText = transaction.operation === 'buy' ? 'Compra' : 'Venda';
-        const operationColor = transaction.operation === 'buy' ? 'text-success-500' : 'text-danger-500';
-        
+        const opText  = tx.operation === 'buy' ? 'Compra' : 'Venda';
+        const opColor = tx.operation === 'buy' ? 'text-success-500' : 'text-danger-500';
         card.innerHTML = `
           <div class="flex justify-between items-start mb-3">
             <div>
-              <h3 class="text-lg font-semibold text-gray-900">${transaction.symbol}</h3>
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${operationColor} bg-opacity-10">
-                ${operationText}
-              </span>
+              <h3 class="text-lg font-semibold text-gray-900">${tx.symbol}</h3>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${opColor} bg-opacity-10">${opText}</span>
             </div>
-            <div class="text-right">
-              <button data-action="edit" data-id="${transaction.id}" class="text-primary-600 hover:text-primary-900 mr-3 text-sm">
-                Editar
-              </button>
-              <button data-action="delete" data-id="${transaction.id}" class="text-danger-600 hover:text-red-900 text-sm">
-                Excluir
-              </button>
+            <div class="text-right space-x-2">
+              <button data-action="edit"   data-id="${tx.id}" class="text-primary-600 hover:text-primary-900 text-sm">Editar</button>
+              <button data-action="copy"   data-id="${tx.id}" class="text-warning-500 hover:text-warning-700 text-sm">Copiar</button>
+              <button data-action="delete" data-id="${tx.id}" class="text-danger-600 hover:text-red-900 text-sm">Excluir</button>
             </div>
           </div>
-          
           <div class="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <p class="text-gray-500">Quantidade</p>
-              <p class="font-medium">${transaction.amount}</p>
-            </div>
-            <div>
-              <p class="text-gray-500">Preço</p>
-              <p class="font-medium">€${transaction.price.toFixed(4)}</p>
-            </div>
-            <div>
-              <p class="text-gray-500">Preço Atual</p>
-              <p id="market-mobile-${transaction.id}" class="font-medium text-gray-400">Carregando...</p>
-            </div>
-            <div>
-              <p class="text-gray-500">Lucro</p>
-              <p id="profit-mobile-${transaction.id}" class="font-medium">--</p>
-            </div>
-            <div>
-              <p class="text-gray-500">Taxa</p>
-              <p class="font-medium">€${transaction.fee.toFixed(4)}</p>
-            </div>
-            <div>
-              <p class="text-gray-500">Data</p>
-              <p class="font-medium">${new Date(transaction.date).toLocaleDateString('pt-PT')}</p>
-            </div>
-          </div>
-        `;
-        
+            <div><p class="text-gray-500">Quantidade</p><p class="font-medium">${tx.amount}</p></div>
+            <div><p class="text-gray-500">Preço</p><p class="font-medium">€${tx.price.toFixed(4)}</p></div>
+            <div><p class="text-gray-500">Preço Atual</p><p id="market-mobile-${tx.id}" class="font-medium text-gray-400">Carregando...</p></div>
+            <div><p class="text-gray-500">Lucro</p><p id="profit-mobile-${tx.id}" class="font-medium">--</p></div>
+            <div><p class="text-gray-500">Taxa</p><p class="font-medium">€${tx.fee.toFixed(4)}</p></div>
+            <div><p class="text-gray-500">Data</p><p class="font-medium">${new Date(tx.date).toLocaleDateString('pt-PT')}</p></div>
+          </div>`;
         this.elements.mobileList.appendChild(card);
       },
 
       // Update statistics
       updateStatistics() {
         this.elements.totalTransactions.textContent = this.state.transactions.length;
-        
-        if (this.state.lastUpdate) {
-          this.elements.lastUpdate.textContent = new Date(this.state.lastUpdate).toLocaleString('pt-PT');
-        }
+        if (this.state.lastUpdate) this.elements.lastUpdate.textContent = new Date(this.state.lastUpdate).toLocaleString('pt-PT');
       },
 
-     handleTableClick(event) {
-  // find the nearest ancestor (or self) that actually has a data-action
-  const btn = event.target.closest('[data-action]');
-  if (!btn || !this.elements.tbody.contains(btn)) return;
+      handleTableClick(event) {
+        const btn = event.target.closest('[data-action]');
+        if (!btn || !this.elements.tbody.contains(btn)) return;
+        const action = btn.getAttribute('data-action');
+        const id     = btn.getAttribute('data-id');
+        if (action === 'edit')   this.editTransaction(id);
+        if (action === 'copy')   this.copyTransaction(id);
+        if (action === 'delete') this.showDeleteModal(id);
+      },
 
-  const action = btn.getAttribute('data-action');
-  const id     = btn.getAttribute('data-id');
-
-  if (action === 'edit') {
-    this.editTransaction(id);
-  } else if (action === 'delete') {
-    this.showDeleteModal(id);
-  }
-},
-
-handleMobileClick(event) {
-  // same logic for mobile cards
-  const btn = event.target.closest('[data-action]');
-  if (!btn || !this.elements.mobileList.contains(btn)) return;
-
-  const action = btn.getAttribute('data-action');
-  const id     = btn.getAttribute('data-id');
-
-  if (action === 'edit') {
-    this.editTransaction(id);
-  } else if (action === 'delete') {
-    this.showDeleteModal(id);
-  }
-},
+      handleMobileClick(event) {
+        const btn = event.target.closest('[data-action]');
+        if (!btn || !this.elements.mobileList.contains(btn)) return;
+        const action = btn.getAttribute('data-action');
+        const id     = btn.getAttribute('data-id');
+        if (action === 'edit')   this.editTransaction(id);
+        if (action === 'copy')   this.copyTransaction(id);
+        if (action === 'delete') this.showDeleteModal(id);
+      },
 
       // Handle form submission
       async handleSubmit(event) {
         event.preventDefault();
-        
-        const formData = new FormData(event.target);
         const payload = {
           symbol: this.elements.symbol.value.toUpperCase(),
           operation: this.elements.operation.value,
@@ -639,71 +524,44 @@ handleMobileClick(event) {
           fee: parseFloat(this.elements.fee.value),
           date: this.elements.date.value
         };
-        
-        // Validate payload
-        if (!this.validateTransaction(payload)) {
-          return;
-        }
-        
+        if (!this.validateTransaction(payload)) return;
         try {
           this.setSubmitLoading(true);
-          
           let url = this.getAPI();
           let method = 'POST';
-          
           if (this.state.isEditing && this.state.editingId) {
             url += `&id=${this.state.editingId}`;
             method = 'PUT';
           }
-          
-          const response = await fetch(url, {
-            method,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(payload)
-          });
-          
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          
-          // Reset form and refresh data
+          const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+          if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
           this.resetForm();
           await this.fetchTransactions();
-          
-          this.showToast(
-            this.state.isEditing ? 'Transação atualizada com sucesso' : 'Transação criada com sucesso',
-            'success'
-          );
-          
-        } catch (error) {
-          console.error('Error saving transaction:', error);
+          this.showToast(this.state.isEditing ? 'Transação atualizada com sucesso' : 'Transação criada com sucesso', 'success');
+        } catch (err) {
+          console.error('Error saving transaction:', err);
           this.showToast('Erro ao salvar transação', 'error');
         } finally {
           this.setSubmitLoading(false);
         }
       },
 
-       validateTransaction(payload) {
-        const errors = [];
-        if (!payload.symbol) errors.push('Símbolo é obrigatório');
-        if (!payload.operation) errors.push('Operação é obrigatória');
-        if (isNaN(payload.amount) || payload.amount <= 0) errors.push('Quantidade deve ser maior que zero');
-        if (isNaN(payload.price) || payload.price <= 0) errors.push('Preço deve ser maior que zero');
-        if (isNaN(payload.fee) || payload.fee < 0) errors.push('Taxa não pode ser negativa');
-        if (!payload.date) errors.push('Data é obrigatória');
-        if (errors.length > 0) {
-          errors.forEach(err => this.showToast(err, 'error'));
-          return false;
-        }
+      validateTransaction(p) {
+        const errs = [];
+        if (!p.symbol) errs.push('Símbolo é obrigatório');
+        if (!p.operation) errs.push('Operação é obrigatória');
+        if (isNaN(p.amount) || p.amount <= 0) errs.push('Quantidade deve ser maior que zero');
+        if (isNaN(p.price)  || p.price  <= 0) errs.push('Preço deve ser maior que zero');
+        if (isNaN(p.fee)   || p.fee   <  0) errs.push('Taxa não pode ser negativa');
+        if (!p.date) errs.push('Data é obrigatória');
+        if (errs.length) { errs.forEach(e => this.showToast(e, 'error')); return false; }
         return true;
       },
 
-      setSubmitLoading(loading) {
-        this.elements.submitBtn.disabled = loading;
-        this.elements.submitSpinner.classList.toggle('hidden', !loading);
-        this.elements.submitText.textContent = loading ? 'Salvando...' : 'Guardar Transação';
+      setSubmitLoading(l) {
+        this.elements.submitBtn.disabled = l;
+        this.elements.submitSpinner.classList.toggle('hidden', !l);
+        this.elements.submitText.textContent = l ? 'Salvando...' : 'Guardar Transação';
       },
 
       resetForm() {
@@ -716,20 +574,37 @@ handleMobileClick(event) {
       },
 
       editTransaction(id) {
-        const tx = this.state.transactions.find(t => t.id ==id);
-        if (!tx) return;
+        const tx="";
+        const t = this.state.transactions.find(tr => tr.id == id);
+        if (!t) return;
         this.state.isEditing = true;
-        this.state.editingId = tx.id;
+        this.state.editingId = t.id;
         this.elements.formTitle.textContent = 'Editar Transação';
         this.elements.cancelEdit.classList.remove('hidden');
-        // populate form
-        this.elements.transactionId.value = tx.id;
+        this.elements.transactionId.value = t.id;
+        this.elements.symbol.value = t.symbol;
+        this.elements.operation.value = t.operation;
+        this.elements.amount.value = t.amount;
+        this.elements.price.value = t.price;
+        this.elements.fee.value = t.fee;
+        this.elements.date.value = new Date(t.date).toISOString().split('T')[0];
+      },
+
+      copyTransaction(id) {
+        const tx = this.state.transactions.find(tr => tr.id == id);
+        if (!tx) return;
+        this.state.isEditing = false;     // ensures a new POST
+        this.state.editingId = null;
+        this.elements.formTitle.textContent = 'Copiar Transação';
+        this.elements.cancelEdit.classList.remove('hidden');
+        this.elements.transactionId.value = '';
         this.elements.symbol.value = tx.symbol;
         this.elements.operation.value = tx.operation;
         this.elements.amount.value = tx.amount;
         this.elements.price.value = tx.price;
         this.elements.fee.value = tx.fee;
-        this.elements.date.value = new Date(tx.date).toISOString().split('T')[0];
+        this.elements.date.value = new Date().toISOString().split('T')[0]; // default to today
+        this.elements.symbol.focus();
       },
 
       cancelEdit() {
@@ -767,54 +642,38 @@ handleMobileClick(event) {
 
       startMarketPriceUpdates() {
         this.updateMarketPrices();
-        setInterval(() => this.updateMarketPrices(), 60 * 1000); // every minute
+        setInterval(() => this.updateMarketPrices(), 60 * 1000);
       },
 
       async updateMarketPrices() {
-        const ids = this.state.transactions.map(t => t.id);
         for (const tx of this.state.transactions) {
           try {
             const res = await fetch(this.getPriceAPI(tx.symbol));
             const data = await res.json();
             const market = data.price;
             this.state.marketPrices[tx.id] = market;
-            const profit = tx.operation === 'buy'
-              ? (market - tx.price) * tx.amount - tx.fee
-              : (tx.price - market) * tx.amount - tx.fee;
-            const profitElem = document.getElementById(`profit-${tx.id}`);
-            const marketElem = document.getElementById(`market-${tx.id}`);
+            const profit = this.computeProfit(tx, market);
             const cls = profit > 0 ? 'profit-positive' : profit < 0 ? 'profit-negative' : 'profit-neutral';
-            profitElem.textContent = `€${profit.toFixed(2)}`;
-            profitElem.className = cls;
-            marketElem.textContent = `€${market.toFixed(2)}`;
-            // mobile
-            const mobileProfit = document.getElementById(`profit-mobile-${tx.id}`);
-            const mobileMarket = document.getElementById(`market-mobile-${tx.id}`);
-            mobileProfit.textContent = `€${profit.toFixed(2)}`;
-            mobileProfit.className = cls;
-            mobileMarket.textContent = `€${market.toFixed(2)}`;
+            document.getElementById(`profit-${tx.id}`).textContent = `€${profit.toFixed(2)}`;
+            document.getElementById(`profit-${tx.id}`).className = cls;
+            document.getElementById(`market-${tx.id}`).textContent = `€${market.toFixed(2)}`;
+            document.getElementById(`profit-mobile-${tx.id}`).textContent = `€${profit.toFixed(2)}`;
+            document.getElementById(`profit-mobile-${tx.id}`).className = cls;
+            document.getElementById(`market-mobile-${tx.id}`).textContent = `€${market.toFixed(2)}`;
           } catch (err) {
             console.error('Error updating price for', tx.symbol, err);
           }
         }
-         let total = 0;
+        let total = 0;
         for (const tx of this.state.transactions) {
-          const m = this.state.marketPrices[tx.id] ?? tx.price; // fallback
+          const m = this.state.marketPrices[tx.id] ?? tx.price;
           total += this.computeProfit(tx, m);
         }
         this.state.totalProfit = total;
-
-        // 2. mostrar
-        const profitCls =
-          total > 0 ? 'profit-positive'
-          : total < 0 ? 'profit-negative'
-          : 'profit-neutral';
-
+        const profitCls = total > 0 ? 'profit-positive' : total < 0 ? 'profit-negative' : 'profit-neutral';
         this.elements.totalProfit.textContent = `€${total.toFixed(2)}`;
         this.elements.totalProfit.className   = `text-2xl font-bold ${profitCls}`;
         this.elements.updateTimer.textContent = '0s';
-
-        // 3. restante housekeeping
         this.state.lastUpdate = new Date().toISOString();
         this.updateStatistics();
         this.renderProfitChart();
@@ -824,16 +683,13 @@ handleMobileClick(event) {
         const labels = this.state.transactions.map(t => new Date(t.date).toLocaleDateString('pt-PT'));
         const profits = this.state.transactions.map(t => {
           const m = this.state.marketPrices[t.id] || t.price;
-          return (t.operation === 'buy' ? (m - t.price) : (t.price - m)) * t.amount - t.fee;
+          return this.computeProfit(t, m);
         });
-        const data = [{ x: labels, y: profits, type: 'scatter', mode: 'lines+markers' }];
-        const layout = { margin: { t: 20 } };
-        Plotly.newPlot(this.elements.profitChart, data, layout, { responsive: true });
+        Plotly.newPlot(this.elements.profitChart, [{ x: labels, y: profits, type: 'scatter', mode: 'lines+markers' }], { margin: { t: 20 } }, { responsive: true });
       }
     };
 
     // Kickoff
     document.addEventListener('DOMContentLoaded', () => app.init());
-  </script>
-</body>
+  </script></body>
 </html>
