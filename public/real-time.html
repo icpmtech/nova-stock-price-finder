@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="pt">
+<!DOCTYPE html>
+<html lang="pt">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -58,14 +59,26 @@
         Sair
       </button>
     </div>
-  </header>  <!-- Loading Overlay -->  <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+  </header>
+
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
     <div class="bg-white p-6 rounded-lg text-center">
       <div class="loading-spinner mx-auto mb-4"></div>
       <p class="text-gray-600">Carregando...</p>
     </div>
-  </div>  <!-- Floating Action Button -->  <button id="openFormBtn" class="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-primary-500 hover:bg-primary-600 text-white shadow-lg flex items-center justify-center z-40 focus:outline-none">
+  </div>
+
+  <!-- Floating Action Button -->
+  <button id="openFormBtn" class="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-primary-500 hover:bg-primary-600 text-white shadow-lg flex items-center justify-center z-40 focus:outline-none">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-  </button>  <!-- Drawer Overlay -->  <div id="drawerOverlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-40"></div>  <!-- Transaction Drawer -->  <aside id="formDrawer" class="fixed top-0 right-0 transform translate-x-full w-full sm:w-96 max-w-full h-full bg-white bg-opacity-95 backdrop-blur-lg shadow-xl transition-transform duration-300 z-50 overflow-y-auto">
+  </button>
+
+  <!-- Drawer Overlay -->
+  <div id="drawerOverlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-40"></div>
+
+  <!-- Transaction Drawer -->
+  <aside id="formDrawer" class="fixed top-0 right-0 transform translate-x-full w-full sm:w-96 max-w-full h-full bg-white bg-opacity-95 backdrop-blur-lg shadow-xl transition-transform duration-300 z-50 overflow-y-auto">
     <div class="flex items-center justify-between p-4 border-b border-gray-200">
       <h2 id="drawerTitle" class="text-lg font-semibold text-gray-800">Nova Transação</h2>
       <button id="closeFormBtn" class="text-gray-500 hover:text-gray-700">
@@ -112,59 +125,127 @@
         </div>
       </form>
     </div>
-  </aside>  <!-- Main Content -->  <main class="pt-24 p-4 max-w-6xl mx-auto">
+  </aside>
+
+  <!-- Main Content -->
+  <main class="pt-24 p-4 max-w-6xl mx-auto">
     <!-- Statistics -->
     <section class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-      <div class="bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-4 text-white"><h3 class="text-sm font-medium opacity-80">Total de Transações</h3><p id="totalTransactions" class="text-2xl font-bold">0</p></div>
-      <div class="bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-4 text-white"><h3 class="text-sm font-medium opacity-80">Lucro Total</h3><p id="totalProfit" class="text-2xl font-bold">€0.00</p></div>
-      <div class="bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-4 text-white"><h3 class="text-sm font-medium opacity-80">Última Atualização</h3><p id="lastUpdate" class="text-sm font-medium">--</p></div>
-      <div class="bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-4 text-white"><h3 class="text-sm font-medium opacity-80">Tempo desde atualização</h3><p id="updateTimer" class="text-2xl font-bold">--</p></div>
-    </section><!-- Transactions Table -->
-<section class="bg-white rounded-lg shadow-lg overflow-hidden mb-6">
-  <div class="p-4 bg-primary-500 text-white flex justify-between items-center">
-    <h2 class="text-xl font-semibold">Transações</h2>
-    <button id="refreshBtn" class="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700 transition-colors duration-200"><span id="refreshText">Atualizar</span><div id="refreshSpinner" class="loading-spinner hidden inline-block ml-2"></div></button>
-  </div>
-  <div class="hidden lg:block overflow-x-auto">
-    <table class="w-full">
-      <thead class="bg-gray-50"><tr><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Símbolo</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Operação</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantidade</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preço</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preço Atual</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lucro</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Taxa</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th><th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th></tr></thead>
-      <tbody id="transactionTbody" class="bg-white divide-y divide-gray-200"></tbody>
-    </table>
-  </div>
-  <div id="mobileList" class="lg:hidden p-4 space-y-4"></div>
-  <div id="emptyState" class="text-center py-12 hidden"><div class="text-6xl mb-4">📊</div><h3 class="text-xl font-semibold text-gray-700 mb-2">Nenhuma transação encontrada</h3><p class="text-gray-500 mb-4">Adicione sua primeira transação para começar a acompanhar seus investimentos.</p></div>
-</section>
+      <div class="bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-4 text-white">
+        <h3 class="text-sm font-medium opacity-80">Total de Transações</h3>
+        <p id="totalTransactions" class="text-2xl font-bold">0</p>
+      </div>
+      <div class="bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-4 text-white">
+        <h3 class="text-sm font-medium opacity-80">Lucro Total</h3>
+        <p id="totalProfit" class="text-2xl font-bold">€0.00</p>
+      </div>
+      <div class="bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-4 text-white">
+        <h3 class="text-sm font-medium opacity-80">Última Atualização</h3>
+        <p id="lastUpdate" class="text-sm font-medium">--</p>
+      </div>
+      <div class="bg-white bg-opacity-20 backdrop-blur-lg rounded-lg p-4 text-white">
+        <h3 class="text-sm font-medium opacity-80">Tempo desde atualização</h3>
+        <p id="updateTimer" class="text-2xl font-bold">--</p>
+      </div>
+    </section>
 
-<!-- Profit Chart -->
-<section class="bg-white rounded-lg shadow-lg p-6"><h2 class="text-xl font-semibold text-gray-800 mb-4">Análise de Lucros</h2><div id="profitChart" class="w-full h-96"></div></section>
+    <!-- Transactions Table -->
+    <section class="bg-white rounded-lg shadow-lg overflow-hidden mb-6">
+      <div class="p-4 bg-primary-500 text-white flex justify-between items-center">
+        <h2 class="text-xl font-semibold">Transações</h2>
+        <button id="refreshBtn" class="px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700 transition-colors duration-200">
+          <span id="refreshText">Atualizar</span>
+          <div id="refreshSpinner" class="loading-spinner hidden inline-block ml-2"></div>
+        </button>
+      </div>
+      <div class="hidden lg:block overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Símbolo</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Operação</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantidade</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preço</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preço Atual</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lucro</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Taxa</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="transactionTbody" class="bg-white divide-y divide-gray-200"></tbody>
+        </table>
+      </div>
+      <div id="mobileList" class="lg:hidden p-4 space-y-4"></div>
+      <div id="emptyState" class="text-center py-12 hidden">
+        <div class="text-6xl mb-4">📊</div>
+        <h3 class="text-xl font-semibold text-gray-700 mb-2">Nenhuma transação encontrada</h3>
+        <p class="text-gray-500 mb-4">Adicione sua primeira transação para começar a acompanhar seus investimentos.</p>
+      </div>
+    </section>
 
-  </main>  <!-- Toast Container -->  <div id="toastContainer" class="fixed top-20 right-4 z-50 space-y-2"></div>  <!-- Delete Confirmation Modal -->  <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden"><div class="bg-white p-6 rounded-lg max-w-md w-full mx-4"><h3 class="text-lg font-semibold mb-4">Confirmar Exclusão</h3><p class="text-gray-600 mb-6">Tem certeza que deseja excluir esta transação? Esta ação não pode ser desfeita.</p><div class="flex justify-end space-x-3"><button id="cancelDelete" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition-colors duration-200">Cancelar</button><button id="confirmDelete" class="px-4 py-2 bg-danger-500 text-white rounded hover:bg-red-600 transition-colors duration-200">Excluir</button></div></div></div>  <script type="module">
+    <!-- Profit Chart -->
+    <section class="bg-white rounded-lg shadow-lg p-6">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">Análise de Lucros</h2>
+      <div id="profitChart" class="w-full h-96"></div>
+    </section>
+  </main>
+
+  <!-- Toast Container -->
+  <div id="toastContainer" class="fixed top-20 right-4 z-50 space-y-2"></div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white p-6 rounded-lg max-w-md w-full mx-4">
+      <h3 class="text-lg font-semibold mb-4">Confirmar Exclusão</h3>
+      <p class="text-gray-600 mb-6">Tem certeza que deseja excluir esta transação? Esta ação não pode ser desfeita.</p>
+      <div class="flex justify-end space-x-3">
+        <button id="cancelDelete" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 transition-colors duration-200">Cancelar</button>
+        <button id="confirmDelete" class="px-4 py-2 bg-danger-500 text-white rounded hover:bg-red-600 transition-colors duration-200">Excluir</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
     import('./firebase-init.js').then(({ auth }) => {
       import('https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js').then(({ onAuthStateChanged, signOut }) => {
         onAuthStateChanged(auth, user => {
-          if (!user) { window.location.href = '/login.html'; return; }
+          if (!user) {
+            window.location.href = '/login.html';
+            return;
+          }
           app.state.userEmail = user.email;
           document.getElementById('userName').textContent = user.displayName || user.email.split('@')[0];
           app.init();
         });
         document.getElementById('signOutBtn').onclick = async () => {
-          try { await signOut(auth); window.location.href = '/login.html'; } catch { app.showToast('Erro ao sair', 'error'); }
+          try {
+            await signOut(auth);
+            window.location.href = '/login.html';
+          } catch {
+            app.showToast('Erro ao sair', 'error');
+          }
         };
       });
-    }).catch(e => { console.error(e); app.showToast('Erro ao carregar autenticação', 'error'); });
+    }).catch(e => {
+      console.error(e);
+      app.showToast('Erro ao carregar autenticação', 'error');
+    });
 
     const app = {
-      state: { transactions: [], userEmail: '', isLoading: false, isEditing: false, editingId: null, marketPrices: {}, lastUpdate: null, totalProfit: 0 },
+      state: {
+        transactions: [],
+        userEmail: '',
+        marketPrices: {},
+        lastUpdate: null
+      },
       elements: {
-        // Drawer & FAB
         openFormBtn: document.getElementById('openFormBtn'),
         closeFormBtn: document.getElementById('closeFormBtn'),
         drawer: document.getElementById('formDrawer'),
         drawerOverlay: document.getElementById('drawerOverlay'),
         drawerTitle: document.getElementById('drawerTitle'),
-        // Form
         form: document.getElementById('transactionForm'),
-        transactionId: document.getElementById('transactionId'),
         symbol: document.getElementById('symbol'),
         operation: document.getElementById('operation'),
         amount: document.getElementById('amount'),
@@ -175,11 +256,9 @@
         submitText: document.getElementById('submitText'),
         submitSpinner: document.getElementById('submitSpinner'),
         cancelEdit: document.getElementById('cancelEdit'),
-        // Display
         tbody: document.getElementById('transactionTbody'),
         mobileList: document.getElementById('mobileList'),
         emptyState: document.getElementById('emptyState'),
-        profitChart: document.getElementById('profitChart'),
         totalTransactions: document.getElementById('totalTransactions'),
         totalProfit: document.getElementById('totalProfit'),
         lastUpdateEl: document.getElementById('lastUpdate'),
@@ -192,31 +271,28 @@
         cancelDelete: document.getElementById('cancelDelete'),
         connectionStatus: document.getElementById('connectionStatus')
       },
-      /* ---------- INIT ---------- */
+
       init() {
         this.bindEvents();
-        this.setDefaultDate();
+        this.elements.date.value = new Date().toISOString().split('T')[0];
         this.fetchTransactions();
-        this.startMarketPriceUpdates();
+        this.startPriceUpdater();
         this.startUpdateTimer();
       },
+
       bindEvents() {
-        // Drawer
         this.elements.openFormBtn.addEventListener('click', () => this.openDrawer());
         this.elements.closeFormBtn.addEventListener('click', () => this.closeDrawer());
         this.elements.drawerOverlay.addEventListener('click', () => this.closeDrawer());
-        // Form
-        this.elements.form.addEventListener('submit', this.handleSubmit.bind(this));
-        this.elements.cancelEdit.addEventListener('click', () => { this.cancelEdit(); this.closeDrawer(); });
-        // Table / mobile actions
-        this.elements.tbody.addEventListener('click', this.handleTableClick.bind(this));
-        this.elements.mobileList.addEventListener('click', this.handleMobileClick.bind(this));
-        // Refresh
-        this.elements.refreshBtn.addEventListener('click', this.refreshData.bind(this));
-        // Delete modal
-        this.elements.cancelDelete.addEventListener('click', this.hideDeleteModal.bind(this));
-        this.elements.confirmDelete.addEventListener('click', this.deleteTransaction.bind(this));
+        this.elements.form.addEventListener('submit', e => this.handleSubmit(e));
+        this.elements.cancelEdit.addEventListener('click', () => { this.resetForm(); this.closeDrawer(); });
+        this.elements.tbody.addEventListener('click', e => this.handleTableClick(e));
+        this.elements.mobileList.addEventListener('click', e => this.handleTableClick(e));
+        this.elements.refreshBtn.addEventListener('click', () => this.fetchTransactions());
+        this.elements.cancelDelete.addEventListener('click', () => this.hideDeleteModal());
+        this.elements.confirmDelete.addEventListener('click', () => this.deleteTransaction());
       },
+
       openDrawer() {
         this.elements.drawer.classList.remove('translate-x-full');
         this.elements.drawerOverlay.classList.remove('hidden');
@@ -225,217 +301,313 @@
         this.elements.drawer.classList.add('translate-x-full');
         this.elements.drawerOverlay.classList.add('hidden');
       },
-      setDefaultDate() {
-        this.elements.date.value = new Date().toISOString().split('T')[0];
+
+      getAPI() {
+        return `/api/transactions?user=${encodeURIComponent(this.state.userEmail)}`;
       },
-      /* ---------- API ---------- */
-      getAPI() { return `/api/transactions?user=${encodeURIComponent(this.state.userEmail)}`; },
-      getPriceAPI(sym) { return `/api/stocks?symbol=${sym}`; },
-      /* ---------- Toast ---------- */
+      getPriceAPI(sym) {
+        return `/api/stocks?symbol=${sym}`;
+      },
+
       showToast(msg, type = 'info', dur = 3000) {
         const div = document.createElement('div');
-        div.className = `animate-slide-up p-4 rounded-lg text-white font-medium ${type === 'success' ? 'bg-success-500' : type === 'error' ? 'bg-danger-500' : type === 'warning' ? 'bg-warning-500' : 'bg-primary-500'}`;
+        div.className = `animate-slide-up p-4 rounded-lg text-white font-medium ${
+          type==='success'? 'bg-success-500':
+          type==='error'?   'bg-danger-500':
+          type==='warning'? 'bg-warning-500':'bg-primary-500'}`;
         div.textContent = msg;
         this.elements.toastContainer.appendChild(div);
-        setTimeout(() => { div.style.opacity = '0'; setTimeout(() => div.remove(), 300); }, dur);
+        setTimeout(()=>{
+          div.style.opacity='0';
+          setTimeout(()=>div.remove(),300);
+        }, dur);
       },
-      /* ---------- Drawer Title Helper ---------- */
-      setDrawerTitle(txt) { this.elements.drawerTitle.textContent = txt; },
-      /* ---------- Fetch & Render ---------- */
+
       async fetchTransactions() {
         try {
           this.updateConnectionStatus(true);
           const res = await fetch(this.getAPI());
-          if (!res.ok) throw new Error(res.statusText);
+          if(!res.ok) throw new Error(res.statusText);
           this.state.transactions = await res.json();
           this.renderTransactions();
-          this.updateStatistics();
-        } catch (e) {
-          console.error(e); this.showToast('Erro ao carregar transações', 'error'); this.updateConnectionStatus(false);
+          this.updateStats();
+        } catch(e) {
+          console.error(e);
+          this.showToast('Erro ao carregar transações','error');
+          this.updateConnectionStatus(false);
         }
       },
+
       renderTransactions() {
-        this.elements.tbody.innerHTML = '';
-        this.elements.mobileList.innerHTML = '';
-        if (!this.state.transactions.length) { this.elements.emptyState.classList.remove('hidden'); return; }
+        this.elements.tbody.innerHTML='';
+        this.elements.mobileList.innerHTML='';
+        if(!this.state.transactions.length) {
+          this.elements.emptyState.classList.remove('hidden');
+          return;
+        }
         this.elements.emptyState.classList.add('hidden');
-        this.state.transactions.forEach(tx => { this.renderDesktopRow(tx); this.renderMobileCard(tx); });
-        this.updateMarketPrices();
+        this.state.transactions.forEach(tx=>{
+          this.renderDesktopRow(tx);
+          this.renderMobileCard(tx);
+        });
+        this.updateAllPrices();
       },
+
       renderDesktopRow(tx) {
-        const opText = tx.operation === 'buy' ? 'Compra' : 'Venda';
-        const opCol  = tx.operation === 'buy' ? 'text-success-500' : 'text-danger-500';
+        const opText = tx.operation==='buy'?'Compra':'Venda';
+        const opCol  = tx.operation==='buy'?'text-success-500':'text-danger-500';
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-gray-50 transition-colors duration-150';
-        tr.innerHTML = `<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${tx.symbol}</td><td class="px-6 py-4"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${opCol} bg-opacity-10">${opText}</span></td><td class="px-6 py-4 text-sm text-gray-900">${tx.amount}</td><td class="px-6 py-4 text-sm text-gray-900">€${tx.price.toFixed(4)}</td><td class="px-6 py-4 text-sm text-gray-900"><span id="market-${tx.id}" class="text-gray-400">Carregando...</span></td><td class="px-6 py-4 text-sm"><span id="profit-${tx.id}" class="font-medium">--</span></td><td class="px-6 py-4 text-sm text-gray-900">€${tx.fee.toFixed(4)}</td><td class="px-6 py-4 text-sm text-gray-900">${new Date(tx.date).toLocaleDateString('pt-PT')}</td><td class="px-6 py-4 text-sm font-medium space-x-3"><button data-action="edit" data-id="${tx.id}" class="text-primary-600 hover:text-primary-900">Editar</button><button data-action="copy" data-id="${tx.id}" class="text-warning-500 hover:text-warning-700">Copiar</button><button data-action="delete" data-id="${tx.id}" class="text-danger-600 hover:text-red-900">Excluir</button></td>`;
+        tr.className='hover:bg-gray-50 transition-colors duration-150';
+        tr.innerHTML=`
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${tx.symbol}</td>
+          <td class="px-6 py-4"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${opCol} bg-opacity-10">${opText}</span></td>
+          <td class="px-6 py-4 text-sm text-gray-900">${tx.amount}</td>
+          <td class="px-6 py-4 text-sm text-gray-900">€${tx.price.toFixed(4)}</td>
+          <td class="px-6 py-4 text-sm text-gray-900"><span id="market-${tx.id}" class="text-gray-400">Carregando...</span></td>
+          <td class="px-6 py-4 text-sm"><span id="profit-${tx.id}" class="font-medium">--</span></td>
+          <td class="px-6 py-4 text-sm text-gray-900">€${tx.fee.toFixed(4)}</td>
+          <td class="px-6 py-4 text-sm text-gray-900">${new Date(tx.date).toLocaleDateString('pt-PT')}</td>
+          <td class="px-6 py-4 text-sm font-medium space-x-3">
+            <button data-action="edit" data-id="${tx.id}" class="text-primary-600 hover:text-primary-900">Editar</button>
+            <button data-action="copy" data-id="${tx.id}" class="text-warning-500 hover:text-warning-700">Copiar</button>
+            <button data-action="delete" data-id="${tx.id}" class="text-danger-600 hover:text-red-900">Excluir</button>
+          </td>`;
         this.elements.tbody.appendChild(tr);
       },
+
       renderMobileCard(tx) {
-        const opText = tx.operation === 'buy' ? 'Compra' : 'Venda';
-        const opCol  = tx.operation === 'buy' ? 'text-success-500' : 'text-danger-500';
+        const opText = tx.operation==='buy'?'Compra':'Venda';
+        const opCol  = tx.operation==='buy'?'text-success-500':'text-danger-500';
         const div = document.createElement('div');
-        div.className = 'bg-white border border-gray-200 rounded-lg p-4 animate-fade-in';
-        div.innerHTML = `<div class="flex justify-between items-start mb-3"><div><h3 class="text-lg font-semibold text-gray-900">${tx.symbol}</h3><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${opCol} bg-opacity-10">${opText}</span></div><div class="text-right space-x-2"><button data-action="edit" data-id="${tx.id}" class="text-primary-600 hover:text-primary-900 text-sm">Editar</button><button data-action="copy" data-id="${tx.id}" class="text-warning-500 hover:text-warning-700 text-sm">Copiar</button><button data-action="delete" data-id="${tx.id}" class="text-danger-600 hover:text-red-900 text-sm">Excluir</button></div></div><div class="grid grid-cols-2 gap-4 text-sm"><div><p class="text-gray-500">Quantidade</p><p class="font-medium">${tx.amount}</p></div><div><p class="text-gray-500">Preço</p><p class="font-medium">€${tx.price.toFixed(4)}</p></div><div><p class="text-gray-500">Preço Atual</p><p id="market-mobile-${tx.id}" class="font-medium text-gray-400">Carregando...</p></div><div><p class="text-gray-500">Lucro</p><p id="profit-mobile-${tx.id}" class="font-medium">--</p></div><div><p class="text-gray-500">Taxa</p><p class="font-medium">€${tx.fee.toFixed(4)}</p></div><div><p class="text-gray-500">Data</p><p class="font-medium">${new Date(tx.date).toLocaleDateString('pt-PT')}</p></div></div>`;
+        div.className='bg-white border border-gray-200 rounded-lg p-4 animate-fade-in';
+        div.innerHTML=`
+          <div class="flex justify-between items-start mb-3">
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900">${tx.symbol}</h3>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${opCol} bg-opacity-10">${opText}</span>
+            </div>
+            <div class="text-right space-x-2">
+              <button data-action="edit" data-id="${tx.id}" class="text-primary-600 hover:text-primary-900 text-sm">Editar</button>
+              <button data-action="copy" data-id="${tx.id}" class="text-warning-500 hover:text-warning-700 text-sm">Copiar</button>
+              <button data-action="delete" data-id="${tx.id}" class="text-danger-600 hover:text-red-900 text-sm">Excluir</button>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4 text-sm">
+            <div><p class="text-gray-500">Quantidade</p><p class="font-medium">${tx.amount}</p></div>
+            <div><p class="text-gray-500">Preço</p><p class="font-medium">€${tx.price.toFixed(4)}</p></div>
+            <div><p class="text-gray-500">Preço Atual</p><p id="market-mobile-${tx.id}" class="font-medium text-gray-400">Carregando...</p></div>
+            <div><p class="text-gray-500">Lucro</p><p id="profit-mobile-${tx.id}" class="font-medium">--</p></div>
+            <div><p class="text-gray-500">Taxa</p><p class="font-medium">€${tx.fee.toFixed(4)}</p></div>
+            <div><p class="text-gray-500">Data</p><p class="font-medium">${new Date(tx.date).toLocaleDateString('pt-PT')}</p></div>
+          </div>`;
         this.elements.mobileList.appendChild(div);
       },
-      /* ---------- Statistics ---------- */
-      updateStatistics() {
+
+      updateStats() {
         this.elements.totalTransactions.textContent = this.state.transactions.length;
-        if (this.state.lastUpdate) this.elements.lastUpdateEl.textContent = new Date(this.state.lastUpdate).toLocaleString('pt-PT');
+        if (this.state.lastUpdate) {
+          this.elements.lastUpdateEl.textContent = new Date(this.state.lastUpdate).toLocaleString('pt-PT');
+        }
       },
-      /* ---------- Actions Handlers ---------- */
+
       handleTableClick(e) {
         const btn = e.target.closest('[data-action]');
         if (!btn) return;
         const action = btn.getAttribute('data-action');
         const id = btn.getAttribute('data-id');
-        if (action === 'edit') this.editTransaction(id);
-        if (action === 'copy') this.copyTransaction(id);
+        if (action === 'edit') this.populateForm(id, 'Editar Transação');
+        if (action === 'copy') this.populateForm(id, 'Copiar Transação', true);
         if (action === 'delete') this.showDeleteModal(id);
       },
-      handleMobileClick(e) { this.handleTableClick(e); },
-      /* ---------- Form Logic ---------- */
-      validateTransaction(p) {
-        const err = [];
-        if (!p.symbol) err.push('Símbolo é obrigatório');
-        if (!p.operation) err.push('Operação é obrigatória');
-        if (isNaN(p.amount) || p.amount <= 0) err.push('Quantidade deve ser maior que zero');
-        if (isNaN(p.price) || p.price <= 0) err.push('Preço deve ser maior que zero');
-        if (isNaN(p.fee) || p.fee < 0) err.push('Taxa não pode ser negativa');
-        if (!p.date) err.push('Data é obrigatória');
-        if (err.length) { err.forEach(e => this.showToast(e, 'error')); return false; }
+
+      populateForm(id, title, isCopy = false) {
+        const tx = this.state.transactions.find(t => t.id == id);
+        if (!tx) return;
+        this.elements.drawerTitle.textContent = title;
+        this.elements.cancelEdit.classList.remove('hidden');
+        this.elements.transactionId.value = isCopy ? '' : tx.id;
+        this.elements.symbol.value = tx.symbol;
+        this.elements.operation.value = tx.operation;
+        this.elements.amount.value = tx.amount;
+        this.elements.price.value = tx.price;
+        this.elements.fee.value = tx.fee;
+        this.elements.date.value = isCopy
+          ? new Date().toISOString().split('T')[0]
+          : new Date(tx.date).toISOString().split('T')[0];
+        this.openDrawer();
+      },
+
+      validate(tx) {
+        const errs = [];
+        if (!tx.symbol) errs.push('Símbolo é obrigatório');
+        if (!tx.operation) errs.push('Operação é obrigatória');
+        if (isNaN(tx.amount) || tx.amount <= 0) errs.push('Quantidade deve ser maior que zero');
+        if (isNaN(tx.price)  || tx.price <= 0)  errs.push('Preço deve ser maior que zero');
+        if (isNaN(tx.fee)    || tx.fee < 0)    errs.push('Taxa não pode ser negativa');
+        if (!tx.date) errs.push('Data é obrigatória');
+        if (errs.length) {
+          errs.forEach(e => this.showToast(e,'error'));
+          return false;
+        }
         return true;
       },
-      setSubmitLoading(l) {
-        this.elements.submitBtn.disabled = l;
-        this.elements.submitSpinner.classList.toggle('hidden', !l);
-        this.elements.submitText.textContent = l ? 'Salvando...' : 'Guardar Transação';
+
+      setLoading(btnEl, spinnerEl, isLoading) {
+        btnEl.disabled = isLoading;
+        spinnerEl.classList.toggle('hidden', !isLoading);
       },
+
       resetForm() {
         this.elements.form.reset();
-        this.setDefaultDate();
-        this.state.isEditing = false;
-        this.state.editingId = null;
+        this.elements.date.value = new Date().toISOString().split('T')[0];
         this.elements.cancelEdit.classList.add('hidden');
-        this.setDrawerTitle('Nova Transação');
+        this.elements.drawerTitle.textContent = 'Nova Transação';
       },
+
       async handleSubmit(e) {
         e.preventDefault();
+        const id = this.elements.transactionId.value;
         const payload = {
           symbol: this.elements.symbol.value.toUpperCase(),
           operation: this.elements.operation.value,
           amount: parseFloat(this.elements.amount.value),
           price: parseFloat(this.elements.price.value),
-          fee: parseFloat(this.elements.fee.value),
-          date: this.elements.date.value
+          fee:   parseFloat(this.elements.fee.value),
+          date:  this.elements.date.value
         };
-        if (!this.validateTransaction(payload)) return;
+        if (!this.validate(payload)) return;
+
+        const isEdit = Boolean(id);
+        let url = this.getAPI();
+        let method = 'POST';
+        if (isEdit) {
+          url += `&id=${id}`;
+          method = 'PUT';
+        }
+
         try {
-          this.setSubmitLoading(true);
-          let url = this.getAPI();
-          let method = 'POST';
-          if (this.state.isEditing && this.state.editingId) { url += `&id=${this.state.editingId}`; method = 'PUT'; }
-          const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+          this.setLoading(this.elements.submitBtn, this.elements.submitSpinner, true);
+          const res = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
           if (!res.ok) throw new Error(res.statusText);
+
           this.resetForm();
-          await this.fetchTransactions();
-          this.showToast(this.state.isEditing ? 'Transação atualizada com sucesso' : 'Transação criada com sucesso', 'success');
           this.closeDrawer();
+          await this.fetchTransactions();
+          this.showToast(isEdit ? 'Atualizado com sucesso':'Criado com sucesso','success');
         } catch (err) {
-          console.error(err); this.showToast('Erro ao salvar transação', 'error');
-        } finally { this.setSubmitLoading(false); }
+          console.error(err);
+          this.showToast('Erro ao salvar','error');
+        } finally {
+          this.setLoading(this.elements.submitBtn, this.elements.submitSpinner, false);
+        }
       },
-      editTransaction(id) {
-        const tx = this.state.transactions.find(t => t.id == id);
-        if (!tx) return;
-        this.state.isEditing = true; this.state.editingId = tx.id;
-        this.setDrawerTitle('Editar Transação');
-        this.elements.cancelEdit.classList.remove('hidden');
-        this.elements.transactionId.value = tx.id;
-        this.elements.symbol.value = tx.symbol;
-        this.elements.operation.value = tx.operation;
-        this.elements.amount.value = tx.amount;
-        this.elements.price.value = tx.price;
-        this.elements.fee.value = tx.fee;
-        this.elements.date.value = new Date(tx.date).toISOString().split('T')[0];
-        this.openDrawer();
+
+      showDeleteModal(id) {
+        this.state.deleteId = id;
+        this.elements.deleteModal.classList.remove('hidden');
       },
-      copyTransaction(id) {
-        const tx = this.state.transactions.find(t => t.id == id);
-        if (!tx) return;
-        this.state.isEditing = false; this.state.editingId = null;
-        this.setDrawerTitle('Copiar Transação');
-        this.elements.cancelEdit.classList.remove('hidden');
-        this.elements.transactionId.value = '';
-        this.elements.symbol.value = tx.symbol;
-        this.elements.operation.value = tx.operation;
-        this.elements.amount.value = tx.amount;
-        this.elements.price.value = tx.price;
-        this.elements.fee.value = tx.fee;
-        this.elements.date.value = new Date().toISOString().split('T')[0];
-        this.openDrawer();
+      hideDeleteModal() {
+        this.elements.deleteModal.classList.add('hidden');
       },
-      cancelEdit() { this.resetForm(); },
-      /* ---------- Delete ---------- */
-      showDeleteModal(id) { this.state.editingId = id; this.elements.deleteModal.classList.remove('hidden'); },
-      hideDeleteModal() { this.elements.deleteModal.classList.add('hidden'); },
+
       async deleteTransaction() {
-        try { await fetch(`${this.getAPI()}&id=${this.state.editingId}`, { method: 'DELETE' }); this.hideDeleteModal(); await this.fetchTransactions(); this.showToast('Transação excluída com sucesso', 'success'); }
-        catch (e) { console.error(e); this.showToast('Erro ao excluir transação', 'error'); }
+        try {
+          await fetch(`${this.getAPI()}&id=${this.state.deleteId}`, { method: 'DELETE' });
+          this.hideDeleteModal();
+          await this.fetchTransactions();
+          this.showToast('Excluído com sucesso','success');
+        } catch (e) {
+          console.error(e);
+          this.showToast('Erro ao excluir','error');
+        }
       },
-      /* ---------- Refresh ---------- */
-      async refreshData() {
-        this.elements.refreshBtn.disabled = true; this.elements.refreshSpinner.classList.remove('hidden');
-        await this.fetchTransactions();
-        this.elements.refreshSpinner.classList.add('hidden'); this.elements.refreshBtn.disabled = false;
+
+      async startPriceUpdater() {
+        // atualiza imediatamente e depois a cada 60s
+        await this.updateAllPrices();
+        setInterval(() => this.updateAllPrices(), 60000);
       },
-      /* ---------- Prices ---------- */
-      startMarketPriceUpdates() { this.updateMarketPrices(); setInterval(() => this.updateMarketPrices(), 60000); },
-      async updateMarketPrices() {
-        for (const tx of this.state.transactions) {
+
+      async updateAllPrices() {
+        const txs = this.state.transactions;
+        for (const tx of txs) {
           try {
             const res = await fetch(this.getPriceAPI(tx.symbol));
-            const data = await res.json();
-            const market = data.price;
+            const { price: market } = await res.json();
             this.state.marketPrices[tx.id] = market;
-            const profit = this.computeProfit(tx, market);
-            const cls = profit > 0 ? 'profit-positive' : profit < 0 ? 'profit-negative' : 'profit-neutral';
-            document.getElementById(`market-${tx.id}`).textContent = `€${market.toFixed(2)}`;
-            document.getElementById(`profit-${tx.id}`).textContent = `€${profit.toFixed(2)}`; document.getElementById(`profit-${tx.id}`).className = cls;
-            document.getElementById(`market-mobile-${tx.id}`).textContent = `€${market.toFixed(2)}`;
-            document.getElementById(`profit-mobile-${tx.id}`).textContent = `€${profit.toFixed(2)}`; document.getElementById(`profit-mobile-${tx.id}`).className = cls;
-          } catch (e) { console.error('Price update error', e); }
+            this.updateRowProfit(tx, market);
+          } catch(e) {
+            console.error('Erro preço', e);
+          }
         }
+        this.recalculateTotals();
+      },
+
+      updateRowProfit(tx, market) {
+        const profit = this.computeProfit(tx, market);
+        const cls = profit > 0 ? 'profit-positive' : profit < 0 ? 'profit-negative' : 'profit-neutral';
+        document.getElementById(`market-${tx.id}`).textContent = `€${market.toFixed(2)}`;
+        document.getElementById(`profit-${tx.id}`).textContent = `€${profit.toFixed(2)}`;
+        document.getElementById(`profit-${tx.id}`).className = cls;
+
+        document.getElementById(`market-mobile-${tx.id}`).textContent = `€${market.toFixed(2)}`;
+        document.getElementById(`profit-mobile-${tx.id}`).textContent = `€${profit.toFixed(2)}`;
+        document.getElementById(`profit-mobile-${tx.id}`).className = cls;
+      },
+
+      recalculateTotals() {
         let total = 0;
-        for (const tx of this.state.transactions) {
+        this.state.transactions.forEach(tx => {
           const m = this.state.marketPrices[tx.id] ?? tx.price;
           total += this.computeProfit(tx, m);
-        }
-        this.state.totalProfit = total;
-        this.elements.totalProfit.textContent = `€${total.toFixed(2)}`;
-        this.elements.totalProfit.className = `text-2xl font-bold ${total > 0 ? 'profit-positive' : total < 0 ? 'profit-negative' : 'profit-neutral'}`;
-        this.elements.updateTimer.textContent = '0s';
+        });
         this.state.lastUpdate = new Date().toISOString();
-        this.updateStatistics();
-        this.renderProfitChart();
+        this.elements.totalProfit.textContent = `€${total.toFixed(2)}`;
+        this.elements.totalProfit.className = `text-2xl font-bold ${
+          total>0?'profit-positive': total<0?'profit-negative':'profit-neutral'}`;
+        this.updateStats();
+        this.renderChart();
       },
-      computeProfit(tx, m) { return tx.operation === 'buy' ? (m - tx.price) * tx.amount - tx.fee : (tx.price - m) * tx.amount - tx.fee; },
-      /* ---------- Chart ---------- */
-      renderProfitChart() {
+
+      computeProfit(tx, m) {
+        return tx.operation==='buy'
+          ? (m - tx.price)*tx.amount - tx.fee
+          : (tx.price - m)*tx.amount - tx.fee;
+      },
+
+      renderChart() {
         const labels = this.state.transactions.map(t => new Date(t.date).toLocaleDateString('pt-PT'));
-        const profits = this.state.transactions.map(t => this.computeProfit(t, this.state.marketPrices[t.id] || t.price));
-        Plotly.newPlot(this.elements.profitChart, [{ x: labels, y: profits, type: 'scatter', mode: 'lines+markers' }], { margin: { t: 20 } }, { responsive: true });
+        const data   = this.state.transactions.map(t => this.computeProfit(t, this.state.marketPrices[t.id] || t.price));
+        Plotly.newPlot(this.elements.profitChart, [{ x: labels, y: data, type: 'scatter', mode: 'lines+markers' }], { margin:{t:20} }, { responsive:true });
       },
-      /* ---------- Connection Status ---------- */
+
       updateConnectionStatus(online) {
-        this.elements.connectionStatus.textContent = online ? 'Conectado' : 'Offline';
-        this.elements.connectionStatus.className = `text-xs ${online ? 'text-white text-opacity-70' : 'text-red-300'}`;
+        this.elements.connectionStatus.textContent = online ? 'Conectado':'Offline';
+        this.elements.connectionStatus.className = `text-xs ${
+          online ? 'text-white text-opacity-70':'text-red-300'}`;
       },
-      /* ---------- Timer ---------- */
+
       startUpdateTimer() {
-        setInterval(() => { if (!this.state.lastUpdate) return; const diff = Math.floor((Date.now() - new Date(this.state.lastUpdate)) / 1000); const h = Math.floor(diff / 3600); const m = Math.floor((diff % 3600) / 60); const s = diff % 60; this.elements.updateTimer.textContent = h ? `${h}h ${m}m ${s}s` : m ? `${m}m ${s}s` : `${s}s`; }, 1000);
+        setInterval(()=> {
+          if(!this.state.lastUpdate) return;
+          const diff = Math.floor((Date.now() - new Date(this.state.lastUpdate)) / 1000);
+          const h = Math.floor(diff/3600);
+          const m = Math.floor((diff%3600)/60);
+          const s = diff%60;
+          this.elements.updateTimer.textContent = h
+            ? `${h}h ${m}m ${s}s`
+            : m
+              ? `${m}m ${s}s`
+              : `${s}s`;
+        },1000);
       }
     };
+
     document.addEventListener('DOMContentLoaded', () => app.init());
-  </script></body>
+  </script>
+</body>
 </html>
