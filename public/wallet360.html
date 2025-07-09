@@ -250,6 +250,68 @@
       </section>
     </div>
   </div>
+<!-- ─────────────────────── Asset Edit / Add Modal ──────────────────────── -->
+<div id="assetModal"
+     class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+  <div class="bg-card dark:bg-cardDark rounded-2xl p-6 w-full max-w-md mx-4">
+    <div class="flex items-center justify-between mb-4">
+      <h3 id="assetModalTitle" class="text-lg font-semibold">Edit Asset</h3>
+      <button id="closeAssetModal" class="text-gray-500 hover:text-gray-700">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <form id="assetForm" class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium mb-1">Name / Ticker</label>
+        <input id="assetName" required class="w-full border rounded-lg px-3 py-2 bg-transparent">
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">Type</label>
+          <select id="assetType" class="w-full border rounded-lg px-3 py-2 bg-transparent">
+            <option value="Stock">Stock</option><option value="ETF">ETF</option>
+            <option value="Crypto">Crypto</option><option value="Bond">Bond</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Sector</label>
+          <input id="assetSector" class="w-full border rounded-lg px-3 py-2 bg-transparent">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">Quantity</label>
+          <input id="assetQty" type="number" step="0.01" required
+                 class="w-full border rounded-lg px-3 py-2 bg-transparent">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Price (USD)</label>
+          <input id="assetPrice" type="number" step="0.01" required
+                 class="w-full border rounded-lg px-3 py-2 bg-transparent">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-1">Risk Level</label>
+        <select id="assetRisk" class="w-full border rounded-lg px-3 py-2 bg-transparent">
+          <option value="Low">Low</option><option value="Medium">Medium</option>
+          <option value="High">High</option>
+        </select>
+      </div>
+
+      <div class="flex gap-3 pt-4">
+        <button type="button" id="cancelAsset" class="flex-1 border rounded-lg px-4 py-2
+                hover:bg-gray-50 dark:hover:bg-gray-700">Cancel</button>
+        <button type="submit"
+                class="flex-1 bg-primary hover:bg-primary-dark text-white rounded-lg px-4 py-2">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+<!-- ──────────────────────────────────────────────────────────────────────── -->
 
   <!-- Add Transaction Modal -->
   <div id="transactionModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">

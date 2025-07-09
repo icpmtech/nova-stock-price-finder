@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------------- */
-/*  Firestore ⇆ in-memory synchronisation for Wallet360                       */
+/*  firebaseSync.js – Firestore ⇆ in-memory state                             */
 /* -------------------------------------------------------------------------- */
 import FirebaseAPI from './firebaseApi.js';
 import {
@@ -21,10 +21,9 @@ import {
 } from './render.js';
 
 /* -------------------------------------------------------------------------- */
-/*  LOAD everything on boot                                                   */
+/*  Load everything once after auth success                                   */
 /* -------------------------------------------------------------------------- */
 export async function loadInitialData() {
-  /* 1. Wallet document & categories -------------------------------------- */
   const [walletDoc, cats] = await Promise.all([
     FirebaseAPI.fetchWalletData(),
     FirebaseAPI.fetchSpendingCategories()
@@ -33,91 +32,59 @@ export async function loadInitialData() {
   Object.assign(walletData, walletDoc ?? {});
   walletData.spendingCategories = cats ?? {};
 
-  /* ----- Seed wallet-level demo data if empty --------------------------- */
-  let shouldWriteWallet = false;
-
-  if (!Array.isArray(walletData.portfolioHistory) || !walletData.portfolioHistory.length) {
-    walletData.portfolioHistory = demoPortfolioHistory.slice();
-    shouldWriteWallet = true;
-  }
-
-  if (!Array.isArray(walletData.monthlyData) || !walletData.monthlyData.length) {
-    walletData.monthlyData = demoMonthlyData.slice();
-    shouldWriteWallet = true;
-  }
-
+  let writeWallet = false;
+  if (!walletData.portfolioHistory?.length) { walletData.portfolioHistory = [...demoPortfolioHistory]; writeWallet = true; }
+  if (!walletData.monthlyData?.length)      { walletData.monthlyData      = [...demoMonthlyData];      writeWallet = true; }
   if (!Object.keys(walletData.spendingCategories).length) {
     walletData.spendingCategories = { ...demoSpendingCategories };
     await FirebaseAPI.setSpendingCategories(walletData.spendingCategories);
   }
+  if (writeWallet) await FirebaseAPI.setWalletData(walletData);
 
-  if (shouldWriteWallet) {
-    await FirebaseAPI.setWalletData(walletData);
-  }
-
-  /* 2. Top-level collections -------------------------------------------- */
   const [bud, gol, ast, tx] = await Promise.all([
     FirebaseAPI.fetchBudgets(),
     FirebaseAPI.fetchGoals(),
     FirebaseAPI.fetchAssetsData(),
     FirebaseAPI.fetchRecentTransactions()
   ]);
+  budgets.push(...bud); goals.push(...gol); assetsData.push(...ast); recentTransactionsData.push(...tx);
 
-  budgets.push(...bud);
-  goals.push(...gol);
-  assetsData.push(...ast);
-  recentTransactionsData.push(...tx);
+  if (!assetsData.length)  for (const a of demoAssetsData) assetsData.push({ ...a, id: await FirebaseAPI.addAsset(a) });
+  if (!budgets.length)     for (const b of demoBudgets)   budgets.push({ ...b, id: await FirebaseAPI.addBudget(b) });
+  if (!goals.length)       for (const g of demoGoals)     goals.push({ ...g, id: await FirebaseAPI.addGoal(g) });
 
-  /* ----- Seed assets if empty ------------------------------------------ */
-  if (!assetsData.length) {
-    for (const asset of demoAssetsData) {
-      const id = await FirebaseAPI.addAsset(asset);
-      assetsData.push({ ...asset, id });
-    }
-  }
-
-  /* ----- Seed budgets if empty ----------------------------------------- */
-  if (!budgets.length) {
-    for (const b of demoBudgets) {
-      const id = await FirebaseAPI.addBudget(b);
-      budgets.push({ ...b, id });
-    }
-  }
-
-  /* ----- Seed goals if empty ------------------------------------------- */
-  if (!goals.length) {
-    for (const g of demoGoals) {
-      const id = await FirebaseAPI.addGoal(g);
-      goals.push({ ...g, id });
-    }
-  }
-
-  console.info('[Firebase] Initial data loaded (with demo fallbacks if needed)');
+  console.info('[Firebase] Data ready');   // first render happens elsewhere
 }
 
 /* -------------------------------------------------------------------------- */
-/*  SAVE helpers: write → Firestore, update cache, refresh UI                */
+/*  Transactions                                                              */
 /* -------------------------------------------------------------------------- */
-export async function addPortfolioSnapshot(entry) {
-  entry.id = await FirebaseAPI.addPortfolioEntry(entry);
-  (walletData.portfolioHistory ??= []).push(entry);
-  renderAll();
-}
-
-export async function addMonthlyRecord(record) {
-  record.id = await FirebaseAPI.addMonthlyRecord(record);
-  (walletData.monthlyData ??= []).push(record);
-  renderAll();
-}
-
 export async function addTransaction(tx) {
   tx.id = await FirebaseAPI.addTransaction(tx);
   recentTransactionsData.unshift(tx);
-  renderRecentTransactions();
-  renderAllTransactions();
+  renderRecentTransactions(); renderAllTransactions();
+}
+export async function updateTransaction(tx) {
+  await FirebaseAPI.updateTransaction(tx.id, tx);
+  const idx = recentTransactionsData.findIndex(t => t.id === tx.id);
+  if (idx > -1) recentTransactionsData[idx] = tx;
+  renderRecentTransactions(); renderAllTransactions();
 }
 
-/* ---------------- Generic CRUD wrappers ---------------------------------- */
+/* -------------------------------------------------------------------------- */
+/*  Assets, budgets, goals (save helpers)                                     */
+/* -------------------------------------------------------------------------- */
+export const saveAsset = async a => {
+  if (a.id) {
+    await FirebaseAPI.updateAsset(a.id, a);
+    Object.assign(assetsData.find(x => x.id === a.id) ?? {}, a);
+  } else {
+    a.id = await FirebaseAPI.addAsset(a);
+    assetsData.push(a);
+  }
+  renderAssets();
+};
+
 export const saveBudget = async b => {
   if (b.id) {
     await FirebaseAPI.updateBudget(b.id, b);
@@ -138,15 +105,4 @@ export const saveGoal = async g => {
     goals.push(g);
   }
   renderFinancialGoals();
-};
-
-export const saveAsset = async a => {
-  if (a.id) {
-    await FirebaseAPI.updateAsset(a.id, a);
-    Object.assign(assetsData.find(x => x.id === a.id) ?? {}, a);
-  } else {
-    a.id = await FirebaseAPI.addAsset(a);
-    assetsData.push(a);
-  }
-  renderAssets();
 };

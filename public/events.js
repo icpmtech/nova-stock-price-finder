@@ -1,121 +1,201 @@
-/* src/events.js */
+/* -------------------------------------------------------------------------- */
+/*  events.js – all DOM listeners & modal logic                               */
+/* -------------------------------------------------------------------------- */
 import { $, $$, settings, charts } from './utils.js';
 import { renderAll } from './render.js';
+import { recentTransactionsData, assetsData } from './data.js';
 import { getIconForCategory } from './helpers.js';
 import {
-  addTransaction as addTxToFirestore    // ⬅ NEW
+  addTransaction as addTxToFirestore,
+  updateTransaction as updateTxInFirestore,
+  saveAsset
 } from './firebaseSync.js';
 
-/* ------------------------------------------------------------------------ */
-/* Register all UI event listeners                                         */
-/* ------------------------------------------------------------------------ */
+let editingTx = null;
+let editingAsset = null;
+
+/* -------------------------------------------------------------------------- */
+/*  Attach every event listener once (called from main.js)                    */
+/* -------------------------------------------------------------------------- */
 export function registerEventHandlers() {
-  /* -------- Language switch ---------- */
+  /* ───── Language & Currency select ───── */
   $('#languageSelect').addEventListener('change', e => {
     settings.currentLang = e.target.value;
     document.documentElement.lang = settings.currentLang;
     renderAll();
   });
-
-  /* -------- Currency switch ---------- */
   $('#currencySelect').addEventListener('change', e => {
     settings.currentCurrency = e.target.value;
     renderAll();
   });
 
-  /* -------- Dark-mode toggle --------- */
+  /* ───── Dark-mode toggle ───── */
   $('#darkToggle').addEventListener('click', () => {
     settings.isDark = !settings.isDark;
     document.documentElement.classList.toggle('dark', settings.isDark);
-    const icon = $('#darkToggle svg');
-    icon.setAttribute('data-lucide', settings.isDark ? 'sun' : 'moon');
+    $('#darkToggle svg').setAttribute('data-lucide', settings.isDark ? 'sun' : 'moon');
     lucide.createIcons();
   });
 
-  /* -------- Quick-action buttons ----- */
+  /* ───── Quick-action buttons (add tx) ───── */
   document.addEventListener('click', e => {
     const btn = e.target.closest('.quick-action-btn');
+    if (btn) showTransactionModal(btn.querySelector('span').id);
+  });
+
+  /* ───── Row-click → edit transaction ───── */
+  $('#transactionsBody').addEventListener('click', e => {
+    const row = e.target.closest('tr[data-id]');
+    if (!row) return;
+    const tx = recentTransactionsData.find(t => t.id == row.dataset.id);
+    if (tx) showTransactionModal('edit', tx);
+  });
+
+  /* ───── Edit asset button on each card ───── */
+  $('#assetsList').addEventListener('click', e => {
+    const btn = e.target.closest('.edit-asset-btn');
     if (!btn) return;
-    showTransactionModal(btn.querySelector('span').id);
+    const asset = assetsData.find(a => a.id == btn.dataset.id);
+    if (asset) showAssetModal(asset);
   });
 
-  /* -------- Modal close -------------- */
-  $('#closeModal').addEventListener('click', closeModal);
-  $('#cancelTransaction').addEventListener('click', closeModal);
+  /* ───── Transaction modal: close / cancel ───── */
+  $('#closeModal').addEventListener('click', closeTxModal);
+  $('#cancelTransaction').addEventListener('click', closeTxModal);
   $('#transactionModal').addEventListener('click', e => {
-    if (e.target === e.currentTarget) closeModal();
+    if (e.target === e.currentTarget) closeTxModal();
   });
 
-  /* -------- Transaction form --------- */
-  $('#transactionForm').addEventListener('submit', saveTransaction);
+  /* ───── Asset modal: close / cancel ───── */
+  $('#closeAssetModal').addEventListener('click', closeAssetModal);
+  $('#cancelAsset').addEventListener('click', closeAssetModal);
+  $('#assetModal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeAssetModal();
+  });
 
-  /* -------- Search / filter ---------- */
+  /* ───── Form submits ───── */
+  $('#transactionForm').addEventListener('submit', saveTransaction);
+  $('#assetForm').addEventListener('submit', saveAssetForm);
+
+  /* ───── Search / filter ───── */
   $('#searchTransactions').addEventListener('input', filterTransactions);
   $('#filterTransactions').addEventListener('change', filterTransactions);
 
-  /* -------- Resize => chart.refresh --- */
+  /* ───── Window resize → refresh charts ───── */
   window.addEventListener('resize', () => {
     Object.values(charts).forEach(c => c.resize());
   });
 }
 
-/* ------------------------------------------------------------------------ */
-/* Modal helpers                                                            */
-/* ------------------------------------------------------------------------ */
-function showTransactionModal(action) {
-  const modal      = $('#transactionModal');
-  const typeSelect = $('#transactionType');
+/* ========================================================================== */
+/*  Transaction modal helpers                                                 */
+/* ========================================================================== */
+function showTransactionModal(action, tx = null) {
+  const m = $('#transactionModal');
+  const title = $('#modalTitle');
+  const tSel = $('#transactionType');
 
-  typeSelect.value =
-    action === 'addIncome'     ? 'income'     :
-    action === 'addExpense'    ? 'expense'    :
-    action === 'addInvestment' ? 'investment' : 'expense';
-
-  $('#transactionDate').value = new Date().toISOString().split('T')[0];
-  modal.classList.remove('hidden');
+  if (tx) {
+    editingTx = tx;
+    title.textContent = 'Edit Transaction';
+    tSel.value = tx.type;
+    $('#transactionAmount').value = tx.amount;
+    $('#transactionCategory').value = tx.category;
+    $('#transactionDescription').value = tx.description;
+    $('#transactionDate').value = tx.date;
+  } else {
+    editingTx = null;
+    title.textContent = 'Add Transaction';
+    $('#transactionForm').reset();
+    tSel.value =
+      action === 'addIncome' ? 'income' :
+      action === 'addExpense' ? 'expense' : 'investment';
+    $('#transactionDate').value = new Date().toISOString().split('T')[0];
+  }
+  m.classList.remove('hidden');
 }
-
-function closeModal() {
+function closeTxModal() {
   $('#transactionModal').classList.add('hidden');
+  editingTx = null;
 }
 
-/* ------------------------------------------------------------------------ */
-/* Persist a new transaction to Firestore & local cache                     */
-/* ------------------------------------------------------------------------ */
 async function saveTransaction(e) {
   e.preventDefault();
-
   const formData = {
-    type:        $('#transactionType').value,
-    amount:      parseFloat($('#transactionAmount').value),
-    category:    $('#transactionCategory').value,
+    type: $('#transactionType').value,
+    amount: parseFloat($('#transactionAmount').value),
+    category: $('#transactionCategory').value,
     description: $('#transactionDescription').value,
-    date:        $('#transactionDate').value
+    date: $('#transactionDate').value
   };
 
-  const tx = {
-    ...formData,
-    icon: getIconForCategory(formData.category)
-  };
-
-  await addTxToFirestore(tx);   // ⬅ writes to Firestore & re-renders
-  closeModal();
+  if (editingTx) {
+    const updated = { ...editingTx, ...formData, icon: getIconForCategory(formData.category) };
+    await updateTxInFirestore(updated);
+  } else {
+    const newTx = { ...formData, icon: getIconForCategory(formData.category) };
+    await addTxToFirestore(newTx);
+  }
+  closeTxModal();
   $('#transactionForm').reset();
 }
 
-/* ------------------------------------------------------------------------ */
-/* Table search / filter                                                    */
-/* ------------------------------------------------------------------------ */
+/* ========================================================================== */
+/*  Asset modal helpers                                                       */
+/* ========================================================================== */
+function showAssetModal(asset = null) {
+  const m = $('#assetModal');
+  editingAsset = asset;
+  $('#assetModalTitle').textContent = asset ? 'Edit Asset' : 'Add Asset';
+
+  if (asset) {
+    $('#assetName').value   = asset.name;
+    $('#assetType').value   = asset.type;
+    $('#assetSector').value = asset.sector;
+    $('#assetQty').value    = asset.quantity;
+    $('#assetPrice').value  = asset.priceUSD;
+    $('#assetRisk').value   = asset.risk;
+  } else {
+    $('#assetForm').reset();
+  }
+  m.classList.remove('hidden');
+}
+function closeAssetModal() {
+  $('#assetModal').classList.add('hidden');
+  editingAsset = null;
+}
+
+async function saveAssetForm(e) {
+  e.preventDefault();
+  const form = {
+    name: $('#assetName').value.trim(),
+    type: $('#assetType').value,
+    sector: $('#assetSector').value.trim(),
+    quantity: parseFloat($('#assetQty').value),
+    priceUSD: parseFloat($('#assetPrice').value),
+    risk: $('#assetRisk').value,
+    change: 0
+  };
+
+  if (editingAsset) {
+    await saveAsset({ ...editingAsset, ...form });
+  } else {
+    await saveAsset(form);
+  }
+  closeAssetModal();
+}
+
+/* ========================================================================== */
+/*  Simple search / filter for transactions table                             */
+/* ========================================================================== */
 function filterTransactions() {
-  const term   = $('#searchTransactions').value.toLowerCase();
+  const search = $('#searchTransactions').value.toLowerCase();
   const filter = $('#filterTransactions').value;
 
-  Array.from($('#transactionsBody').rows).forEach(row => {
-    const description = row.cells[3].textContent.toLowerCase();
-    const type        = row.cells[1].textContent.toLowerCase();
+  $$('#transactionsBody tr').forEach(row => {
+    const desc = row.cells[3].textContent.toLowerCase();
+    const type = row.cells[1].textContent.toLowerCase();
     row.style.display =
-      description.includes(term) && (filter === 'all' || type.includes(filter))
-        ? ''
-        : 'none';
+      desc.includes(search) && (filter === 'all' || type.includes(filter)) ? '' : 'none';
   });
 }
