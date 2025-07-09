@@ -5,113 +5,34 @@
   <title>Nova Stocks - Análises Financeiras</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Plotly.js CDN -->
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <style>
-    .gradient-bg {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-    .glass-effect {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    .hover-scale {
-      transition: transform 0.2s ease-in-out;
-    }
-    .hover-scale:hover {
-      transform: scale(1.05);
-    }
-    .pulse-animation {
-      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
-    .slide-in {
-      animation: slideIn 0.3s ease-out;
-    }
-    @keyframes slideIn {
-      from { transform: translateY(-10px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-    .checkbox-custom {
-      appearance: none;
-      width: 18px;
-      height: 18px;
-      border: 2px solid #d1d5db;
-      border-radius: 4px;
-      background: white;
-      cursor: pointer;
-      transition: all 0.2s;
-      position: relative;
-    }
-    .checkbox-custom:checked {
-      background: #3b82f6;
-      border-color: #3b82f6;
-    }
-    .checkbox-custom:checked::after {
-      content: '✓';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      color: white;
-      font-size: 12px;
-      font-weight: bold;
-    }
-    .dark .checkbox-custom {
-      border-color: #6b7280;
-      background: #374151;
-    }
-    .dark .checkbox-custom:checked {
-      background: #3b82f6;
-      border-color: #3b82f6;
-    }
-    .loading-spinner {
-      border: 2px solid #f3f4f6;
-      border-top: 2px solid #3b82f6;
-      border-radius: 50%;
-      width: 20px;
-      height: 20px;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    .notification {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      padding: 12px 20px;
-      border-radius: 8px;
-      color: white;
-      font-weight: 500;
-      z-index: 1000;
-      animation: slideInRight 0.3s ease-out;
-    }
-    @keyframes slideInRight {
-      from { transform: translateX(100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
-    }
-    .success { background: #10b981; }
-    .error { background: #ef4444; }
-    .warning { background: #f59e0b; }
-    .info { background: #3b82f6; }
+    /* --- Estilos utilitários e animações --- */
+    .gradient-bg{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%)}
+    .glass-effect{background:rgba(255,255,255,.1);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.2)}
+    .hover-scale{transition:transform .2s ease-in-out}.hover-scale:hover{transform:scale(1.05)}
+    .pulse-animation{animation:pulse 2s cubic-bezier(.4,0,.6,1) infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+    .slide-in{animation:slideIn .3s ease-out}
+    @keyframes slideIn{from{transform:translateY(-10px);opacity:0}to{transform:translateY(0);opacity:1}}
+    .checkbox-custom{appearance:none;width:18px;height:18px;border:2px solid #d1d5db;border-radius:4px;background:#fff;cursor:pointer;transition:.2s;position:relative}
+    .checkbox-custom:checked{background:#3b82f6;border-color:#3b82f6}
+    .checkbox-custom:checked::after{content:'✓';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:12px;font-weight:bold}
+    .dark .checkbox-custom{border-color:#6b7280;background:#374151}
+    .dark .checkbox-custom:checked{background:#3b82f6;border-color:#3b82f6}
+    .loading-spinner{border:2px solid #f3f4f6;border-top:2px solid #3b82f6;border-radius:50%;width:20px;height:20px;animation:spin 1s linear infinite}
+    @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+    .notification{position:fixed;top:20px;right:20px;padding:12px 20px;border-radius:8px;color:#fff;font-weight:500;z-index:1000;animation:slideInRight .3s ease-out}
+    @keyframes slideInRight{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+    .success{background:#10b981}.error{background:#ef4444}.warning{background:#f59e0b}.info{background:#3b82f6}
   </style>
 </head>
 <body class="bg-gradient-to-br from-gray-50 to-gray-100 text-gray-900 dark:from-gray-900 dark:to-gray-800 dark:text-white transition-all duration-300 min-h-screen">
   <div id="header-widget"></div>
-  <!-- 2) Include the widget script -->
-<script type="module" src="header.js"></script>
- 
+  <script type="module" src="header.js"></script>
 
-  <!-- Main -->
   <main class="max-w-7xl mx-auto p-6 space-y-8">
-    
-    <!-- Search Section -->
+    <!-- Pesquisa -->
     <div class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md rounded-2xl p-6 shadow-xl border border-gray-200/50 dark:border-gray-700/50">
       <div class="flex items-center space-x-2 mb-4">
         <div class="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg">
@@ -119,22 +40,16 @@
         </div>
         <h2 class="text-2xl font-semibold">Pesquisar Símbolo</h2>
       </div>
-      
       <div class="relative">
-        <input type="text" id="symbolInput" placeholder="Ex: AAPL, EDP.LS, TSLA..."
-               class="w-full p-4 rounded-xl border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200"
-               autocomplete="off" />
+        <input id="symbolInput" placeholder="Ex: AAPL, EDP.LS, TSLA…" class="w-full p-4 rounded-xl border border-gray-300 dark:border-gray-600 bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all duration-200" autocomplete="off">
         <div class="absolute right-4 top-4 text-gray-400">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-          </svg>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
         </div>
       </div>
-      
       <ul id="autocompleteList" class="mt-2 bg-white/90 dark:bg-gray-700/90 backdrop-blur-md rounded-xl shadow-lg border border-gray-200/50 dark:border-gray-600/50 max-h-60 overflow-y-auto hidden slide-in"></ul>
     </div>
 
-    <!-- Analysis Selection -->
+    <!-- Seleção de análises -->
     <div class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md rounded-2xl p-6 shadow-xl border border-gray-200/50 dark:border-gray-700/50">
       <div class="flex items-center space-x-2 mb-6">
         <div class="bg-green-100 dark:bg-green-900/30 p-2 rounded-lg">
@@ -142,72 +57,32 @@
         </div>
         <h3 class="text-xl font-semibold">Selecione Análises para Plotagem</h3>
       </div>
-      
       <div id="analysisOptions" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
-        <label class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-200 cursor-pointer group">
-          <input type="checkbox" value="dcf" class="checkbox-custom analysisChk">
-          <span class="font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">DCF</span>
-        </label>
-        <label class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-200 cursor-pointer group">
-          <input type="checkbox" value="dividendos" class="checkbox-custom analysisChk">
-          <span class="font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Dividendos</span>
-        </label>
-        <label class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-200 cursor-pointer group">
-          <input type="checkbox" value="perfil" class="checkbox-custom analysisChk">
-          <span class="font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Perfil</span>
-        </label>
-        <label class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-200 cursor-pointer group">
-          <input type="checkbox" value="comparar" class="checkbox-custom analysisChk">
-          <span class="font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Comparar</span>
-        </label>
-        <label class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-200 cursor-pointer group">
-          <input type="checkbox" value="rsi" class="checkbox-custom analysisChk">
-          <span class="font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">RSI</span>
-        </label>
-        <label class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-200 cursor-pointer group">
-          <input type="checkbox" value="macd" class="checkbox-custom analysisChk">
-          <span class="font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">MACD</span>
-        </label>
-        <label class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-200 cursor-pointer group">
-          <input type="checkbox" value="sma" class="checkbox-custom analysisChk">
-          <span class="font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">SMA</span>
-        </label>
-        <label class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-200 cursor-pointer group">
-          <input type="checkbox" value="bollinger" class="checkbox-custom analysisChk">
-          <span class="font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">Bollinger</span>
-        </label>
-        <label class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-200 cursor-pointer group">
-          <input type="checkbox" value="ema" class="checkbox-custom analysisChk">
-          <span class="font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">EMA</span>
-        </label>
-        <label class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-200 cursor-pointer group">
-          <input type="checkbox" value="atr" class="checkbox-custom analysisChk">
-          <span class="font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">ATR</span>
-        </label>
+        <!-- Checkboxes -->
+        <template id="analysisTemplate">
+          <label class="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-all duration-200 cursor-pointer group">
+            <input type="checkbox" class="checkbox-custom analysisChk">
+            <span class="font-medium group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"></span>
+          </label>
+        </template>
       </div>
-      
       <div class="flex flex-wrap gap-3">
         <button id="plotBtn" class="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-3 px-6 rounded-xl font-medium transition-all duration-200 hover-scale shadow-lg">
-          <span>📈</span>
-          <span>Plotar</span>
-          <div id="loadingSpinner" class="loading-spinner hidden ml-2"></div>
+          <span>📈</span><span>Plotar</span><div id="loadingSpinner" class="loading-spinner hidden ml-2"></div>
         </button>
         <button id="clearBtn" class="flex items-center space-x-2 bg-gray-500 hover:bg-gray-600 text-white py-3 px-6 rounded-xl font-medium transition-all duration-200 hover-scale shadow-lg">
-          <span>🗑️</span>
-          <span>Limpar</span>
+          <span>🗑️</span><span>Limpar</span>
         </button>
         <button id="exportPng" class="flex items-center space-x-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-3 px-6 rounded-xl font-medium transition-all duration-200 hover-scale shadow-lg">
-          <span>📷</span>
-          <span>PNG</span>
+          <span>📷</span><span>PNG</span>
         </button>
         <button id="exportCsv" class="flex items-center space-x-2 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white py-3 px-6 rounded-xl font-medium transition-all duration-200 hover-scale shadow-lg">
-          <span>📊</span>
-          <span>CSV</span>
+          <span>📊</span><span>CSV</span>
         </button>
       </div>
     </div>
 
-    <!-- Results Section -->
+    <!-- Resultados -->
     <div id="resultsSection" class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md rounded-2xl p-6 shadow-xl border border-gray-200/50 dark:border-gray-700/50 hidden">
       <div class="flex items-center space-x-2 mb-4">
         <div class="bg-purple-100 dark:bg-purple-900/30 p-2 rounded-lg">
@@ -218,7 +93,7 @@
       <div id="result" class="slide-in"></div>
     </div>
 
-    <!-- Chart Section -->
+    <!-- Gráfico -->
     <div id="chartSection" class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-md rounded-2xl p-6 shadow-xl border border-gray-200/50 dark:border-gray-700/50 hidden">
       <div class="flex items-center space-x-2 mb-4">
         <div class="bg-indigo-100 dark:bg-indigo-900/30 p-2 rounded-lg">
@@ -228,310 +103,175 @@
       </div>
       <div id="chart" class="slide-in rounded-xl overflow-hidden"></div>
     </div>
-
   </main>
 
-  <script>
-    const input = document.getElementById('symbolInput');
-    const list = document.getElementById('autocompleteList');
-    const result = document.getElementById('result');
-    const chart = document.getElementById('chart');
-    const plotBtn = document.getElementById('plotBtn');
-    const clearBtn = document.getElementById('clearBtn');
-    const exportPng = document.getElementById('exportPng');
-    const exportCsv = document.getElementById('exportCsv');
-    const loadingSpinner = document.getElementById('loadingSpinner');
-    const resultsSection = document.getElementById('resultsSection');
-    const chartSection = document.getElementById('chartSection');
+<script>
+/* ---------- Variáveis de elementos ---------- */
+const input           = document.getElementById('symbolInput');
+const list            = document.getElementById('autocompleteList');
+const resultDiv       = document.getElementById('result');
+const chartDiv        = document.getElementById('chart');
+const plotBtn         = document.getElementById('plotBtn');
+const clearBtn        = document.getElementById('clearBtn');
+const exportPng       = document.getElementById('exportPng');
+const exportCsv       = document.getElementById('exportCsv');
+const loadingSpinner  = document.getElementById('loadingSpinner');
+const resultsSection  = document.getElementById('resultsSection');
+const chartSection    = document.getElementById('chartSection');
+const analysisOptions = document.getElementById('analysisOptions');
+const analysisTpl     = document.getElementById('analysisTemplate').content;
 
-    let seriesData = [];
+/* ---------- Configuração dos checkboxes ---------- */
+const ANALYSES = ['dcf','dividendos','perfil','comparar','rsi','macd','sma','bollinger','ema','atr'];
+ANALYSES.forEach(name=>{
+  const node = analysisTpl.cloneNode(true);
+  node.querySelector('input').value = name;
+  node.querySelector('span').textContent = name.toUpperCase();
+  analysisOptions.appendChild(node);
+});
 
-    // Notification system
-    function showNotification(message, type = 'info') {
-      const notification = document.createElement('div');
-      notification.className = `notification ${type}`;
-      notification.textContent = message;
-      document.body.appendChild(notification);
-      
-      setTimeout(() => {
-        notification.remove();
-      }, 3000);
+/* ---------- Helpers ---------- */
+let seriesData = [];
+function showNotification(msg,type='info'){
+  const n=document.createElement('div');n.className=`notification ${type}`;n.textContent=msg;
+  document.body.appendChild(n);setTimeout(()=>n.remove(),3000);
+}
+function setLoading(b){
+  if(b){loadingSpinner.classList.remove('hidden');plotBtn.disabled=true;plotBtn.classList.add('opacity-50','cursor-not-allowed')}
+  else {loadingSpinner.classList.add('hidden');plotBtn.disabled=false;plotBtn.classList.remove('opacity-50','cursor-not-allowed')}
+}
+
+/* ---------- Autocomplete ---------- */
+input.addEventListener('input',async()=>{
+  const q=input.value.trim();
+  if(q.length<2){list.classList.add('hidden');return;}
+  try{
+    const r=await fetch(`/api/analises?query=${encodeURIComponent(q)}`);
+    const d=await r.json();
+    list.innerHTML='';
+    d.slice(0,10).forEach(item=>{
+      const li=document.createElement('li');
+      li.innerHTML=`<div class="flex items-center justify-between"><div><div class="font-medium">${item.symbol}</div><div class="text-sm text-gray-500 dark:text-gray-400">${item.name}</div></div><div class="text-blue-500">→</div></div>`;
+      li.className='px-4 py-3 hover:bg-blue-50 dark:hover:bg-gray-600/50 cursor-pointer transition-all duration-200 border-b border-gray-100 dark:border-gray-600 last:border-b-0';
+      li.addEventListener('click',()=>{input.value=item.symbol;list.classList.add('hidden');showNotification(`Símbolo ${item.symbol} selecionado`,'success');});
+      list.appendChild(li);
+    });
+    list.classList.remove('hidden');
+  }catch{showNotification('Erro ao buscar símbolos','error');}
+});
+document.addEventListener('click',e=>{if(!input.contains(e.target)&&!list.contains(e.target))list.classList.add('hidden');});
+
+/* ---------- Plotar ---------- */
+plotBtn.addEventListener('click',async()=>{
+  const symbol=input.value.trim();
+  if(!symbol){showNotification('Por favor, escolha um símbolo primeiro.','warning');return;}
+  const types=Array.from(document.querySelectorAll('.analysisChk:checked')).map(c=>c.value);
+  if(!types.length){showNotification('Selecione pelo menos uma análise.','warning');return;}
+
+  setLoading(true);seriesData=[];chartDiv.innerHTML='';resultDiv.innerHTML='';
+  resultsSection.classList.remove('hidden');chartSection.classList.remove('hidden');
+  resultDiv.innerHTML=`<div class="flex items-center space-x-3 text-blue-600 dark:text-blue-400"><div class="loading-spinner"></div><span>A carregar análises para <strong>${symbol}</strong>...</span></div>`;
+
+  try{
+    const res=await fetch(`/api/analises?symbol=${encodeURIComponent(symbol)}&tipo=${types.join(',')}`);
+    const data=await res.json();
+    if(data.error){throw new Error(data.error);}
+    const results=data.results||{};
+    const summary=data.overallSummary||{};
+    
+    /* --- Construir séries de gráfico --- */
+    for(const [key,val] of Object.entries(results)){
+      if(val.chart && val.chart.x && val.chart.y){
+        seriesData.push({x:val.chart.x,y:val.chart.y,mode:'lines',name:key.toUpperCase(),line:{width:2}});
+      }
     }
 
-    // Loading state management
-    function setLoading(isLoading) {
-      if (isLoading) {
-        loadingSpinner.classList.remove('hidden');
-        plotBtn.disabled = true;
-        plotBtn.classList.add('opacity-50', 'cursor-not-allowed');
-      } else {
-        loadingSpinner.classList.add('hidden');
-        plotBtn.disabled = false;
-        plotBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-      }
-    }
+    /* --- Construir HTML de resultados --- */
+    let sentimentColor={BULLISH:'text-green-500',BEARISH:'text-red-500',NEUTRAL:'text-yellow-500'}[summary.overallSentiment||'NEUTRAL'];
+    const summaryHtml=types.length>1?`
+      <div class="mt-6 p-4 rounded-xl bg-white/80 dark:bg-gray-800/80 border-l-4 border-blue-500">
+        <div class="text-lg font-bold mb-2">📊 Resumo Geral</div>
+        <div class="text-sm mb-1">Sentimento: <span class="font-semibold ${sentimentColor}">${summary.overallSentiment||'N/A'}</span></div>
+        <div class="text-sm mb-1">Sinais Bullish: <span class="font-semibold">${summary.signalStrength?.bullish ?? 0}</span></div>
+        <div class="text-sm mb-1">Sinais Bearish: <span class="font-semibold">${summary.signalStrength?.bearish ?? 0}</span></div>
+        <div class="text-sm mb-1">Total de sinais: <span class="font-semibold">${summary.signalStrength?.total ?? 0}</span></div>
+        <div class="text-sm mb-1">Confiança: <span class="font-semibold">${summary.signalStrength?.confidence ?? 0}%</span></div>
+      </div>`:'';
 
-    // Autocomplete
-    input.addEventListener('input', async () => {
-      const q = input.value.trim();
-      if (q.length < 2) {
-        list.classList.add('hidden');
-        return;
-      }
-
-      try {
-        const res = await fetch(`/api/analises?query=${encodeURIComponent(q)}`);
-        const data = await res.json();
-
-        list.innerHTML = '';
-        data.slice(0, 10).forEach(item => {
-          const li = document.createElement('li');
-          li.innerHTML = `
-            <div class="flex items-center justify-between">
-              <div>
-                <div class="font-medium">${item.symbol}</div>
-                <div class="text-sm text-gray-500 dark:text-gray-400">${item.name}</div>
-              </div>
-              <div class="text-blue-500">→</div>
-            </div>
-          `;
-          li.className = 'px-4 py-3 hover:bg-blue-50 dark:hover:bg-gray-600/50 cursor-pointer transition-all duration-200 border-b border-gray-100 dark:border-gray-600 last:border-b-0';
-          li.addEventListener('click', () => {
-            input.value = item.symbol;
-            list.classList.add('hidden');
-            showNotification(`Símbolo ${item.symbol} selecionado`, 'success');
-          });
-          list.appendChild(li);
-        });
-        list.classList.remove('hidden');
-      } catch (error) {
-        showNotification('Erro ao buscar símbolos', 'error');
-      }
-    });
-
-    // Hide autocomplete when clicking outside
-    document.addEventListener('click', (e) => {
-      if (!input.contains(e.target) && !list.contains(e.target)) {
-        list.classList.add('hidden');
-      }
-    });
-
-    // Plotar múltiplas análises
-    plotBtn.addEventListener('click', async () => {
-      const symbol = input.value.trim();
-      if (!symbol) {
-        showNotification('Por favor, escolha um símbolo primeiro.', 'warning');
-        return;
-      }
-
-      const types = Array.from(document.querySelectorAll('.analysisChk:checked')).map(c => c.value);
-      if (!types.length) {
-        showNotification('Selecione pelo menos uma análise.', 'warning');
-        return;
-      }
-
-      setLoading(true);
-      seriesData = [];
-      chart.innerHTML = '';
-      result.innerHTML = '';
-      
-      // Show sections
-      resultsSection.classList.remove('hidden');
-      chartSection.classList.remove('hidden');
-      
-      result.innerHTML = `
-        <div class="flex items-center space-x-3 text-blue-600 dark:text-blue-400">
-          <div class="loading-spinner"></div>
-          <span>A carregar análises para <strong>${symbol}</strong>...</span>
+    resultDiv.innerHTML=`
+      <div class="bg-gradient-to-r from-gray-800 to-gray-900 text-green-400 p-6 rounded-xl overflow-auto border-l-4 border-green-500">
+        <div class="flex items-center space-x-2 mb-3">
+          <span class="text-green-500">✓</span><span class="font-medium">Análise completa para ${symbol}</span>
         </div>
-      `;
+        <pre class="text-sm">${JSON.stringify(results,null,2)}</pre>
+      </div>${summaryHtml}`;
 
-      try {
-        for (let tipo of types) {
-          const res = await fetch(`/api/analises?symbol=${encodeURIComponent(symbol)}&tipo=${tipo}`);
-          const data = await res.json();
+    /* --- Desenhar gráfico --- */
+    if(seriesData.length){
+      const isDark=document.body.classList.contains('dark');
+      const layout={
+        title:{text:`Análises de ${symbol}`,font:{size:20,color:isDark?'#fff':'#000'}},
+        xaxis:{title:'Data',gridcolor:isDark?'#374151':'#e5e7eb'},
+        yaxis:{title:'Valor',gridcolor:isDark?'#374151':'#e5e7eb'},
+        plot_bgcolor:'rgba(0,0,0,0)',paper_bgcolor:'rgba(0,0,0,0)',
+        font:{color:isDark?'#fff':'#000'},showlegend:true,legend:{orientation:'h',y:-0.2}
+      };
+      Plotly.newPlot(chartDiv,seriesData,layout,{responsive:true,displayModeBar:true,modeBarButtonsToRemove:['pan2d','lasso2d','select2d']});
+      showNotification(`Gráfico gerado com sucesso para ${symbol}`,'success');
+    }else{showNotification('Nenhum dado de gráfico disponível','warning');}
+  }catch(err){
+    showNotification(err.message||'Erro ao carregar análises','error');
+    resultDiv.innerHTML=`<div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4"><div class="flex items-center space-x-2 text-red-600 dark:text-red-400"><span>⚠️</span><span>${err.message||'Erro desconhecido'}.</span></div></div>`;
+  }finally{setLoading(false);}
+});
 
-          // Show latest summary with improved styling
-          result.innerHTML = `
-            <div class="bg-gradient-to-r from-gray-800 to-gray-900 text-green-400 p-6 rounded-xl overflow-auto border-l-4 border-green-500">
-              <div class="flex items-center space-x-2 mb-3">
-                <span class="text-green-500">✓</span>
-                <span class="font-medium">Análise completa para ${symbol}</span>
-              </div>
-              <pre class="text-sm">${JSON.stringify(data.summary, null, 2)}</pre>
-            </div>
-          `;
+/* ---------- Limpar ---------- */
+clearBtn.addEventListener('click',()=>{
+  seriesData=[];if(chartDiv.innerHTML)Plotly.purge(chartDiv);
+  resultDiv.innerHTML='';resultsSection.classList.add('hidden');chartSection.classList.add('hidden');
+  showNotification('Gráfico limpo','info');
+});
 
-          if (data.chart && data.chart.x && data.chart.y) {
-            seriesData.push({ 
-              x: data.chart.x, 
-              y: data.chart.y, 
-              mode: 'lines', 
-              name: tipo.toUpperCase(),
-              line: { width: 2 }
-            });
-          }
-        }
-
-        if (seriesData.length) {
-          const layout = {
-            title: {
-              text: `Análises de ${symbol}`,
-              font: { size: 20, color: document.body.classList.contains('dark') ? '#fff' : '#000' }
-            },
-            xaxis: { 
-              title: 'Data',
-              gridcolor: document.body.classList.contains('dark') ? '#374151' : '#e5e7eb'
-            },
-            yaxis: { 
-              title: 'Valor',
-              gridcolor: document.body.classList.contains('dark') ? '#374151' : '#e5e7eb'
-            },
-            plot_bgcolor: 'rgba(0,0,0,0)',
-            paper_bgcolor: 'rgba(0,0,0,0)',
-            font: { color: document.body.classList.contains('dark') ? '#fff' : '#000' },
-            showlegend: true,
-            legend: { 
-              orientation: 'h',
-              y: -0.2
-            }
-          };
-
-          const config = {
-            responsive: true,
-            displayModeBar: true,
-            modeBarButtonsToRemove: ['pan2d', 'lasso2d', 'select2d']
-          };
-
-          Plotly.newPlot(chart, seriesData, layout, config);
-          showNotification(`Gráfico gerado com sucesso para ${symbol}`, 'success');
-        } else {
-          showNotification('Nenhum dado de gráfico disponível', 'warning');
-        }
-      } catch (error) {
-        showNotification('Erro ao carregar análises', 'error');
-        result.innerHTML = `
-          <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-4">
-            <div class="flex items-center space-x-2 text-red-600 dark:text-red-400">
-              <span>⚠️</span>
-              <span>Erro ao carregar análises. Tente novamente.</span>
-            </div>
-          </div>
-        `;
-      } finally {
-        setLoading(false);
-      }
-    });
-
-    // Limpar gráfico
-    clearBtn.addEventListener('click', () => {
-      seriesData = [];
-      if (chart.innerHTML) {
-        Plotly.purge(chart);
-      }
-      result.innerHTML = '';
-      resultsSection.classList.add('hidden');
-      chartSection.classList.add('hidden');
-      showNotification('Gráfico limpo', 'info');
-    });
-
-    // Exportar PNG
-    exportPng.addEventListener('click', () => {
-      if (!seriesData.length) {
-        showNotification('Não há gráfico para exportar', 'warning');
-        return;
-      }
-
-      Plotly.toImage(chart, { format: 'png', height: 600, width: 1000 })
-        .then(dataUrl => {
-          const a = document.createElement('a');
-          a.href = dataUrl;
-          a.download = `nova-stocks-chart-${new Date().toISOString().split('T')[0]}.png`;
-          a.click();
-          showNotification('PNG exportado com sucesso', 'success');
-        })
-        .catch(() => {
-          showNotification('Erro ao exportar PNG', 'error');
-        });
-    });
-
-    // Exportar CSV
-    exportCsv.addEventListener('click', () => {
-      if (!seriesData.length) {
-        showNotification('Não há dados para exportar', 'warning');
-        return;
-      }
-
-      try {
-        // Create CSV with all series
-        const maxLength = Math.max(...seriesData.map(s => s.x.length));
-        let csv = 'date';
-        seriesData.forEach(s => csv += `,${s.name}`);
-        csv += '\n';
-
-        for (let i = 0; i < maxLength; i++) {
-          let row = seriesData[0].x[i] || '';
-          seriesData.forEach(s => {
-            row += `,${s.y[i] || ''}`;
-          });
-          csv += row + '\n';
-        }
-
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `nova-stocks-data-${new Date().toISOString().split('T')[0]}.csv`;
-        a.click();
-        URL.revokeObjectURL(url);
-        showNotification('CSV exportado com sucesso', 'success');
-      } catch (error) {
-        showNotification('Erro ao exportar CSV', 'error');
-      }
-    });
-
-    // Tema claro/escuro
-    document.getElementById('toggleTheme').addEventListener('click', () => {
-      document.body.classList.toggle('dark');
-      
-      // Update chart colors if exists
-      if (seriesData.length && chart.innerHTML) {
-        const isDark = document.body.classList.contains('dark');
-        const update = {
-          'title.font.color': isDark ? '#fff' : '#000',
-          'font.color': isDark ? '#fff' : '#000',
-          'xaxis.gridcolor': isDark ? '#374151' : '#e5e7eb',
-          'yaxis.gridcolor': isDark ? '#374151' : '#e5e7eb'
-        };
-        Plotly.relayout(chart, update);
-      }
-      
-      showNotification(
-        document.body.classList.contains('dark') ? 'Tema escuro ativado' : 'Tema claro ativado',
-        'info'
-      );
-    });
-
-    // Keyboard shortcuts
-    document.addEventListener('keydown', (e) => {
-      if (e.ctrlKey || e.metaKey) {
-        switch (e.key) {
-          case 'Enter':
-            e.preventDefault();
-            plotBtn.click();
-            break;
-          case 'Backspace':
-            e.preventDefault();
-            clearBtn.click();
-            break;
-        }
-      }
-    });
-
-    // Initial theme detection
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      document.body.classList.add('dark');
+/* ---------- Exportações ---------- */
+exportPng.addEventListener('click',()=>{
+  if(!seriesData.length){showNotification('Não há gráfico para exportar','warning');return;}
+  Plotly.toImage(chartDiv,{format:'png',height:600,width:1000}).then(url=>{
+    const a=document.createElement('a');a.href=url;a.download=`nova-stocks-chart-${new Date().toISOString().split('T')[0]}.png`;a.click();showNotification('PNG exportado com sucesso','success');
+  }).catch(()=>showNotification('Erro ao exportar PNG','error'));
+});
+exportCsv.addEventListener('click',()=>{
+  if(!seriesData.length){showNotification('Não há dados para exportar','warning');return;}
+  try{
+    const max=Math.max(...seriesData.map(s=>s.x.length));
+    let csv='date';seriesData.forEach(s=>csv+=`,`+s.name);csv+='\n';
+    for(let i=0;i<max;i++){
+      let row=seriesData[0].x[i]||'';seriesData.forEach(s=>row+=`,`+(s.y[i]??''));csv+=row+'\n';
     }
-  </script>
+    const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+    const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`nova-stocks-data-${new Date().toISOString().split('T')[0]}.csv`;a.click();URL.revokeObjectURL(url);
+    showNotification('CSV exportado com sucesso','success');
+  }catch{showNotification('Erro ao exportar CSV','error');}
+});
+
+/* ---------- Tema ---------- */
+document.getElementById('toggleTheme')?.addEventListener('click',()=>{
+  document.body.classList.toggle('dark');const isDark=document.body.classList.contains('dark');
+  if(seriesData.length&&chartDiv.innerHTML){
+    Plotly.relayout(chartDiv,{'title.font.color':isDark?'#fff':'#000','font.color':isDark?'#fff':'#000','xaxis.gridcolor':isDark?'#374151':'#e5e7eb','yaxis.gridcolor':isDark?'#374151':'#e5e7eb'});
+  }
+  showNotification(isDark?'Tema escuro ativado':'Tema claro ativado','info');
+});
+
+/* ---------- Atalhos ---------- */
+document.addEventListener('keydown',e=>{
+  if(e.ctrlKey||e.metaKey){
+    if(e.key==='Enter'){e.preventDefault();plotBtn.click();}
+    if(e.key==='Backspace'){e.preventDefault();clearBtn.click();}
+  }
+});
+
+/* ---------- Tema inicial ---------- */
+if(window.matchMedia('(prefers-color-scheme: dark)').matches){document.body.classList.add('dark');}
+</script>
 </body>
 </html>
