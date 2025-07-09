@@ -5,7 +5,8 @@
 import { $ } from './utils.js';
 import { registerEventHandlers } from './events.js';
 import { initializeAuth, registerAuthHandlers } from './auth.js';  // ✅ new names
-
+import { exchangeRates } from './data.js';
+import { getExchangeRates } from './currency.js';
 /* Optional splash-screen fade-out ----------------------------------------- */
 function hideLoadingScreen() {
   const splash = $('#loadingScreen');
@@ -20,6 +21,8 @@ function hideLoadingScreen() {
 /*  App bootstrap                                                             */
 /* -------------------------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
+
+
   hideLoadingScreen();
 
   /* 1. Wire up UI interactions (language, currency, dark mode, etc.) */
@@ -27,7 +30,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* 2. Wire up “Sign out” button */
   registerAuthHandlers();
-
+  // Pull latest FX once; components read from the same object reference
+   const liveRates =  getExchangeRates('USD', ['USD', 'EUR']);
+  Object.assign(exchangeRates, liveRates);   // ✅ mutate, don’t re-assign
   /* 3. Start Firebase Auth flow.
         - When user is signed in, initializeAuth() will:
             ▸ set state.userEmail

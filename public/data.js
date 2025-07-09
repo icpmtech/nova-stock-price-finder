@@ -18,4 +18,4 @@ export let recentTransactionsData  = [];
 /* -------------------------------------------------------------------------- */
 /*  Currency rates can still be hard-coded (or call an API later)             */
 /* -------------------------------------------------------------------------- */
-export const exchangeRates = { USD: 1, EUR: 0.92 };
+export let exchangeRates = { USD: 1, EUR: 0.92 };
