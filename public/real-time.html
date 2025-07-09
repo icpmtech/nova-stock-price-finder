@@ -10,7 +10,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <script>
-    // Tailwind customisation
+    /* Tailwind customisation */
     tailwind.config = {
       theme: {
         extend: {
@@ -34,13 +34,14 @@
     @keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
     @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     @keyframes spin    { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg);} }
-    .loading-spinner   { border: 2px solid #f3f3f3; border-top: 2px solid #0ea5e9; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite;}
+    .loading-spinner   { border: 2px solid #f3f3f3; border-top: 2px solid #0ea5e9; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
     .profit-positive   { color: #10b981; }
     .profit-negative   { color: #ef4444; }
     .profit-neutral    { color: #6b7280; }
   </style>
 </head>
 <body class="font-chakra bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 min-h-screen text-gray-800 antialiased">
+
   <!-- Header -->
   <header class="flex items-center justify-between p-4 bg-white bg-opacity-20 backdrop-blur-lg fixed top-0 w-full z-50 border-b border-white border-opacity-20">
     <div class="flex items-center space-x-3">
@@ -233,43 +234,41 @@
     });
 
     const app = {
-      state: {
-        transactions: [],
-        userEmail: '',
-        marketPrices: {},
-        lastUpdate: null
-      },
+      state:
+        { transactions: [], userEmail: '', marketPrices: {}, lastUpdate: null, deleteId: null },
       elements: {
-        openFormBtn: document.getElementById('openFormBtn'),
-        closeFormBtn: document.getElementById('closeFormBtn'),
-        drawer: document.getElementById('formDrawer'),
-        drawerOverlay: document.getElementById('drawerOverlay'),
-        drawerTitle: document.getElementById('drawerTitle'),
-        form: document.getElementById('transactionForm'),
-        symbol: document.getElementById('symbol'),
-        operation: document.getElementById('operation'),
-        amount: document.getElementById('amount'),
-        price: document.getElementById('price'),
-        fee: document.getElementById('fee'),
-        date: document.getElementById('date'),
-        submitBtn: document.getElementById('submitBtn'),
-        submitText: document.getElementById('submitText'),
-        submitSpinner: document.getElementById('submitSpinner'),
-        cancelEdit: document.getElementById('cancelEdit'),
-        tbody: document.getElementById('transactionTbody'),
-        mobileList: document.getElementById('mobileList'),
-        emptyState: document.getElementById('emptyState'),
+        openFormBtn:     document.getElementById('openFormBtn'),
+        closeFormBtn:    document.getElementById('closeFormBtn'),
+        drawer:          document.getElementById('formDrawer'),
+        drawerOverlay:   document.getElementById('drawerOverlay'),
+        drawerTitle:     document.getElementById('drawerTitle'),
+        form:            document.getElementById('transactionForm'),
+        transactionId:   document.getElementById('transactionId'),
+        symbol:          document.getElementById('symbol'),
+        operation:       document.getElementById('operation'),
+        amount:          document.getElementById('amount'),
+        price:           document.getElementById('price'),
+        fee:             document.getElementById('fee'),
+        date:            document.getElementById('date'),
+        submitBtn:       document.getElementById('submitBtn'),
+        submitText:      document.getElementById('submitText'),
+        submitSpinner:   document.getElementById('submitSpinner'),
+        cancelEdit:      document.getElementById('cancelEdit'),
+        tbody:           document.getElementById('transactionTbody'),
+        mobileList:      document.getElementById('mobileList'),
+        emptyState:      document.getElementById('emptyState'),
         totalTransactions: document.getElementById('totalTransactions'),
-        totalProfit: document.getElementById('totalProfit'),
-        lastUpdateEl: document.getElementById('lastUpdate'),
-        updateTimer: document.getElementById('updateTimer'),
-        refreshBtn: document.getElementById('refreshBtn'),
-        refreshSpinner: document.getElementById('refreshSpinner'),
-        toastContainer: document.getElementById('toastContainer'),
-        deleteModal: document.getElementById('deleteModal'),
-        confirmDelete: document.getElementById('confirmDelete'),
-        cancelDelete: document.getElementById('cancelDelete'),
-        connectionStatus: document.getElementById('connectionStatus')
+        totalProfit:       document.getElementById('totalProfit'),
+        lastUpdateEl:      document.getElementById('lastUpdate'),
+        updateTimer:       document.getElementById('updateTimer'),
+        refreshBtn:        document.getElementById('refreshBtn'),
+        refreshSpinner:    document.getElementById('refreshSpinner'),
+        toastContainer:    document.getElementById('toastContainer'),
+        deleteModal:       document.getElementById('deleteModal'),
+        confirmDelete:     document.getElementById('confirmDelete'),
+        cancelDelete:      document.getElementById('cancelDelete'),
+        connectionStatus:  document.getElementById('connectionStatus'),
+        profitChart:       document.getElementById('profitChart')
       },
 
       init() {
@@ -312,8 +311,8 @@
       showToast(msg, type = 'info', dur = 3000) {
         const div = document.createElement('div');
         div.className = `animate-slide-up p-4 rounded-lg text-white font-medium ${
-          type==='success'? 'bg-success-500':
-          type==='error'?   'bg-danger-500':
+          type==='success'? 'bg-success-500' :
+          type==='error'?   'bg-danger-500'  :
           type==='warning'? 'bg-warning-500':'bg-primary-500'}`;
         div.textContent = msg;
         this.elements.toastContainer.appendChild(div);
@@ -413,8 +412,7 @@
       handleTableClick(e) {
         const btn = e.target.closest('[data-action]');
         if (!btn) return;
-        const action = btn.getAttribute('data-action');
-        const id = btn.getAttribute('data-id');
+        const action = btn.getAttribute('data-action'), id = btn.getAttribute('data-id');
         if (action === 'edit') this.populateForm(id, 'Editar Transação');
         if (action === 'copy') this.populateForm(id, 'Copiar Transação', true);
         if (action === 'delete') this.showDeleteModal(id);
@@ -445,10 +443,7 @@
         if (isNaN(tx.price)  || tx.price <= 0)  errs.push('Preço deve ser maior que zero');
         if (isNaN(tx.fee)    || tx.fee < 0)    errs.push('Taxa não pode ser negativa');
         if (!tx.date) errs.push('Data é obrigatória');
-        if (errs.length) {
-          errs.forEach(e => this.showToast(e,'error'));
-          return false;
-        }
+        if (errs.length) { errs.forEach(e=>this.showToast(e,'error')); return false; }
         return true;
       },
 
@@ -478,18 +473,16 @@
         if (!this.validate(payload)) return;
 
         const isEdit = Boolean(id);
-        let url = this.getAPI();
-        let method = 'POST';
+        let url = this.getAPI(), method = 'POST';
         if (isEdit) {
-          url += `&id=${id}`;
-          method = 'PUT';
+          url += `&id=${id}`; method = 'PUT';
         }
 
         try {
           this.setLoading(this.elements.submitBtn, this.elements.submitSpinner, true);
           const res = await fetch(url, {
             method,
-            headers: { 'Content-Type': 'application/json' },
+            headers:{'Content-Type':'application/json'},
             body: JSON.stringify(payload)
           });
           if (!res.ok) throw new Error(res.statusText);
@@ -497,8 +490,8 @@
           this.resetForm();
           this.closeDrawer();
           await this.fetchTransactions();
-          this.showToast(isEdit ? 'Atualizado com sucesso':'Criado com sucesso','success');
-        } catch (err) {
+          this.showToast(isEdit?'Atualizado com sucesso':'Criado com sucesso','success');
+        } catch(err) {
           console.error(err);
           this.showToast('Erro ao salvar','error');
         } finally {
@@ -516,32 +509,30 @@
 
       async deleteTransaction() {
         try {
-          await fetch(`${this.getAPI()}&id=${this.state.deleteId}`, { method: 'DELETE' });
+          await fetch(`${this.getAPI()}&id=${this.state.deleteId}`,{method:'DELETE'});
           this.hideDeleteModal();
           await this.fetchTransactions();
           this.showToast('Excluído com sucesso','success');
-        } catch (e) {
+        } catch(e) {
           console.error(e);
           this.showToast('Erro ao excluir','error');
         }
       },
 
       async startPriceUpdater() {
-        // atualiza imediatamente e depois a cada 60s
         await this.updateAllPrices();
-        setInterval(() => this.updateAllPrices(), 60000);
+        setInterval(()=>this.updateAllPrices(),60000);
       },
 
       async updateAllPrices() {
-        const txs = this.state.transactions;
-        for (const tx of txs) {
+        for (const tx of this.state.transactions) {
           try {
             const res = await fetch(this.getPriceAPI(tx.symbol));
             const { price: market } = await res.json();
             this.state.marketPrices[tx.id] = market;
             this.updateRowProfit(tx, market);
           } catch(e) {
-            console.error('Erro preço', e);
+            console.error('Erro preço',e);
           }
         }
         this.recalculateTotals();
@@ -549,11 +540,10 @@
 
       updateRowProfit(tx, market) {
         const profit = this.computeProfit(tx, market);
-        const cls = profit > 0 ? 'profit-positive' : profit < 0 ? 'profit-negative' : 'profit-neutral';
+        const cls = profit>0?'profit-positive': profit<0?'profit-negative':'profit-neutral';
         document.getElementById(`market-${tx.id}`).textContent = `€${market.toFixed(2)}`;
         document.getElementById(`profit-${tx.id}`).textContent = `€${profit.toFixed(2)}`;
         document.getElementById(`profit-${tx.id}`).className = cls;
-
         document.getElementById(`market-mobile-${tx.id}`).textContent = `€${market.toFixed(2)}`;
         document.getElementById(`profit-mobile-${tx.id}`).textContent = `€${profit.toFixed(2)}`;
         document.getElementById(`profit-mobile-${tx.id}`).className = cls;
@@ -580,34 +570,27 @@
       },
 
       renderChart() {
-        const labels = this.state.transactions.map(t => new Date(t.date).toLocaleDateString('pt-PT'));
-        const data   = this.state.transactions.map(t => this.computeProfit(t, this.state.marketPrices[t.id] || t.price));
-        Plotly.newPlot(this.elements.profitChart, [{ x: labels, y: data, type: 'scatter', mode: 'lines+markers' }], { margin:{t:20} }, { responsive:true });
+        const labels = this.state.transactions.map(t=>new Date(t.date).toLocaleDateString('pt-PT'));
+        const data   = this.state.transactions.map(t=>this.computeProfit(t, this.state.marketPrices[t.id]||t.price));
+        Plotly.newPlot(this.elements.profitChart, [{ x: labels, y: data, type:'scatter', mode:'lines+markers' }],{margin:{t:20}},{responsive:true});
       },
 
       updateConnectionStatus(online) {
-        this.elements.connectionStatus.textContent = online ? 'Conectado':'Offline';
-        this.elements.connectionStatus.className = `text-xs ${
-          online ? 'text-white text-opacity-70':'text-red-300'}`;
+        this.elements.connectionStatus.textContent = online?'Conectado':'Offline';
+        this.elements.connectionStatus.className = `text-xs ${online?'text-white text-opacity-70':'text-red-300'}`;
       },
 
       startUpdateTimer() {
-        setInterval(()=> {
+        setInterval(()=>{
           if(!this.state.lastUpdate) return;
-          const diff = Math.floor((Date.now() - new Date(this.state.lastUpdate)) / 1000);
-          const h = Math.floor(diff/3600);
-          const m = Math.floor((diff%3600)/60);
-          const s = diff%60;
-          this.elements.updateTimer.textContent = h
-            ? `${h}h ${m}m ${s}s`
-            : m
-              ? `${m}m ${s}s`
-              : `${s}s`;
+          const diff = Math.floor((Date.now()-new Date(this.state.lastUpdate))/1000);
+          const h = Math.floor(diff/3600), m = Math.floor((diff%3600)/60), s = diff%60;
+          this.elements.updateTimer.textContent = h?`${h}h ${m}m ${s}s`: m?`${m}m ${s}s}`:`${s}s}`;
         },1000);
       }
     };
 
-    document.addEventListener('DOMContentLoaded', () => app.init());
+    document.addEventListener('DOMContentLoaded',()=>app.init());
   </script>
 </body>
 </html>
