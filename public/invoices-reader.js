@@ -1,9 +1,6 @@
     // 1. Firebase config
   // Importar configuração central
-
-
   import { auth, db } from './firebase-init.js';
-
   import {
     onAuthStateChanged,
     signOut
@@ -59,23 +56,50 @@
 
     // 2. Função para parse e guardar no Firestore
     function parseFaturaQR(qr) {
-      const campos = qr.split(';').reduce((acc, par) => {
-        const [chave, valor] = par.split(':');
-        if (chave && valor) acc[chave] = valor;
-        return acc;
-      }, {});
-      
-      return {
-        pais: campos.A || null,
-        nif_emitente: campos.B || null,
-        data: campos.C || null,
-        total: parseFloat(campos.D) || 0,
-        iva: parseFloat(campos.E) || 0,
-        outros: campos.F || null,
-        timestamp: new Date().toISOString(),
-        qr_original: qr
-      };
-    }
+  console.log('Parsing QR:', qr);
+
+  // 1. partir em '*' ou ';' ou nova linha, ignorar entradas sem ':'
+  const partes = qr
+    .split(/[\*\;\r?\n]/)
+    .map(p => p.trim())
+    .filter(p => p.includes(':'));
+
+  // 2. montar um dicionário { chave: valor }
+  const acc = {};
+  partes.forEach(par => {
+    const [key, ...rest] = par.split(':');
+    acc[key.trim()] = rest.join(':').trim();
+  });
+
+  // 3. converter F (YYYYMMDD) para DD/MM/YYYY
+  let data = null;
+  if (acc.F && /^\d{8}$/.test(acc.F)) {
+    const y = acc.F.slice(0,4),
+          m = acc.F.slice(4,6),
+          d = acc.F.slice(6,8);
+    data = `${d}/${m}/${y}`;
+  } else {
+    data = acc.F || null;
+  }
+
+  return {
+    pais: acc.C || null,
+    nif_emitente: acc.A || null,
+    data,
+    total: acc.O ? parseFloat(acc.O.replace(',', '.')) : 0,
+    iva: acc.I6 ? parseFloat(acc.I6.replace(',', '.')) : 0,
+    // guarda todos os restantes campos num JSON para consulta
+    outros: JSON.stringify(
+      Object.fromEntries(
+        Object.entries(acc)
+          .filter(([k]) => !['A','C','F','O','I6'].includes(k))
+      )
+    ),
+    timestamp: new Date().toISOString(),
+    qr_original: qr
+  };
+}
+
 
     async function guardarFatura(dados) {
       try {
@@ -230,6 +254,7 @@ document.getElementById('image-input').addEventListener('change', async (e) => {
 
 
       function onScanSuccess(decodedText, decodedResult) {
+         console.log('>>> Raw QR data:', decodedText);
         if (isScanning) return;
         isScanning = true;
         
