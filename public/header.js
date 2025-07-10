@@ -1,6 +1,6 @@
 const defaultConfig = {
   containerId: 'header-widget',
-  title: 'Wallet 360',
+  title: '💳 Wallet 360',
   logoUrl: '/assets/logo.png',
    links :[
   { icon: '📊', label: 'Dashboard',        href: 'dashboard.html' },       // overview / KPIs

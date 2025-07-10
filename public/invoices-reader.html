@@ -4,92 +4,111 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Wallet 360 - Leitor de Faturas</title>
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#1E40AF',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- QR & JS libs -->
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
-
   <script src="invoices-reader.js" type="module"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
-<link rel="stylesheet" href="invoices-reader.css" />
+  <script type="module" src="header.js"></script>
 </head>
-<body>
-  <div class="container">
-     <div class="header">
-  <h1>💳 Wallet 360</h1>
-  <p>Gestor inteligente de faturas com QR Code</p>
-  <div class="user-info" style="margin-top: 15px;">
-    <span id="userName" style="font-weight: bold; color: #fff;"></span>
-    <button id="signOutBtn" class="btn btn-small btn-outline" style="margin-left: 10px;">🚪 Terminar Sessão</button>
-  </div>
-</div>
-    <div class="main-content">
-      <div class="scanner-section">
-        <div class="scan-area">
-          <h2>📱 Scanner QR</h2>
-          <div id="reader"></div>
-          <div id="scan-status" class="scan-status">Inicializando scanner...</div>
-          <div class="scanner-controls">
-            <button id="toggle-scanner" class="btn btn-primary">⏸️ Pausar Scanner</button>
-            <button id="switch-camera" class="btn btn-secondary">🔄 Trocar Câmera</button>
-            <button id="upload-image" class="btn btn-outline">🖼️ Ler Imagem</button>
-            <input type="file" accept="image/*" id="image-input" style="display: none;" />
+<body class="font-sans bg-gradient-to-br from-blue-400 to-purple-600 min-h-screen text-gray-800">
+  <div class="bg-white" id="header-widget"></div>
+
+  <div class="max-w-4xl mx-auto p-4">
+    <header class="mb-6 text-center text-white">
+      <h1 class="text-4xl font-bold text-primary">💳 Wallet 360</h1>
+      <p class="text-lg text-white/90">Gestor inteligente de faturas com QR Code</p>
+      <div class="mt-4 flex justify-center items-center space-x-2">
+        <span id="userName" class="font-semibold"></span>
+        <button id="signOutBtn" class="px-3 py-1 border border-primary rounded hover:bg-primary hover:text-white transition">🚪 Terminar Sessão</button>
+      </div>
+    </header>
+
+    <main class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <!-- Scanner -->
+      <section class="bg-white shadow-lg rounded-2xl p-6 backdrop-blur-sm">
+        <h2 class="text-2xl font-semibold mb-4">📱 Scanner QR</h2>
+        <div id="reader" class="mb-2"></div>
+        <div id="scan-status" class="text-sm text-gray-500 mb-4">Inicializando scanner...</div>
+        <div class="flex space-x-2">
+          <button id="toggle-scanner" class="flex-1 px-4 py-2 bg-primary text-white rounded hover:bg-primary/90">⏸️ Pausar Scanner</button>
+          <button id="switch-camera" class="flex-1 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">🔄 Trocar Câmera</button>
+          <button id="upload-image" class="flex-1 px-4 py-2 border border-gray-300 rounded hover:bg-gray-50">🖼️ Ler Imagem</button>
+          <input type="file" accept="image/*" id="image-input" class="hidden" />
+        </div>
+      </section>
+
+      <!-- Stats -->
+      <section class="bg-white/95 shadow-lg rounded-2xl p-6 backdrop-blur-sm">
+        <h2 class="text-2xl font-semibold mb-4">📊 Estatísticas</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-4">
+          <div class="p-4 bg-gray-50 rounded text-center">
+            <div class="text-3xl font-bold" id="total-faturas">0</div>
+            <div class="text-sm text-gray-600">Total Faturas</div>
           </div>
+          <div class="p-4 bg-gray-50 rounded text-center">
+            <div class="text-3xl font-bold">€<span id="total-valor">0.00</span></div>
+            <div class="text-sm text-gray-600">Valor Total</div>
+          </div>
+        </div>
+        <div class="flex space-x-2">
+          <button id="refresh-stats" class="flex-1 px-4 py-2 border border-gray-300 rounded hover:bg-gray-50">🔄 Atualizar</button>
+          <button id="export-data" class="flex-1 px-4 py-2 border border-gray-300 rounded hover:bg-gray-50">📊 Exportar</button>
+        </div>
+      </section>
+    </main>
+
+    <!-- Tabs -->
+    <div class="bg-white shadow-lg rounded-2xl overflow-hidden">
+      <div class="border-b border-gray-200">
+        <nav class="flex">
+          <button class="tab-button flex-1 px-4 py-2 text-gray-700 border-b-2 border-primary font-medium" data-tab="scan-results">📄 Última Fatura</button>
+          <button class="tab-button flex-1 px-4 py-2 text-gray-600 hover:text-gray-800" data-tab="recent-invoices">📋 Faturas Recentes</button>
+        </nav>
+      </div>
+      <div id="scan-results" class="tab-content block p-6">
+        <div id="output" class="min-h-[200px] flex flex-col justify-center items-center text-gray-500">
+          <h3 class="text-xl mb-2">🔍 Aguardando leitura...</h3>
+          <p>Aponte a câmera para o QR code da fatura</p>
+        </div>
+        <div class="mt-4 flex space-x-2">
+          <button id="clear-results" class="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">🗑️ Limpar Resultados</button>
+          <button id="manual-input" class="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90">✍️ Inserir Manual</button>
         </div>
       </div>
 
-      <div class="stats-section">
-        <h2>📊 Estatísticas</h2>
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-number" id="total-faturas">0</div>
-            <div class="stat-label">Total Faturas</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-number">€<span id="total-valor">0.00</span></div>
-            <div class="stat-label">Valor Total</div>
-          </div>
-        </div>
-        <div class="stats-actions">
-          <button id="refresh-stats" class="btn btn-outline">🔄 Atualizar</button>
-          <button id="export-data" class="btn btn-outline">📊 Exportar</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="tabs">
-      <div class="tab-buttons">
-        <button class="tab-button active" data-tab="scan-results">📄 Última Fatura</button>
-        <button class="tab-button" data-tab="recent-invoices">📋 Faturas Recentes</button>
-      </div>
-      
-      <div id="scan-results" class="tab-content active">
-        <div id="output">
-          <div style="text-align: center; color: #666; padding: 40px;">
-            <h3>🔍 Aguardando leitura...</h3>
-            <p>Aponte a câmera para o QR code da fatura</p>
-          </div>
-        </div>
-        <div class="scan-actions">
-          <button id="clear-results" class="btn btn-secondary">🗑️ Limpar Resultados</button>
-          <button id="manual-input" class="btn btn-primary">✍️ Inserir Manual</button>
-        </div>
-      </div>
-      
-      <div id="recent-invoices" class="tab-content">
-        <div class="invoices-header">
-          <h3>📋 Faturas Recentes</h3>
-          <div class="invoices-actions">
-            <button id="refresh-invoices" class="btn btn-small btn-outline">🔄 Atualizar</button>
-            <button id="delete-all" class="btn btn-small btn-danger">🗑️ Limpar Tudo</button>
+      <div id="recent-invoices" class="tab-content hidden p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-semibold">📋 Faturas Recentes</h3>
+          <div class="flex space-x-2">
+            <button id="refresh-invoices" class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50">🔄 Atualizar</button>
+            <button id="delete-all" class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">🗑️ Limpar Tudo</button>
           </div>
         </div>
         <div id="recent-invoices-list">
-          <p class="no-invoices">Carregando faturas...</p>
+          <p class="text-gray-500">Carregando faturas...</p>
         </div>
       </div>
     </div>
   </div>
-  <div id="loading" class="loading">
-    <div class="loading-spinner"></div>
+
+  <!-- Loading Overlay -->
+  <div id="loading" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center hidden">
+    <div class="rounded-full border-8 border-t-8 border-gray-200 animate-spin h-16 w-16"></div>
   </div>
 </body>
 </html>
