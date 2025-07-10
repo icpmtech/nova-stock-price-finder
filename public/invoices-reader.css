@@ -359,11 +359,43 @@
       border-color: #667eea;
     }
 
+    .preview-data {
+      background: linear-gradient(135deg, #17a2b8, #138496);
+      color: white;
+      padding: 25px;
+      border-radius: 15px;
+      margin-bottom: 20px;
+    }
+
+    .preview-data h3 {
+      margin-bottom: 15px;
+      font-size: 1.3rem;
+    }
+
+    .preview-notice {
+      background: rgba(255, 193, 7, 0.2);
+      border: 1px solid rgba(255, 193, 7, 0.5);
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .preview-notice p {
+      margin: 0;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
     .form-actions {
       display: flex;
       gap: 15px;
       justify-content: flex-end;
       margin-top: 25px;
+    }
+
+    .invoice-details p {
+      margin-bottom: 5px;
+      color: #666;
     }
 
     .no-invoices {
@@ -443,4 +475,3 @@
         font-size: 2rem;
       }
     }
-  
