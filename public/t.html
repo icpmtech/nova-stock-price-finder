@@ -1,80 +1,47 @@
-
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Relatórios de Transações - Wallet 360</title>
-  <!-- Tailwind CSS via CDN -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Relatórios de Transações – Wallet 360</title>
+
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- jsPDF (para PDF) e autoTable -->
+  <!-- jsPDF + autoTable -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
   <style>
-    .glass-effect {
-      backdrop-filter: blur(10px);
-      background: rgba(255, 255, 255, 0.95);
-      border: 1px solid rgba(255, 255, 255, 0.2);
+    /* ---------- Estilo ---------- */
+    .glass-effect{
+      backdrop-filter:blur(10px);
+      background:rgba(255,255,255,.95);
+      border:1px solid rgba(255,255,255,.2)
     }
-    
-    .card-hover {
-      transition: all 0.3s ease;
-    }
-    
-    .card-hover:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    }
-    
-    .gradient-bg {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-    
-    .spinner {
-      border: 2px solid #f3f3f3;
-      border-top: 2px solid #667eea;
-      border-radius: 50%;
-      width: 20px;
-      height: 20px;
-      animation: spin 1s linear infinite;
-    }
-    
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    
-    .fade-in {
-      animation: fadeIn 0.6s ease-in-out;
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .status-badge {
-      @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
-    }
-    
-    .status-buy {
-      @apply bg-green-100 text-green-800;
-    }
-    
-    .status-sell {
-      @apply bg-red-100 text-red-800;
-    }
+    .card-hover{transition:all .3s}
+    .card-hover:hover{transform:translateY(-2px);box-shadow:0 20px 25px -5px rgba(0,0,0,.1),0 10px 10px -5px rgba(0,0,0,.04)}
+    .gradient-bg{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%)}
+    .spinner{border:2px solid #f3f3f3;border-top:2px solid #667eea;border-radius:50%;width:20px;height:20px;animation:spin 1s linear infinite}
+    @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+    .fade-in{animation:fadeIn .6s ease-in-out}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+    .status-badge{@apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium}
+    .status-buy{@apply bg-green-100 text-green-800}
+    .status-sell{@apply bg-red-100 text-red-800}
   </style>
 </head>
+
 <body class="bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
-  <!-- Header Widget Placeholder -->
+  <!-- Header (externo) -->
   <div id="header-widget"></div>
   <script type="module" src="header.js"></script>
 
   <div id="content" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 opacity-50 pointer-events-none">
-    <!-- Enhanced Header -->
+    <!-- ================================================== -->
+    <!--                     CABEÇALHO                       -->
+    <!-- ================================================== -->
     <div class="gradient-bg rounded-2xl p-8 mb-8 text-white shadow-2xl">
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -86,9 +53,11 @@
             <p class="text-sm text-blue-100">Bem-vindo,</p>
             <p id="userName" class="text-xl font-semibold"></p>
           </div>
-          <button id="signOutBtn" class="glass-effect px-6 py-3 text-white rounded-xl hover:bg-white hover:text-gray-800 transition-all duration-300 font-medium">
+          <button id="signOutBtn"
+            class="glass-effect px-6 py-3 text-white rounded-xl hover:bg-white hover:text-gray-800 transition-all duration-300 font-medium">
             <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
             Sair
           </button>
@@ -96,42 +65,49 @@
       </div>
     </div>
 
-    <!-- Enhanced Filters Section -->
+    <!-- ================================================== -->
+    <!--                FILTROS E AÇÕES                     -->
+    <!-- ================================================== -->
     <div class="bg-white rounded-2xl shadow-lg p-6 mb-8 card-hover">
       <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
         <svg class="w-6 h-6 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
         </svg>
         Filtros e Ações
       </h2>
-      
-      <form id="transactionForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+
+      <form id="transactionForm"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         <div class="lg:col-span-2">
-          <label for="startDate" class="block text-sm font-semibold text-gray-700 mb-2">Data Início</label>
-          <input type="date" id="startDate" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300">
+          <label class="block text-sm font-semibold text-gray-700 mb-2" for="startDate">Data Início</label>
+          <input type="date" id="startDate"
+            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300" />
         </div>
-        
         <div class="lg:col-span-2">
-          <label for="endDate" class="block text-sm font-semibold text-gray-700 mb-2">Data Fim</label>
-          <input type="date" id="endDate" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300">
+          <label class="block text-sm font-semibold text-gray-700 mb-2" for="endDate">Data Fim</label>
+          <input type="date" id="endDate"
+            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300" />
         </div>
-        
         <div class="xl:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <button type="button" id="submitBtn" class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3 px-4 rounded-xl flex justify-center items-center font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg">
+          <button type="button" id="submitBtn"
+            class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3 px-4 rounded-xl flex justify-center items-center font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg">
             <span id="submitText">Gerar Relatório</span>
             <span id="loadingSpinner" class="ml-2 spinner hidden"></span>
           </button>
-          
-          <button type="button" id="btnExportCSV" class="bg-green-50 hover:bg-green-100 text-green-700 border-2 border-green-200 py-3 px-4 rounded-xl font-semibold transition-all duration-300 hover:shadow-md">
+          <button type="button" id="btnExportCSV"
+            class="bg-green-50 hover:bg-green-100 text-green-700 border-2 border-green-200 py-3 px-4 rounded-xl font-semibold transition-all duration-300 hover:shadow-md">
             <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
             CSV
           </button>
-          
-          <button type="button" id="btnExportPDF" class="bg-red-50 hover:bg-red-100 text-red-700 border-2 border-red-200 py-3 px-4 rounded-xl font-semibold transition-all duration-300 hover:shadow-md">
+          <button type="button" id="btnExportPDF"
+            class="bg-red-50 hover:bg-red-100 text-red-700 border-2 border-red-200 py-3 px-4 rounded-xl font-semibold transition-all duration-300 hover:shadow-md">
             <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
             </svg>
             PDF
           </button>
@@ -139,36 +115,41 @@
       </form>
     </div>
 
-    <!-- Enhanced Summary Cards -->
+    <!-- ================================================== -->
+    <!--                    CARDS RESUMO                    -->
+    <!-- ================================================== -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <!-- Total Compras -->
       <div class="bg-white rounded-2xl shadow-lg p-6 card-hover border-l-4 border-green-500">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Total Compras</p>
-            <p id="totalBuy" class="text-3xl font-bold text-green-600 mt-2">0</p>
+            <p id="totalBuy" class="text-3xl font-bold text-green-600 mt-2">€0.00</p>
           </div>
           <div class="bg-green-100 p-3 rounded-full">
             <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M7 11l5-5m0 0l5 5m-5-5v12" />
             </svg>
           </div>
         </div>
       </div>
-      
+      <!-- Total Vendas -->
       <div class="bg-white rounded-2xl shadow-lg p-6 card-hover border-l-4 border-red-500">
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Total Vendas</p>
-            <p id="totalSell" class="text-3xl font-bold text-red-600 mt-2">0</p>
+            <p id="totalSell" class="text-3xl font-bold text-red-600 mt-2">€0.00</p>
           </div>
           <div class="bg-red-100 p-3 rounded-full">
             <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 13l-5 5m0 0l-5-5m5 5V6"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M17 13l-5 5m0 0l-5-5m5 5V6" />
             </svg>
           </div>
         </div>
       </div>
-      
+      <!-- Volume Total -->
       <div class="bg-white rounded-2xl shadow-lg p-6 card-hover border-l-4 border-blue-500">
         <div class="flex items-center justify-between">
           <div>
@@ -177,12 +158,13 @@
           </div>
           <div class="bg-blue-100 p-3 rounded-full">
             <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
             </svg>
           </div>
         </div>
       </div>
-      
+      <!-- Total Transações -->
       <div class="bg-white rounded-2xl shadow-lg p-6 card-hover border-l-4 border-purple-500">
         <div class="flex items-center justify-between">
           <div>
@@ -191,30 +173,34 @@
           </div>
           <div class="bg-purple-100 p-3 rounded-full">
             <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Enhanced Transactions List (Mobile First) -->
+    <!-- ================================================== -->
+    <!--           LISTA (mobile) & TABELA (desktop)         -->
+    <!-- ================================================== -->
     <div class="block lg:hidden bg-white rounded-2xl shadow-lg p-6 mb-8">
       <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
         <svg class="w-6 h-6 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
         </svg>
         Transações Recentes
       </h2>
       <div id="transactionList" class="space-y-4"></div>
     </div>
 
-    <!-- Enhanced Transaction Table (Desktop) -->
     <div class="hidden lg:block bg-white rounded-2xl shadow-lg mb-8 overflow-hidden">
       <div class="px-6 py-4 border-b border-gray-200">
         <h2 class="text-2xl font-bold text-gray-900 flex items-center">
           <svg class="w-6 h-6 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
           </svg>
           Histórico de Transações
         </h2>
@@ -235,11 +221,14 @@
       </div>
     </div>
 
-    <!-- Enhanced Chart Section -->
+    <!-- ================================================== -->
+    <!--                     GRÁFICO                        -->
+    <!-- ================================================== -->
     <div class="bg-white rounded-2xl shadow-lg p-6">
       <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
         <svg class="w-6 h-6 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
         </svg>
         Análise de Volumes por Dia
       </h2>
@@ -249,111 +238,121 @@
     </div>
   </div>
 
+  <!-- ================================================== -->
+  <!--                    SCRIPT                          -->
+  <!-- ================================================== -->
   <script type="module">
     import { auth } from './firebase-init.js';
-    import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+    import { onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
-    // DOM Elements
-    const contentEl = document.getElementById('content');
-    const signOutBtn = document.getElementById('signOutBtn');
-    const form = document.getElementById('transactionForm');
-    const submitBtn = document.getElementById('submitBtn');
-    const submitText = document.getElementById('submitText');
-    const loadingSpinner = document.getElementById('loadingSpinner');
-    const listEl = document.getElementById('transactionList');
-    const tbodyEl = document.getElementById('transactionsBody');
-    const userNameEl = document.getElementById('userName');
+    /* -------- Seletores DOM -------- */
+    const contentEl           = document.getElementById('content');
+    const signOutBtn          = document.getElementById('signOutBtn');
+    const submitBtn           = document.getElementById('submitBtn');
+    const submitText          = document.getElementById('submitText');
+    const loadingSpinner      = document.getElementById('loadingSpinner');
+    const listEl              = document.getElementById('transactionList');
+    const tbodyEl             = document.getElementById('transactionsBody');
+    const userNameEl          = document.getElementById('userName');
     const totalTransactionsEl = document.getElementById('totalTransactions');
 
     let reportData = [];
     let currentUserEmail = '';
 
-    function getAPI() {
+    const getAPI = () => {
       const user = currentUserEmail.trim() || 'default';
-      return `https://Wallet360.vercel.app/api/transactions?user=${encodeURIComponent(user)}`;
-    }
+      return \`https://Wallet360.vercel.app/api/transactions?user=\${encodeURIComponent(user)}\`;
+    };
 
+    /* ================================================== */
+    /*                 RENDERIZAÇÃO                       */
+    /* ================================================== */
     function renderData(data) {
-      listEl.innerHTML = '';
+      listEl.innerHTML  = '';
       tbodyEl.innerHTML = '';
-      let totalBuy = 0, totalSell = 0, totalVol = 0;
+
+      let totalBuyValue  = 0,
+          totalSellValue = 0,
+          totalVol       = 0;
+
       const volumesByDate = {};
 
       data.forEach(tx => {
-        // Enhanced Mobile List
+        /* ----------- Lista (mobile) ----------- */
         const li = document.createElement('li');
-        li.className = 'bg-gradient-to-r from-white to-gray-50 rounded-xl p-4 shadow-md border-l-4 ' + 
-                       (tx.operation.toLowerCase() === 'compra' ? 'border-green-500' : 'border-red-500');
-        li.innerHTML = `
+        li.className =
+          'bg-gradient-to-r from-white to-gray-50 rounded-xl p-4 shadow-md border-l-4 ' +
+          (tx.operation.toLowerCase() === 'compra' ? 'border-green-500' : 'border-red-500');
+        li.innerHTML = \`
           <div class="flex justify-between items-start">
             <div class="flex-1">
               <div class="flex items-center mb-2">
-                <h3 class="font-bold text-lg text-gray-900 mr-3">${tx.symbol}</h3>
-                <span class="status-badge ${tx.operation.toLowerCase() === 'compra' ? 'status-buy' : 'status-sell'}">
-                  ${tx.operation}
+                <h3 class="font-bold text-lg text-gray-900 mr-3">\${tx.symbol}</h3>
+                <span class="status-badge \${tx.operation.toLowerCase() === 'compra' ? 'status-buy' : 'status-sell'}">
+                  \${tx.operation}
                 </span>
               </div>
               <div class="text-sm text-gray-600 space-y-1">
-                <p><span class="font-medium">Quantidade:</span> ${tx.amount}</p>
-                <p><span class="font-medium">Preço:</span> €${tx.price.toFixed(4)}</p>
-                <p><span class="font-medium">Data:</span> ${tx.date}</p>
+                <p><span class="font-medium">Quantidade:</span> \${tx.amount}</p>
+                <p><span class="font-medium">Preço:</span> €\${tx.price.toFixed(4)}</p>
+                <p><span class="font-medium">Data:</span> \${tx.date}</p>
               </div>
             </div>
             <div class="text-right">
-              <p class="text-lg font-bold text-gray-900">€${(tx.price * tx.amount).toFixed(2)}</p>
+              <p class="text-lg font-bold text-gray-900">€\${(tx.price * tx.amount).toFixed(2)}</p>
               <p class="text-xs text-gray-500">Volume Total</p>
             </div>
-          </div>
-        `;
+          </div>\`;
         listEl.appendChild(li);
 
-        // Enhanced Desktop Table
+        /* ----------- Tabela (desktop) ---------- */
         const row = document.createElement('tr');
         row.className = 'hover:bg-gray-50 transition-colors duration-200';
-        row.innerHTML = `
+        row.innerHTML = \`
           <td class="px-6 py-4 whitespace-nowrap">
             <div class="flex items-center">
               <div class="flex-shrink-0 h-10 w-10">
                 <div class="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
-                  <span class="text-white font-bold text-sm">${tx.symbol.slice(0, 2)}</span>
+                  <span class="text-white font-bold text-sm">\${tx.symbol.slice(0,2)}</span>
                 </div>
               </div>
               <div class="ml-4">
-                <div class="text-sm font-medium text-gray-900">${tx.symbol}</div>
+                <div class="text-sm font-medium text-gray-900">\${tx.symbol}</div>
               </div>
             </div>
           </td>
           <td class="px-6 py-4 whitespace-nowrap">
-            <span class="status-badge ${tx.operation.toLowerCase() === 'compra' ? 'status-buy' : 'status-sell'}">
-              ${tx.operation}
+            <span class="status-badge \${tx.operation.toLowerCase() === 'compra' ? 'status-buy' : 'status-sell'}">
+              \${tx.operation}
             </span>
           </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${tx.amount}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">€${tx.price.toFixed(4)}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${tx.date}</td>
-        `;
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">\${tx.amount}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">€\${tx.price.toFixed(4)}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">\${tx.date}</td>\`;
         tbodyEl.appendChild(row);
 
-        // Summary calculations
-        if (tx.operation.toLowerCase() === 'compra') totalBuy += tx.amount;
-        if (tx.operation.toLowerCase() === 'venda') totalSell += tx.amount;
-        totalVol += tx.price * tx.amount;
-        volumesByDate[tx.date] = (volumesByDate[tx.date] || 0) + tx.price * tx.amount;
+        /* ----------- Cálculos ----------- */
+        const value = tx.price * tx.amount;
+        if (tx.operation.toLowerCase() === 'compra') totalBuyValue  += value;
+        if (tx.operation.toLowerCase() === 'venda')  totalSellValue += value;
+        totalVol += value;
+
+        volumesByDate[tx.date] = (volumesByDate[tx.date] || 0) + value;
       });
 
-      // Update summary with animation
-      animateValue(document.getElementById('totalBuy'), totalBuy);
-      animateValue(document.getElementById('totalSell'), totalSell);
+      /* ----------- Atualiza cards ----------- */
+      animateValue(document.getElementById('totalBuy'),  totalBuyValue,  '€', 2);
+      animateValue(document.getElementById('totalSell'), totalSellValue, '€', 2);
       animateValue(document.getElementById('totalVolume'), totalVol, '€', 2);
       animateValue(totalTransactionsEl, data.length);
 
-      // Enhanced Chart
+      /* ----------- Gráfico ----------- */
       const ctx = document.getElementById('volumeChart').getContext('2d');
       if (window.volChart) window.volChart.destroy();
-      
+
       const sortedDates = Object.keys(volumesByDate).sort();
-      const chartData = sortedDates.map(d => volumesByDate[d]);
-      
+      const chartData   = sortedDates.map(d => volumesByDate[d]);
+
       window.volChart = new Chart(ctx, {
         type: 'bar',
         data: {
@@ -361,120 +360,92 @@
           datasets: [{
             label: 'Volume (€)',
             data: chartData,
-            backgroundColor: 'rgba(102, 126, 234, 0.8)',
-            borderColor: 'rgba(102, 126, 234, 1)',
+            backgroundColor: 'rgba(102,126,234,0.8)',
+            borderColor:     'rgba(102,126,234,1)',
             borderWidth: 2,
             borderRadius: 8,
-            borderSkipped: false,
+            borderSkipped: false
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: false
-            }
-          },
+          plugins: { legend: { display: false } },
           scales: {
             y: {
               beginAtZero: true,
-              grid: {
-                color: 'rgba(0, 0, 0, 0.1)'
-              },
-              ticks: {
-                callback: function(value) {
-                  return '€' + value.toFixed(2);
-                }
-              }
+              grid: { color: 'rgba(0,0,0,0.1)' },
+              ticks: { callback: v => '€' + v.toFixed(2) }
             },
-            x: {
-              grid: {
-                display: false
-              }
-            }
+            x: { grid: { display: false } }
           }
         }
       });
     }
 
-    function animateValue(element, targetValue, prefix = '', decimals = 0) {
-      const startValue = 0;
-      const duration = 1000;
-      const startTime = performance.now();
-      
-      function update(currentTime) {
-        const elapsedTime = currentTime - startTime;
-        const progress = Math.min(elapsedTime / duration, 1);
-        const currentValue = startValue + (targetValue - startValue) * progress;
-        
-        if (decimals > 0) {
-          element.textContent = prefix + currentValue.toFixed(decimals);
-        } else {
-          element.textContent = prefix + Math.floor(currentValue);
-        }
-        
-        if (progress < 1) {
-          requestAnimationFrame(update);
-        }
-      }
-      
-      requestAnimationFrame(update);
+    /* -------- Anima número -------- */
+    function animateValue(el, target, prefix = '', dec = 0) {
+      const start = 0, dur = 1000, t0 = performance.now();
+      const step = now => {
+        const p = Math.min((now - t0) / dur, 1);
+        const val = start + (target - start) * p;
+        el.textContent = prefix + val.toFixed(dec);
+        if (p < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
     }
 
-    // Export functions remain the same
-    function exportCSV(data) {
-      const header = ['Símbolo', 'Operação', 'Quantidade', 'Preço (€)', 'Data'];
-      const rows = data.map(tx => [tx.symbol, tx.operation, tx.amount, tx.price.toFixed(4), tx.date]);
-      let csv = header.join(',') + '\n';
-      rows.forEach(r => { csv += r.join(',') + '\n'; });
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    /* ================================================== */
+    /*            EXPORTAÇÃO CSV / PDF                    */
+    /* ================================================== */
+    const exportCSV = data => {
+      if (!data.length) return alert('Gere o relatório antes de exportar.');
+      const header = ['Símbolo','Operação','Quantidade','Preço (€)','Data'];
+      const rows   = data.map(tx => [tx.symbol, tx.operation, tx.amount, tx.price.toFixed(4), tx.date]);
+      let csv = header.join(',') + '\\n';
+      rows.forEach(r => csv += r.join(',') + '\\n');
+      const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
       link.download = `relatorio_${Date.now()}.csv`;
       link.click();
-    }
+    };
 
-    function exportPDF(data) {
+    const exportPDF = data => {
+      if (!data.length) return alert('Gere o relatório antes de exportar.');
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
       doc.setFontSize(12);
       doc.text('Relatório de Transações', 14, 20);
-      const cols = ['Símbolo', 'Operação', 'Quantidade', 'Preço (€)', 'Data'];
-      const rows = data.map(tx => [tx.symbol, tx.operation, tx.amount.toString(), tx.price.toFixed(4), tx.date]);
-      doc.autoTable({ startY: 30, head: [cols], body: rows });
+      const cols = ['Símbolo','Operação','Quantidade','Preço (€)','Data'];
+      const rows = data.map(tx => [
+        tx.symbol, tx.operation, tx.amount.toString(), tx.price.toFixed(4), tx.date
+      ]);
+      doc.autoTable({ startY: 30, head:[cols], body: rows });
       doc.save(`relatorio_${Date.now()}.pdf`);
-    }
+    };
 
-    // Auth guard and initialization
-    onAuthStateChanged(auth, user => {
-      if (!user) {
-        window.location.href = '/login.html';
-      } else {
-        currentUserEmail = user.email;
-        userNameEl.textContent = user.displayName || currentUserEmail.split('@')[0];
-        contentEl.classList.remove('opacity-50', 'pointer-events-none');
-        contentEl.classList.add('fade-in');
-        fetchTransactions();
-      }
-    });
+    document.getElementById('btnExportCSV').addEventListener('click', () => exportCSV(reportData));
+    document.getElementById('btnExportPDF').addEventListener('click', () => exportPDF(reportData));
 
-    // Enhanced fetch function
+    /* ================================================== */
+    /*               BUSCA / AUTENTICAÇÃO                 */
+    /* ================================================== */
     async function fetchTransactions() {
       loadingSpinner.classList.remove('hidden');
       submitText.textContent = 'Carregando...';
       submitBtn.disabled = true;
-      
+
       try {
         const start = document.getElementById('startDate').value;
-        const end = document.getElementById('endDate').value;
-        const url = `${getAPI()}${start && end ? `&start=${start}&end=${end}` : ''}`;
-        const res = await fetch(url);
-        const data = await res.json();
-        reportData = data;
+        const end   = document.getElementById('endDate').value;
+        const url   = getAPI() + (start && end ? `&start=${start}&end=${end}` : '');
+        const res   = await fetch(url);
+        const data  = await res.json();
+        reportData  = data;
         renderData(data);
       } catch (err) {
-        console.error('Error fetching transactions:', err);
+        console.error(err);
         alert('Erro ao carregar transações. Tente novamente.');
       } finally {
         loadingSpinner.classList.add('hidden');
@@ -482,41 +453,27 @@
         submitBtn.disabled = false;
       }
     }
-
-    // Event listeners
     submitBtn.addEventListener('click', fetchTransactions);
-    
-    document.getElementById('btnExportCSV').addEventListener('click', () => {
-      if (reportData.length) {
-        exportCSV(reportData);
-      } else {
-        alert('Gere o relatório antes de exportar.');
-      }
-    });
-    
-    document.getElementById('btnExportPDF').addEventListener('click', () => {
-      if (reportData.length) {
-        exportPDF(reportData);
-      } else {
-        alert('Gere o relatório antes de exportar.');
-      }
-    });
-    
-    signOutBtn.addEventListener('click', async () => {
-      try {
-        await signOut(auth);
-        window.location.href = '/login.html';
-      } catch (error) {
-        console.error('Error signing out:', error);
-      }
-    });
 
-    // Set default date range (last 30 days)
+    /* ---------- Firebase Auth guard ---------- */
+    onAuthStateChanged(auth, user => {
+      if (!user){
+        window.location.href = '/login.html';
+      } else {
+        currentUserEmail = user.email;
+        userNameEl.textContent = user.displayName || user.email.split('@')[0];
+        contentEl.classList.remove('opacity-50','pointer-events-none');
+        contentEl.classList.add('fade-in');
+        fetchTransactions();          // carrega já com último mês
+      }
+    });
+    signOutBtn.addEventListener('click', () => signOut(auth).then(()=>location.href='/login.html'));
+
+    /* ---------- Datas padrão (últimos 30 dias) ---------- */
     const today = new Date();
-    const thirtyDaysAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
-    
-    document.getElementById('endDate').value = today.toISOString().split('T')[0];
-    document.getElementById('startDate').value = thirtyDaysAgo.toISOString().split('T')[0];
+    const past  = new Date(today.getTime() - 30*24*60*60*1000);
+    document.getElementById('endDate').value   = today.toISOString().split('T')[0];
+    document.getElementById('startDate').value = past.toISOString().split('T')[0];
   </script>
 </body>
 </html>
