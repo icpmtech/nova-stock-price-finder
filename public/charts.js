@@ -90,7 +90,7 @@ export function renderIncomeExpensesChart(ctx) {
   /* ---------- 1. Bucket by YYYY-MM ------------------------------------ */
   const bucket = {};
   recentTransactionsData.forEach(tx => {
-    const key = tx.date.slice(0, 7);                  // "2025-07"
+    const key = tx.date?.slice(0, 7);                  // "2025-07"
     bucket[key] ??= { income: 0, expense: 0, investment: 0 };
     bucket[key][tx.type] += tx.amount;
   });

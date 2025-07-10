@@ -19,7 +19,7 @@ export function renderSummaryCards() {
 
   const monthBuckets = {};
   recentTransactionsData.forEach(tx => {
-    const key = tx.date.slice(0, 7);
+    const key = tx.date?.slice(0, 7);
     (monthBuckets[key] ??= { income: 0, expense: 0, investment: 0 })[tx.type] += tx.amount;
   });
 

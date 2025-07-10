@@ -12,6 +12,29 @@ import {
   addDoc,
   deleteDoc
 } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+ /** helper de mapeamento → Transaction */
+function mapInvoiceToTx(id, inv) {
+  const iso = inv.timestamp?.slice(0, 10) ?? new Date().toISOString().slice(0, 10);
+  const cat = inv.categoria || 'outros';
+  const icon = {
+    supermercado: 'shopping-cart',
+    restauracao:  'pizza',
+    combustivel:  'fuel',
+    saude:        'heart-pulse',
+    educacao:     'book',
+    outros:       'receipt'
+  }[cat] ?? 'receipt';
+
+  return {
+    id,
+    date: iso,                    // YYYY-MM-DD
+    type: 'expense',
+    category: cat,
+    description: `${inv.tipo_documento ?? 'FT'} — NIF ${inv.nif_emitente ?? ''}`,
+    amount: inv.total ?? 0,
+    icon
+  };
+}
 
 export default class FirebaseAPI {
   /** WALLET DATA (singleton document) **/
@@ -153,12 +176,19 @@ export default class FirebaseAPI {
     await deleteDoc(assetDoc);
   }
 
-  /** TRANSACTIONS (top-level collection) **/
-  static async fetchRecentTransactions() {
-    const colRef   = collection(db, 'recentTransactions');
-    const snapshot = await getDocs(colRef);
-    return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-  }
+
+/** TRANSACTIONS (top-level collection) **/
+static async fetchRecentTransactions() {
+  const snap = await getDocs(collection(db, 'recentTransactions'));
+
+  return snap.docs.map(d => {
+    const data = d.data();
+    // converte SÓ se existir total e timestamp
+    return ('total' in data && 'timestamp' in data)
+      ? mapInvoiceToTx(d.id, data)
+      : { id: d.id, ...data };      // devolve raw se faltar campo
+  });
+}
 
   static async addTransaction(tx) {
     const colRef = collection(db, 'recentTransactions');
