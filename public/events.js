@@ -45,22 +45,21 @@ export function registerEventHandlers() {
   });
 
   /* ───── Row-click → edit transaction ───── */
-  $('#transactionsBody').addEventListener('click', e => {
-    // Check if delete button was clicked
-    const deleteBtn = e.target.closest('.delete-tx-btn');
-    if (deleteBtn) {
-      e.stopPropagation();
-      const txId = deleteBtn.dataset.id;
-      showDeleteConfirmation(txId);
-      return;
-    }
+document.addEventListener('click', e => {
+  const deleteBtn = e.target.closest('.delete-tx-btn');
+  if (deleteBtn) {
+    e.stopPropagation();
+    const txId = deleteBtn.dataset.id;
+    if (txId) showDeleteConfirmation(txId);
+    return;
+  }
 
-    // Otherwise, edit transaction on row click
-    const row = e.target.closest('tr[data-id]');
-    if (!row) return;
+  const row = e.target.closest('tr[data-id]');
+  if (row && row.closest('#transactionsBody')) {
     const tx = recentTransactionsData.find(t => t.id == row.dataset.id);
     if (tx) showTransactionModal('edit', tx);
-  });
+  }
+});
 
   /* ───── Edit asset button on each card ───── */
   $('#assetsList').addEventListener('click', e => {
@@ -139,6 +138,8 @@ function closeTxModal() {
 
 async function saveTransaction(e) {
   e.preventDefault();
+  showLoading();
+
   const formData = {
     type: $('#transactionType').value,
     amount: parseFloat($('#transactionAmount').value),
@@ -147,16 +148,24 @@ async function saveTransaction(e) {
     date: $('#transactionDate').value
   };
 
-  if (editingTx) {
-    const updated = { ...editingTx, ...formData, icon: getIconForCategory(formData.category) };
-    await updateTxInFirestore(updated);
-  } else {
-    const newTx = { ...formData, icon: getIconForCategory(formData.category) };
-    await addTxToFirestore(newTx);
+  try {
+    if (editingTx) {
+      const updated = { ...editingTx, ...formData, icon: getIconForCategory(formData.category) };
+      await updateTxInFirestore(updated);
+    } else {
+      const newTx = { ...formData, icon: getIconForCategory(formData.category) };
+      await addTxToFirestore(newTx);
+    }
+    closeTxModal();
+    $('#transactionForm').reset();
+    renderAll();
+  } catch (err) {
+    console.error('Erro ao guardar transação:', err);
+  } finally {
+    hideLoading();
   }
-  closeTxModal();
-  $('#transactionForm').reset();
 }
+
 
 /* ========================================================================== */
 /*  Delete transaction functionality                                          */
@@ -180,14 +189,28 @@ function closeDeleteModal() {
 
 async function confirmDeleteTransaction() {
   if (!deletingTxId) return;
-  
+  showLoading();
+
   try {
     await deleteTxFromFirestore(deletingTxId);
+
+    const idx = recentTransactionsData.findIndex(t => t.id === deletingTxId);
+    if (idx > -1) recentTransactionsData.splice(idx, 1);
+
     closeDeleteModal();
+    renderAll();
   } catch (error) {
-    console.error('Error deleting transaction:', error);
-    // You might want to show an error message to the user here
+    console.error('Erro ao eliminar transação:', error);
+  } finally {
+    hideLoading();
   }
+}
+
+function showLoading() {
+  $('#loadingOverlay')?.classList.remove('hidden');
+}
+function hideLoading() {
+  $('#loadingOverlay')?.classList.add('hidden');
 }
 
 /* ========================================================================== */
@@ -217,6 +240,8 @@ function closeAssetModal() {
 
 async function saveAssetForm(e) {
   e.preventDefault();
+  showLoading();
+
   const form = {
     name: $('#assetName').value.trim(),
     type: $('#assetType').value,
@@ -227,13 +252,21 @@ async function saveAssetForm(e) {
     change: 0
   };
 
-  if (editingAsset) {
-    await saveAsset({ ...editingAsset, ...form });
-  } else {
-    await saveAsset(form);
+  try {
+    if (editingAsset) {
+      await saveAsset({ ...editingAsset, ...form });
+    } else {
+      await saveAsset(form);
+    }
+    closeAssetModal();
+    renderAll();
+  } catch (err) {
+    console.error('Erro ao guardar ativo:', err);
+  } finally {
+    hideLoading();
   }
-  closeAssetModal();
 }
+
 
 /* ========================================================================== */
 /*  Simple search / filter for transactions table                             */

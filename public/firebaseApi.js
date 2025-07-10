@@ -170,33 +170,11 @@ export default class FirebaseAPI {
     const txDoc = doc(db, 'recentTransactions', id);
     await updateDoc(txDoc, updates);
   }
-  /**
- * Delete a transaction from Firestore and update local data
- * @param {string} txId - The transaction ID to delete
- */
-export async function deleteTransaction(txId) {
-  try {
-    // Delete from Firestore
-    await FirebaseAPI.deleteTransaction(txId);
-    
-    // Remove from local data array
-    const index = recentTransactionsData.findIndex(tx => tx.id === txId);
-    if (index > -1) {
-      recentTransactionsData.splice(index, 1);
-    }
-    
-    // Re-render the UI to reflect changes
-    renderAll();
-    
-    console.log('Transaction deleted successfully:', txId);
-  } catch (error) {
-    console.error('Error deleting transaction:', error);
-    throw error; // Re-throw so the UI can handle it
-  }
-}
 
-  static async deleteTransaction(id) {
-    const txDoc = doc(db, 'recentTransactions', id);
-    await deleteDoc(txDoc);
-  }
+
+ static async deleteTransaction(id) {
+  if (!id || typeof id !== 'string') throw new Error('ID inválido');
+  const ref = doc(db, 'recentTransactions', id);
+  await deleteDoc(ref);
+}
 }

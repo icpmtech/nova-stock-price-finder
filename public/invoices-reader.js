@@ -147,7 +147,7 @@ function parseFaturaQR(qr) {
 async function guardarFatura(dados) {
   try {
     showLoading(true);
-    const docRef = await addDoc(collection(db, 'faturas'), dados);
+    const docRef = await addDoc(collection(db, 'recentTransactions'), dados);
     console.log('Fatura guardada com ID:', docRef.id);
     showSuccess('Fatura guardada com sucesso!');
     updateStats();
@@ -163,7 +163,7 @@ async function guardarFatura(dados) {
 // Carregar últimas 5 faturas
 async function loadRecentInvoices() {
   try {
-    const q = query(collection(db, 'faturas'), orderBy('timestamp', 'desc'), limit(5));
+    const q = query(collection(db, 'recentTransactions'), orderBy('timestamp', 'desc'), limit(5));
     const snap = await getDocs(q);
     const inv = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     displayRecentInvoices(inv);
@@ -341,7 +341,7 @@ function formatDate(ts) {
 // Estatísticas gerais
 async function updateStats() {
   try {
-    const snap = await getDocs(collection(db, 'faturas'));
+    const snap = await getDocs(collection(db, 'recentTransactions'));
     totalFaturas = snap.size;
     totalValor = snap.docs.reduce((sum, d) => sum + (d.data().total || 0), 0);
     document.getElementById('total-faturas').textContent = totalFaturas;
@@ -541,7 +541,7 @@ function showPreview(dados) {
 
   // Exportar CSV
   function exportData() {
-    getDocs(collection( db,'faturas')).then(snap => {
+    getDocs(collection( db,'recentTransactions')).then(snap => {
       const rows = snap.docs.map(d => [d.id, d.data().nif_emitente||'', d.data().data||'', d.data().total, d.data().iva, d.data().timestamp].join(','));
       const csv = 'data:text/csv;charset=utf-8,ID,NIF,Data,Total,IVA,Timestamp\n' + rows.join('\n');
       const link = document.createElement('a'); link.href = encodeURI(csv); link.download = 'faturas.csv'; link.click(); showSuccess('Dados exportados!');
@@ -644,8 +644,8 @@ function showPreview(dados) {
     if (!confirm('Eliminar todas as faturas?')) return;
     try {
       showLoading(true);
-      const snap = await getDocs(collection(db,'faturas'));
-      await Promise.all(snap.docs.map(d => deleteDoc(doc(db,'faturas',d.id))));
+      const snap = await getDocs(collection(db,'recentTransactions'));
+      await Promise.all(snap.docs.map(d => deleteDoc(doc(db,'recentTransactions',d.id))));
       await loadRecentInvoices();
       await updateStats();
       showSuccess('Todas as faturas eliminadas!');
@@ -659,7 +659,7 @@ function showPreview(dados) {
   // Visualizar fatura
   window.viewInvoice = id => {
     loadRecentInvoices().then(() => {
-      getDocs(query(collection(db,'faturas'))).then(snap => {
+      getDocs(query(collection(db,'recentTransactions'))).then(snap => {
         const d = snap.docs.find(doc => doc.id === id);
         if (d) {
           displayScannedData(d.data());
@@ -669,7 +669,7 @@ function showPreview(dados) {
     });
   };
 window.editInvoice = async id => {
-  const snap = await getDoc(doc(db, 'faturas', id));
+  const snap = await getDoc(doc(db, 'recentTransactions', id));
   if (!snap.exists()) return showError('Fatura não encontrada');
   const invoice = snap.data();
 
@@ -731,7 +731,7 @@ window.editInvoice = async id => {
       tipo_documento: form.tipo_documento.value,
       categoria: form.categoria.value
     };
-    await updateDoc(doc(db, 'faturas', id), updatedData);
+    await updateDoc(doc(db, 'recentTransactions', id), updatedData);
     closeEditModal();
     loadRecentInvoices();
     updateStats();
@@ -750,7 +750,7 @@ window.closeEditModal = function() {
   // Eliminar fatura individual
   window.deleteInvoice = id => {
     if (!confirm('Eliminar esta fatura?')) return;
-    deleteDoc(doc(db,'faturas',id)).then(() => {
+    deleteDoc(doc(db,'recentTransactions',id)).then(() => {
       loadRecentInvoices();
       updateStats();
       showSuccess('Fatura eliminada!');

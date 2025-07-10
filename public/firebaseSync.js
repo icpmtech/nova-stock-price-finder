@@ -70,6 +70,17 @@ export async function updateTransaction(tx) {
   if (idx > -1) recentTransactionsData[idx] = tx;
   renderRecentTransactions(); renderAllTransactions();
 }
+export async function deleteTransaction(tx) {
+  await FirebaseAPI.deleteTransaction(tx); // <- aqui está a correção
+
+  const idx = recentTransactionsData.findIndex(t => t.id === tx);
+  if (idx > -1) recentTransactionsData.splice(idx, 1); // remove da lista local
+
+  renderRecentTransactions();
+  renderAllTransactions();
+  
+}
+
 
 /* -------------------------------------------------------------------------- */
 /*  Assets, budgets, goals (save helpers)                                     */
