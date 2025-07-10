@@ -8,7 +8,7 @@ const defaultConfig = {
   { icon: '🔍', label: 'Análise',          href: 'symbol-analysis.html' }, // deep dive
   { icon: '🌐', label: 'Mercados',         href: 'global-markets.html' },  // global view
   { icon: '📑', label: 'Relatórios',       href: 'report-transactions.html' }, // documents
-  { icon: '🖥️', label: 'Painel',           href: 'watchlist.html' },       // screen / monitor
+  { icon: '🖥️', label: 'Qr Code Leitor',   href: 'invoices-reader.html' },       // screen / monitor
   { icon: '💼', label: 'Carteira',         href: 'wallet360.html' },          // portfolio / briefcase
   { icon: '📈', label: 'Análises de Ações',href: 'card-symbol.html' },     // stock chart
   { icon: '📈', label: 'Cotação',          href: 'cotacao.html' },     // cotacao chart
