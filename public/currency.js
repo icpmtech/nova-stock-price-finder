@@ -3,7 +3,7 @@
 /*  Uses:  https://api.exchangerate.host/latest                               */
 /* -------------------------------------------------------------------------- */
 
-const CACHE_KEY   = 'wallet360:fxRates';
+const CACHE_KEY   = 'Wallet360:fxRates';
 const CACHE_TTL   = 1000 * 60 * 60 * 12;   // 12 hours
 const FALLBACK    = { USD: 1, EUR: 0.92 };
 

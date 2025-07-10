@@ -1,6 +1,6 @@
 const defaultConfig = {
   containerId: 'footer-widget',
-  brandName: 'NovaStocks',
+  brandName: 'Wallet360',
   links: [
     { label: 'Sobre', href: 'about.html' },
     { label: 'Contactos', href: 'contact.html' },
@@ -8,9 +8,9 @@ const defaultConfig = {
     { label: 'Privacidade', href: 'privacy.html' }
   ],
   social: [
-    { icon: '🐦', href: 'https://twitter.com/novaStocks' },
-    { icon: '📘', href: 'https://facebook.com/novaStocks' },
-    { icon: '📸', href: 'https://instagram.com/novaStocks' }
+    { icon: '🐦', href: 'https://twitter.com/Wallet360' },
+    { icon: '📘', href: 'https://facebook.com/Wallet360' },
+    { icon: '📸', href: 'https://instagram.com/Wallet360' }
   ]
 };
 
