@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="pt">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Relatórios de Transações</title>
+  <title>Relatórios de Transações - Wallet 360</title>
   <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Chart.js -->
@@ -11,98 +12,240 @@
   <!-- jsPDF (para PDF) e autoTable -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    .glass-effect {
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .card-hover {
+      transition: all 0.3s ease;
+    }
+    
+    .card-hover:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .spinner {
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid #667eea;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.6s ease-in-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .status-badge {
+      @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    }
+    
+    .status-buy {
+      @apply bg-green-100 text-green-800;
+    }
+    
+    .status-sell {
+      @apply bg-red-100 text-red-800;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-800">
+<body class="bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
+  <!-- Header Widget Placeholder -->
   <div id="header-widget"></div>
   <script type="module" src="header.js"></script>
 
-  <div id="content" class="max-w-6xl mx-auto my-8 opacity-50 pointer-events-none">
-    <!-- Cabeçalho -->
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-3xl font-semibold">Relatórios de Transações</h1>
-      <div class="flex items-center space-x-4">
-        <span id="userName" class="text-lg"></span>
-        <button id="signOutBtn" class="px-4 py-2 border border-red-500 text-red-500 rounded hover:bg-red-50">
-          Sair
-        </button>
+  <div id="content" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 opacity-50 pointer-events-none">
+    <!-- Enhanced Header -->
+    <div class="gradient-bg rounded-2xl p-8 mb-8 text-white shadow-2xl">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 class="text-4xl font-bold mb-2">Relatórios de Transações</h1>
+          <p class="text-blue-100 text-lg">Gerencie e analise suas transações financeiras</p>
+        </div>
+        <div class="flex items-center space-x-4">
+          <div class="text-right">
+            <p class="text-sm text-blue-100">Bem-vindo,</p>
+            <p id="userName" class="text-xl font-semibold"></p>
+          </div>
+          <button id="signOutBtn" class="glass-effect px-6 py-3 text-white rounded-xl hover:bg-white hover:text-gray-800 transition-all duration-300 font-medium">
+            <svg class="w-5 h-5 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+            </svg>
+            Sair
+          </button>
+        </div>
       </div>
     </div>
 
-   
-
-    <!-- Filtros e Ações -->
-    <form id="transactionForm" class="grid grid-cols-1 md:grid-cols-6 gap-4 mb-8">
-      <div class="col-span-1 md:col-span-2">
-        <label for="startDate" class="block mb-1 font-medium">Data Início</label>
-        <input type="date" id="startDate" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
-      </div>
-      <div class="col-span-1 md:col-span-2">
-        <label for="endDate" class="block mb-1 font-medium">Data Fim</label>
-        <input type="date" id="endDate" class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
-      </div>
-      <div class="col-span-1 md:col-span-1 flex items-end">
-        <button
-          type="button"
-          id="submitBtn"
-          class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded flex justify-center items-center"
-        >
-          <span id="submitText">Gerar Relatório</span>
-          <span id="loadingSpinner" class="ml-2 spinner-border-sm hidden"></span>
-        </button>
-      </div>
-      <div class="col-span-1 md:col-span-1 flex items-end">
-        <button
-          type="button"
-          id="btnExportCSV"
-          class="w-full border border-gray-400 text-gray-700 py-2 rounded hover:bg-gray-50"
-        >
-          Exportar CSV
-        </button>
-      </div>
-      <div class="col-span-1 md:col-span-1 flex items-end">
-        <button
-          type="button"
-          id="btnExportPDF"
-          class="w-full border border-gray-400 text-gray-700 py-2 rounded hover:bg-gray-50"
-        >
-          Exportar PDF
-        </button>
-      </div>
-    </form>
-
-    <!-- Lista alternativa de transações -->
-    <ul id="transactionList" class="space-y-2 mb-8"></ul>
-
-    <!-- Resumo -->
-    <div class="bg-white rounded shadow p-6 mb-8">
-      <h2 class="text-xl font-medium mb-4">Resumo</h2>
-      <p>Total Compras: <span id="totalBuy" class="font-semibold">0</span></p>
-      <p>Total Vendas: <span id="totalSell" class="font-semibold">0</span></p>
-      <p>Volume (€): <span id="totalVolume" class="font-semibold">0.00</span></p>
-      <p>Total Transações: <span id="totalTransactions" class="font-semibold">0</span></p>
+    <!-- Enhanced Filters Section -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 mb-8 card-hover">
+      <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+        <svg class="w-6 h-6 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
+        </svg>
+        Filtros e Ações
+      </h2>
+      
+      <form id="transactionForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+        <div class="lg:col-span-2">
+          <label for="startDate" class="block text-sm font-semibold text-gray-700 mb-2">Data Início</label>
+          <input type="date" id="startDate" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300">
+        </div>
+        
+        <div class="lg:col-span-2">
+          <label for="endDate" class="block text-sm font-semibold text-gray-700 mb-2">Data Fim</label>
+          <input type="date" id="endDate" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300">
+        </div>
+        
+        <div class="xl:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <button type="button" id="submitBtn" class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3 px-4 rounded-xl flex justify-center items-center font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg">
+            <span id="submitText">Gerar Relatório</span>
+            <span id="loadingSpinner" class="ml-2 spinner hidden"></span>
+          </button>
+          
+          <button type="button" id="btnExportCSV" class="bg-green-50 hover:bg-green-100 text-green-700 border-2 border-green-200 py-3 px-4 rounded-xl font-semibold transition-all duration-300 hover:shadow-md">
+            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            CSV
+          </button>
+          
+          <button type="button" id="btnExportPDF" class="bg-red-50 hover:bg-red-100 text-red-700 border-2 border-red-200 py-3 px-4 rounded-xl font-semibold transition-all duration-300 hover:shadow-md">
+            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+            </svg>
+            PDF
+          </button>
+        </div>
+      </form>
     </div>
 
-    <!-- Tabela de Histórico -->
-    <div class="bg-white rounded shadow mb-8 overflow-x-auto">
-      <h2 class="text-xl font-medium px-6 py-4 border-b">Histórico de Transações</h2>
-      <table class="table-auto w-full text-left divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="px-6 py-3 font-medium">Símbolo</th>
-            <th class="px-6 py-3 font-medium">Operação</th>
-            <th class="px-6 py-3 font-medium">Quantidade</th>
-            <th class="px-6 py-3 font-medium">Preço (€)</th>
-            <th class="px-6 py-3 font-medium">Data</th>
-          </tr>
-        </thead>
-        <tbody id="transactionsBody" class="bg-white divide-y divide-gray-200"></tbody>
-      </table>
+    <!-- Enhanced Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="bg-white rounded-2xl shadow-lg p-6 card-hover border-l-4 border-green-500">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Total Compras</p>
+            <p id="totalBuy" class="text-3xl font-bold text-green-600 mt-2">0</p>
+          </div>
+          <div class="bg-green-100 p-3 rounded-full">
+            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-2xl shadow-lg p-6 card-hover border-l-4 border-red-500">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Total Vendas</p>
+            <p id="totalSell" class="text-3xl font-bold text-red-600 mt-2">0</p>
+          </div>
+          <div class="bg-red-100 p-3 rounded-full">
+            <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 13l-5 5m0 0l-5-5m5 5V6"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-2xl shadow-lg p-6 card-hover border-l-4 border-blue-500">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Volume Total</p>
+            <p id="totalVolume" class="text-3xl font-bold text-blue-600 mt-2">€0.00</p>
+          </div>
+          <div class="bg-blue-100 p-3 rounded-full">
+            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-2xl shadow-lg p-6 card-hover border-l-4 border-purple-500">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-semibold text-gray-600 uppercase tracking-wide">Total Transações</p>
+            <p id="totalTransactions" class="text-3xl font-bold text-purple-600 mt-2">0</p>
+          </div>
+          <div class="bg-purple-100 p-3 rounded-full">
+            <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Gráfico de Volumes -->
-    <div class="bg-white rounded shadow p-6">
-      <h2 class="text-xl font-medium mb-4">Gráfico de Volumes por Dia</h2>
-      <canvas id="volumeChart" height="100"></canvas>
+    <!-- Enhanced Transactions List (Mobile First) -->
+    <div class="block lg:hidden bg-white rounded-2xl shadow-lg p-6 mb-8">
+      <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+        <svg class="w-6 h-6 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+        </svg>
+        Transações Recentes
+      </h2>
+      <div id="transactionList" class="space-y-4"></div>
+    </div>
+
+    <!-- Enhanced Transaction Table (Desktop) -->
+    <div class="hidden lg:block bg-white rounded-2xl shadow-lg mb-8 overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h2 class="text-2xl font-bold text-gray-900 flex items-center">
+          <svg class="w-6 h-6 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+          </svg>
+          Histórico de Transações
+        </h2>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Símbolo</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Operação</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Quantidade</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Preço</th>
+              <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Data</th>
+            </tr>
+          </thead>
+          <tbody id="transactionsBody" class="bg-white divide-y divide-gray-200"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Enhanced Chart Section -->
+    <div class="bg-white rounded-2xl shadow-lg p-6">
+      <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+        <svg class="w-6 h-6 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+        </svg>
+        Análise de Volumes por Dia
+      </h2>
+      <div class="relative h-96">
+        <canvas id="volumeChart" class="w-full h-full"></canvas>
+      </div>
     </div>
   </div>
 
@@ -137,49 +280,149 @@
       const volumesByDate = {};
 
       data.forEach(tx => {
-        // Lista
+        // Enhanced Mobile List
         const li = document.createElement('li');
-        li.className = 'p-4 bg-white rounded shadow';
-        li.textContent = `${tx.date} - ${tx.symbol} (${tx.operation}) x${tx.amount} @ €${tx.price.toFixed(4)}`;
+        li.className = 'bg-gradient-to-r from-white to-gray-50 rounded-xl p-4 shadow-md border-l-4 ' + 
+                       (tx.operation.toLowerCase() === 'compra' ? 'border-green-500' : 'border-red-500');
+        li.innerHTML = `
+          <div class="flex justify-between items-start">
+            <div class="flex-1">
+              <div class="flex items-center mb-2">
+                <h3 class="font-bold text-lg text-gray-900 mr-3">${tx.symbol}</h3>
+                <span class="status-badge ${tx.operation.toLowerCase() === 'compra' ? 'status-buy' : 'status-sell'}">
+                  ${tx.operation}
+                </span>
+              </div>
+              <div class="text-sm text-gray-600 space-y-1">
+                <p><span class="font-medium">Quantidade:</span> ${tx.amount}</p>
+                <p><span class="font-medium">Preço:</span> €${tx.price.toFixed(4)}</p>
+                <p><span class="font-medium">Data:</span> ${tx.date}</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <p class="text-lg font-bold text-gray-900">€${(tx.price * tx.amount).toFixed(2)}</p>
+              <p class="text-xs text-gray-500">Volume Total</p>
+            </div>
+          </div>
+        `;
         listEl.appendChild(li);
 
-        // Tabela
+        // Enhanced Desktop Table
         const row = document.createElement('tr');
+        row.className = 'hover:bg-gray-50 transition-colors duration-200';
         row.innerHTML = `
-          <td class="px-6 py-4">${tx.symbol}</td>
-          <td class="px-6 py-4">${tx.operation}</td>
-          <td class="px-6 py-4">${tx.amount}</td>
-          <td class="px-6 py-4">€${tx.price.toFixed(4)}</td>
-          <td class="px-6 py-4">${tx.date}</td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="flex items-center">
+              <div class="flex-shrink-0 h-10 w-10">
+                <div class="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
+                  <span class="text-white font-bold text-sm">${tx.symbol.slice(0, 2)}</span>
+                </div>
+              </div>
+              <div class="ml-4">
+                <div class="text-sm font-medium text-gray-900">${tx.symbol}</div>
+              </div>
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="status-badge ${tx.operation.toLowerCase() === 'compra' ? 'status-buy' : 'status-sell'}">
+              ${tx.operation}
+            </span>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${tx.amount}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">€${tx.price.toFixed(4)}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${tx.date}</td>
         `;
         tbodyEl.appendChild(row);
 
-        // Resumo
+        // Summary calculations
         if (tx.operation.toLowerCase() === 'compra') totalBuy += tx.amount;
         if (tx.operation.toLowerCase() === 'venda') totalSell += tx.amount;
         totalVol += tx.price * tx.amount;
         volumesByDate[tx.date] = (volumesByDate[tx.date] || 0) + tx.price * tx.amount;
       });
 
-      document.getElementById('totalBuy').textContent = totalBuy;
-      document.getElementById('totalSell').textContent = totalSell;
-      document.getElementById('totalVolume').textContent = totalVol.toFixed(2);
-      totalTransactionsEl.textContent = data.length;
+      // Update summary with animation
+      animateValue(document.getElementById('totalBuy'), totalBuy);
+      animateValue(document.getElementById('totalSell'), totalSell);
+      animateValue(document.getElementById('totalVolume'), totalVol, '€', 2);
+      animateValue(totalTransactionsEl, data.length);
 
-      // Gráfico
+      // Enhanced Chart
       const ctx = document.getElementById('volumeChart').getContext('2d');
       if (window.volChart) window.volChart.destroy();
+      
+      const sortedDates = Object.keys(volumesByDate).sort();
+      const chartData = sortedDates.map(d => volumesByDate[d]);
+      
       window.volChart = new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: Object.keys(volumesByDate).sort(),
-          datasets: [{ label: 'Volume (€)', data: Object.keys(volumesByDate).sort().map(d => volumesByDate[d]) }]
+          labels: sortedDates,
+          datasets: [{
+            label: 'Volume (€)',
+            data: chartData,
+            backgroundColor: 'rgba(102, 126, 234, 0.8)',
+            borderColor: 'rgba(102, 126, 234, 1)',
+            borderWidth: 2,
+            borderRadius: 8,
+            borderSkipped: false,
+          }]
         },
-        options: { responsive: true }
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: 'rgba(0, 0, 0, 0.1)'
+              },
+              ticks: {
+                callback: function(value) {
+                  return '€' + value.toFixed(2);
+                }
+              }
+            },
+            x: {
+              grid: {
+                display: false
+              }
+            }
+          }
+        }
       });
     }
 
-    // Export helpers (sem alterações)
+    function animateValue(element, targetValue, prefix = '', decimals = 0) {
+      const startValue = 0;
+      const duration = 1000;
+      const startTime = performance.now();
+      
+      function update(currentTime) {
+        const elapsedTime = currentTime - startTime;
+        const progress = Math.min(elapsedTime / duration, 1);
+        const currentValue = startValue + (targetValue - startValue) * progress;
+        
+        if (decimals > 0) {
+          element.textContent = prefix + currentValue.toFixed(decimals);
+        } else {
+          element.textContent = prefix + Math.floor(currentValue);
+        }
+        
+        if (progress < 1) {
+          requestAnimationFrame(update);
+        }
+      }
+      
+      requestAnimationFrame(update);
+    }
+
+    // Export functions remain the same
     function exportCSV(data) {
       const header = ['Símbolo', 'Operação', 'Quantidade', 'Preço (€)', 'Data'];
       const rows = data.map(tx => [tx.symbol, tx.operation, tx.amount, tx.price.toFixed(4), tx.date]);
@@ -203,7 +446,7 @@
       doc.save(`relatorio_${Date.now()}.pdf`);
     }
 
-    // Auth guard e inicialização
+    // Auth guard and initialization
     onAuthStateChanged(auth, user => {
       if (!user) {
         window.location.href = '/login.html';
@@ -211,14 +454,17 @@
         currentUserEmail = user.email;
         userNameEl.textContent = user.displayName || currentUserEmail.split('@')[0];
         contentEl.classList.remove('opacity-50', 'pointer-events-none');
+        contentEl.classList.add('fade-in');
         fetchTransactions();
       }
     });
 
-    // Função para buscar e renderizar
+    // Enhanced fetch function
     async function fetchTransactions() {
       loadingSpinner.classList.remove('hidden');
       submitText.textContent = 'Carregando...';
+      submitBtn.disabled = true;
+      
       try {
         const start = document.getElementById('startDate').value;
         const end = document.getElementById('endDate').value;
@@ -228,22 +474,49 @@
         reportData = data;
         renderData(data);
       } catch (err) {
-        alert('Erro ao carregar transações');
+        console.error('Error fetching transactions:', err);
+        alert('Erro ao carregar transações. Tente novamente.');
       } finally {
         loadingSpinner.classList.add('hidden');
         submitText.textContent = 'Gerar Relatório';
+        submitBtn.disabled = false;
       }
     }
 
-    // Eventos
+    // Event listeners
     submitBtn.addEventListener('click', fetchTransactions);
-    document.getElementById('btnExportCSV').addEventListener('click', () =>
-      reportData.length ? exportCSV(reportData) : alert('Gere o relatório antes.')
-    );
-    document.getElementById('btnExportPDF').addEventListener('click', () =>
-      reportData.length ? exportPDF(reportData) : alert('Gere o relatório antes.')
-    );
-    signOutBtn.addEventListener('click', () => signOut(auth));
+    
+    document.getElementById('btnExportCSV').addEventListener('click', () => {
+      if (reportData.length) {
+        exportCSV(reportData);
+      } else {
+        alert('Gere o relatório antes de exportar.');
+      }
+    });
+    
+    document.getElementById('btnExportPDF').addEventListener('click', () => {
+      if (reportData.length) {
+        exportPDF(reportData);
+      } else {
+        alert('Gere o relatório antes de exportar.');
+      }
+    });
+    
+    signOutBtn.addEventListener('click', async () => {
+      try {
+        await signOut(auth);
+        window.location.href = '/login.html';
+      } catch (error) {
+        console.error('Error signing out:', error);
+      }
+    });
+
+    // Set default date range (last 30 days)
+    const today = new Date();
+    const thirtyDaysAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
+    
+    document.getElementById('endDate').value = today.toISOString().split('T')[0];
+    document.getElementById('startDate').value = thirtyDaysAgo.toISOString().split('T')[0];
   </script>
 </body>
 </html>
