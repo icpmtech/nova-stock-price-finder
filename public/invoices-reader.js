@@ -11,7 +11,10 @@
     getDocs,
     query,
     orderBy,
-    limit
+    limit,
+     addDoc,    // para guardar
+  deleteDoc, // para eliminar
+  doc        // para referenciar um doc específico
   } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
   // Estado e elementos
