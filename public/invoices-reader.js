@@ -483,7 +483,7 @@ function showPreview(dados) {
 
   // Preview completo
   document.getElementById('output').innerHTML = `
-    <div class="bg-teal-500 bg-opacity-90 text-white p-6 rounded-lg mb-4 max-h-[80vh] overflow-auto">
+    <div class="bg-teal-500 bg-opacity-90 text-white p-3 sm:p-6 rounded-lg mb-4 max-h-[75vh] sm:max-h-[80vh] overflow-y-auto">
       <h3 class="text-xl font-semibold mb-4">👁️ Pré-visualização da Fatura</h3>
       <div class="bg-yellow-200 border border-yellow-300 p-3 rounded mb-4 text-center text-gray-800">
         ⚠️ Confirme os dados antes de guardar
