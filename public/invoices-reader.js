@@ -50,19 +50,30 @@ let totalValor = 0;
 let scannerPaused = false;
 let currentCamera = 0;
 let pendingInvoice = null;
-
-// Função para parse do QR e montagem de objeto
+/**
+ * Recebe a string do QR code e devolve um objeto com:
+ * - campos específicos (pais, nif_emitente, data, total, iva)
+ * - um object “campos” com todos os pares chave/valor restantes
+ * - rawqrcode com a string original
+ * - timestamp (ISO)
+ */
 function parseFaturaQR(qr) {
   console.log('Parsing QR:', qr);
+  
+  // Divide por *, ; ou quebras de linha e filtra pares chave:valor
   const partes = qr
     .split(/[\*;\r?\n]/)
     .map(p => p.trim())
     .filter(p => p.includes(':'));
+  
+  // Monta objeto chave→valor
   const acc = {};
   partes.forEach(par => {
     const [key, ...rest] = par.split(':');
     acc[key.trim()] = rest.join(':').trim();
   });
+
+  // Formata data yyyyMMdd → dd/MM/yyyy
   let data = null;
   if (acc.F && /^\d{8}$/.test(acc.F)) {
     const y = acc.F.slice(0,4), m = acc.F.slice(4,6), d = acc.F.slice(6,8);
@@ -70,22 +81,29 @@ function parseFaturaQR(qr) {
   } else {
     data = acc.F || null;
   }
+
+  // Campos específicos
+  const pais         = acc.C    || null;
+  const nif_emitente = acc.A    || null;
+  const total        = acc.O    ? parseFloat(acc.O.replace(',', '.')) : 0;
+  const iva          = acc.I6   ? parseFloat(acc.I6.replace(',', '.')) : 0;
+
+  // Agrupa todos os outros campos num objeto
+  const campos = Object.fromEntries(
+    Object.entries(acc).filter(([k]) => !['A','C','F','O','I6'].includes(k))
+  );
+
   return {
-    pais: acc.C || null,
-    nif_emitente: acc.A || null,
+    pais,
+    nif_emitente,
     data,
-    total: acc.O ? parseFloat(acc.O.replace(',', '.')) : 0,
-    iva: acc.I6 ? parseFloat(acc.I6.replace(',', '.')) : 0,
-    outros: JSON.stringify(
-      Object.fromEntries(
-        Object.entries(acc).filter(([k]) => !['A','C','F','O','I6'].includes(k))
-      )
-    ),
-    timestamp: new Date().toISOString(),
-    qr_original: qr
+    total,
+    iva,
+    campos,
+    timestamp:   new Date().toISOString(),
+    rawqrcode:   qr
   };
 }
-
 // Gravar no Firestore
 async function guardarFatura(dados) {
   try {
