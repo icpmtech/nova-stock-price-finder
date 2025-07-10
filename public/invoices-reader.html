@@ -12,13 +12,14 @@
     import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     
     const firebaseConfig = {
-      apiKey: "TUA_API_KEY",
-      authDomain: "teu-projeto.firebaseapp.com",
-      projectId: "teu-projeto",
-      storageBucket: "teu-projeto.appspot.com",
-      messagingSenderId: "XXXXXXXXXXXX",
-      appId: "1:XXXXXXXXXXXX:web:XXXXXXXXXXXXXX"
-    };
+  apiKey:             'AIzaSyBou0myKBfv_Drp6wnUUb-x0cG7bIqlo4w',
+  authDomain:         'novamarketshub.firebaseapp.com',
+  projectId:          'novamarketshub',
+  storageBucket:      'novamarketshub.appspot.com', // <- ".appspot.com" correcto
+  messagingSenderId:  '280260544447',
+  appId:              '1:280260544447:web:6c16387f3550662abf430a',
+  measurementId:      'G-5DZVZLWQ1K'
+};
     
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
@@ -32,24 +33,53 @@
     let pendingInvoice = null;
 
     // 2. Função para parse e guardar no Firestore
-    function parseFaturaQR(qr) {
-      const campos = qr.split(';').reduce((acc, par) => {
-        const [chave, valor] = par.split(':');
-        if (chave && valor) acc[chave] = valor;
-        return acc;
-      }, {});
-      
-      return {
-        pais: campos.A || null,
-        nif_emitente: campos.B || null,
-        data: campos.C || null,
-        total: parseFloat(campos.D) || 0,
-        iva: parseFloat(campos.E) || 0,
-        outros: campos.F || null,
-        timestamp: new Date().toISOString(),
-        qr_original: qr
-      };
+  // 2. Função para parse e guardar no Firestore  ✅ versão robusta
+function parseFaturaQR(qrRaw) {
+  console.log('QR bruto:', qrRaw);          // <-- útil para debug no browser
+
+  /* 1) O separador pode ser ';' ou '*'  */
+  const SEP = qrRaw.includes('*') ? '*' : ';';
+  const pares = qrRaw.split(SEP).filter(Boolean);
+
+  /* 2) Construir dicionário de campos (A, B, C, …)  */
+  const campos = {};
+  pares.forEach(par => {
+    const [chave, ...resto] = par.split(':');
+    if (chave && resto.length) {
+      campos[chave.trim().toUpperCase()] = resto.join(':').trim();
     }
+  });
+
+  /* 3) Total (campo D) pode vir:
+        – em euros “123.45” ou “123,45”
+        – em cêntimos “12345”  (→ €123,45)                                 */
+  let total = 0;
+  if (campos.D) {
+    total = /[.,]/.test(campos.D)
+      ? parseFloat(campos.D.replace(',', '.'))
+      : parseInt(campos.D, 10) / 100;
+  }
+
+  /* 4) IVA (campo E) pode ser “IVA23”, “23%” ou só “23”                   */
+  let iva = 0;
+  if (campos.E) {
+    const num = campos.E.replace(/[^0-9.,-]/g, '');
+    iva = parseFloat(num.replace(',', '.')) || 0;
+  }
+
+  /* 5) Objecto final devolvido à aplicação                               */
+  return {
+    pais:         campos.A || 'PT',
+    nif_emitente: (campos.B || '').replace(/^PT/i, ''), // remove prefixo “PT” se existir
+    data:         campos.C || '',
+    total:        isNaN(total) ? 0 : total,
+    iva:          isNaN(iva)   ? 0 : iva,
+    outros:       campos.F || '',
+    timestamp:    new Date().toISOString(),
+    qr_original:  qrRaw
+  };
+}
+
 
     async function guardarFatura(dados) {
       try {
