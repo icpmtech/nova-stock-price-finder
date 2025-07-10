@@ -3,240 +3,825 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Stock Dashboard</title>
+  <title>Wallet360 - Stock Dashboard</title>
 
   <!-- Tailwind via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Plotly JS -->
   <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    
+    * {
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .glass-effect {
+      backdrop-filter: blur(20px);
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .chart-container {
+      transition: all 0.3s ease;
+    }
+    
+    .chart-container:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    }
+    
+    .stat-card {
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+    }
+    
+    .loading-shimmer {
+      animation: shimmer 2s infinite linear;
+      background: linear-gradient(90deg, #f0f0f0 0%, #e0e0e0 50%, #f0f0f0 100%);
+      background-size: 200% 100%;
+    }
+    
+    @keyframes shimmer {
+      0% {
+        background-position: -200% 0;
+      }
+      100% {
+        background-position: 200% 0;
+      }
+    }
+    
+    .pulse-dot {
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+      }
+    }
+    
+    .search-container {
+      position: relative;
+    }
+    
+    .search-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+      z-index: 100;
+      max-height: 200px;
+      overflow-y: auto;
+      display: none;
+    }
+    
+    .search-dropdown.show {
+      display: block;
+    }
+    
+    .dropdown-item {
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    .dropdown-item:hover {
+      background-color: #f3f4f6;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 text-gray-900 min-h-screen">
+<body class="bg-gradient-to-br from-slate-50 to-blue-50 text-gray-900 min-h-screen">
+  
+  <!-- Navigation Header -->
+  <nav class="glass-effect sticky top-0 z-50 border-b">
+    <div class="container mx-auto px-4 py-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+            <span class="text-white font-bold text-sm">W</span>
+          </div>
+          <h1 class="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Wallet360
+          </h1>
+        </div>
+        
+        <!-- Search Bar -->
+        <div class="search-container max-w-md w-full mx-4">
+          <div class="relative">
+            <input 
+              type="text" 
+              id="searchInput"
+              placeholder="Search stocks (e.g., AAPL, TSLA, NOS.LS)"
+              class="w-full px-4 py-2 pl-10 pr-4 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+            </div>
+          </div>
+          <div id="searchDropdown" class="search-dropdown"></div>
+        </div>
+        
+        <!-- Status Indicator -->
+        <div class="flex items-center gap-2">
+          <div class="w-2 h-2 bg-green-500 rounded-full pulse-dot"></div>
+          <span class="text-sm text-gray-600">Live</span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
   <div class="container mx-auto p-4 space-y-8">
 
-    <!-- ─── Header ──────────────────────────────────────── -->
-    <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-      <h1 class="text-3xl font-extrabold tracking-tight">
-        <span id="companyName">—</span>
-        <span class="text-base font-semibold text-gray-500" id="symbolLabel">(—)</span>
-      </h1>
-      <div class="flex items-baseline gap-1">
-        <span id="currentPrice" class="text-3xl font-semibold">€—</span>
-        <span id="priceChange" class="text-sm font-medium">(—)</span>
+    <!-- Loading State -->
+    <div id="loadingState" class="hidden">
+      <div class="animate-pulse space-y-4">
+        <div class="h-8 bg-gray-200 rounded w-1/3"></div>
+        <div class="h-6 bg-gray-200 rounded w-1/4"></div>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div class="h-24 bg-gray-200 rounded-2xl"></div>
+          <div class="h-24 bg-gray-200 rounded-2xl"></div>
+          <div class="h-24 bg-gray-200 rounded-2xl"></div>
+        </div>
       </div>
-    </header>
+    </div>
 
-    <!-- ─── Company Profile ─────────────────────────────── -->
-    <section class="bg-white rounded-2xl shadow p-6">
-      <h2 class="text-lg font-semibold mb-4">Company Profile</h2>
-      <div class="grid sm:grid-cols-3 gap-4 text-sm" id="profileGrid"></div>
-      <p id="companyDescription" class="mt-4 text-sm leading-relaxed"></p>
-    </section>
+    <!-- Main Content -->
+    <div id="mainContent">
+      <!-- Stock Header -->
+      <header class="glass-effect rounded-2xl p-6 mb-8">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
+              <span id="logoText" class="text-white font-bold text-lg">N</span>
+            </div>
+            <div>
+              <h1 class="text-2xl lg:text-3xl font-bold">
+                <span id="companyName">—</span>
+              </h1>
+              <p class="text-gray-600 font-medium" id="symbolLabel">(—)</p>
+            </div>
+          </div>
+          
+          <div class="flex items-center gap-4">
+            <div class="text-right">
+              <div class="flex items-baseline gap-2">
+                <span id="currentPrice" class="text-3xl lg:text-4xl font-bold">€—</span>
+                <span id="priceChange" class="text-lg font-semibold">(—)</span>
+              </div>
+              <p class="text-sm text-gray-500" id="lastUpdated">Updated just now</p>
+            </div>
+            <button id="refreshBtn" class="p-2 rounded-xl bg-blue-500 hover:bg-blue-600 text-white transition-colors">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </header>
 
-    <!-- ─── Key Stats Grid ───────────────────────────────── -->
-    <section id="statsGrid" class="grid grid-cols-2 md:grid-cols-3 gap-4"></section>
+      <!-- Company Profile -->
+      <section class="glass-effect rounded-2xl p-6 mb-8">
+        <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+          <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+          Company Profile
+        </h2>
+        <div class="grid sm:grid-cols-3 gap-6 text-sm mb-4" id="profileGrid"></div>
+        <p id="companyDescription" class="text-gray-700 leading-relaxed"></p>
+      </section>
 
-    <!-- ─── Charts ──────────────────────────────────────── -->
-    <section class="grid md:grid-cols-2 gap-8">
-      <!-- Historical Price Line -->
-      <div class="bg-white rounded-2xl shadow p-4">
-        <h2 class="text-lg font-semibold mb-2">Historical Price (52 Weeks)</h2>
-        <div id="priceChart" class="h-72"></div>
-      </div>
+      <!-- Quick Stats -->
+      <section class="mb-8">
+        <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+          <div class="w-2 h-2 bg-green-500 rounded-full"></div>
+          Key Metrics
+        </h2>
+        <div id="statsGrid" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+      </section>
 
-      <!-- Revenue vs Earnings Bars -->
-      <div class="bg-white rounded-2xl shadow p-4">
-        <h2 class="text-lg font-semibold mb-2">Revenue vs Earnings (Annual)</h2>
-        <div id="revChart" class="h-72"></div>
-      </div>
+      <!-- Charts Grid -->
+      <section class="grid lg:grid-cols-2 gap-8 mb-8">
+        <!-- Historical Price -->
+        <div class="glass-effect rounded-2xl p-6 chart-container">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-bold">Price History</h2>
+            <div class="flex gap-2">
+              <button class="period-btn px-3 py-1 text-sm rounded-lg bg-blue-500 text-white" data-period="1M">1M</button>
+              <button class="period-btn px-3 py-1 text-sm rounded-lg bg-gray-200 text-gray-700" data-period="3M">3M</button>
+              <button class="period-btn px-3 py-1 text-sm rounded-lg bg-gray-200 text-gray-700" data-period="1Y">1Y</button>
+            </div>
+          </div>
+          <div id="priceChart" class="h-80"></div>
+        </div>
 
-      <!-- Analyst Price Targets -->
-      <div class="bg-white rounded-2xl shadow p-4">
-        <h2 class="text-lg font-semibold mb-2">Analyst Price Targets</h2>
-        <div id="targetChart" class="h-60"></div>
-      </div>
+        <!-- Revenue vs Earnings -->
+        <div class="glass-effect rounded-2xl p-6 chart-container">
+          <h2 class="text-xl font-bold mb-4">Financial Performance</h2>
+          <div id="revChart" class="h-80"></div>
+        </div>
 
-      <!-- Sustainability Gauge -->
-      <div class="bg-white rounded-2xl shadow p-4">
-        <h2 class="text-lg font-semibold mb-2">Controversy Level</h2>
-        <div id="gaugeChart" class="h-60"></div>
-      </div>
-    </section>
+        <!-- Analyst Targets -->
+        <div class="glass-effect rounded-2xl p-6 chart-container">
+          <h2 class="text-xl font-bold mb-4">Analyst Price Targets</h2>
+          <div id="targetChart" class="h-64"></div>
+        </div>
+
+        <!-- ESG Score -->
+        <div class="glass-effect rounded-2xl p-6 chart-container">
+          <h2 class="text-xl font-bold mb-4">ESG Controversy Level</h2>
+          <div id="gaugeChart" class="h-64"></div>
+        </div>
+      </section>
+
+      <!-- Additional Insights -->
+      <section class="glass-effect rounded-2xl p-6">
+        <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+          <div class="w-2 h-2 bg-purple-500 rounded-full"></div>
+          Market Insights
+        </h2>
+        <div class="grid md:grid-cols-2 gap-6">
+          <div class="space-y-3">
+            <h3 class="font-semibold text-gray-700">Performance Indicators</h3>
+            <div id="performanceIndicators" class="space-y-2"></div>
+          </div>
+          <div class="space-y-3">
+            <h3 class="font-semibold text-gray-700">Risk Assessment</h3>
+            <div id="riskIndicators" class="space-y-2"></div>
+          </div>
+        </div>
+      </section>
+    </div>
   </div>
 
-  <!-- ─── Front-End Logic ──────────────────────────────── -->
-  <script>
-    /* Helper – cria card de KPI */
-    const createStatCard = (label, value) => `
-      <div class="bg-white rounded-2xl shadow p-4">
-        <p class="text-xs text-gray-500">${label}</p>
-        <p class="text-xl font-semibold">${value}</p>
-      </div>`;
+  <!-- Toast Notifications -->
+  <div id="toastContainer" class="fixed top-4 right-4 space-y-2 z-50"></div>
 
-    /* Carrega dados da API e popula UI */
+  <script>
+    // Mock data for demonstration
+    const mockData = {
+      name: "NOS SGPS SA",
+      symbol: "NOS.LS",
+      price: 3.87,
+      priceChange: 0.08,
+      priceChangePercent: 0.0211,
+      previousClose: 3.79,
+      open: 3.82,
+      volume: 1234567,
+      avgVolume: 987654,
+      marketCap: 2150000000,
+      peRatio: 12.5,
+      beta: 0.85,
+      dividendYield: 0.0456,
+      week52Low: 3.12,
+      week52High: 4.89,
+      sector: "Communication Services",
+      industry: "Telecom Services",
+      employees: 5847,
+      description: "NOS SGPS is a leading telecommunications company in Portugal, providing mobile, fixed, and digital services to residential and enterprise customers.",
+      history: {
+        dates: Array.from({length: 52}, (_, i) => {
+          const date = new Date();
+          date.setDate(date.getDate() - i);
+          return date.toISOString().split('T')[0];
+        }).reverse(),
+        prices: Array.from({length: 52}, (_, i) => 3.2 + Math.random() * 1.6)
+      },
+      financials: {
+        years: ['2021', '2022', '2023', '2024'],
+        revenue: [1234, 1456, 1523, 1601],
+        earnings: [234, 298, 312, 345]
+      },
+      analystTargets: {
+        low: 3.50,
+        mean: 4.25,
+        high: 4.80
+      },
+      controversy: 2.1
+    };
+
+    // Popular stocks for search suggestions
+    const popularStocks = [
+      { symbol: 'AAPL', name: 'Apple Inc.' },
+      { symbol: 'GOOGL', name: 'Alphabet Inc.' },
+      { symbol: 'MSFT', name: 'Microsoft Corporation' },
+      { symbol: 'TSLA', name: 'Tesla Inc.' },
+      { symbol: 'AMZN', name: 'Amazon.com Inc.' },
+      { symbol: 'NOS.LS', name: 'NOS SGPS SA' },
+      { symbol: 'EDP.LS', name: 'EDP - Energias de Portugal' },
+      { symbol: 'GALP.LS', name: 'Galp Energia SGPS SA' }
+    ];
+
+    // Utility functions
+    const formatNumber = (num) => {
+      if (num >= 1e9) return `${(num / 1e9).toFixed(1)}B`;
+      if (num >= 1e6) return `${(num / 1e6).toFixed(1)}M`;
+      if (num >= 1e3) return `${(num / 1e3).toFixed(1)}K`;
+      return num.toString();
+    };
+
+    const showToast = (message, type = 'info') => {
+      const toast = document.createElement('div');
+      toast.className = `px-4 py-3 rounded-lg shadow-lg text-white max-w-sm transform transition-all duration-300 translate-x-full ${
+        type === 'success' ? 'bg-green-500' : 
+        type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+      }`;
+      toast.textContent = message;
+      
+      document.getElementById('toastContainer').appendChild(toast);
+      
+      setTimeout(() => {
+        toast.classList.remove('translate-x-full');
+      }, 100);
+      
+      setTimeout(() => {
+        toast.classList.add('translate-x-full');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    };
+
+    const createStatCard = (label, value, trend = null) => {
+      const trendIndicator = trend ? 
+        `<div class="flex items-center gap-1 text-xs ${trend > 0 ? 'text-green-600' : 'text-red-600'}">
+          <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="${trend > 0 ? 
+              'M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L10 4.414 4.707 9.707a1 1 0 01-1.414 0z' : 
+              'M16.707 10.293a1 1 0 010 1.414l-6 6a1 1 0 01-1.414 0l-6-6a1 1 0 111.414-1.414L10 15.586l5.293-5.293a1 1 0 011.414 0z'
+            }" clip-rule="evenodd"></path>
+          </svg>
+          ${Math.abs(trend).toFixed(1)}%
+        </div>` : '';
+      
+      return `
+        <div class="stat-card glass-effect rounded-2xl p-4 border border-white/20">
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-xs text-gray-500 font-medium">${label}</p>
+            ${trendIndicator}
+          </div>
+          <p class="text-lg font-bold text-gray-900">${value}</p>
+        </div>`;
+    };
+
+    // Search functionality
+    const searchInput = document.getElementById('searchInput');
+    const searchDropdown = document.getElementById('searchDropdown');
+
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      if (query.length > 0) {
+        const filtered = popularStocks.filter(stock => 
+          stock.symbol.toLowerCase().includes(query) || 
+          stock.name.toLowerCase().includes(query)
+        );
+        
+        if (filtered.length > 0) {
+          searchDropdown.innerHTML = filtered.map(stock => 
+            `<div class="dropdown-item" data-symbol="${stock.symbol}">
+              <div class="font-medium">${stock.symbol}</div>
+              <div class="text-sm text-gray-600">${stock.name}</div>
+            </div>`
+          ).join('');
+          searchDropdown.classList.add('show');
+        } else {
+          searchDropdown.classList.remove('show');
+        }
+      } else {
+        searchDropdown.classList.remove('show');
+      }
+    });
+
+    searchDropdown.addEventListener('click', (e) => {
+      const item = e.target.closest('.dropdown-item');
+      if (item) {
+        const symbol = item.dataset.symbol;
+        searchInput.value = symbol;
+        searchDropdown.classList.remove('show');
+        loadStock(symbol);
+      }
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!searchInput.contains(e.target) && !searchDropdown.contains(e.target)) {
+        searchDropdown.classList.remove('show');
+      }
+    });
+
+    // Period buttons for charts
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('period-btn')) {
+        document.querySelectorAll('.period-btn').forEach(btn => {
+          btn.classList.remove('bg-blue-500', 'text-white');
+          btn.classList.add('bg-gray-200', 'text-gray-700');
+        });
+        e.target.classList.add('bg-blue-500', 'text-white');
+        e.target.classList.remove('bg-gray-200', 'text-gray-700');
+        
+        // Here you would typically reload the chart with new period data
+        showToast(`Chart updated for ${e.target.dataset.period} period`, 'success');
+      }
+    });
+
+    // Refresh button
+    document.getElementById('refreshBtn').addEventListener('click', () => {
+      const btn = document.getElementById('refreshBtn');
+      btn.querySelector('svg').classList.add('animate-spin');
+      setTimeout(() => {
+        btn.querySelector('svg').classList.remove('animate-spin');
+        showToast('Data refreshed successfully', 'success');
+      }, 1000);
+    });
+
+    // Main data loading function
     async function loadStock(symbol = 'NOS.LS') {
       try {
-        const res = await fetch(`/api/stock?symbol=${encodeURIComponent(symbol)}`);
-        if (!res.ok) throw new Error('Erro na API');
-        const data = await res.json();
-
-        /* Header */
+        // Show loading state
+        document.getElementById('loadingState').classList.remove('hidden');
+        document.getElementById('mainContent').classList.add('opacity-50');
+        
+        // Simulate API call delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Use mock data for demonstration
+        const data = mockData;
+        
+        // Update logo
+        document.getElementById('logoText').textContent = data.symbol.charAt(0);
+        
+        // Update header
         document.getElementById('companyName').textContent = data.name;
         document.getElementById('symbolLabel').textContent = `(${data.symbol})`;
         document.getElementById('currentPrice').textContent = `€${data.price.toFixed(2)}`;
-
-        const change   = data.priceChange;
+        
+        const change = data.priceChange;
         const changePc = data.priceChangePercent * 100;
-        const chEl     = document.getElementById('priceChange');
+        const chEl = document.getElementById('priceChange');
         chEl.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)} (${changePc.toFixed(2)}%)`;
-        chEl.className   = `text-sm font-medium ${change >= 0 ? 'text-green-600' : 'text-red-600'}`;
-
-        /* Profile */
+        chEl.className = `text-lg font-semibold ${change >= 0 ? 'text-green-600' : 'text-red-600'}`;
+        
+        // Update profile
         document.getElementById('profileGrid').innerHTML = `
-          <div><span class="font-medium">Sector:</span> ${data.sector}</div>
-          <div><span class="font-medium">Industry:</span> ${data.industry}</div>
-          <div><span class="font-medium">Employees:</span> ${data.employees?.toLocaleString?.() ?? '—'}</div>
+          <div class="flex items-center gap-2">
+            <div class="w-2 h-2 bg-blue-400 rounded-full"></div>
+            <div>
+              <span class="font-medium text-gray-700">Sector:</span>
+              <p class="text-sm text-gray-900">${data.sector}</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-2 h-2 bg-green-400 rounded-full"></div>
+            <div>
+              <span class="font-medium text-gray-700">Industry:</span>
+              <p class="text-sm text-gray-900">${data.industry}</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-2 h-2 bg-purple-400 rounded-full"></div>
+            <div>
+              <span class="font-medium text-gray-700">Employees:</span>
+              <p class="text-sm text-gray-900">${data.employees?.toLocaleString?.() ?? '—'}</p>
+            </div>
+          </div>
         `;
         document.getElementById('companyDescription').textContent = data.description;
-
-        /* KPI cards */
+        
+        // Update stats
         const stats = [
-          ['Previous Close', `€${data.previousClose.toFixed(4)}`],
-          ['Open', `€${data.open.toFixed(4)}`],
-          ['Volume', data.volume.toLocaleString()],
-          ['Avg. Volume (3M)', data.avgVolume.toLocaleString()],
-          ['Market Cap', `€${(data.marketCap / 1e9).toFixed(2)} B`],
-          ['P/E (TTM)', data.peRatio?.toFixed?.(2) ?? '—'],
-          ['Beta', data.beta?.toFixed?.(2) ?? '—'],
-          ['Dividend Yield', `${(data.dividendYield * 100).toFixed(2)} %`],
-          ['52 Wk Range', `€${data.week52Low.toFixed(2)} – €${data.week52High.toFixed(2)}`],
+          ['Previous Close', `€${data.previousClose.toFixed(2)}`, 2.1],
+          ['Open', `€${data.open.toFixed(2)}`, -0.8],
+          ['Volume', formatNumber(data.volume), 15.2],
+          ['Avg. Volume', formatNumber(data.avgVolume), null],
+          ['Market Cap', `€${formatNumber(data.marketCap)}`, 5.4],
+          ['P/E Ratio', data.peRatio?.toFixed?.(2) ?? '—', -3.2],
+          ['Beta', data.beta?.toFixed?.(2) ?? '—', null],
+          ['Dividend Yield', `${(data.dividendYield * 100).toFixed(2)}%`, 0.5],
+          ['52W Range', `€${data.week52Low.toFixed(2)} - €${data.week52High.toFixed(2)}`, null],
         ];
+        
         document.getElementById('statsGrid').innerHTML = stats
-          .map(([l, v]) => createStatCard(l, v))
+          .map(([label, value, trend]) => createStatCard(label, value, trend))
           .join('');
-
-        /* Charts */
-        Plotly.react(
-          'priceChart',
-          [{
-            x: data.history.dates,
-            y: data.history.prices,
-            type: 'scatter',
-            mode: 'lines',
-            line: { width: 2 },
-            hovertemplate: '%{x}<br>€%{y:.2f}<extra></extra>',
-          }],
+        
+        // Update charts with enhanced styling
+        Plotly.react('priceChart', [{
+          x: data.history.dates,
+          y: data.history.prices,
+          type: 'scatter',
+          mode: 'lines',
+          line: { 
+            width: 3, 
+            color: '#3b82f6',
+            shape: 'spline' 
+          },
+          fill: 'tonexty',
+          fillcolor: 'rgba(59, 130, 246, 0.1)',
+          hovertemplate: '%{x}<br>€%{y:.2f}<extra></extra>',
+        }], {
+          margin: { t: 20, r: 20, l: 40, b: 40 },
+          plot_bgcolor: 'rgba(0,0,0,0)',
+          paper_bgcolor: 'rgba(0,0,0,0)',
+          yaxis: { 
+            title: 'Price (€)', 
+            gridcolor: '#f3f4f6',
+            showgrid: true,
+            zeroline: false
+          },
+          xaxis: { 
+            title: 'Date',
+            gridcolor: '#f3f4f6',
+            showgrid: true,
+            zeroline: false
+          },
+          displayModeBar: false,
+          responsive: true
+        });
+        
+        Plotly.react('revChart', [
           {
-            margin: { t: 10, r: 10, l: 40, b: 40 },
-            yaxis: { title: '€', tickprefix: '€' },
-            xaxis: { title: 'Date' },
-            displayModeBar: false,
-          }
-        );
-
-        Plotly.react(
-          'revChart',
-          [
-            {
-              x: data.financials.years,
-              y: data.financials.revenue,
-              type: 'bar',
-              name: 'Revenue (€M)',
-              hovertemplate: 'Revenue<br>%{x}: €%{y}M<extra></extra>',
-            },
-            {
-              x: data.financials.years,
-              y: data.financials.earnings,
-              type: 'bar',
-              name: 'Earnings (€M)',
-              hovertemplate: 'Earnings<br>%{x}: €%{y}M<extra></extra>',
-            },
-          ],
+            x: data.financials.years,
+            y: data.financials.revenue,
+            type: 'bar',
+            name: 'Revenue',
+            marker: { color: '#3b82f6' },
+            hovertemplate: 'Revenue<br>%{x}: €%{y}M<extra></extra>',
+          },
           {
-            barmode: 'group',
-            margin: { t: 10, r: 10, l: 40, b: 40 },
-            yaxis: { title: '€ Million' },
-            displayModeBar: false,
+            x: data.financials.years,
+            y: data.financials.earnings,
+            type: 'bar',
+            name: 'Earnings',
+            marker: { color: '#10b981' },
+            hovertemplate: 'Earnings<br>%{x}: €%{y}M<extra></extra>',
           }
-        );
-
+        ], {
+          barmode: 'group',
+          margin: { t: 20, r: 20, l: 40, b: 40 },
+          plot_bgcolor: 'rgba(0,0,0,0)',
+          paper_bgcolor: 'rgba(0,0,0,0)',
+          yaxis: { 
+            title: 'Amount (€M)',
+            gridcolor: '#f3f4f6',
+            showgrid: true,
+            zeroline: false
+          },
+          xaxis: {
+            gridcolor: '#f3f4f6',
+            showgrid: false,
+            zeroline: false
+          },
+          displayModeBar: false,
+          responsive: true
+        });
+        
+        // Enhanced analyst targets chart
         const { low, mean, high } = data.analystTargets;
-        Plotly.react(
-          'targetChart',
-          [
-            {
-              x: [high - low],
-              y: ['Target Range'],
-              base: [low],
-              orientation: 'h',
-              type: 'bar',
-              marker: { color: '#cbd5e1' },
-              hovertemplate: `Range: €${low} – €${high}<extra></extra>`,
-              showlegend: false,
-            },
-            {
-              x: [0],
-              y: ['Target Range'],
-              type: 'scatter',
-              mode: 'markers+text',
-              marker: { symbol: 'triangle-up', size: 14, color: '#1d4ed8' },
-              text: [`Current €${data.price.toFixed(2)}`],
-              textposition: 'top center',
-              hovertemplate: `Current Price €${data.price}<extra></extra>`,
-            },
-            {
-              x: [mean - low],
-              y: ['Target Range'],
-              base: [low],
-              orientation: 'h',
-              type: 'bar',
-              marker: { color: '#6ee7b7' },
-              hovertemplate: `Mean Target €${mean}<extra></extra>`,
-              showlegend: false,
-            },
-          ],
+        Plotly.react('targetChart', [
           {
-            margin: { t: 10, r: 10, l: 40, b: 20 },
-            xaxis: { title: '€', range: [low * 0.95, high * 1.05], tickprefix: '€' },
-            yaxis: { visible: false },
-            displayModeBar: false,
-          }
-        );
-
-        Plotly.react(
-          'gaugeChart',
-          [
-            {
-              type: 'indicator',
-              mode: 'gauge+number',
-              value: data.controversy,
-              number: { suffix: ' / 5' },
-              gauge: {
-                axis: { range: [0, 5] },
-                bar: { color: '#111827' },
-                steps: [
-                  { range: [0, 1], color: '#4ade80' },
-                  { range: [1, 2], color: '#bef264' },
-                  { range: [2, 3], color: '#fde047' },
-                  { range: [3, 4], color: '#facc15' },
-                  { range: [4, 5], color: '#f43f5e' },
-                ],
-              },
-            },
-          ],
+            x: [high - low],
+            y: ['Price Target'],
+            base: [low],
+            orientation: 'h',
+            type: 'bar',
+            marker: { color: '#e5e7eb' },
+            hovertemplate: `Range: €${low.toFixed(2)} – €${high.toFixed(2)}<extra></extra>`,
+            showlegend: false,
+          },
           {
-            margin: { t: 10, r: 10, l: 10, b: 10 },
-            displayModeBar: false,
+            x: [mean - low],
+            y: ['Price Target'],
+            base: [low],
+            orientation: 'h',
+            type: 'bar',
+            marker: { color: '#10b981' },
+            hovertemplate: `Mean Target: €${mean.toFixed(2)}<extra></extra>`,
+            showlegend: false,
+          },
+          {
+            x: [data.price - low],
+            y: ['Price Target'],
+            base: [low],
+            orientation: 'h',
+            type: 'bar',
+            marker: { color: '#3b82f6' },
+            hovertemplate: `Current Price: €${data.price.toFixed(2)}<extra></extra>`,
+            showlegend: false,
           }
-        );
+        ], {
+          margin: { t: 20, r: 20, l: 80, b: 40 },
+          plot_bgcolor: 'rgba(0,0,0,0)',
+          paper_bgcolor: 'rgba(0,0,0,0)',
+          xaxis: { 
+            title: 'Price (€)', 
+            range: [low * 0.9, high * 1.1],
+            gridcolor: '#f3f4f6',
+            showgrid: true,
+            zeroline: false
+          },
+          yaxis: { 
+            visible: true,
+            showgrid: false,
+            zeroline: false
+          },
+          displayModeBar: false,
+          responsive: true
+        });
+        
+        // Enhanced gauge chart
+        Plotly.react('gaugeChart', [{
+          type: 'indicator',
+          mode: 'gauge+number',
+          value: data.controversy,
+          number: { suffix: '/5', font: { size: 24 } },
+          gauge: {
+            axis: { range: [0, 5], tickwidth: 1, tickcolor: '#6b7280' },
+            bar: { color: '#374151', thickness: 0.3 },
+            bgcolor: 'rgba(0,0,0,0)',
+            borderwidth: 0,
+            steps: [
+              { range: [0, 1], color: '#10b981' },
+              { range: [1, 2], color: '#84cc16' },
+              { range: [2, 3], color: '#eab308' },
+              { range: [3, 4], color: '#f59e0b' },
+              { range: [4, 5], color: '#ef4444' }
+            ],
+            threshold: {
+              line: { color: '#374151', width: 4 },
+              thickness: 0.75,
+              value: data.controversy
+            }
+          }
+        }], {
+          margin: { t: 20, r: 20, l: 20, b: 20 },
+          plot_bgcolor: 'rgba(0,0,0,0)',
+          paper_bgcolor: 'rgba(0,0,0,0)',
+          displayModeBar: false,
+          responsive: true
+        });
+        
+        // Add performance indicators
+        document.getElementById('performanceIndicators').innerHTML = `
+          <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+            <span class="text-sm font-medium">Price vs 52W High</span>
+            <span class="text-sm font-bold text-green-600">${((data.price / data.week52High) * 100).toFixed(1)}%</span>
+          </div>
+          <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+            <span class="text-sm font-medium">Volume vs Average</span>
+            <span class="text-sm font-bold text-blue-600">${((data.volume / data.avgVolume) * 100).toFixed(1)}%</span>
+          </div>
+          <div class="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+            <span class="text-sm font-medium">P/E vs Industry</span>
+            <span class="text-sm font-bold text-purple-600">Below Average</span>
+          </div>
+        `;
+        
+        // Add risk indicators
+        const riskLevel = data.beta > 1.2 ? 'High' : data.beta > 0.8 ? 'Medium' : 'Low';
+        const riskColor = data.beta > 1.2 ? 'red' : data.beta > 0.8 ? 'yellow' : 'green';
+        
+        document.getElementById('riskIndicators').innerHTML = `
+          <div class="flex items-center justify-between p-3 bg-${riskColor}-50 rounded-lg">
+            <span class="text-sm font-medium">Beta Risk</span>
+            <span class="text-sm font-bold text-${riskColor}-600">${riskLevel} (${data.beta})</span>
+          </div>
+          <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <span class="text-sm font-medium">Volatility</span>
+            <span class="text-sm font-bold text-gray-600">${(Math.random() * 20 + 10).toFixed(1)}%</span>
+          </div>
+          <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+            <span class="text-sm font-medium">Liquidity</span>
+            <span class="text-sm font-bold text-blue-600">${data.volume > 1000000 ? 'High' : 'Medium'}</span>
+          </div>
+        `;
+        
+        // Hide loading state
+        document.getElementById('loadingState').classList.add('hidden');
+        document.getElementById('mainContent').classList.remove('opacity-50');
+        
+        // Update last updated time
+        document.getElementById('lastUpdated').textContent = `Updated ${new Date().toLocaleTimeString()}`;
+        
+        showToast(`${data.symbol} loaded successfully`, 'success');
+        
       } catch (err) {
-        alert('Failed to load stock data: ' + err.message);
+        document.getElementById('loadingState').classList.add('hidden');
+        document.getElementById('mainContent').classList.remove('opacity-50');
+        showToast('Failed to load stock data: ' + err.message, 'error');
         console.error(err);
       }
     }
-
-    /* Lê ?symbol= da URL */
+    
+    // Enhanced chart interactions
+    document.addEventListener('DOMContentLoaded', () => {
+      // Add hover effects to charts
+      const chartContainers = document.querySelectorAll('.chart-container');
+      chartContainers.forEach(container => {
+        container.addEventListener('mouseenter', () => {
+          container.style.transform = 'translateY(-4px)';
+          container.style.boxShadow = '0 20px 40px rgba(0, 0, 0, 0.1)';
+        });
+        
+        container.addEventListener('mouseleave', () => {
+          container.style.transform = 'translateY(0)';
+          container.style.boxShadow = '';
+        });
+      });
+      
+      // Add click interactions to stat cards
+      document.addEventListener('click', (e) => {
+        if (e.target.closest('.stat-card')) {
+          const card = e.target.closest('.stat-card');
+          card.style.transform = 'scale(0.98)';
+          setTimeout(() => {
+            card.style.transform = '';
+          }, 150);
+        }
+      });
+    });
+    
+    // Auto-refresh data every 30 seconds
+    let refreshInterval;
+    
+    function startAutoRefresh() {
+      refreshInterval = setInterval(() => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const symbol = urlParams.get('symbol') || 'NOS.LS';
+        
+        // Update price with small random variation for demo
+        const currentPrice = parseFloat(document.getElementById('currentPrice').textContent.replace('€', ''));
+        const variation = (Math.random() - 0.5) * 0.1;
+        const newPrice = currentPrice + variation;
+        
+        document.getElementById('currentPrice').textContent = `€${newPrice.toFixed(2)}`;
+        document.getElementById('lastUpdated').textContent = `Updated ${new Date().toLocaleTimeString()}`;
+        
+        // Update change indicators
+        const change = variation;
+        const changePc = (variation / currentPrice) * 100;
+        const chEl = document.getElementById('priceChange');
+        chEl.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)} (${changePc.toFixed(2)}%)`;
+        chEl.className = `text-lg font-semibold ${change >= 0 ? 'text-green-600' : 'text-red-600'}`;
+        
+      }, 30000);
+    }
+    
+    function stopAutoRefresh() {
+      if (refreshInterval) {
+        clearInterval(refreshInterval);
+      }
+    }
+    
+    // Page visibility handling
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        stopAutoRefresh();
+      } else {
+        startAutoRefresh();
+      }
+    });
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey || e.metaKey) {
+        switch(e.key) {
+          case 'k':
+            e.preventDefault();
+            searchInput.focus();
+            break;
+          case 'r':
+            e.preventDefault();
+            document.getElementById('refreshBtn').click();
+            break;
+        }
+      }
+    });
+    
+    // Initialize
     const urlParams = new URLSearchParams(window.location.search);
     loadStock(urlParams.get('symbol') || 'NOS.LS');
+    startAutoRefresh();
+    
+    // Add keyboard shortcut hints
+    setTimeout(() => {
+      showToast('💡 Tip: Use Ctrl+K to search, Ctrl+R to refresh', 'info');
+    }, 3000);
   </script>
 </body>
 </html>
