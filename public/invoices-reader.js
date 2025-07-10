@@ -54,56 +54,120 @@ let pendingInvoice = null;
  * Recebe a string do QR code e devolve um objeto com:
  * - campos específicos (pais, nif_emitente, data, total, iva)
  * - um object “campos” com todos os pares chave/valor restantes
+ * - uma string “outros” serializada para a UI
  * - rawqrcode com a string original
  * - timestamp (ISO)
  */
+/**
+ * Analisa uma string de QR de fatura segundo as "Especificações Técnicas – Código QR" (Portaria 195/2020)
+ * e devolve um objeto com todos os campos tipados e organizados.
+ */
 function parseFaturaQR(qr) {
   console.log('Parsing QR:', qr);
-  
-  // Divide por *, ; ou quebras de linha e filtra pares chave:valor
+
+  // 1) Quebra em pedaços pelo separador '*' (ou ';' / newline, se houver)
   const partes = qr
-    .split(/[\*;\r?\n]/)
+    .split(/[\*;\r?\n]+/)
     .map(p => p.trim())
     .filter(p => p.includes(':'));
-  
-  // Monta objeto chave→valor
+
+  // 2) Monta um mapa chave→valor
   const acc = {};
   partes.forEach(par => {
     const [key, ...rest] = par.split(':');
     acc[key.trim()] = rest.join(':').trim();
   });
 
-  // Formata data yyyyMMdd → dd/MM/yyyy
+  // 3) Converte a data F:YYYYMMDD → dd/MM/yyyy
   let data = null;
-  if (acc.F && /^\d{8}$/.test(acc.F)) {
+  if (/^\d{8}$/.test(acc.F || '')) {
     const y = acc.F.slice(0,4), m = acc.F.slice(4,6), d = acc.F.slice(6,8);
     data = `${d}/${m}/${y}`;
   } else {
     data = acc.F || null;
   }
 
-  // Campos específicos
-  const pais         = acc.C    || null;
-  const nif_emitente = acc.A    || null;
-  const total        = acc.O    ? parseFloat(acc.O.replace(',', '.')) : 0;
-  const iva          = acc.I6   ? parseFloat(acc.I6.replace(',', '.')) : 0;
+  // 4) Campos específicos obrigatórios
+  const result = {
+    nif_emitente:      acc.A    || null,   // A
+    nif_adquirente:    acc.B    || null,   // B
+    pais_adquirente:   acc.C    || null,   // C
+    tipo_documento:    acc.D    || null,   // D
+    estado_documento:  acc.E    || null,   // E
+    data_documento:    data,                // F
+    id_documento:      acc.G    || null,   // G
+    atcud:             acc.H    || null,   // H
+  };
 
-  // Agrupa todos os outros campos num objeto
-  const campos = Object.fromEntries(
-    Object.entries(acc).filter(([k]) => !['A','C','F','O','I6'].includes(k))
+  // 5) Espaços fiscais (I1–I8), cada um opcional exceto I1
+  result.espacos_fiscais = {
+    I1:  acc.I1  || null,
+    I2:  parseFloat(acc.I2  || 0),
+    I3:  parseFloat(acc.I3  || 0),
+    I4:  parseFloat(acc.I4  || 0),
+    I5:  parseFloat(acc.I5  || 0),
+    I6:  parseFloat(acc.I6  || 0),
+    I7:  parseFloat(acc.I7  || 0),
+    I8:  parseFloat(acc.I8  || 0),
+  };
+
+  // 6) Espaços fiscais regionais (J1–J8, K1–K8)
+  result.espacos_fiscais_reg = {
+    J1:  acc.J1  || null,
+    J2:  parseFloat(acc.J2  || 0),
+    J3:  parseFloat(acc.J3  || 0),
+    J4:  parseFloat(acc.J4  || 0),
+    J5:  parseFloat(acc.J5  || 0),
+    J6:  parseFloat(acc.J6  || 0),
+    J7:  parseFloat(acc.J7  || 0),
+    J8:  parseFloat(acc.J8  || 0),
+    K1:  acc.K1  || null,
+    K2:  parseFloat(acc.K2  || 0),
+    K3:  parseFloat(acc.K3  || 0),
+    K4:  parseFloat(acc.K4  || 0),
+    K5:  parseFloat(acc.K5  || 0),
+    K6:  parseFloat(acc.K6  || 0),
+    K7:  parseFloat(acc.K7  || 0),
+    K8:  parseFloat(acc.K8  || 0),
+  };
+
+  // 7) Outros valores monetários
+  result.nao_tributavel = parseFloat(acc.L || 0);  // L
+  result.imposto_selo   = parseFloat(acc.M || 0);  // M
+  result.total_impostos = parseFloat(acc.N || 0);  // N
+  result.total_documento= parseFloat(acc.O || 0);  // O
+  result.retencoes      = parseFloat(acc.P || 0);  // P
+
+  // 8) Hash, certificado e campo livre
+  result.hash_qr        = acc.Q || null;           // Q
+  result.certificado    = acc.R || null;           // R
+  result.outras_info    = acc.S || null;           // S
+
+  // 9) Qualquer outro par chave/valor não listado acima
+  const todasChaves = Object.keys(acc);
+  const excluidas = [
+    'A','B','C','D','E','F','G','H',
+    'I1','I2','I3','I4','I5','I6','I7','I8',
+    'J1','J2','J3','J4','J5','J6','J7','J8',
+    'K1','K2','K3','K4','K5','K6','K7','K8',
+    'L','M','N','O','P','Q','R','S'
+  ];
+  const camposExtras = Object.fromEntries(
+    todasChaves
+      .filter(k => !excluidas.includes(k))
+      .map(k => [k, acc[k]])
   );
 
-  return {
-    pais,
-    nif_emitente,
-    data,
-    total,
-    iva,
-    campos,
-    timestamp:   new Date().toISOString(),
-    rawqrcode:   qr
-  };
+  // 10) Serializações e meta
+  result.campos_extras     = camposExtras;
+  result.outros_serializado= JSON.stringify(camposExtras, null, 2);
+  result.timestamp         = new Date().toISOString();
+  result.rawqrcode         = qr;
+
+  return result;
 }
+
+
 // Gravar no Firestore
 async function guardarFatura(dados) {
   try {
@@ -258,30 +322,66 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   // Mostrar preview antes de gravar
-  function showPreview(dados) {
-    document.getElementById('output').innerHTML = `
-      <div class="bg-teal-500 bg-opacity-90 text-white p-6 rounded-lg mb-4">
-        <h3 class="text-xl font-semibold mb-4">👁️ Pré-visualização da Fatura</h3>
-        <div class="bg-yellow-200 border border-yellow-300 p-3 rounded mb-4 text-center text-gray-800">⚠️ Confirme os dados antes de guardar</div>
-        <div class="grid grid-cols-2 gap-4">
-          <div class="flex justify-between items-center p-2 bg-white/20 rounded"><span>Total:</span><span>€${dados.total.toFixed(2)}</span></div>
-          <div class="flex justify-between items-center p-2 bg-white/20 rounded"><span>IVA:</span><span>€${dados.iva.toFixed(2)}</span></div>
-          <div class="flex justify-between items-center p-2 bg-white/20 rounded"><span>NIF:</span><span>${dados.nif_emitente}</span></div>
-          <div class="flex justify-between items-center p-2 bg-white/20 rounded"><span>Data:</span><span>${dados.data}</span></div>
-          <div class="flex justify-between items-center p-2 bg-white/20 rounded"><span>País:</span><span>${dados.pais}</span></div>
-          <div class="flex justify-between items-center p-2 bg-white/20 rounded"><span>Outros:</span><span>${dados.outros}</span></div>
+  // Mostrar preview antes de gravar, agora compatível com o objeto avançado do parser
+function showPreview(dados) {
+  document.getElementById('output').innerHTML = `
+    <div class="bg-teal-500 bg-opacity-90 text-white p-6 rounded-lg mb-4">
+      <h3 class="text-xl font-semibold mb-4">👁️ Pré-visualização da Fatura</h3>
+      <div class="bg-yellow-200 border border-yellow-300 p-3 rounded mb-4 text-center text-gray-800">
+        ⚠️ Confirme os dados antes de guardar
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="flex justify-between items-center p-2 bg-white/20 rounded">
+          <span>Total Documento:</span><span>€${dados.total_documento.toFixed(2)}</span>
         </div>
-        <div class="flex space-x-4 mt-6">
-          <button id="cancel-save" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">❌ Cancelar</button>
-          <button id="edit-invoice" class="px-4 py-2 border border-primary text-primary rounded hover:bg-primary hover:text-white">✏️ Editar</button>
-          <button id="confirm-save" class="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90">💾 Confirmar e Guardar</button>
+        <div class="flex justify-between items-center p-2 bg-white/20 rounded">
+          <span>IVA (I6):</span><span>€${(dados.espacos_fiscais.I6 || 0).toFixed(2)}</span>
+        </div>
+        <div class="flex justify-between items-center p-2 bg-white/20 rounded">
+          <span>NIF Emitente (A):</span><span>${dados.nif_emitente}</span>
+        </div>
+        <div class="flex justify-between items-center p-2 bg-white/20 rounded">
+          <span>NIF Adquirente (B):</span><span>${dados.nif_adquirente || 'N/A'}</span>
+        </div>
+        <div class="flex justify-between items-center p-2 bg-white/20 rounded">
+          <span>Data Documento (F):</span><span>${dados.data_documento}</span>
+        </div>
+        <div class="flex justify-between items-center p-2 bg-white/20 rounded">
+          <span>País Adquirente (C):</span><span>${dados.pais_adquirente}</span>
+        </div>
+        <div class="flex justify-between items-center p-2 bg-white/20 rounded">
+          <span>Tipo Doc (D):</span><span>${dados.tipo_documento}</span>
+        </div>
+        <div class="flex justify-between items-center p-2 bg-white/20 rounded">
+          <span>Estado Doc (E):</span><span>${dados.estado_documento}</span>
+        </div>
+        <div class="flex justify-between items-center p-2 bg-white/20 rounded">
+          <span>ID Doc (G):</span><span>${dados.id_documento}</span>
+        </div>
+        <div class="flex justify-between items-center p-2 bg-white/20 rounded">
+          <span>ATCUD (H):</span><span>${dados.atcud}</span>
+        </div>
+        <div class="col-span-2 p-2 bg-white/20 rounded">
+          <strong>Outros campos extras:</strong>
+          <pre class="whitespace-pre-wrap text-xs">${dados.outros_serializado}</pre>
+        </div>
+        <div class="col-span-2 p-2 bg-white/20 rounded">
+          <strong>Raw QR:</strong>
+          <pre class="whitespace-pre-wrap text-xs">${dados.rawqrcode}</pre>
         </div>
       </div>
-    `;
-    document.getElementById('cancel-save').addEventListener('click', cancelSave);
-    document.getElementById('edit-invoice').addEventListener('click', () => editInvoice(pendingInvoice));
-    document.getElementById('confirm-save').addEventListener('click', confirmSave);
-  }
+      <div class="flex space-x-4 mt-6">
+        <button id="cancel-save" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">❌ Cancelar</button>
+        <button id="edit-invoice" class="px-4 py-2 border border-primary text-primary rounded hover:bg-primary hover:text-white">✏️ Editar</button>
+        <button id="confirm-save" class="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90">💾 Confirmar e Guardar</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('cancel-save').addEventListener('click', cancelSave);
+  document.getElementById('edit-invoice').addEventListener('click', () => editInvoice(dados));
+  document.getElementById('confirm-save').addEventListener('click', confirmSave);
+}
+
 
   // Botões e eventos gerais
   function setupButtonEvents() {
