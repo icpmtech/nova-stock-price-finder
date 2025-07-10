@@ -8,9 +8,11 @@ import {
 import {
   collection,
   getDocs,
+  getDoc,
   query,
   orderBy,
   limit,
+  updateDoc , // para atualizar
   addDoc,    // para guardar
   deleteDoc, // para eliminar
   doc        // para referenciar um doc específico
@@ -51,34 +53,23 @@ let scannerPaused = false;
 let currentCamera = 0;
 let pendingInvoice = null;
 /**
- * Recebe a string do QR code e devolve um objeto com:
- * - campos específicos (pais, nif_emitente, data, total, iva)
- * - um object “campos” com todos os pares chave/valor restantes
- * - uma string “outros” serializada para a UI
- * - rawqrcode com a string original
- * - timestamp (ISO)
- */
-/**
  * Analisa uma string de QR de fatura segundo as "Especificações Técnicas – Código QR" (Portaria 195/2020)
  * e devolve um objeto com todos os campos tipados e organizados.
  */
 function parseFaturaQR(qr) {
   console.log('Parsing QR:', qr);
 
-  // 1) Quebra em pedaços pelo separador '*' (ou ';' / newline, se houver)
   const partes = qr
     .split(/[\*;\r?\n]+/)
     .map(p => p.trim())
     .filter(p => p.includes(':'));
 
-  // 2) Monta um mapa chave→valor
   const acc = {};
   partes.forEach(par => {
     const [key, ...rest] = par.split(':');
     acc[key.trim()] = rest.join(':').trim();
   });
 
-  // 3) Converte a data F:YYYYMMDD → dd/MM/yyyy
   let data = null;
   if (/^\d{8}$/.test(acc.F || '')) {
     const y = acc.F.slice(0,4), m = acc.F.slice(4,6), d = acc.F.slice(6,8);
@@ -87,63 +78,47 @@ function parseFaturaQR(qr) {
     data = acc.F || null;
   }
 
-  // 4) Campos específicos obrigatórios
   const result = {
-    nif_emitente:      acc.A    || null,   // A
-    nif_adquirente:    acc.B    || null,   // B
-    pais_adquirente:   acc.C    || null,   // C
-    tipo_documento:    acc.D    || null,   // D
-    estado_documento:  acc.E    || null,   // E
-    data_documento:    data,                // F
-    id_documento:      acc.G    || null,   // G
-    atcud:             acc.H    || null,   // H
+    nif_emitente:      acc.A || null,
+    nif_adquirente:    acc.B || null,
+    pais:              acc.C || null,
+    tipo_documento:    acc.D || null,
+    estado_documento:  acc.E || null,
+    data:              data,
+    id_documento:      acc.G || null,
+    atcud:             acc.H || null,
   };
 
-  // 5) Espaços fiscais (I1–I8), cada um opcional exceto I1
   result.espacos_fiscais = {
-    I1:  acc.I1  || null,
-    I2:  parseFloat(acc.I2  || 0),
-    I3:  parseFloat(acc.I3  || 0),
-    I4:  parseFloat(acc.I4  || 0),
-    I5:  parseFloat(acc.I5  || 0),
-    I6:  parseFloat(acc.I6  || 0),
-    I7:  parseFloat(acc.I7  || 0),
-    I8:  parseFloat(acc.I8  || 0),
+    I1: acc.I1 || null,
+    I2: parseFloat(acc.I2 || 0),
+    I3: parseFloat(acc.I3 || 0),
+    I4: parseFloat(acc.I4 || 0),
+    I5: parseFloat(acc.I5 || 0),
+    I6: parseFloat(acc.I6 || 0),
+    I7: parseFloat(acc.I7 || 0),
+    I8: parseFloat(acc.I8 || 0),
   };
 
-  // 6) Espaços fiscais regionais (J1–J8, K1–K8)
   result.espacos_fiscais_reg = {
-    J1:  acc.J1  || null,
-    J2:  parseFloat(acc.J2  || 0),
-    J3:  parseFloat(acc.J3  || 0),
-    J4:  parseFloat(acc.J4  || 0),
-    J5:  parseFloat(acc.J5  || 0),
-    J6:  parseFloat(acc.J6  || 0),
-    J7:  parseFloat(acc.J7  || 0),
-    J8:  parseFloat(acc.J8  || 0),
-    K1:  acc.K1  || null,
-    K2:  parseFloat(acc.K2  || 0),
-    K3:  parseFloat(acc.K3  || 0),
-    K4:  parseFloat(acc.K4  || 0),
-    K5:  parseFloat(acc.K5  || 0),
-    K6:  parseFloat(acc.K6  || 0),
-    K7:  parseFloat(acc.K7  || 0),
-    K8:  parseFloat(acc.K8  || 0),
+    J1: acc.J1 || null, J2: parseFloat(acc.J2 || 0), J3: parseFloat(acc.J3 || 0),
+    J4: parseFloat(acc.J4 || 0), J5: parseFloat(acc.J5 || 0), J6: parseFloat(acc.J6 || 0),
+    J7: parseFloat(acc.J7 || 0), J8: parseFloat(acc.J8 || 0),
+    K1: acc.K1 || null, K2: parseFloat(acc.K2 || 0), K3: parseFloat(acc.K3 || 0),
+    K4: parseFloat(acc.K4 || 0), K5: parseFloat(acc.K5 || 0), K6: parseFloat(acc.K6 || 0),
+    K7: parseFloat(acc.K7 || 0), K8: parseFloat(acc.K8 || 0),
   };
 
-  // 7) Outros valores monetários
-  result.nao_tributavel = parseFloat(acc.L || 0);  // L
-  result.imposto_selo   = parseFloat(acc.M || 0);  // M
-  result.total_impostos = parseFloat(acc.N || 0);  // N
-  result.total_documento= parseFloat(acc.O || 0);  // O
-  result.retencoes      = parseFloat(acc.P || 0);  // P
+  result.nao_tributavel  = parseFloat(acc.L || 0);
+  result.imposto_selo    = parseFloat(acc.M || 0);
+  result.total_impostos  = parseFloat(acc.N || 0);
+  result.total           = parseFloat(acc.O || 0);
+  result.retencoes       = parseFloat(acc.P || 0);
 
-  // 8) Hash, certificado e campo livre
-  result.hash_qr        = acc.Q || null;           // Q
-  result.certificado    = acc.R || null;           // R
-  result.outras_info    = acc.S || null;           // S
+  result.hash_qr         = acc.Q || null;
+  result.certificado     = acc.R || null;
+  result.outras_info     = acc.S || null;
 
-  // 9) Qualquer outro par chave/valor não listado acima
   const todasChaves = Object.keys(acc);
   const excluidas = [
     'A','B','C','D','E','F','G','H',
@@ -152,22 +127,22 @@ function parseFaturaQR(qr) {
     'K1','K2','K3','K4','K5','K6','K7','K8',
     'L','M','N','O','P','Q','R','S'
   ];
+
   const camposExtras = Object.fromEntries(
     todasChaves
       .filter(k => !excluidas.includes(k))
       .map(k => [k, acc[k]])
   );
 
-  // 10) Serializações e meta
-  result.campos_extras     = camposExtras;
-  result.outros_serializado= JSON.stringify(camposExtras, null, 2);
-  result.timestamp         = new Date().toISOString();
-  result.rawqrcode         = qr;
+  result.campos_extras      = camposExtras;
+  result.outros             = JSON.stringify(camposExtras, null, 2);
+  result.timestamp          = new Date().toISOString();
+  result.rawqrcode          = qr;
+  
+  result.iva                = result.total_impostos;
 
   return result;
 }
-
-
 // Gravar no Firestore
 async function guardarFatura(dados) {
   try {
@@ -192,12 +167,36 @@ async function loadRecentInvoices() {
     const snap = await getDocs(q);
     const inv = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     displayRecentInvoices(inv);
+     gerarGraficosFaturas(inv); // Chama aqui para atualizar os gráficos
+     atualizarContadorEsteMes(inv);
   } catch (e) {
     console.error('Erro ao carregar faturas:', e);
   }
 }
 
-// Exibir faturas recentes
+function tipoLabel(tipo) {
+  switch (tipo) {
+    case "FS": return "Fatura Simplificada";
+    case "FT": return "Fatura";
+    case "FR": return "Recibo";
+    case "NC": return "Nota de Crédito";
+    case "ND": return "Nota de Débito";
+    default:   return tipo || "—";
+  }
+}
+
+function categoriaLabel(cat) {
+  switch (cat) {
+    case "supermercado": return "Supermercado";
+    case "restauracao":  return "Restauração";
+    case "combustivel":  return "Combustível";
+    case "saude":        return "Saúde";
+    case "educacao":     return "Educação";
+    case "outros":       return "Outros";
+    default:             return cat || "—";
+  }
+}
+
 function displayRecentInvoices(invoices) {
   const container = document.getElementById('recent-invoices-list');
   if (invoices.length === 0) {
@@ -212,15 +211,127 @@ function displayRecentInvoices(invoices) {
       </div>
       <div class="text-gray-700 space-y-1">
         <p><strong class="font-semibold">NIF:</strong> ${inv.nif_emitente || 'N/A'}</p>
+        <p><strong class="font-semibold">Tipo:</strong> ${tipoLabel(inv.tipo_documento)}</p>
+        <p><strong class="font-semibold">Categoria:</strong> ${categoriaLabel(inv.categoria)}</p>
         <p><strong class="font-semibold">IVA:</strong> €${inv.iva.toFixed(2)}</p>
       </div>
       <div class="flex space-x-2 mt-4 pt-4 border-t border-gray-200">
         <button class="px-3 py-1 border border-primary text-primary rounded text-sm hover:bg-primary hover:text-white transition" onclick="viewInvoice('${inv.id}')">👁️ Ver</button>
+        <button onclick="editInvoice('${inv.id}')" class="px-4 py-2 border border-primary text-primary rounded hover:bg-primary hover:text-white">✏️ Editar</button>
         <button class="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition" onclick="deleteInvoice('${inv.id}')">🗑️ Eliminar</button>
       </div>
     </div>
   `).join('');
 }
+function atualizarContadorEsteMes(faturas) {
+  // Data/hora local do utilizador
+  const now = new Date();
+  const thisMonth = now.getMonth();
+  const thisYear = now.getFullYear();
+
+  const totalEsteMes = faturas
+  .filter(f => {
+    const data = new Date(f.timestamp);
+    return data.getMonth() === thisMonth && data.getFullYear() === thisYear;
+  })
+  .reduce((acc, f) => acc + (f.total || 0), 0);
+document.getElementById('this-month').textContent = totalEsteMes.toFixed(2);
+
+}
+
+function gerarGraficosFaturas(faturas) {
+  // Agrupa por categoria
+  const somaPorCategoria = {};
+  faturas.forEach(f => {
+    const cat = f.categoria || 'outros';
+    somaPorCategoria[cat] = (somaPorCategoria[cat] || 0) + (f.total || 0);
+  });
+
+  // Agrupa por tipo de fatura
+  const somaPorTipo = {};
+  faturas.forEach(f => {
+    const tipo = f.tipo_documento || 'Outro';
+    somaPorTipo[tipo] = (somaPorTipo[tipo] || 0) + (f.total || 0);
+  });
+
+  // Labels e cores
+  const categoriaLabels = {
+    supermercado: "Supermercado",
+    restauracao:  "Restauração",
+    combustivel:  "Combustível",
+    saude:        "Saúde",
+    educacao:     "Educação",
+    outros:       "Outros"
+  };
+  const tipoLabels = {
+    FS: "Fatura Simplificada",
+    FT: "Fatura",
+    FR: "Recibo",
+    NC: "Nota de Crédito",
+    ND: "Nota de Débito",
+    Outro: "Outro"
+  };
+
+  const cores = [
+    "#38bdf8", "#a7f3d0", "#fbbf24", "#f87171", "#818cf8", "#f472b6", "#34d399", "#facc15"
+  ];
+
+  // --- Pie Categoria
+  const catKeys = Object.keys(somaPorCategoria);
+  const catLabelsArr = catKeys.map(c => categoriaLabels[c] || c);
+  const catValuesArr = catKeys.map(c => somaPorCategoria[c]);
+  if (window.chartCategoriasPie) window.chartCategoriasPie.destroy();
+  window.chartCategoriasPie = new Chart(document.getElementById('graficoCategoriasPie').getContext('2d'), {
+    type: 'pie',
+    data: {
+      labels: catLabelsArr,
+      datasets: [{
+        data: catValuesArr,
+        backgroundColor: cores,
+        borderWidth: 2
+      }]
+    },
+    options: {
+      plugins: {
+        legend: { display: true, position: 'bottom', labels: { font: {size: 15} } },
+        tooltip: {
+          callbacks: {
+            label: ctx => `${ctx.label}: €${ctx.parsed.toFixed(2)}`
+          }
+        }
+      }
+    }
+  });
+
+  // --- Pie Tipo de Fatura
+  const tipoKeys = Object.keys(somaPorTipo);
+  const tipoLabelsArr = tipoKeys.map(t => tipoLabels[t] || t);
+  const tipoValuesArr = tipoKeys.map(t => somaPorTipo[t]);
+  if (window.chartTiposPie) window.chartTiposPie.destroy();
+  window.chartTiposPie = new Chart(document.getElementById('graficoTiposPie').getContext('2d'), {
+    type: 'pie',
+    data: {
+      labels: tipoLabelsArr,
+      datasets: [{
+        data: tipoValuesArr,
+        backgroundColor: cores,
+        borderWidth: 2
+      }]
+    },
+    options: {
+      plugins: {
+        legend: { display: true, position: 'bottom', labels: { font: {size: 15} } },
+        tooltip: {
+          callbacks: {
+            label: ctx => `${ctx.label}: €${ctx.parsed.toFixed(2)}`
+          }
+        }
+      }
+    }
+  });
+}
+
+
 
 // Formatar data
 function formatDate(ts) {
@@ -322,53 +433,67 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   // Mostrar preview antes de gravar
-  // Mostrar preview antes de gravar, agora compatível com o objeto avançado do parser
 function showPreview(dados) {
+  // Helpers para renderizar secções e listas
+  function renderCampo(label, valor) {
+    return `<div class="flex justify-between items-center p-2 bg-white/20 rounded">
+      <span>${label}:</span><span>${valor ?? '—'}</span></div>`;
+  }
+
+  function renderSecao(titulo, campos) {
+    return `<div class="mb-2"><div class="font-semibold text-lg mb-1">${titulo}</div>
+      <div class="grid grid-cols-2 gap-2">${campos.join('')}</div></div>`;
+  }
+
+  // Campos principais
+  const camposPrincipais = [
+    renderCampo('NIF Emitente', dados.nif_emitente),
+    renderCampo('NIF Adquirente', dados.nif_adquirente),
+    renderCampo('País', dados.pais),
+    renderCampo('Tipo Doc.', dados.tipo_documento),
+    renderCampo('Estado Doc.', dados.estado_documento),
+    renderCampo('Data', dados.data),
+    renderCampo('ID Documento', dados.id_documento),
+    renderCampo('ATCUD', dados.atcud),
+    renderCampo('Total', typeof dados.total === 'number' ? '€'+dados.total.toFixed(2) : '—'),
+    renderCampo('IVA', typeof dados.iva === 'number' ? '€'+dados.iva.toFixed(2) : '—'),
+    renderCampo('Não Tributável', typeof dados.nao_tributavel === 'number' ? '€'+dados.nao_tributavel.toFixed(2) : '—'),
+    renderCampo('Imposto Selo', typeof dados.imposto_selo === 'number' ? '€'+dados.imposto_selo.toFixed(2) : '—'),
+    renderCampo('Retenções', typeof dados.retencoes === 'number' ? '€'+dados.retencoes.toFixed(2) : '—'),
+    renderCampo('Hash QR', dados.hash_qr),
+    renderCampo('Certificado', dados.certificado),
+    renderCampo('Outras Info', dados.outras_info),
+    renderCampo('Timestamp', dados.timestamp),
+  ];
+
+  // Espaços fiscais (I1–I8)
+  const camposEspacosFiscais = Object.entries(dados.espacos_fiscais || {}).map(
+    ([k, v]) => renderCampo(k, v === null ? '—' : v)
+  );
+
+  // Espaços fiscais regionais (J1–J8, K1–K8)
+  const camposEspacosFiscaisReg = Object.entries(dados.espacos_fiscais_reg || {}).map(
+    ([k, v]) => renderCampo(k, v === null ? '—' : v)
+  );
+
+  // Campos extras
+  const camposExtras = Object.entries(dados.campos_extras || {}).map(
+    ([k, v]) => renderCampo(k, v === null ? '—' : v)
+  );
+
+  // Preview completo
   document.getElementById('output').innerHTML = `
-    <div class="bg-teal-500 bg-opacity-90 text-white p-6 rounded-lg mb-4">
+    <div class="bg-teal-500 bg-opacity-90 text-white p-6 rounded-lg mb-4 max-h-[80vh] overflow-auto">
       <h3 class="text-xl font-semibold mb-4">👁️ Pré-visualização da Fatura</h3>
       <div class="bg-yellow-200 border border-yellow-300 p-3 rounded mb-4 text-center text-gray-800">
         ⚠️ Confirme os dados antes de guardar
       </div>
-      <div class="grid grid-cols-2 gap-4">
-        <div class="flex justify-between items-center p-2 bg-white/20 rounded">
-          <span>Total Documento:</span><span>€${dados.total_documento.toFixed(2)}</span>
-        </div>
-        <div class="flex justify-between items-center p-2 bg-white/20 rounded">
-          <span>IVA (I6):</span><span>€${(dados.espacos_fiscais.I6 || 0).toFixed(2)}</span>
-        </div>
-        <div class="flex justify-between items-center p-2 bg-white/20 rounded">
-          <span>NIF Emitente (A):</span><span>${dados.nif_emitente}</span>
-        </div>
-        <div class="flex justify-between items-center p-2 bg-white/20 rounded">
-          <span>NIF Adquirente (B):</span><span>${dados.nif_adquirente || 'N/A'}</span>
-        </div>
-        <div class="flex justify-between items-center p-2 bg-white/20 rounded">
-          <span>Data Documento (F):</span><span>${dados.data_documento}</span>
-        </div>
-        <div class="flex justify-between items-center p-2 bg-white/20 rounded">
-          <span>País Adquirente (C):</span><span>${dados.pais_adquirente}</span>
-        </div>
-        <div class="flex justify-between items-center p-2 bg-white/20 rounded">
-          <span>Tipo Doc (D):</span><span>${dados.tipo_documento}</span>
-        </div>
-        <div class="flex justify-between items-center p-2 bg-white/20 rounded">
-          <span>Estado Doc (E):</span><span>${dados.estado_documento}</span>
-        </div>
-        <div class="flex justify-between items-center p-2 bg-white/20 rounded">
-          <span>ID Doc (G):</span><span>${dados.id_documento}</span>
-        </div>
-        <div class="flex justify-between items-center p-2 bg-white/20 rounded">
-          <span>ATCUD (H):</span><span>${dados.atcud}</span>
-        </div>
-        <div class="col-span-2 p-2 bg-white/20 rounded">
-          <strong>Outros campos extras:</strong>
-          <pre class="whitespace-pre-wrap text-xs">${dados.outros_serializado}</pre>
-        </div>
-        <div class="col-span-2 p-2 bg-white/20 rounded">
-          <strong>Raw QR:</strong>
-          <pre class="whitespace-pre-wrap text-xs">${dados.rawqrcode}</pre>
-        </div>
+      ${renderSecao('Campos Principais', camposPrincipais)}
+      ${renderSecao('Espaços Fiscais (I1–I8)', camposEspacosFiscais)}
+      ${renderSecao('Espaços Fiscais Regionais (J1–J8, K1–K8)', camposEspacosFiscaisReg)}
+      ${camposExtras.length > 0 ? renderSecao('Campos Extras', camposExtras) : ''}
+      <div class="mt-4">
+        <div class="font-mono text-xs bg-black/30 p-2 rounded break-words">Raw QR: ${dados.rawqrcode}</div>
       </div>
       <div class="flex space-x-4 mt-6">
         <button id="cancel-save" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">❌ Cancelar</button>
@@ -543,6 +668,84 @@ function showPreview(dados) {
       });
     });
   };
+window.editInvoice = async id => {
+  const snap = await getDoc(doc(db, 'faturas', id));
+  if (!snap.exists()) return showError('Fatura não encontrada');
+  const invoice = snap.data();
+
+  document.getElementById('modal-edit').innerHTML = `
+    <div class="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+      <div class="bg-white rounded-lg p-8 min-w-[320px] max-w-md shadow-xl relative">
+        <button onclick="closeEditModal()" class="absolute top-2 right-3 text-2xl text-gray-400 hover:text-red-600">&times;</button>
+        <h2 class="text-xl font-bold mb-4">Editar Fatura</h2>
+        <form id="edit-invoice-form" class="space-y-3">
+          <div>
+            <label class="block text-sm mb-1">Total (€):</label>
+            <input type="number" step="0.01" name="total" value="${invoice.total}" class="w-full border p-2 rounded" required>
+          </div>
+          <div>
+            <label class="block text-sm mb-1">IVA (€):</label>
+            <input type="number" step="0.01" name="iva" value="${invoice.iva}" class="w-full border p-2 rounded" required>
+          </div>
+          <div>
+            <label class="block text-sm mb-1">NIF Emitente:</label>
+            <input type="text" name="nif_emitente" value="${invoice.nif_emitente || ''}" class="w-full border p-2 rounded">
+          </div>
+          <div>
+            <label class="block text-sm mb-1">Tipo de Documento:</label>
+            <select name="tipo_documento" class="w-full border p-2 rounded">
+              <option value="">Selecionar…</option>
+              <option value="FS" ${invoice.tipo_documento === 'FS' ? 'selected' : ''}>Fatura Simplificada</option>
+              <option value="FT" ${invoice.tipo_documento === 'FT' ? 'selected' : ''}>Fatura</option>
+              <option value="FR" ${invoice.tipo_documento === 'FR' ? 'selected' : ''}>Recibo</option>
+              <option value="NC" ${invoice.tipo_documento === 'NC' ? 'selected' : ''}>Nota de Crédito</option>
+              <option value="ND" ${invoice.tipo_documento === 'ND' ? 'selected' : ''}>Nota de Débito</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm mb-1">Categoria de Fatura:</label>
+            <select name="categoria" class="w-full border p-2 rounded">
+              <option value="">Selecionar…</option>
+              <option value="supermercado" ${invoice.categoria === 'supermercado' ? 'selected' : ''}>Supermercado</option>
+              <option value="restauracao" ${invoice.categoria === 'restauracao' ? 'selected' : ''}>Restauração</option>
+              <option value="combustivel" ${invoice.categoria === 'combustivel' ? 'selected' : ''}>Combustível</option>
+              <option value="saude" ${invoice.categoria === 'saude' ? 'selected' : ''}>Saúde</option>
+              <option value="educacao" ${invoice.categoria === 'educacao' ? 'selected' : ''}>Educação</option>
+              <option value="outros" ${invoice.categoria === 'outros' ? 'selected' : ''}>Outros</option>
+            </select>
+          </div>
+          <button type="submit" class="w-full bg-primary text-white py-2 mt-4 rounded hover:bg-primary-dark">Guardar Alterações</button>
+        </form>
+      </div>
+    </div>
+  `;
+  document.body.classList.add('overflow-hidden');
+
+  document.getElementById('edit-invoice-form').onsubmit = async function(e) {
+    e.preventDefault();
+    const form = e.target;
+    const updatedData = {
+      total: parseFloat(form.total.value),
+      iva: parseFloat(form.iva.value),
+      nif_emitente: form.nif_emitente.value.trim(),
+      tipo_documento: form.tipo_documento.value,
+      categoria: form.categoria.value
+    };
+    await updateDoc(doc(db, 'faturas', id), updatedData);
+    closeEditModal();
+    loadRecentInvoices();
+    updateStats();
+    showSuccess('Fatura atualizada com sucesso!');
+  }
+}
+
+
+// Função para fechar o modal de edição
+window.closeEditModal = function() {
+  document.getElementById('modal-edit').innerHTML = '';
+  document.body.classList.remove('overflow-hidden');
+}
+
 
   // Eliminar fatura individual
   window.deleteInvoice = id => {
