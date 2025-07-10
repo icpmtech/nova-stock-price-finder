@@ -1,4 +1,3 @@
-
 /* -------------------------------------------------------------------------- */
 /*  events.js – all DOM listeners & modal logic                               */
 /* -------------------------------------------------------------------------- */
@@ -9,6 +8,7 @@ import { getIconForCategory } from './helpers.js';
 import {
   addTransaction as addTxToFirestore,
   updateTransaction as updateTxInFirestore,
+  deleteTransaction as deleteTxFromFirestore,
   saveAsset
 } from './firebaseSync.js';
 
@@ -46,6 +46,16 @@ export function registerEventHandlers() {
 
   /* ───── Row-click → edit transaction ───── */
   $('#transactionsBody').addEventListener('click', e => {
+    // Check if delete button was clicked
+    const deleteBtn = e.target.closest('.delete-tx-btn');
+    if (deleteBtn) {
+      e.stopPropagation();
+      const txId = deleteBtn.dataset.id;
+      showDeleteConfirmation(txId);
+      return;
+    }
+
+    // Otherwise, edit transaction on row click
     const row = e.target.closest('tr[data-id]');
     if (!row) return;
     const tx = recentTransactionsData.find(t => t.id == row.dataset.id);
@@ -72,6 +82,13 @@ export function registerEventHandlers() {
   $('#cancelAsset').addEventListener('click', closeAssetModal);
   $('#assetModal').addEventListener('click', e => {
     if (e.target === e.currentTarget) closeAssetModal();
+  });
+
+  /* ───── Delete confirmation modal ───── */
+  $('#confirmDelete').addEventListener('click', confirmDeleteTransaction);
+  $('#cancelDelete').addEventListener('click', closeDeleteModal);
+  $('#deleteModal').addEventListener('click', e => {
+    if (e.target === e.currentTarget) closeDeleteModal();
   });
 
   /* ───── Form submits ───── */
@@ -139,6 +156,38 @@ async function saveTransaction(e) {
   }
   closeTxModal();
   $('#transactionForm').reset();
+}
+
+/* ========================================================================== */
+/*  Delete transaction functionality                                          */
+/* ========================================================================== */
+let deletingTxId = null;
+
+function showDeleteConfirmation(txId) {
+  const tx = recentTransactionsData.find(t => t.id == txId);
+  if (!tx) return;
+
+  deletingTxId = txId;
+  $('#deleteTransactionDescription').textContent = tx.description;
+  $('#deleteTransactionAmount').textContent = `${tx.amount} ${settings.currentCurrency}`;
+  $('#deleteModal').classList.remove('hidden');
+}
+
+function closeDeleteModal() {
+  $('#deleteModal').classList.add('hidden');
+  deletingTxId = null;
+}
+
+async function confirmDeleteTransaction() {
+  if (!deletingTxId) return;
+  
+  try {
+    await deleteTxFromFirestore(deletingTxId);
+    closeDeleteModal();
+  } catch (error) {
+    console.error('Error deleting transaction:', error);
+    // You might want to show an error message to the user here
+  }
 }
 
 /* ========================================================================== */
