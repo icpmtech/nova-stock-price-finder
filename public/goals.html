@@ -1,3 +1,4 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -30,12 +31,12 @@
   </script>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
- <div id="header-widget" class="glass-effect sticky top-0 z-50 animate-slide-in" style="z-index:1000" ></div>
-  <!-- 2) Include the widget script -->
-<script type="module" src="header.js"></script>
- 
+  <!-- cabeçalho dinâmico (header.js) -->
+  <div id="header-widget" class="glass-effect sticky top-0 z-50 animate-slide-in"></div>
+  <script type="module" src="header.js"></script>
+
   <div class="container mx-auto px-4 py-8 max-w-4xl">
-    <!-- Header Section -->
+    <!-- Título -->
     <div class="text-center mb-8">
       <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mb-4">
         <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -51,7 +52,7 @@
       <p class="text-gray-600">Defina e acompanhe suas metas financeiras com facilidade</p>
     </div>
 
-    <!-- Add Goal Form -->
+    <!-- Formulário de Nova Meta -->
     <div class="bg-white rounded-2xl shadow-xl p-6 mb-8 border border-gray-100">
       <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
         <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -65,30 +66,31 @@
           <div class="space-y-2">
             <label for="name" class="block text-sm font-medium text-gray-700">Nome da Meta</label>
             <input type="text" id="name" placeholder="Ex: Viagem para Europa"
-                   class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400" />
+                   class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 hover:border-gray-400" />
           </div>
           <div class="space-y-2">
             <label for="target" class="block text-sm font-medium text-gray-700">Valor da Meta (€)</label>
             <input type="number" id="target" placeholder="5000" min="0" step="0.01"
-                   class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400" />
+                   class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 hover:border-gray-400" />
           </div>
           <div class="space-y-2">
             <label for="current" class="block text-sm font-medium text-gray-700">Valor Atual (€)</label>
             <input type="number" id="current" placeholder="1200" min="0" step="0.01"
-                   class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400" />
+                   class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 hover:border-gray-400" />
           </div>
           <div class="space-y-2">
             <label for="deadline" class="block text-sm font-medium text-gray-700">Data Limite</label>
             <input type="date" id="deadline"
-                   class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400" />
+                   class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 hover:border-gray-400" />
           </div>
           <div class="space-y-2">
             <label for="color" class="block text-sm font-medium text-gray-700">Cor</label>
             <input type="color" id="color" value="#3b82f6"
-                   class="w-full h-12 border border-gray-300 rounded-lg cursor-pointer focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" />
+                   class="w-full h-12 border border-gray-300 rounded-lg cursor-pointer focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200" />
           </div>
           <div class="flex items-end">
-            <button type="submit" class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-6 rounded-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center">
+            <button type="submit"
+                    class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-6 rounded-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition duration-200 flex items-center justify-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M12 4v16m8-8H4"/>
@@ -100,7 +102,7 @@
       </form>
     </div>
 
-    <!-- Goals List -->
+    <!-- Lista de Metas -->
     <div class="space-y-4">
       <div class="flex items-center justify-between">
         <h2 class="text-2xl font-semibold text-gray-800">Suas Metas</h2>
@@ -154,7 +156,10 @@
       }
 
       bindEvents() {
-        this.form.addEventListener('submit', e => { e.preventDefault(); this.handleSubmit(); });
+        this.form.addEventListener('submit', e => {
+          e.preventDefault();
+          this.handleSubmit();
+        });
       }
 
       async loadGoals() {
@@ -185,6 +190,7 @@
 
         this.resetForm();
         await this.loadGoals();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
 
       render() {
@@ -209,7 +215,7 @@
         const overdue  = daysLeft !== null && daysLeft < 0;
 
         return `
-          <li class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all duration-300">
+          <li class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition duration-300">
             <div class="flex justify-between items-center mb-4">
               <div>
                 <h3 class="text-xl font-semibold ${goal.current>=goal.target ? 'text-green-600 line-through' : ''}">
@@ -224,12 +230,8 @@
                 </div>
               </div>
               <div class="flex space-x-2">
-                <button onclick="goalsApp.editGoal('${goal.id}')" class="p-2 text-gray-400 hover:text-blue-500">
-                  ✏️
-                </button>
-                <button onclick="goalsApp.deleteGoal('${goal.id}')" class="p-2 text-gray-400 hover:text-red-500">
-                  🗑️
-                </button>
+                <button onclick="goalsApp.editGoal('${goal.id}')" class="p-2 text-gray-400 hover:text-blue-500">✏️</button>
+                <button onclick="goalsApp.deleteGoal('${goal.id}')" class="p-2 text-gray-400 hover:text-red-500">🗑️</button>
               </div>
             </div>
             <div class="space-y-3">
@@ -241,7 +243,7 @@
               </div>
               <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
                 <div class="h-full rounded-full transition-all duration-500"
-                     style="width:${progress}%; background-color:${goal.current>=goal.target ? '' : goal.color}">
+                     style="width:${progress}%; background-color:${goal.current>=goal.target ? '#4ade80' : goal.color}">
                 </div>
               </div>
             </div>
@@ -251,13 +253,11 @@
       async editGoal(id) {
         const g = this.goals.find(x => x.id === id);
         if (!g) return;
-        Object.assign(this.inputs, {
-          name: g.name,
-          target: g.target,
-          current: g.current,
-          deadline: g.deadline,
-          color: g.color
-        });
+        this.inputs.name.value     = g.name;
+        this.inputs.target.value   = g.target;
+        this.inputs.current.value  = g.current;
+        this.inputs.deadline.value = g.deadline;
+        this.inputs.color.value    = g.color;
         this.editingId = id;
         this.btnText.textContent = 'Atualizar Meta';
         this.inputs.name.focus();
