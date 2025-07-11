@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt" data-theme>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -37,29 +37,28 @@
     .amount-negative { color:#ef4444; }
   </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-gray-50 min-h-screen flex flex-col">
   <!-- Header -->
-  <header class="gradient-bg text-white shadow-lg">
-    <div class="container mx-auto px-6 py-8 flex items-center justify-between">
-      <div class="flex items-center space-x-4">
-        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+  <header class="gradient-bg text-white">
+    <div class="container mx-auto px-4 py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
           <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                  d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2"/>
           </svg>
         </div>
         <div>
-          <h1 data-i18n-key="app.title" class="text-3xl font-bold">Wallet360</h1>
-          <p data-i18n-key="app.subtitle" class="text-white text-opacity-80">Gerencie suas finanças com inteligência</p>
+          <h1 data-i18n-key="app.title" class="text-2xl font-semibold">Wallet360</h1>
+          <p data-i18n-key="app.subtitle" class="text-sm opacity-80">Gerencie suas finanças com inteligência</p>
         </div>
       </div>
-      <div class="flex items-center space-x-4">
+      <div class="flex items-center gap-2">
         <button id="new-transaction" data-i18n-key="button.newTransaction"
-                class="glass-effect px-4 py-2 rounded-lg text-white hover:bg-white hover:bg-opacity-20 transition-all">
-          Nova Transação
+                class="glass-effect px-4 py-2 rounded-lg text-white text-sm">
+          New Transaction
         </button>
-        <select id="lang-select"
-                class="glass-effect bg-opacity-20 px-3 py-2 rounded-lg text-white hover:bg-opacity-30 transition-all">
+        <select id="lang-select" class="glass-effect bg-opacity-20 px-3 py-2 rounded-lg text-white text-sm">
           <option value="pt">PT</option>
           <option value="en">EN</option>
           <option value="es">ES</option>
@@ -69,156 +68,112 @@
     </div>
   </header>
 
-  <!-- Main Content -->
-  <main class="container mx-auto px-6 py-8">
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-      <div class="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-success">
-        <div class="flex items-center justify-between">
-          <div>
-            <p data-i18n-key="stats.incomingLabel" class="text-sm font-medium text-gray-600">Total de Entradas</p>
-            <p id="total-incoming" class="text-2xl font-bold text-success">€ 0.00</p>
-          </div>
-          <div class="w-12 h-12 bg-success bg-opacity-10 rounded-full flex items-center justify-center">
-            <svg class="w-6 h-6 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M7 11l5-5m0 0l5 5m-5-5v12" />
-            </svg>
-          </div>
-        </div>
-      </div>
+  <!-- Main -->
+  <main class="flex-1 container mx-auto px-4 py-6 space-y-6">
 
-      <div class="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-danger">
-        <div class="flex items-center justify-between">
-          <div>
-            <p data-i18n-key="stats.outgoingLabel" class="text-sm font-medium text-gray-600">Total de Saídas</p>
-            <p id="total-outgoing" class="text-2xl font-bold text-danger">€ 0.00</p>
-          </div>
-          <div class="w-12 h-12 bg-danger bg-opacity-10 rounded-full flex items-center justify-center">
-            <svg class="w-6 h-6 text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M17 13l-5 5m0 0l-5-5m5 5V6" />
-            </svg>
-          </div>
+    <!-- Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="bg-white shadow rounded-lg p-4 border-l-4 border-success flex items-center justify-between">
+        <div>
+          <p data-i18n-key="stats.incomingLabel" class="text-xs text-gray-600">Total Incoming</p>
+          <p id="total-incoming" class="text-xl font-bold text-success">€ 0.00</p>
         </div>
+        <svg class="w-6 h-6 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M7 11l5-5m0 0l5 5m-5-5v12"/>
+        </svg>
       </div>
-
-      <div class="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-primary">
-        <div class="flex items-center justify-between">
-          <div>
-            <p data-i18n-key="stats.balanceLabel" class="text-sm font-medium text-gray-600">Saldo Atual</p>
-            <p id="current-balance" class="text-2xl font-bold text-primary">€ 0.00</p>
-          </div>
-          <div class="w-12 h-12 bg-primary bg-opacity-10 rounded-full flex items-center justify-center">
-            <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-            </svg>
-          </div>
+      <div class="bg-white shadow rounded-lg p-4 border-l-4 border-danger flex items-center justify-between">
+        <div>
+          <p data-i18n-key="stats.outgoingLabel" class="text-xs text-gray-600">Total Outgoing</p>
+          <p id="total-outgoing" class="text-xl font-bold text-danger">€ 0.00</p>
         </div>
+        <svg class="w-6 h-6 text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M17 13l-5 5m0 0l-5-5m5 5V6"/>
+        </svg>
+      </div>
+      <div class="bg-white shadow rounded-lg p-4 border-l-4 border-primary flex items-center justify-between">
+        <div>
+          <p data-i18n-key="stats.balanceLabel" class="text-xs text-gray-600">Current Balance</p>
+          <p id="current-balance" class="text-xl font-bold text-primary">€ 0.00</p>
+        </div>
+        <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2"/>
+        </svg>
       </div>
     </div>
 
-    <!-- Filters & Export -->
-    <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
-      <div class="flex flex-wrap items-center gap-4">
-        <input id="search-input" data-i18n-placeholder="filters.searchPlaceholder"
-               placeholder="Pesquisar transações..."
-               class="flex-1 min-w-64 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
-        <select id="category-filter" data-i18n-key="filters.allCategoriesOption"
-                class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
-          <option value="">Todas as categorias</option>
-          <option value="alimentacao" data-i18n-key="category.food">Alimentação</option>
-          <option value="transporte" data-i18n-key="category.transport">Transporte</option>
-          <option value="saude" data-i18n-key="category.health">Saúde</option>
-          <option value="educacao" data-i18n-key="category.education">Educação</option>
-          <option value="lazer" data-i18n-key="category.leisure">Lazer</option>
-          <option value="outros" data-i18n-key="category.others">Outros</option>
+    <!-- Filters -->
+    <div class="bg-white shadow rounded-lg p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <input id="search-input" data-i18n-placeholder="filters.searchPlaceholder" placeholder="Search transactions..."
+             class="flex-1 px-4 py-2 border rounded-lg focus:ring-primary"/>
+      <div class="flex gap-2">
+        <select id="category-filter" class="px-3 py-2 border rounded-lg focus:ring-primary">
+          <option value="" data-i18n-key="filters.allCategoriesOption">All Categories</option>
+          <option value="alimentacao" data-i18n-key="category.food">Food</option>
+          <option value="transporte" data-i18n-key="category.transport">Transport</option>
+          <option value="saude" data-i18n-key="category.health">Health</option>
+          <option value="educacao" data-i18n-key="category.education">Education</option>
+          <option value="lazer" data-i18n-key="category.leisure">Leisure</option>
+          <option value="outros" data-i18n-key="category.others">Others</option>
         </select>
-        <select id="period-filter" data-i18n-key="filters.allPeriodsOption"
-                class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
-          <option value="">Todos os períodos</option>
-          <option value="today" data-i18n-key="filters.today">Hoje</option>
-          <option value="week" data-i18n-key="filters.week">Esta semana</option>
-          <option value="month" data-i18n-key="filters.month">Este mês</option>
-          <option value="year" data-i18n-key="filters.year">Este ano</option>
+        <select id="period-filter" class="px-3 py-2 border rounded-lg focus:ring-primary">
+          <option value="" data-i18n-key="filters.allPeriodsOption">All Periods</option>
+          <option value="today" data-i18n-key="filters.today">Today</option>
+          <option value="week" data-i18n-key="filters.week">This week</option>
+          <option value="month" data-i18n-key="filters.month">This month</option>
+          <option value="year" data-i18n-key="filters.year">This year</option>
         </select>
-        <button id="export-btn" data-i18n-key="button.export"
-                class="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-600 transition-colors">
-          Exportar
+        <button id="export-btn" data-i18n-key="button.export" class="px-4 py-2 bg-accent text-white rounded-lg">
+          Export
         </button>
       </div>
     </div>
 
-    <!-- Transactions Table -->
-    <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-      <div class="px-6 py-4 border-b border-gray-200">
-        <h2 data-i18n-key="table.title" class="text-xl font-semibold text-gray-800">Transações Recentes</h2>
-      </div>
+    <!-- Loading -->
+    <div id="loading-state" class="space-y-2">
+      <div class="loading-skeleton h-12 rounded-lg"></div>
+      <div class="loading-skeleton h-12 rounded-lg"></div>
+      <div class="loading-skeleton h-12 rounded-lg"></div>
+    </div>
 
-      <!-- Loading State -->
-      <div id="loading-state" class="p-6 space-y-4">
-        <div class="loading-skeleton h-16 rounded-lg"></div>
-        <div class="loading-skeleton h-16 rounded-lg"></div>
-        <div class="loading-skeleton h-16 rounded-lg"></div>
-      </div>
+    <!-- Mobile Cards -->
+    <div id="mobile-cards" class="space-y-4"></div>
 
-      <!-- Desktop Table -->
-      <div id="desktop-table" class="hidden lg:block">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
-            <tr>
-              <th data-i18n-key="table.header.date"
-                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
-              <th data-i18n-key="table.header.category"
-                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoria</th>
-              <th data-i18n-key="table.header.description"
-                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descrição</th>
-              <th data-i18n-key="table.header.amount"
-                  class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Valor</th>
-              <th data-i18n-key="table.header.actions"
-                  class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
-            </tr>
-          </thead>
-          <tbody id="transactions-body" class="bg-white divide-y divide-gray-200">
-            <!-- preenchido via JS -->
-          </tbody>
-        </table>
-      </div>
+    <!-- Desktop Table -->
+    <div id="desktop-table" class="hidden lg:block">
+      <table class="min-w-full bg-white rounded-lg overflow-hidden shadow">
+        <thead class="bg-gray-50">
+          <tr>
+            <th data-i18n-key="table.header.date" class="px-4 py-2 text-left text-xs text-gray-600">Date</th>
+            <th data-i18n-key="table.header.category" class="px-4 py-2 text-left text-xs text-gray-600">Category</th>
+            <th data-i18n-key="table.header.description" class="px-4 py-2 text-left text-xs text-gray-600">Description</th>
+            <th data-i18n-key="table.header.amount" class="px-4 py-2 text-right text-xs text-gray-600">Amount</th>
+            <th data-i18n-key="table.header.actions" class="px-4 py-2 text-center text-xs text-gray-600">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="transactions-body" class="divide-y"></tbody>
+      </table>
+    </div>
 
-      <!-- Mobile Cards -->
-      <div id="mobile-cards" class="lg:hidden p-4 space-y-4">
-        <!-- preenchido via JS -->
-      </div>
-
-      <!-- Empty State -->
-      <div id="empty-state" class="hidden text-center py-12">
-        <p data-i18n-key="empty.title" class="text-lg font-medium text-gray-900 mb-2">Nenhuma transação encontrada</p>
-        <p data-i18n-key="empty.subtitle" class="text-gray-500 mb-4">Comece adicionando sua primeira transação</p>
-        <button id="empty-add" data-i18n-key="button.addTransaction"
-                class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-600 transition-colors">
-          Adicionar Transação
-        </button>
-      </div>
+    <!-- Empty State -->
+    <div id="empty-state" class="hidden text-center py-12">
+      <p data-i18n-key="empty.title" class="text-lg font-semibold">No transactions found</p>
+      <p data-i18n-key="empty.subtitle" class="text-gray-500">Start by adding a transaction</p>
+      <button id="empty-add" data-i18n-key="button.addTransaction"
+              class="mt-4 px-4 py-2 bg-primary text-white rounded-lg">Add Transaction</button>
     </div>
   </main>
 
-  <!-- Delete Confirmation Modal -->
-  <div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center">
-    <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4">
-      <h3 data-i18n-key="modal.confirmTitle" class="text-lg font-medium text-gray-900 text-center mb-2">Confirmar Exclusão</h3>
-      <p data-i18n-key="modal.confirmText" class="text-gray-500 text-center mb-6">
-        Tem certeza que deseja excluir esta transação? Esta ação não pode ser desfeita.
+  <!-- Delete Modal -->
+  <div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-lg p-6 w-11/12 sm:w-96">
+      <h3 data-i18n-key="modal.confirmTitle" class="text-lg font-semibold text-center mb-4">Confirm Deletion</h3>
+      <p data-i18n-key="modal.confirmText" class="text-center mb-6">
+        Are you sure you want to delete this transaction? This action cannot be undone.
       </p>
-      <div class="flex space-x-3">
-        <button id="cancel-delete" data-i18n-key="button.cancel"
-                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
-          Cancelar
-        </button>
-        <button id="confirm-delete" data-i18n-key="button.delete"
-                class="flex-1 px-4 py-2 bg-danger text-white rounded-lg hover:bg-danger-600 transition-colors">
-          Excluir
-        </button>
+      <div class="flex gap-4">
+        <button id="cancel-delete" data-i18n-key="button.cancel" class="flex-1 px-4 py-2 border rounded-lg">Cancel</button>
+        <button id="confirm-delete" data-i18n-key="button.delete" class="flex-1 px-4 py-2 bg-danger text-white rounded-lg">Delete</button>
       </div>
     </div>
   </div>
@@ -244,7 +199,7 @@
         "stats.balanceLabel": "Current Balance",
         "filters.searchPlaceholder": "Search transactions...",
         "filters.allCategoriesOption": "All Categories",
-        "filters.allPeriodsOption": "All periods",
+        "filters.allPeriodsOption": "All Periods",
         "filters.today": "Today",
         "filters.week": "This week",
         "filters.month": "This month",
@@ -255,14 +210,13 @@
         "category.education": "Education",
         "category.leisure": "Leisure",
         "category.others": "Others",
-        "table.title": "Recent Transactions",
         "table.header.date": "Date",
         "table.header.category": "Category",
         "table.header.description": "Description",
         "table.header.amount": "Amount",
         "table.header.actions": "Actions",
         "empty.title": "No transactions found",
-        "empty.subtitle": "Start by adding your first transaction",
+        "empty.subtitle": "Start by adding a transaction",
         "modal.confirmTitle": "Confirm Deletion",
         "modal.confirmText": "Are you sure you want to delete this transaction? This action cannot be undone."
       },
@@ -291,18 +245,51 @@
         "category.education": "Educación",
         "category.leisure": "Ocio",
         "category.others": "Otros",
-        "table.title": "Transacciones Recientes",
         "table.header.date": "Fecha",
         "table.header.category": "Categoría",
         "table.header.description": "Descripción",
         "table.header.amount": "Importe",
         "table.header.actions": "Acciones",
         "empty.title": "No se encontraron transacciones",
-        "empty.subtitle": "Comienza agregando tu primera transacción",
+        "empty.subtitle": "Comienza agregando una transacción",
         "modal.confirmTitle": "Confirmar Eliminación",
         "modal.confirmText": "¿Seguro que deseas eliminar esta transacción? Esta acción no puede deshacerse."
       },
-      pt: { /* mesmas chaves acima em português já nos atributos data-i18n-key */ },
+      pt: {
+        title: "Wallet360 – Transações Recentes",
+        "app.title": "Wallet360",
+        "app.subtitle": "Gerencie suas finanças com inteligência",
+        "button.newTransaction": "Nova Transação",
+        "button.export": "Exportar",
+        "button.cancel": "Cancelar",
+        "button.delete": "Excluir",
+        "button.addTransaction": "Adicionar Transação",
+        "stats.incomingLabel": "Total de Entradas",
+        "stats.outgoingLabel": "Total de Saídas",
+        "stats.balanceLabel": "Saldo Atual",
+        "filters.searchPlaceholder": "Pesquisar transações...",
+        "filters.allCategoriesOption": "Todas as categorias",
+        "filters.allPeriodsOption": "Todos os períodos",
+        "filters.today": "Hoje",
+        "filters.week": "Esta semana",
+        "filters.month": "Este mês",
+        "filters.year": "Este ano",
+        "category.food": "Alimentação",
+        "category.transport": "Transporte",
+        "category.health": "Saúde",
+        "category.education": "Educação",
+        "category.leisure": "Lazer",
+        "category.others": "Outros",
+        "table.header.date": "Data",
+        "table.header.category": "Categoria",
+        "table.header.description": "Descrição",
+        "table.header.amount": "Valor",
+        "table.header.actions": "Ações",
+        "empty.title": "Nenhuma transação encontrada",
+        "empty.subtitle": "Comece adicionando uma transação",
+        "modal.confirmTitle": "Confirmar Exclusão",
+        "modal.confirmText": "Tem certeza que deseja excluir esta transação? Esta ação não pode ser desfeita."
+      },
       fr: {
         title: "Wallet360 – Transactions Récentes",
         "app.title": "Wallet360",
@@ -328,14 +315,13 @@
         "category.education": "Éducation",
         "category.leisure": "Loisir",
         "category.others": "Autres",
-        "table.title": "Transactions Récentes",
         "table.header.date": "Date",
         "table.header.category": "Catégorie",
         "table.header.description": "Description",
         "table.header.amount": "Montant",
         "table.header.actions": "Actions",
         "empty.title": "Aucune transaction trouvée",
-        "empty.subtitle": "Commencez par ajouter votre première transaction",
+        "empty.subtitle": "Commencez par ajouter une transaction",
         "modal.confirmTitle": "Confirmer la Suppression",
         "modal.confirmText": "Êtes-vous sûr de vouloir supprimer cette transaction ? Cette action est irréversible."
       }
@@ -354,7 +340,7 @@
       localStorage.setItem('lang', lang);
     }
 
-    // Populate language selector and initialize
+    // Initialize language
     const savedLang = localStorage.getItem('lang') || navigator.language.slice(0,2) || 'pt';
     const langSelect = document.getElementById('lang-select');
     langSelect.value = ['pt','en','es','fr'].includes(savedLang) ? savedLang : 'pt';
@@ -386,10 +372,10 @@
       const now = new Date();
       return transactions.filter(tx => {
         const d = new Date(tx.date);
-        if (period==='today') return d.toDateString()===now.toDateString();
-        if (period==='week')  return (now-d) <= 7*24*60*60*1000;
-        if (period==='month')return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();
-        if (period==='year') return d.getFullYear()===now.getFullYear();
+        if (period==='today')  return d.toDateString()===now.toDateString();
+        if (period==='week')   return (now-d) <= 7*24*60*60*1000;
+        if (period==='month')  return d.getMonth()===now.getMonth() && d.getFullYear()===now.getFullYear();
+        if (period==='year')   return d.getFullYear()===now.getFullYear();
         return true;
       });
     }
@@ -406,21 +392,28 @@
       displayTransactions(displayedTransactions);
     }
 
-    document.getElementById('search-input').addEventListener('input',applyFilters);
-    document.getElementById('category-filter').addEventListener('change',applyFilters);
-    document.getElementById('period-filter').addEventListener('change',applyFilters);
+    document.getElementById('search-input').addEventListener('input', applyFilters);
+    document.getElementById('category-filter').addEventListener('change', applyFilters);
+    document.getElementById('period-filter').addEventListener('change', applyFilters);
 
     document.getElementById('export-btn').addEventListener('click',()=>{
+      const lang = langSelect.value;
       const rows = displayedTransactions.map(tx=>[
-        new Date(tx.date).toLocaleString(langSelect.value),
-        tx.category, `"${tx.description}"`, tx.amount.toFixed(2), tx.id
+        new Date(tx.date).toLocaleString(lang),
+        tx.category,
+        `"${tx.description}"`,
+        tx.amount.toFixed(2),
+        tx.id
       ].join(','));
-      const csv = ["Data,Categoria,Descrição,Valor,ID", ...rows].join('\n');
+      const csv = ["Date,Category,Description,Amount,ID", ...rows].join('\n');
       const blob = new Blob([csv],{type:'text/csv'});
       const url  = URL.createObjectURL(blob);
       const a    = document.createElement('a');
-      a.href = url; a.download = `transacoes_${new Date().toISOString().slice(0,10)}.csv`;
-      document.body.appendChild(a); a.click(); a.remove();
+      a.href     = url;
+      a.download = `transactions_${new Date().toISOString().slice(0,10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
     });
 
     async function loadTransactions() {
@@ -442,31 +435,35 @@
     }
 
     function displayTransactions(transactions) {
-      const tbody = document.getElementById('transactions-body');
-      const mobile = document.getElementById('mobile-cards');
-      tbody.innerHTML = ''; mobile.innerHTML = '';
-      if (!transactions.length) { document.getElementById('empty-state').classList.remove('hidden'); return; }
+      const tbody   = document.getElementById('transactions-body');
+      const mobile  = document.getElementById('mobile-cards');
+      tbody.innerHTML  = '';
+      mobile.innerHTML = '';
+      if (!transactions.length) {
+        document.getElementById('empty-state').classList.remove('hidden');
+        return;
+      }
       document.getElementById('desktop-table').classList.remove('hidden');
       document.getElementById('mobile-cards').classList.remove('hidden');
-      transactions.forEach((tx,i)=> {
+      transactions.forEach((tx,i)=>{
         const cfg = categoryConfig[tx.category]||categoryConfig.outros;
         const pos = tx.amount>0;
-        // Desktop row...
+        // Desktop row
         const tr = document.createElement('tr');
-        tr.className = `transaction-card fade-in hover:bg-gray-50`;
+        tr.className = 'transaction-card fade-in hover:bg-gray-50';
         tr.style.animationDelay = `${i*0.1}s`;
         tr.innerHTML = `
-          <td class="px-6 py-4 whitespace-nowrap">
+          <td class="px-4 py-2 whitespace-nowrap">
             <div class="text-sm font-medium text-gray-900">${new Date(tx.date).toLocaleDateString(langSelect.value)}</div>
-            <div class="text-sm text-gray-500">${new Date(tx.date).toLocaleTimeString(langSelect.value,{hour:'2-digit',minute:'2-digit'})}</div>
+            <div class="text-xs text-gray-500">${new Date(tx.date).toLocaleTimeString(langSelect.value,{hour:'2-digit',minute:'2-digit'})}</div>
           </td>
-          <td class="px-6 py-4 whitespace-nowrap">
+          <td class="px-4 py-2 whitespace-nowrap">
             <span class="category-badge ${cfg.color}">${tx.category}</span>
           </td>
-          <td class="px-6 py-4">
+          <td class="px-4 py-2">
             <div class="flex items-center">
-              <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mr-3">
-                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center mr-3">
+                <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <use href="#icon-${cfg.icon}"/>
                 </svg>
               </div>
@@ -476,32 +473,32 @@
               </div>
             </div>
           </td>
-          <td class="px-6 py-4 whitespace-nowrap text-right">
-            <div class="text-lg font-semibold ${pos?'amount-positive':'amount-negative'}">
+          <td class="px-4 py-2 whitespace-nowrap text-right">
+            <div class="text-sm font-semibold ${pos?'amount-positive':'amount-negative'}">
               ${pos?'+':'-'}€ ${Math.abs(tx.amount).toFixed(2)}
             </div>
           </td>
-          <td class="px-6 py-4 whitespace-nowrap text-center">
+          <td class="px-4 py-2 whitespace-nowrap text-center">
             <button class="delete-btn text-danger hover:text-danger-600" data-id="${tx.id}">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6"/>
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6"/>
               </svg>
             </button>
           </td>`;
         tbody.appendChild(tr);
-        // Mobile card...
+        // Mobile card
         const card = document.createElement('div');
-        card.className = `transaction-card fade-in bg-white rounded-lg p-4 shadow-sm border`;
+        card.className = 'transaction-card fade-in bg-white rounded-lg p-4 shadow-sm border';
         card.style.animationDelay = `${i*0.1}s`;
         card.innerHTML = `
           <div class="flex items-center justify-between mb-2">
             <span class="category-badge ${cfg.color}">${tx.category}</span>
-            <span class="text-sm text-gray-500">${new Date(tx.date).toLocaleDateString(langSelect.value)}</span>
+            <span class="text-xs text-gray-500">${new Date(tx.date).toLocaleDateString(langSelect.value)}</span>
           </div>
           <div class="flex items-center mb-3">
-            <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mr-3">
-              <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center mr-3">
+              <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <use href="#icon-${cfg.icon}"/>
               </svg>
             </div>
@@ -511,37 +508,38 @@
             </div>
           </div>
           <div class="flex items-center justify-between">
-            <div class="text-lg font-semibold ${pos?'amount-positive':'amount-negative'}">
+            <div class="text-sm font-semibold ${pos?'amount-positive':'amount-negative'}">
               ${pos?'+':'-'}€ ${Math.abs(tx.amount).toFixed(2)}
             </div>
             <button class="delete-btn text-danger hover:text-danger-600 p-1" data-id="${tx.id}">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6"/>
+                      d="M19 7l-.867 12.142A2 2 0
+                     0116.138 21H7.862a2 2 0 01-1.995-1.858L5
+                     7m5 4v6m4-6v6"/>
               </svg>
             </button>
           </div>`;
         mobile.appendChild(card);
       });
-      // attach delete handlers
+      // Attach delete handlers
       document.querySelectorAll('.delete-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           currentTransactionToDelete = btn.dataset.id;
           document.getElementById('delete-modal').classList.remove('hidden');
-          document.getElementById('delete-modal').classList.add('flex');
         });
       });
     }
 
     // Modal handlers
-    document.getElementById('cancel-delete').addEventListener('click',()=>{
+    document.getElementById('cancel-delete').addEventListener('click', () => {
       document.getElementById('delete-modal').classList.add('hidden');
-      currentTransactionToDelete=null;
+      currentTransactionToDelete = null;
     });
-    document.getElementById('confirm-delete').addEventListener('click', async()=>{
-      if(currentTransactionToDelete){
+    document.getElementById('confirm-delete').addEventListener('click', async () => {
+      if (currentTransactionToDelete) {
         await FirebaseAPI.deleteTransaction(currentTransactionToDelete);
-        allTransactions = allTransactions.filter(tx=>tx.id!==currentTransactionToDelete);
+        allTransactions = allTransactions.filter(tx => tx.id !== currentTransactionToDelete);
         applyFilters();
         document.getElementById('delete-modal').classList.add('hidden');
       }
@@ -552,30 +550,45 @@
 
   <!-- SVG Icons -->
   <svg style="display:none">
-    <symbol id="icon-shopping-cart" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-        d="M3 3h2l.4 2M7 13h10l4-8H5.4m1.6 8L6 21H8m7 0a1 1 0 11-2 0 1 1 0 012 0zm6 0a1 1 0 11-2 0 1 1 0 012 0z"/>
-    </symbol>
-    <symbol id="icon-pizza" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-    </symbol>
-    <symbol id="icon-fuel" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-        d="M19 7h-3V6a4 4 0 00-8 0v1H5a1 1 0 00-1 1v11a3 3 0 003 3h8a3 3 0 003-3V8a1 1 0 00-1-1zM10 6a2 2 0 014 0v1h-4V6zm6 13a1 1 0 01-1 1H7a1 1 0 01-1-1V9h2v1a1 1 0 002 0V9h4v1a1 1 0 002 0V9h2v10z"/>
-    </symbol>
-    <symbol id="icon-heart-pulse" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-    </symbol>
-    <symbol id="icon-book" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-    </symbol>
-    <symbol id="icon-receipt" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-        d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
-    </symbol>
+    <symbol id="icon-shopping-cart" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+      d="M3 3h2l.4 2M7 13h10l4-8H5.4m1.6 8L6
+      21H8m7 0a1 1 0 11-2 0 1 1 0 012 0zm6 0a1
+      1 0 11-2 0 1 1 0 012 0z"/></symbol>
+    <symbol id="icon-pizza" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+      d="M12 2l3.09 6.26L22 9.27l-5 4.87
+      1.18 6.88L12 17.77l-6.18 3.25L7
+      14.14 2 9.27l6.91-1.01L12 2z"/></symbol>
+    <symbol id="icon-fuel" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+      d="M19 7h-3V6a4 4 0 00-8
+      0v1H5a1 1 0 00-1 1v11a3 3
+      0 003 3h8a3 3 0 003-3V8a1 1
+      0 00-1-1zM10 6a2 2 0 014
+      0v1h-4V6zm6 13a1 1 0 01-1
+      1H7a1 1 0 01-1-1V9h2v1a1 1
+      0 002 0V9h4v1a1 1 0 002 0V9h2v10z"/></symbol>
+    <symbol id="icon-heart-pulse" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+      d="M4.318 6.318a4.5 4.5 0 000
+      6.364L12 20.364l7.682-7.682a4.5
+      4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5
+      4.5 0 00-6.364 0z"/></symbol>
+    <symbol id="icon-book" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+      d="M12 6.253v13m0-13C10.832
+      5.477 9.246 5 7.5 5S4.168 5.477
+      3 6.253v13C4.168 18.477 5.754 18
+      7.5 18s3.332.477 4.5
+      1.253m0-13C13.168 5.477 14.754 5
+      16.5 5c1.747 0 3.332.477 4.5
+      1.253v13C19.832 18.477 18.247 18
+      16.5 18c-1.746 0-3.332.477-4.5
+      1.253"/></symbol>
+    <symbol id="icon-receipt" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+      d="M9 5H7a2 2 0 00-2
+      2v10a2 2 0 002 2h8a2 2 0
+      002-2V7a2 2 0 00-2-2h-2M9
+      5a2 2 0 002 2h2a2 2 0 002-2M9
+      5a2 2 0 012-2h2a2 2 0 012
+      2m-3 7h3m-3 4h3m-6-4h.01M9
+      16h.01"/></symbol>
   </svg>
 </body>
 </html>
