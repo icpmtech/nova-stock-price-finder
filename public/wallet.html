@@ -1,224 +1,213 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="en" class="scroll-smooth">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Carteira de Investimentos</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-  <style>
-    body{background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);min-height:100vh}
-    .card-hover{transition:.3s}.card-hover:hover{transform:translateY(-4px)}
-  </style>
+  <meta charset="UTF-8">
+  <title data-i18n="title">Wallet 360</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
+  <script src="./utils/tail-util.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 </head>
-
-<body class="text-white font-sans">
+<body class="bg-bgSoft dark:bg-bgSoftDark text-gray-900 dark:text-gray-200 min-h-screen transition-all duration-300">
   <div id="header-widget"></div>
   <script type="module" src="header.js"></script>
 
-  <div class="container mx-auto px-4 py-6 max-w-7xl">
-    <header class="mb-8">
-      <div class="flex items-center justify-between">
+  <!-- Loading Screen -->
+  <div id="loadingScreen" class="fixed inset-0 bg-white dark:bg-gray-900 z-50 flex items-center justify-center">
+    <div class="text-center">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+      <p id="loadingScreen-text" data-i18n="loadingScreen-text" class="text-lg font-medium"></p>
+    </div>
+  </div>
+
+  <div class="px-4 py-6 max-w-screen-xl mx-auto">
+    <!-- Header -->
+    <header class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="bg-gradient-to-r from-primary to-primary-light p-3 rounded-2xl">
+          <i data-lucide="wallet" class="w-8 h-8 text-white"></i>
+        </div>
         <div>
-          <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">💼 Nova Wallet</h1>
-          <p class="text-gray-400 mt-2">Dashboard com comissões e lucro em tempo real</p>
+          <h1 id="title" data-i18n="title" class="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent"></h1>
+          <p id="subtitle" data-i18n="subtitle" class="text-xs sm:text-sm text-gray-600 dark:text-gray-400"></p>
         </div>
-        <div class="text-right">
-          <div class="text-sm text-gray-400">Última atualização</div>
-          <div id="lastUpdate" class="text-green-400 font-semibold"></div>
+      </div>
+      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
+        <button id="darkToggle" class="p-2 rounded-full bg-primary hover:bg-primary-dark text-white transition-colors" aria-label="Toggle dark mode">
+          <i data-lucide="moon" class="w-5 h-5"></i>
+        </button>
+        <select disabled id="languageSelect" class="border rounded-lg px-3 py-2 bg-card dark:bg-cardDark w-full sm:w-auto">
+          <option value="en" selected>🇬🇧 English</option>
+          <option value="pt">🇵🇹 Português</option>
+          <option value="es">🇪🇸 Español</option>
+          <option value="fr">🇫🇷 Français</option>
+        </select>
+        <select disabled id="currencySelect" class="border rounded-lg px-3 py-2 bg-card dark:bg-cardDark w-full sm:w-auto">
+          <option value="USD" selected>🇺🇸 USD $</option>
+          <option value="EUR">🇪🇺 EUR €</option>
+          <option value="GBP">🇬🇧 GBP £</option>
+          <option value="BRL">🇧🇷 BRL R$</option>
+          <option value="JPY">🇯🇵 JPY ¥</option>
+          <option value="CHF">🇨🇭 CHF CHF</option>
+          <option value="AUD">🇦🇺 AUD A$</option>
+          <option value="CAD">🇨🇦 CAD C$</option>
+        </select>
+        <div class="flex items-center gap-2 bg-card dark:bg-cardDark rounded-lg px-3 py-2 w-full sm:w-auto">
+          <i data-lucide="user" class="w-4 h-4"></i>
+          <span id="userName" class="text-sm font-medium"></span>
         </div>
+        <button id="signOut" class="text-xs text-danger hover:underline hidden" data-i18n="modal.delete.cancel"></button>
       </div>
     </header>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      <div class="bg-gray-800/50 p-6 rounded-xl shadow-lg card-hover border border-gray-700">
-        <div class="flex items-center justify-between mb-2"><h3 class="text-sm font-medium text-gray-400">Saldo Total</h3><span class="text-2xl">💰</span></div>
-        <div id="saldoTotal" class="text-3xl font-bold text-green-400">€ 0</div><p class="text-xs text-gray-500 mt-1">* Deduzido comissões</p>
-      </div>
-      <div class="bg-gray-800/50 p-6 rounded-xl shadow-lg card-hover border border-gray-700">
-        <div class="flex items-center justify-between mb-2"><h3 class="text-sm font-medium text-gray-400">Lucro/Prejuízo</h3><span class="text-2xl">📈</span></div>
-        <div id="lucroTotal" class="text-3xl font-bold">€ 0</div><div id="lucroPercentual" class="text-sm mt-1">0.00%</div>
-      </div>
-      <div class="bg-gray-800/50 p-6 rounded-xl shadow-lg card-hover border border-gray-700">
-        <div class="flex items-center justify-between mb-2"><h3 class="text-sm font-medium text-gray-400">Total Investido</h3><span class="text-2xl">💸</span></div>
-        <div id="totalInvestido" class="text-3xl font-bold text-blue-400">€ 0</div><div id="totalAcoes" class="text-xs text-gray-500 mt-1">0 ações</div>
-      </div>
-      <div class="bg-gray-800/50 p-6 rounded-xl shadow-lg card-hover border border-gray-700">
-        <div class="flex items-center justify-between mb-2"><h3 class="text-sm font-medium text-gray-400">Comissões</h3><span class="text-2xl">🏦</span></div>
-        <div id="totalComissoes" class="text-3xl font-bold text-red-400">€ 0</div><div id="comissaoPercentual" class="text-xs text-gray-500 mt-1">0.00% do total</div>
-      </div>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-      <div class="bg-gray-800/50 p-6 rounded-xl shadow-lg border border-gray-700">
-        <h3 class="text-lg font-semibold mb-4 text-gray-200">Distribuição da Carteira</h3>
-        <div class="h-64"><canvas id="pieChart"></canvas></div>
-      </div>
-      <div class="bg-gray-800/50 p-6 rounded-xl shadow-lg border border-gray-700">
-        <h3 class="text-lg font-semibold mb-4 text-gray-200">Performance por Ativo</h3>
-        <div class="h-64"><canvas id="barChart"></canvas></div>
-      </div>
-    </div>
-
-    <section class="mb-8">
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="text-2xl font-semibold text-gray-200">Carteira de Investimentos</h2>
-        <button id="refreshBtn" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm font-medium">🔄 Atualizar Preços</button>
-      </div>
-      <div id="carteiraContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    <!-- Quick Actions -->
+    <section class="flex flex-col sm:flex-row gap-3 mb-6">
+      <button type="button" class="quick-action-btn w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-medium bg-success hover:bg-success-dark text-white transition-transform transform hover:scale-105" data-i18n="addIncome">
+        <i data-lucide="plus" class="w-4 h-4"></i>
+      </button>
+      <button type="button" class="quick-action-btn w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-medium bg-danger hover:bg-danger-dark text-white transition-transform transform hover:scale-105" data-i18n="addExpense">
+        <i data-lucide="minus" class="w-4 h-4"></i>
+      </button>
+      <button type="button" class="quick-action-btn w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-medium bg-primary hover:bg-primary-dark text-white transition-transform transform hover:scale-105" data-i18n="addInvestment">
+        <i data-lucide="trending-up" class="w-4 h-4"></i>
+      </button>
+      <button type="button" class="quick-action-btn w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-medium bg-warning hover:bg-warning-dark text-white transition-transform transform hover:scale-105" data-i18n="setGoal">
+        <i data-lucide="goal" class="w-4 h-4"></i>
+      </button>
     </section>
 
-    <section>
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="text-2xl font-semibold text-gray-200">Transações Recentes</h2>
-        <div class="flex gap-2">
-          <select id="filterTipo" class="bg-gray-700 text-white px-3 py-1 rounded text-sm"><option value="">Todos</option><option value="Compra">Compra</option><option value="Venda">Venda</option></select>
-          <input id="searchSymbol" class="bg-gray-700 text-white px-3 py-1 rounded text-sm w-32" placeholder="Buscar símbolo...">
-        </div>
+    <!-- Summary Cards -->
+    <section id="summaryCards" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6"></section>
+
+    <!-- Main Dashboard -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Charts -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Portfolio Overview -->
+        <article class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6">
+          <header class="flex items-center justify-between mb-4">
+            <h2 class="text-lg sm:text-xl font-semibold flex items-center gap-2">
+              <i data-lucide="trending-up" class="w-5 h-5 text-primary"></i>
+              <span data-i18n="portfolioOverview"></span>
+            </h2>
+            <div class="flex gap-2">
+              <button class="text-xs sm:text-sm px-2 py-1 bg-primary/10 text-primary rounded-full" data-i18n="table.date"></button>
+              <button class="text-xs sm:text-sm px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full"></button>
+              <button class="text-xs sm:text-sm px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full"></button>
+            </div>
+          </header>
+          <canvas id="portfolioChart" class="w-full" style="max-height:400px"></canvas>
+        </article>
+
+        <!-- Income vs Expenses -->
+        <article class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6">
+          <header class="flex items-center mb-4">
+            <i data-lucide="bar-chart-3" class="w-5 h-5 text-success mr-2"></i>
+            <h2 class="text-lg sm:text-xl font-semibold" data-i18n="incomeExpenses"></h2>
+          </header>
+          <canvas id="incomeExpensesChart" class="w-full" style="max-height:400px"></canvas>
+        </article>
+
+        <!-- Spending by Category -->
+        <article class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6">
+          <header class="flex items-center mb-4">
+            <i data-lucide="pie-chart" class="w-5 h-5 text-warning mr-2"></i>
+            <h2 class="text-lg sm:text-xl font-semibold" data-i18n="spendingByCategory"></h2>
+          </header>
+          <canvas id="categoryChart" class="w-full" style="max-height:400px"></canvas>
+        </article>
       </div>
-      <div class="bg-gray-800/50 rounded-xl overflow-hidden shadow-lg border border-gray-700">
+
+      <!-- Widgets -->
+      <aside class="space-y-6">
+        <!-- Budget Progress -->
+        <div class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6">
+          <h2 class="text-lg sm:text-xl font-semibold flex items-center gap-2 mb-4">
+            <i data-lucide="target" class="w-5 h-5 text-primary"></i>
+            <span data-i18n="budgetProgress"></span>
+          </h2>
+          <div id="budgetList" class="space-y-3"></div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6">
+          <header class="flex items-center justify-between mb-4">
+            <h2 class="text-lg sm:text-xl font-semibold flex items-center gap-2">
+              <i data-lucide="history" class="w-5 h-5 text-gray-600"></i>
+              <span data-i18n="recentTransactions"></span>
+            </h2>
+            <button class="text-sm text-primary hover:underline" data-i18n="allTransactions"></button>
+          </header>
+          <div id="transactionsList" class="space-y-3"></div>
+        </div>
+
+        <!-- Financial Goals -->
+        <div class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6">
+          <h2 class="text-lg sm:text-xl font-semibold flex items-center gap-2 mb-4">
+            <i data-lucide="flag" class="w-5 h-5 text-success"></i>
+            <span data-i18n="financialGoals"></span>
+          </h2>
+          <div id="goalsList" class="space-y-3"></div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Detailed Sections -->
+    <section class="mt-8 space-y-6">
+      <!-- Assets Portfolio -->
+      <div class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6">
+        <header class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+          <h2 class="text-lg sm:text-xl font-semibold flex items-center gap-2">
+            <i data-lucide="briefcase" class="w-5 h-5 text-primary"></i>
+            <span data-i18n="assetsPortfolio"></span>
+          </h2>
+          <div class="flex gap-2 flex-wrap">
+            <button class="text-xs sm:text-sm px-2 py-1 bg-primary text-white rounded-full" data-i18n="tabs.stocks"></button>
+            <button class="text-xs sm:text-sm px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full" data-i18n="tabs.crypto"></button>
+            <button class="text-xs sm:text-sm px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full" data-i18n="tabs.bonds"></button>
+          </div>
+        </header>
+        <div id="assetsList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </div>
+
+      <!-- All Transactions -->
+      <div class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6">
+        <header class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+          <h2 class="text-lg sm:text-xl font-semibold flex items-center gap-2">
+            <i data-lucide="list" class="w-5 h-5 text-gray-600"></i>
+            <span data-i18n="allTransactions"></span>
+          </h2>
+          <div class="flex gap-2 flex-wrap w-full sm:w-auto">
+            <input type="text" id="searchTransactions" placeholder="" data-i18n="filter.allTypes" class="px-3 py-2 border rounded-lg text-sm w-full sm:w-auto">
+            <select id="filterTransactions" class="px-3 py-2 border rounded-lg text-sm w-full sm:w-auto">
+              <option value="all" data-i18n="filter.allTypes"></option>
+              <option value="income" data-i18n="txType.income"></option>
+              <option value="expense" data-i18n="txType.expense"></option>
+              <option value="investment" data-i18n="txType.investment"></option>
+            </select>
+          </div>
+        </header>
         <div class="overflow-x-auto">
-          <table class="w-full text-sm text-left">
-            <thead class="bg-gray-700/50 text-gray-300"><tr><th class="px-6 py-3">Tipo</th><th class="px-6 py-3">Símbolo</th><th class="px-6 py-3">Qtd.</th><th class="px-6 py-3">Preço</th><th class="px-6 py-3">Comissão</th><th class="px-6 py-3">Total</th><th class="px-6 py-3">Data</th></tr></thead>
-            <tbody id="transacoesTable"></tbody>
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
+            <thead id="transactionsThead"></thead>
+            <tbody id="transactionsBody"></tbody>
           </table>
         </div>
       </div>
     </section>
   </div>
-
-  <script type="module">
-    import { auth } from './firebase-init.js';
-    import { onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-
-    const carteira=[],transacoes=[],cores=['#0ea5e9','#8b5cf6','#22c55e','#f97316','#f43f5e'];
-    let filteredTransacoes=[],pieChart,barChart,currentUserEmail='';
-    const €=v=>`€ ${Number(v).toFixed(2)}`;
-    const apiTx=e=>`/api/transactions?user=${encodeURIComponent(e)}`;
-    const apiPx=s=>`/api/stocks?symbol=${encodeURIComponent(s)}`;
-
-    const mapTx=r=>({
-      id      : r.id??r._id??crypto.randomUUID(),
-      symbol  : (r.symbol??r.ticker??r.ativo??'').toUpperCase(),
-      operation: r.operation??r.type??r.side??'',
-      amount  : +(r.amount??r.quantity??r.qtd??0),
-      price   : +(r.price??r.unitPrice??r.valor??0),
-      fee     : +(r.fee??r.commission??r.custo??0),
-      date    : r.date??r.tradeDate??r.data??''
-    });
-
-    const fetchPx=async(s,f)=>{try{return(await(await fetch(apiPx(s))).json()).price??f}catch{return f}};
-
-    async function construirCarteira(){
-      carteira.length=0;
-      const m=new Map;
-      transacoes.forEach(t=>{
-        const mult=t.operation==='buy'?1:-1;
-        if(!m.has(t.symbol))m.set(t.symbol,{nome:t.symbol,acoes:0,despesa:0});
-        const p=m.get(t.symbol);
-        p.acoes+=mult*t.amount;
-        p.despesa+=mult*t.amount*t.price;
-      });
-      await Promise.all([...m.values()].filter(p=>p.acoes>0).map(async p=>{
-        p.precoCompra=Math.abs(p.despesa)/p.acoes;
-        p.precoAtual=await fetchPx(p.nome,p.precoCompra);
-        carteira.push(p);
-      }));
-    }
-
-    function calcularMetricas(){
-      const com=transacoes.reduce((s,t)=>s+t.fee,0);
-      const inv=carteira.reduce((s,a)=>s+a.precoCompra*a.acoes,0);
-      const val=carteira.reduce((s,a)=>s+a.precoAtual*a.acoes,0);
-      const acs=carteira.reduce((s,a)=>s+a.acoes,0);
-      const luc=val-inv;
-      const lp=inv?luc/inv*100:0;
-      const cp=inv?com/inv*100:0;
-      document.getElementById('totalComissoes').textContent=€(com);
-      document.getElementById('comissaoPercentual').textContent=`${cp.toFixed(2)}% do total`;
-      document.getElementById('totalInvestido').textContent=€(inv);
-      document.getElementById('totalAcoes').textContent=`${acs} ações`;
-      document.getElementById('saldoTotal').textContent=€(val-com);
-      const l=document.getElementById('lucroTotal');
-      l.textContent=€(luc);l.className=`text-3xl font-bold ${luc>=0?'text-green-400':'text-red-400'}`;
-      document.getElementById('lucroPercentual').textContent=`${lp.toFixed(2)}%`;
-      document.getElementById('lastUpdate').textContent=new Date().toLocaleString('pt-PT');
-    }
-
-    function renderCarteira(){
-      const c=document.getElementById('carteiraContainer');c.innerHTML='';
-      carteira.forEach(a=>{
-        const lucro=(a.precoAtual-a.precoCompra)*a.acoes;
-        c.insertAdjacentHTML('beforeend',
-          `<div class="bg-gray-800 p-4 rounded-xl border border-gray-700 card-hover shadow">
-            <h3 class="text-xl font-bold text-blue-300">${a.nome}</h3>
-            <p class="text-sm text-gray-400">${a.acoes} ações</p>
-            <p class="text-sm text-gray-400">Compra: ${€(a.precoCompra)}</p>
-            <p class="text-sm text-gray-400">Atual: ${€(a.precoAtual)}</p>
-            <p class="mt-2 text-sm font-semibold ${lucro>=0?'text-green-400':'text-red-400'}">Lucro: ${€(lucro)}</p>
-          </div>`);
-      });
-    }
-
-    function renderTransacoes(){
-      const t=document.getElementById('transacoesTable');t.innerHTML='';
-      filteredTransacoes.forEach(x=>{
-        const tot=x.price*x.amount+x.fee;
-        const opClass=x.operation==='buy'?'bg-green-600 text-white':'bg-red-600 text-white';
-        const opText =x.operation==='buy'?'Compra':'Venda';
-        t.insertAdjacentHTML('beforeend',
-          `<tr class="border-t border-gray-700 hover:bg-gray-700/30">
-            <td class="px-6 py-2"><span class="px-2 py-1 rounded ${opClass}">${opText}</span></td>
-            <td class="px-6 py-2">${x.symbol}</td>
-            <td class="px-6 py-2">${x.amount}</td>
-            <td class="px-6 py-2">${€(x.price)}</td>
-            <td class="px-6 py-2 text-red-400">${€(x.fee)}</td>
-            <td class="px-6 py-2">${€(tot)}</td>
-            <td class="px-6 py-2">${x.date}</td>
-          </tr>`);
-      });
-    }
-
-    function renderGraficos(){
-      const labels=carteira.map(a=>a.nome);
-      const valores=carteira.map(a=>a.precoAtual*a.acoes);
-      const lucros=carteira.map(a=>(a.precoAtual-a.precoCompra)*a.acoes);
-      if(pieChart)pieChart.destroy();
-      pieChart=new Chart(document.getElementById('pieChart'),{
-        type:'pie',
-        data:{labels,datasets:[{data:valores,backgroundColor:cores}]},
-        options:{responsive:true,plugins:{legend:{labels:{color:'#fff',boxWidth:14}}}}
-      });
-      if(barChart)barChart.destroy();
-      barChart=new Chart(document.getElementById('barChart'),{
-        type:'bar',
-        data:{labels,datasets:[{data:lucros,backgroundColor:cores}]},
-        options:{responsive:true,plugins:{legend:{display:false}},
-          scales:{x:{ticks:{color:'#fff'},grid:{display:false}},y:{ticks:{color:'#fff'},grid:{color:'#334155'}}}}
-      });
-    }
-
-    function filtrar(){
-      const tp=document.getElementById('filterTipo').value;
-      const sb=document.getElementById('searchSymbol').value.toUpperCase();
-      filteredTransacoes=transacoes.filter(z=>(!tp||z.operation===(tp==='Compra'?'buy':'sell'))&&(!sb||z.symbol.includes(sb)));
-      renderTransacoes();
-    }
-
-    document.getElementById('filterTipo').addEventListener('change',filtrar);
-    document.getElementById('searchSymbol').addEventListener('input',filtrar);
-    document.getElementById('refreshBtn').addEventListener('click',async()=>{await construirCarteira();calcularMetricas();renderCarteira();renderGraficos()});
-
-    async function loadTransacoes(){
-      const r=await fetch(apiTx(currentUserEmail));
-      const raw=await r.json();
-      transacoes.length=0;
-      raw.map(mapTx).forEach(t=>transacoes.push(t));
-      filteredTransacoes=[...transacoes];
-      await construirCarteira();calcularMetricas();renderCarteira();renderGraficos();renderTransacoes();
-    }
-
-    onAuthStateChanged(auth,u=>{if(!u)return location='/login.html';currentUserEmail=u.email;loadTransacoes()});
-  </script>
+  <script type="module" src="./i18n.js"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module" src="./utils.js"></script>
+  <script type="module" src="./data.js"></script>
+  <script type="module" src="./charts.js"></script>
+  <script type="module" src="./helpers.js"></script>
+  <script type="module" src="./render.js"></script>
+  <script type="module" src="./firebaseSync.js"></script>
+  <script type="module" src="./events.js"></script>
+  <script type="module" src="./auth.js"></script>
+  <script type="module" src="./main.js"></script>
 </body>
 </html>
