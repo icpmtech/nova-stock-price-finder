@@ -23,6 +23,32 @@
 <body class="bg-gray-100 text-gray-900 font-sans">
   <div class="max-w-4xl mx-auto py-16 px-4">
     <h1 class="text-3xl font-bold text-center mb-8">Cálculo de Impostos - Wallet360</h1><div class="bg-indigo-100 p-6 rounded-lg shadow mb-6">
+  <!-- Deduções Fiscais -->
+  <div class="mb-6">
+    <h2 class="text-xl font-semibold mb-2">Deduções Fiscais</h2>
+    <div class="grid sm:grid-cols-2 gap-4">
+      <div>
+        <label class="block mb-1">Saúde (€)</label>
+        <input id="dedSaude" type="number" value="0" class="w-full p-2 rounded border border-gray-300" />
+      </div>
+      <div>
+        <label class="block mb-1">Educação (€)</label>
+        <input id="dedEduc" type="number" value="0" class="w-full p-2 rounded border border-gray-300" />
+      </div>
+      <div>
+        <label class="block mb-1">Habitação (€)</label>
+        <input id="dedHabit" type="number" value="0" class="w-full p-2 rounded border border-gray-300" />
+      </div>
+      <div>
+        <label class="block mb-1">PPR (€)</label>
+        <input id="dedPPR" type="number" value="0" class="w-full p-2 rounded border border-gray-300" />
+      </div>
+      <div>
+        <label class="block mb-1">Donativos (€)</label>
+        <input id="dedDon" type="number" value="0" class="w-full p-2 rounded border border-gray-300" />
+      </div>
+    </div>
+  </div>
   <div class="grid md:grid-cols-1 gap-4 mb-4">
     <div>
       <label class="block mb-1 font-medium">Importar Tabela IRS (XLSX/CSV)</label>
@@ -146,7 +172,25 @@
       });
     }
 
-    async function calcularImpostos(){
+    async function calcularImpostos() {
+      // Deduções Fiscais
+      const dedSaude = parseFloat(document.getElementById('dedSaude').value) || 0;
+      const dedEduc = parseFloat(document.getElementById('dedEduc').value) || 0;
+      const dedHabit = parseFloat(document.getElementById('dedHabit').value) || 0;
+      const dedPPR = parseFloat(document.getElementById('dedPPR').value) || 0;
+      const dedDon = parseFloat(document.getElementById('dedDon').value) || 0;
+      const totalDed = dedSaude + dedEduc + dedHabit + dedPPR + dedDon;
+
+      // Iniciar loading e esconder resultados anteriores
+      document.getElementById('loading').classList.remove('hidden');
+      document.getElementById('resultado').classList.add('hidden');
+      document.getElementById('tabelas').innerHTML = '';
+
+      // Datas e taxas
+      const start = document.getElementById('startDate').value;
+      const end = document.getElementById('endDate').value;
+      const ivaRate = parseFloat(document.getElementById('ivaRate').value) || 0;
+      
       document.getElementById('loading').classList.remove('hidden'); document.getElementById('resultado').classList.add('hidden'); document.getElementById('tabelas').innerHTML='';
       const start=document.getElementById('startDate').value, end=document.getElementById('endDate').value;
       const ivaRate=parseFloat(document.getElementById('ivaRate').value)||0;
