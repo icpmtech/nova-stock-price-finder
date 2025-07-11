@@ -11,7 +11,7 @@ const defaultConfig = {
   { icon: '📑', label: 'Relatórios',       href: 'report-transactions.html' }, // documents
   { icon: '📷', label: 'Qr Code Leitor',   href: 'invoices-reader.html' },       // screen / monitor
   { icon: '📑', label: 'Ativos',         href: 'assets.html' },  
-  { icon: '📑', label: 'Ativos',         href: 'goals.html' },  
+  { icon: '📑', label: 'Objectivos',         href: 'goals.html' },  
   { icon: '📈', label: 'Análises de Ações',href: 'card-symbol.html' },     // stock chart
   { icon: '📈', label: 'Cotação',          href: 'cotacao.html' },     // cotacao chart
   { icon: '📆', label: 'Eventos',          href: 'events.html' },          // calendar
