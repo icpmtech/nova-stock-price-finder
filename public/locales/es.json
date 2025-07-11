@@ -13,5 +13,11 @@
   "financialGoals": "Objetivos Financieros",
   "assetsPortfolio": "Cartera de Activos",
   "allTransactions": "Todas las Transacciones",
-  "loadingScreen-text": "Cargando 💳 Wallet 360..."
+  "loadingScreen-text": "Cargando 💳 Wallet 360...",
+   "card.netBalance": "Saldo Neto",
+  "card.investmentsAllTime": "Inversiones (total)",
+  "card.incomeThisMonth": "Ingresos (este mes)",
+  "card.expensesThisMonth": "Gastos (este mes)",
+  "card.incomeDelta": "Δ Ingresos vs mes anterior",
+  "card.expenseDelta": "Δ Gastos vs mes anterior"
 }

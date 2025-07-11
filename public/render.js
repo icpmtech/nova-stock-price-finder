@@ -12,7 +12,7 @@ import {
   renderIncomeExpensesChart,
   renderCategoryChart
 } from './charts.js';
-
+import { t } from './i18n.js';
 export function renderSummaryCards() {
   const wrap = $('#summaryCards');
   wrap.innerHTML = '';
@@ -45,42 +45,42 @@ export function renderSummaryCards() {
 
   const cards = [
     {
-      title: 'Net Balance',
+      title: 'card.netBalance',
       value: formatCurrency(cum.net),
       icon: 'wallet',
       color: 'bg-gradient-to-r from-blue-500 to-blue-600',
       change: pct(cum.net, cum.net - (cur.income - cur.expense + cur.investment))
     },
     {
-      title: 'Investments (all time)',
+      title: 'card.investmentsAllTime',
       value: formatCurrency(cum.investment),
       icon: 'trending-up',
       color: 'bg-gradient-to-r from-green-500 to-green-600',
       change: pct(cur.investment, prev.investment)
     },
     {
-      title: 'Income (this month)',
+      title: 'card.incomeThisMonth',
       value: formatCurrency(cur.income),
       icon: 'arrow-up',
       color: 'bg-gradient-to-r from-emerald-500 to-emerald-600',
       change: pct(cur.income, prev.income)
     },
     {
-      title: 'Expenses (this month)',
+      title: 'card.expensesThisMonth',
       value: formatCurrency(cur.expense),
       icon: 'arrow-down',
       color: 'bg-gradient-to-r from-red-500 to-red-600',
       change: pct(cur.expense, prev.expense)
     },
     {
-      title: 'Income Δ vs last month',
+      title: 'card.incomeDelta',
       value: fmt(pct(cur.income, prev.income)),
       icon: 'activity',
       color: 'bg-gradient-to-r from-purple-500 to-purple-600',
       rawChange: pct(cur.income, prev.income)
     },
     {
-      title: 'Expense Δ vs last month',
+      title: 'card.expenseDelta',
       value: fmt(pct(cur.expense, prev.expense)),
       icon: 'trending-down',
       color: 'bg-gradient-to-r from-orange-500 to-orange-600',
@@ -88,23 +88,25 @@ export function renderSummaryCards() {
     }
   ];
 
-  cards.forEach(card => {
-    const changeVal = card.rawChange ?? card.change;
-    const el = document.createElement('div');
-    el.className =
-      'bg-card dark:bg-cardDark rounded-2xl shadow-lg p-4 transition-all duration-300 hover:shadow-xl hover:scale-105';
-    el.innerHTML = `
-      <div class="flex items-center justify-between mb-2">
-        <div class="${card.color} p-2 rounded-xl">
-          <i data-lucide="${card.icon}" class="w-4 h-4 text-white"></i>
-        </div>
-        <span class="text-xs font-medium ${cls(changeVal)}">${fmt(changeVal)}</span>
+ cards.forEach(card => {
+  const changeVal = card.rawChange ?? card.change;
+  const el = document.createElement('div');
+  el.className =
+    'bg-card dark:bg-cardDark rounded-2xl shadow-lg p-4 transition-all duration-300 hover:shadow-xl hover:scale-105';
+
+  el.innerHTML = `
+    <div class="flex items-center justify-between mb-2">
+      <div class="${card.color} p-2 rounded-xl">
+        <i data-lucide="${card.icon}" class="w-4 h-4 text-white"></i>
       </div>
-      <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">${card.title}</p>
-      <p class="text-lg font-bold">${card.value}</p>
-    `;
-    wrap.appendChild(el);
-  });
+      <span class="text-xs font-medium ${cls(changeVal)}">${fmt(changeVal)}</span>
+    </div>
+    <p class="text-xs text-gray-600 dark:text-gray-400 mb-1">${t(card.title)}</p>
+    <p class="text-lg font-bold">${card.value}</p>
+  `;
+
+  wrap.appendChild(el);
+});
 }
 
 export function renderBudgetProgress() {

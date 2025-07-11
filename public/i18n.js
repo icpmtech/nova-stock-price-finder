@@ -70,24 +70,39 @@ export const i18n = {
     }
   }
 };
+let currentTranslations = {};
+
 export function applyLanguage(lang) {
   document.documentElement.setAttribute('lang', lang);
 
-  fetch(`./locales/${lang}.json`)
-    .then((res) => {
-      if (!res.ok) throw new Error(`Erro ao carregar ./locales/${lang}.json`);
-      return res.json();
-    })
-    .then((translations) => {
+  return fetch(`./locales/${lang}.json`)
+    .then(res => res.json())
+    .then(translations => {
+      currentTranslations = translations;
+
       Object.entries(translations).forEach(([key, value]) => {
         const el = document.getElementById(key);
         if (el) el.innerText = value;
       });
 
-      // Dispara evento global
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        if (translations[key]) el.innerText = translations[key];
+      });
+
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.dataset.i18nPlaceholder;
+        if (translations[key]) el.placeholder = translations[key];
+      });
+
       window.dispatchEvent(new CustomEvent('languageChanged', { detail: lang }));
-    })
-    .catch((err) => {
-      console.error(`[i18n] Falha ao aplicar idioma "${lang}":`, err);
     });
+}
+
+export function t(key) {
+  try {
+    return key.split('.').reduce((o, i) => (o && o[i] !== undefined) ? o[i] : null, currentTranslations) || key;
+  } catch {
+    return key;
+  }
 }
