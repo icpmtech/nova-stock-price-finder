@@ -8,6 +8,7 @@ import { initializeAuth, registerAuthHandlers } from './auth.js';  // ✅ new na
 import { exchangeRates } from './data.js';
 import { getExchangeRates } from './currency.js';
 import { applyLanguage } from './i18n.js';
+import { initLanguage } from './i18n.js';
 import { applyCurrency } from './helpers.js'; // ✅ AQUI
 const lang = localStorage.getItem('wallet360_language') || 'pt';
 applyLanguage(lang);
@@ -39,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   hideLoadingScreen();
-
+   initLanguage();
   /* 1. Wire up UI interactions (language, currency, dark mode, etc.) */
   registerEventHandlers();
 

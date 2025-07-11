@@ -5,8 +5,8 @@ import { exchangeRates } from './data.js';
 /* Reactive app-wide settings                                                 */
 /* -------------------------------------------------------------------------- */
 export const settings = {
-  currentLang: 'en',
-  currentCurrency: 'USD',
+  currentLang: 'pt',
+  currentCurrency: 'EUR',
   isDark: false
 };
 

@@ -120,30 +120,36 @@ document.addEventListener('click', e => {
 /* ========================================================================== */
 /*  Transaction modal helpers                                                 */
 /* ========================================================================== */
-function showTransactionModal(action, tx = null) {
-  const m = $('#transactionModal');
+import { t } from './i18n.js';
+
+export function showTransactionModal(action, tx = null) {
+  const m     = $('#transactionModal');
   const title = $('#modalTitle');
-  const tSel = $('#transactionType');
+  const tSel  = $('#transactionType');
 
   if (tx) {
     editingTx = tx;
-    title.textContent = 'Edit Transaction';
+    // usa a chave traduzível
+    title.textContent = t('modal.editTransaction');
     tSel.value = tx.type;
-    $('#transactionAmount').value = tx.amount;
-    $('#transactionCategory').value = tx.category;
+    $('#transactionAmount').value      = tx.amount;
+    $('#transactionCategory').value    = tx.category;
     $('#transactionDescription').value = tx.description;
-    $('#transactionDate').value = tx.date;
+    $('#transactionDate').value        = tx.date;
   } else {
     editingTx = null;
-    title.textContent = 'Add Transaction';
+    title.textContent = t('modal.addTransaction');
     $('#transactionForm').reset();
     tSel.value =
-      action === 'addIncome' ? 'income' :
-      action === 'addExpense' ? 'expense' : 'investment';
+      action === 'addIncome'  ? 'income' :
+      action === 'addExpense' ? 'expense' :
+                                'investment';
     $('#transactionDate').value = new Date().toISOString().split('T')[0];
   }
+
   m.classList.remove('hidden');
 }
+
 function closeTxModal() {
   $('#transactionModal').classList.add('hidden');
   editingTx = null;

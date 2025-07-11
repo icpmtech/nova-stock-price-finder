@@ -286,12 +286,24 @@ export function renderAllTransactions() {
 
   thead.innerHTML = `
     <tr>
-      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
-      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
-      <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Amount</th>
-       <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th> 
+      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+        ${t('table.date')}
+      </th>
+      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+        ${t('table.type')}
+      </th>
+      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+        ${t('table.category')}
+      </th>
+      <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+        ${t('table.description')}
+      </th>
+      <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+        ${t('table.amount')}
+      </th>
+      <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+        ${t('table.actions')}
+      </th>
     </tr>
   `;
 
@@ -302,6 +314,7 @@ export function renderAllTransactions() {
     row.className =
       'hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer';
 
+    // classes para o badge
     const typeCls =
       tx.type === 'income'
         ? 'text-success bg-green-100 dark:bg-green-900'
@@ -309,47 +322,45 @@ export function renderAllTransactions() {
         ? 'text-danger bg-red-100 dark:bg-red-900'
         : 'text-primary bg-blue-100 dark:bg-blue-900';
 
+    // texto traduzido do tipo
+    const typeText = t(`${tx.type}`);
+
     row.innerHTML = `
-      <td class="px-4 py-3 whitespace-nowrap text-sm">${new Date(
-        tx.date
-      ).toLocaleDateString()}</td>
-      <td class="px-4 py-3 whitespace-nowrap">
-        <span class="px-2 py-1 text-xs font-medium rounded-full ${typeCls}">${tx.type}</span>
+      <td class="px-4 py-3 whitespace-nowrap text-sm">
+        ${new Date(tx.date).toLocaleDateString()}
       </td>
-      <td class="px-4 py-3 whitespace-nowrap text-sm capitalize">${tx.category}</td>
-      <td class="px-4 py-3 text-sm">${tx.description}</td>
+      <td class="px-4 py-3 whitespace-nowrap">
+        <span class="px-2 py-1 text-xs font-medium rounded-full ${typeCls}">
+          ${typeText}
+        </span>
+      </td>
+      <td class="px-4 py-3 whitespace-nowrap text-sm capitalize">
+        ${t(`${tx.category}`) || tx.category}
+      </td>
+      <td class="px-4 py-3 text-sm">
+        ${tx.description}
+      </td>
       <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium ${
         tx.type === 'income' ? 'text-success' : 'text-danger'
       }">
         ${tx.type === 'income' ? '+' : '-'}${formatCurrency(tx.amount)}
       </td>
       <td class="px-4 py-3 text-right">
-      <button class="delete-tx-btn text-red-500 hover:text-red-700" data-id="${tx.id}" title="Eliminar">
-        <i data-lucide="trash" class="w-4 h-4"></i>
-      </button>
-  </td>
+        <button
+          class="delete-tx-btn text-red-500 hover:text-red-700"
+          data-id="${tx.id}"
+          title="${t('delete')}"
+        >
+          <i data-lucide="trash" class="w-4 h-4"></i>
+        </button>
+      </td>
     `;
     tbody.appendChild(row);
   });
 }
 
-export function updateTranslations() {
-  $('#title').textContent = translate('title');
-  $('#subtitle').textContent = translate('subtitle');
-  $('#portfolioOverview').textContent = translate('sections.portfolioOverview');
-  $('#incomeExpenses').textContent = translate('sections.incomeExpenses');
-  $('#spendingByCategory').textContent = translate('sections.spendingByCategory');
-  $('#budgetProgress').textContent = translate('sections.budgetProgress');
-  $('#recentTransactions').textContent = translate('sections.recentTransactions');
-  $('#financialGoals').textContent = translate('sections.financialGoals');
-  $('#assetsPortfolio').textContent = translate('sections.assetsPortfolio');
-  $('#allTransactions').textContent = translate('sections.allTransactions');
 
-  $('#addIncome').textContent = translate('actions.addIncome');
-  $('#addExpense').textContent = translate('actions.addExpense');
-  $('#addInvestment').textContent = translate('actions.addInvestment');
-  $('#setGoal').textContent = translate('actions.setGoal');
-}
+
 
 export function renderAll() {
   renderSummaryCards();
@@ -361,6 +372,6 @@ export function renderAll() {
   renderFinancialGoals();
   renderAssets();
   renderAllTransactions();
-  updateTranslations();
+ 
   lucide.createIcons();
 }
