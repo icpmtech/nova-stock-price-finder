@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <title>Metas Financeiras</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          animation: {
+            'fade-in': 'fadeIn 0.3s ease-in',
+            'slide-in': 'slideIn 0.3s ease-out',
+            'pulse-subtle': 'pulse 2s infinite',
+            'bounce-subtle': 'bounce 1s ease-in-out'
+          },
+          keyframes: {
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' }
+            },
+            slideIn: {
+              '0%': { transform: 'translateY(-10px)', opacity: '0' },
+              '100%': { transform: 'translateY(0)', opacity: '1' }
+            }
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+  <div class="container mx-auto px-4 py-8 max-w-4xl">
+    <!-- Header Section -->
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mb-4">
+        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 
+                   2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 
+                   2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 
+                   002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 
+                   2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+        </svg>
+      </div>
+      <h1 class="text-4xl font-bold text-gray-800 mb-2">Metas Financeiras</h1>
+      <p class="text-gray-600">Defina e acompanhe suas metas financeiras com facilidade</p>
+    </div>
+
+    <!-- Add Goal Form -->
+    <div class="bg-white rounded-2xl shadow-xl p-6 mb-8 border border-gray-100">
+      <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+        <svg class="w-5 h-5 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 4v16m8-8H4"/>
+        </svg>
+        Nova Meta
+      </h2>
+      <form id="form" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="space-y-2">
+            <label for="name" class="block text-sm font-medium text-gray-700">Nome da Meta</label>
+            <input type="text" id="name" placeholder="Ex: Viagem para Europa"
+                   class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400" />
+          </div>
+          <div class="space-y-2">
+            <label for="target" class="block text-sm font-medium text-gray-700">Valor da Meta (€)</label>
+            <input type="number" id="target" placeholder="5000" min="0" step="0.01"
+                   class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400" />
+          </div>
+          <div class="space-y-2">
+            <label for="current" class="block text-sm font-medium text-gray-700">Valor Atual (€)</label>
+            <input type="number" id="current" placeholder="1200" min="0" step="0.01"
+                   class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400" />
+          </div>
+          <div class="space-y-2">
+            <label for="deadline" class="block text-sm font-medium text-gray-700">Data Limite</label>
+            <input type="date" id="deadline"
+                   class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-gray-400" />
+          </div>
+          <div class="space-y-2">
+            <label for="color" class="block text-sm font-medium text-gray-700">Cor</label>
+            <input type="color" id="color" value="#3b82f6"
+                   class="w-full h-12 border border-gray-300 rounded-lg cursor-pointer focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" />
+          </div>
+          <div class="flex items-end">
+            <button type="submit" class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-6 rounded-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 4v16m8-8H4"/>
+              </svg>
+              <span id="btnText">Adicionar Meta</span>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Goals List -->
+    <div class="space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-2xl font-semibold text-gray-800">Suas Metas</h2>
+        <div id="stats" class="text-sm text-gray-600"></div>
+      </div>
+      <div id="emptyState" class="text-center py-12 hidden">
+        <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 
+                   2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 
+                   2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 
+                   002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 
+                   2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+        </svg>
+        <h3 class="text-lg font-semibold text-gray-500 mb-2">Nenhuma meta definida</h3>
+        <p class="text-gray-400">Adicione sua primeira meta financeira para começar!</p>
+      </div>
+      <ul id="list" class="space-y-4"></ul>
+    </div>
+  </div>
+
+  <script type="module">
+    import './firebase-init.js';
+    import FirebaseAPI from './firebase-api.js';
+
+    class GoalsApp {
+      constructor() {
+        this.editingId = null;
+        this.init();
+      }
+
+      async init() {
+        this.cacheEls();
+        this.bindEvents();
+        await this.loadGoals();
+      }
+
+      cacheEls() {
+        this.form       = document.getElementById('form');
+        this.btnText    = document.getElementById('btnText');
+        this.list       = document.getElementById('list');
+        this.emptyState = document.getElementById('emptyState');
+        this.stats      = document.getElementById('stats');
+        this.inputs     = {
+          name:     document.getElementById('name'),
+          target:   document.getElementById('target'),
+          current:  document.getElementById('current'),
+          deadline: document.getElementById('deadline'),
+          color:    document.getElementById('color'),
+        };
+      }
+
+      bindEvents() {
+        this.form.addEventListener('submit', e => { e.preventDefault(); this.handleSubmit(); });
+      }
+
+      async loadGoals() {
+        this.goals = await FirebaseAPI.fetchGoals();
+        this.render();
+      }
+
+      async handleSubmit() {
+        const { name, target, current, deadline, color } = this.inputs;
+        const data = {
+          name:     name.value.trim(),
+          target:   parseFloat(target.value),
+          current:  parseFloat(current.value),
+          deadline: deadline.value,
+          color:    color.value
+        };
+
+        if (!data.name || isNaN(data.target) || data.target <= 0) {
+          return alert('Preencha nome e valor da meta corretamente.');
+        }
+
+        if (this.editingId) {
+          await FirebaseAPI.updateGoal(this.editingId, data);
+          this.editingId = null;
+        } else {
+          await FirebaseAPI.addGoal(data);
+        }
+
+        this.resetForm();
+        await this.loadGoals();
+      }
+
+      render() {
+        if (!this.goals.length) {
+          this.list.innerHTML = '';
+          this.emptyState.classList.remove('hidden');
+          this.stats.textContent = '';
+          return;
+        }
+        this.emptyState.classList.add('hidden');
+        const completed = this.goals.filter(g => g.current >= g.target).length;
+        this.stats.textContent = `${completed}/${this.goals.length} metas concluídas`;
+
+        this.list.innerHTML = this.goals.map(g => this.renderGoal(g)).join('');
+      }
+
+      renderGoal(goal) {
+        const progress = Math.min((goal.current / goal.target) * 100, 100);
+        const daysLeft = goal.deadline
+          ? Math.ceil((new Date(goal.deadline) - new Date()) / (1000*60*60*24))
+          : null;
+        const overdue  = daysLeft !== null && daysLeft < 0;
+
+        return `
+          <li class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all duration-300">
+            <div class="flex justify-between items-center mb-4">
+              <div>
+                <h3 class="text-xl font-semibold ${goal.current>=goal.target ? 'text-green-600 line-through' : ''}">
+                  ${goal.name}
+                </h3>
+                <div class="text-sm text-gray-600 flex space-x-4">
+                  <span>€${goal.current.toFixed(2)} / €${goal.target.toFixed(2)}</span>
+                  ${goal.deadline ? `
+                    <span class="${overdue ? 'text-red-500' : daysLeft<=7 ? 'text-yellow-500' : ''}">
+                      ${overdue ? `${-daysLeft} dias em atraso` : daysLeft===0 ? 'Hoje!' : `${daysLeft} dias restantes`}
+                    </span>` : ''}
+                </div>
+              </div>
+              <div class="flex space-x-2">
+                <button onclick="goalsApp.editGoal('${goal.id}')" class="p-2 text-gray-400 hover:text-blue-500">
+                  ✏️
+                </button>
+                <button onclick="goalsApp.deleteGoal('${goal.id}')" class="p-2 text-gray-400 hover:text-red-500">
+                  🗑️
+                </button>
+              </div>
+            </div>
+            <div class="space-y-3">
+              <div class="flex justify-between text-sm text-gray-600">
+                <span>Progresso: ${progress.toFixed(1)}%</span>
+                <input type="number" value="${goal.current}" min="0" max="${goal.target}" step="0.01"
+                       onchange="goalsApp.updateProgress('${goal.id}', parseFloat(this.value))"
+                       class="w-24 text-sm border rounded px-2 py-1 text-center"/>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                <div class="h-full rounded-full transition-all duration-500"
+                     style="width:${progress}%; background-color:${goal.current>=goal.target ? '' : goal.color}">
+                </div>
+              </div>
+            </div>
+          </li>`;
+      }
+
+      async editGoal(id) {
+        const g = this.goals.find(x => x.id === id);
+        if (!g) return;
+        Object.assign(this.inputs, {
+          name: g.name,
+          target: g.target,
+          current: g.current,
+          deadline: g.deadline,
+          color: g.color
+        });
+        this.editingId = id;
+        this.btnText.textContent = 'Atualizar Meta';
+        this.inputs.name.focus();
+      }
+
+      async deleteGoal(id) {
+        if (!confirm('Excluir esta meta?')) return;
+        await FirebaseAPI.deleteGoal(id);
+        await this.loadGoals();
+      }
+
+      async updateProgress(id, val) {
+        if (isNaN(val)) return;
+        await FirebaseAPI.updateGoal(id, { current: val });
+        await this.loadGoals();
+      }
+
+      resetForm() {
+        this.form.reset();
+        this.inputs.color.value = '#3b82f6';
+        this.editingId = null;
+        this.btnText.textContent = 'Adicionar Meta';
+      }
+    }
+
+    window.goalsApp = new GoalsApp();
+  </script>
+</body>
+</html>
