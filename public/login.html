@@ -379,7 +379,7 @@
       const token = await cred.user.getIdToken();
       localStorage.setItem("token", token);
       showMessage("Login bem-sucedido! A redirecionar…", "success");
-      setTimeout(() => window.location.href = "/dashboard.html", 1500);
+      setTimeout(() => window.location.href = "/wallet360.html", 1500);
     } catch (err) {
       let msg = "Erro ao entrar. ";
       if (err.code === "auth/user-not-found")      msg += "Utilizador não encontrado.";
