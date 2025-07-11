@@ -1,0 +1,161 @@
+<!DOCTYPE html><html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cálculo de Impostos - Wallet360</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body class="bg-gray-100 text-gray-900 font-sans">
+  <div class="max-w-4xl mx-auto py-16 px-4">
+    <h1 class="text-3xl font-bold text-center mb-8">Cálculo de Impostos - Wallet360</h1><div class="bg-indigo-100 p-6 rounded-lg shadow mb-6">
+  <div class="grid md:grid-cols-2 gap-4 mb-4">
+    <div>
+      <label class="block mb-1 font-medium">Data de Início</label>
+      <input id="startDate" type="date" class="w-full p-2 rounded border border-gray-300" />
+    </div>
+    <div>
+      <label class="block mb-1 font-medium">Data de Fim</label>
+      <input id="endDate" type="date" class="w-full p-2 rounded border border-gray-300" />
+    </div>
+    <div>
+      <label class="block mb-1 font-medium">Taxa IVA (%)</label>
+      <input id="ivaRate" type="number" value="23" class="w-full p-2 rounded border border-gray-300" />
+    </div>
+    <div>
+      <label class="block mb-1 font-medium">IRS Rend. (%)</label>
+      <input id="irsRendRate" type="number" value="14.5" class="w-full p-2 rounded border border-gray-300" />
+    </div>
+    <div>
+      <label class="block mb-1 font-medium">IRS Invest. (%)</label>
+      <input id="irsInvRate" type="number" value="28" class="w-full p-2 rounded border border-gray-300" />
+    </div>
+  </div>
+  <div class="flex flex-wrap gap-4">
+    <button id="btnCalcular" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-3 rounded-lg transition">Calcular Impostos</button>
+    <button id="btnExportCSV" class="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-lg transition">Exportar CSV</button>
+    <button id="btnExportPDF" class="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-lg transition">Exportar PDF</button>
+  </div>
+</div>
+
+<div id="resultado" class="mt-8"></div>
+
+  </div>  <script type="module">
+    import FirebaseAPI from './firebaseApi.js';
+
+    let resultados = {};
+
+    function filtrarPorData(lista, inicio, fim) {
+      return lista.filter(tx => {
+        const d = new Date(tx.date);
+        return (!inicio || d >= new Date(inicio)) && (!fim || d <= new Date(fim));
+      });
+    }
+
+    function gerarCSV() {
+      const linhas = ["Tipo,Total €,Imposto %,Estimativa €"];
+      linhas.push(`Despesas,${resultados.totalDespesas.toFixed(2)},${resultados.ivaRate}%,${resultados.totalIVA.toFixed(2)}`);
+      linhas.push(`Rendimentos,${resultados.totalRendimentos.toFixed(2)},${resultados.irsRendRate}%,${resultados.totalIRS_Rend.toFixed(2)}`);
+      linhas.push(`Investimentos,${resultados.totalInvestimentos.toFixed(2)},${resultados.irsInvRate}%,${resultados.totalIRS_Invest.toFixed(2)}`);
+
+      const blob = new Blob([linhas.join("\n")], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'impostos_wallet360.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function gerarPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.setFontSize(14);
+      doc.text("Resumo Fiscal Estimado - Wallet360", 10, 15);
+
+      doc.setFontSize(12);
+      doc.text(`IVA sobre Despesas: \u20ac${resultados.totalIVA.toFixed(2)} (${resultados.ivaRate}%)`, 10, 30);
+      doc.text(`IRS sobre Rendimentos: \u20ac${resultados.totalIRS_Rend.toFixed(2)} (${resultados.irsRendRate}%)`, 10, 40);
+      doc.text(`IRS sobre Investimentos: \u20ac${resultados.totalIRS_Invest.toFixed(2)} (${resultados.irsInvRate}%)`, 10, 50);
+
+      doc.save("impostos_wallet360.pdf");
+    }
+
+    async function calcularImpostos() {
+      const output = document.getElementById('resultado');
+      output.innerHTML = 'A carregar...';
+
+      const start = document.getElementById('startDate').value;
+      const end = document.getElementById('endDate').value;
+      const ivaRate = parseFloat(document.getElementById('ivaRate').value) || 0;
+      const irsRendRate = parseFloat(document.getElementById('irsRendRate').value) || 0;
+      const irsInvRate = parseFloat(document.getElementById('irsInvRate').value) || 0;
+
+      try {
+        const transacoes = await FirebaseAPI.fetchRecentTransactions();
+        const filtradas = filtrarPorData(transacoes, start, end);
+
+        let totalDespesas = 0, totalIVA = 0;
+        let totalRendimentos = 0, totalIRS_Rend = 0;
+        let totalInvestimentos = 0, totalIRS_Invest = 0;
+
+        for (const tx of filtradas) {
+          if (tx.type === 'expense') {
+            totalDespesas += tx.amount;
+            totalIVA += tx.amount * (ivaRate / 100);
+          } else if (tx.type === 'income') {
+            totalRendimentos += tx.amount;
+            totalIRS_Rend += tx.amount * (irsRendRate / 100);
+          } else if (tx.type === 'investment') {
+            totalInvestimentos += tx.amount;
+            totalIRS_Invest += tx.amount * (irsInvRate / 100);
+          }
+        }
+
+        resultados = {
+          totalDespesas,
+          totalIVA,
+          ivaRate,
+          totalRendimentos,
+          totalIRS_Rend,
+          irsRendRate,
+          totalInvestimentos,
+          totalIRS_Invest,
+          irsInvRate
+        };
+
+        output.innerHTML = `
+          <div class="bg-white rounded-xl shadow-lg p-6 space-y-6">
+            <h2 class="text-2xl font-bold mb-4">Resumo Fiscal Estimado</h2>
+
+            <div>
+              <h3 class="font-semibold text-lg mb-1">🧾 IVA sobre Despesas</h3>
+              <p>Total: <strong>€${totalDespesas.toFixed(2)}</strong></p>
+              <p>IVA (${ivaRate}%): <strong class="text-indigo-600">€${totalIVA.toFixed(2)}</strong></p>
+            </div>
+
+            <div>
+              <h3 class="font-semibold text-lg mb-1">💼 IRS sobre Rendimentos</h3>
+              <p>Total: <strong>€${totalRendimentos.toFixed(2)}</strong></p>
+              <p>IRS (${irsRendRate}%): <strong class="text-red-600">€${totalIRS_Rend.toFixed(2)}</strong></p>
+            </div>
+
+            <div>
+              <h3 class="font-semibold text-lg mb-1">📈 IRS sobre Investimentos</h3>
+              <p>Total: <strong>€${totalInvestimentos.toFixed(2)}</strong></p>
+              <p>IRS (${irsInvRate}%): <strong class="text-red-600">€${totalIRS_Invest.toFixed(2)}</strong></p>
+            </div>
+
+            <p class="text-sm text-gray-500">* Estimativas com base nas transações registadas e nas taxas fornecidas.</p>
+          </div>
+        `;
+      } catch (error) {
+        output.innerHTML = `<p class="text-red-500">Erro ao calcular: ${error.message}</p>`;
+      }
+    }
+
+    document.getElementById('btnCalcular').addEventListener('click', calcularImpostos);
+    document.getElementById('btnExportCSV').addEventListener('click', gerarCSV);
+    document.getElementById('btnExportPDF').addEventListener('click', gerarPDF);
+  </script></body>
+</html>
