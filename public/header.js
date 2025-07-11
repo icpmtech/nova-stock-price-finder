@@ -16,7 +16,7 @@ const defaultConfig = {
   { icon: '📈', label: 'Cotação',          href: 'cotacao.html' },     // cotacao chart
   { icon: '📆', label: 'Eventos',          href: 'events.html' },          // calendar
   { icon: '⭐',  label: 'Favoritos',        href: 'watchlist.html' },       // favorite / star
-    { icon: '📆', label: 'IRS',         href: 'tax.html' },      // out-tray
+  { icon: '📆', label: 'IRS',         href: 'tax.html' },      // out-tray
   { icon: '📤', label: 'Exportar',         href: 'tax-report.html' },      // out-tray
   { icon: '📥', label: 'Importar',         href: 'importer.html' },        // in-tray
   { icon: '⚙️', label: 'Definições',       href: 'settings.html' }         // cog
