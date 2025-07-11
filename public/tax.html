@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="pt">
+<!DOCTYPE html>
+<html lang="pt">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,194 +18,255 @@
   <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.print.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/pdfmake.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.36/vfs_fonts.js"></script>
-  <!-- SheetJS para importação XLSX/CSV -->
+  <!-- SheetJS for import -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
 </head>
 <body class="bg-gray-100 text-gray-900 font-sans">
   <div class="max-w-4xl mx-auto py-16 px-4">
-    <h1 class="text-3xl font-bold text-center mb-8">Cálculo de Impostos - Wallet360</h1><div class="bg-indigo-100 p-6 rounded-lg shadow mb-6">
-  <!-- Deduções Fiscais -->
-  <div class="mb-6">
-    <h2 class="text-xl font-semibold mb-2">Deduções Fiscais</h2>
-    <div class="grid sm:grid-cols-2 gap-4">
-      <div>
-        <label class="block mb-1">Saúde (€)</label>
-        <input id="dedSaude" type="number" value="0" class="w-full p-2 rounded border border-gray-300" />
+    <h1 class="text-3xl font-bold text-center mb-8">Cálculo de Impostos - Wallet360</h1>
+
+    <div class="bg-indigo-100 p-6 rounded-lg shadow mb-6">
+      <!-- Import IRS table -->
+      <div class="mb-6">
+        <label class="block mb-1 font-medium">Importar Tabela IRS (XLSX/CSV)</label>
+        <input id="irsFileInput" type="file" accept=".xlsx,.csv" class="w-full p-2 rounded border border-gray-300" />
       </div>
-      <div>
-        <label class="block mb-1">Educação (€)</label>
-        <input id="dedEduc" type="number" value="0" class="w-full p-2 rounded border border-gray-300" />
+      <!-- Deductions -->
+      <div class="mb-6">
+        <h2 class="text-xl font-semibold mb-2">Deduções Fiscais (€)</h2>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div><label class="block mb-1">Saúde</label><input id="dedSaude" type="number" value="0" class="w-full p-2 rounded border border-gray-300" /></div>
+          <div><label class="block mb-1">Educação</label><input id="dedEduc" type="number" value="0" class="w-full p-2 rounded border border-gray-300" /></div>
+          <div><label class="block mb-1">Habitação</label><input id="dedHabit" type="number" value="0" class="w-full p-2 rounded border border-gray-300" /></div>
+          <div><label class="block mb-1">PPR</label><input id="dedPPR" type="number" value="0" class="w-full p-2 rounded border border-gray-300" /></div>
+          <div><label class="block mb-1">Donativos</label><input id="dedDon" type="number" value="0" class="w-full p-2 rounded border border-gray-300" /></div>
+        </div>
       </div>
-      <div>
-        <label class="block mb-1">Habitação (€)</label>
-        <input id="dedHabit" type="number" value="0" class="w-full p-2 rounded border border-gray-300" />
+      <!-- Settings -->
+      <div class="grid md:grid-cols-2 gap-4 mb-4">
+        <div><label class="block mb-1 font-medium">Data de Início</label><input id="startDate" type="date" class="w-full p-2 rounded border border-gray-300" /></div>
+        <div><label class="block mb-1 font-medium">Data de Fim</label><input id="endDate" type="date" class="w-full p-2 rounded border border-gray-300" /></div>
+        <div><label class="block mb-1 font-medium">Taxa IVA (%)</label><input id="ivaRate" type="number" value="23" class="w-full p-2 rounded border border-gray-300" /></div>
+        <div>
+          <label class="block mb-1 font-medium">Categoria IRS</label>
+          <select id="irsCategory" class="w-full p-2 rounded border border-gray-300">
+            <option value="A">Categoria A (Trabalho Dependente)</option>
+            <option value="B">Categoria B (Trabalho Independente)</option>
+            <option value="E">Categoria E (Rendimentos de Capitais)</option>
+            <option value="F">Categoria F (Rendimentos Prediais)</option>
+            <option value="G">Categoria G (Pensões)</option>
+            <option value="H">Categoria H (Mais-valias)</option>
+          </select>
+        </div>
       </div>
-      <div>
-        <label class="block mb-1">PPR (€)</label>
-        <input id="dedPPR" type="number" value="0" class="w-full p-2 rounded border border-gray-300" />
+      <div class="flex flex-wrap gap-4">
+        <button id="btnCalcular" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-3 rounded-lg transition">Calcular Impostos</button>
+        <button id="btnExportCSV" class="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-lg transition">Exportar CSV</button>
+        <button id="btnExportPDF" class="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-lg transition">Exportar PDF</button>
       </div>
-      <div>
-        <label class="block mb-1">Donativos (€)</label>
-        <input id="dedDon" type="number" value="0" class="w-full p-2 rounded border border-gray-300" />
-      </div>
+    </div>
+
+    <!-- Loading -->
+    <div id="loading" class="flex items-center justify-center space-x-2 hidden">
+      <svg class="animate-spin h-6 w-6 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+      </svg>
+      <span class="text-indigo-600 font-medium">A processar, por favor aguarde...</span>
+    </div>
+
+    <!-- Results -->
+    <div id="resultado" class="mt-8 hidden"></div>
+    <!-- Tables -->
+    <div id="tabelas" class="mt-12 space-y-8">
+      <p class="italic text-gray-500 text-center">Por favor, clique em <strong>Calcular Impostos</strong> para visualizar as tabelas.</p>
     </div>
   </div>
-  <div class="grid md:grid-cols-1 gap-4 mb-4">
-    <div>
-      <label class="block mb-1 font-medium">Importar Tabela IRS (XLSX/CSV)</label>
-      <input id="irsFileInput" type="file" accept=".xlsx,.csv" class="w-full p-2 rounded border border-gray-300" />
-    </div>
-  </div>
-  <div class="grid md:grid-cols-2 gap-4 mb-4">
-    <div>
-      <label class="block mb-1 font-medium">Data de Início</label>
-      <input id="startDate" type="date" class="w-full p-2 rounded border border-gray-300" />
-    </div>
-    <div>
-      <label class="block mb-1 font-medium">Data de Fim</label>
-      <input id="endDate" type="date" class="w-full p-2 rounded border border-gray-300" />
-    </div>
-    <div>
-      <label class="block mb-1 font-medium">Taxa IVA (%)</label>
-      <input id="ivaRate" type="number" value="23" class="w-full p-2 rounded border border-gray-300" />
-    </div>
-    <div>
-      <label class="block mb-1 font-medium">Categoria IRS</label>
-      <select id="irsCategory" class="w-full p-2 rounded border border-gray-300">
-        <option value="A">Categoria A (Trabalho Dependente)</option>
-        <option value="B">Categoria B (Trabalho Independente)</option>
-        <option value="E">Categoria E (Rendimentos de Capitais)</option>
-        <option value="F">Categoria F (Rendimentos Prediais)</option>
-        <option value="G">Categoria G (Pensões)</option>
-        <option value="H">Categoria H (Mais-valias)</option>
-      </select>
-    </div>
-  </div>
-  <div class="flex flex-wrap gap-4">
-    <button id="btnCalcular" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-3 rounded-lg transition">Calcular Impostos</button>
-    <button id="btnExportCSV" class="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-lg transition">Exportar CSV</button>
-    <button id="btnExportPDF" class="bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-3 rounded-lg transition">Exportar PDF</button>
-  </div>
-</div>
 
-<div id="loading" class="flex items-center justify-center space-x-2 hidden">
-  <svg class="animate-spin h-6 w-6 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-  </svg>
-  <span class="text-indigo-600 font-medium">A processar, por favor aguarde...</span>
-</div>
+<script type="module">
+  import FirebaseAPI from './firebaseApi.js';
 
-<div id="resultado" class="mt-8 hidden"></div>
-<div id="tabelas" class="mt-12 space-y-8">
-  <p class="italic text-gray-500 text-center">Por favor, clique em <strong>Calcular Impostos</strong> para visualizar as tabelas.</p>
-</div>
+  let resultados = {};
+  let irsBrackets = null;
 
-  </div>  <script type="module">
-    import FirebaseAPI from './firebaseApi.js';
+  document.getElementById('irsFileInput').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = evt => {
+      const data = evt.target.result;
+      const wb = XLSX.read(data, { type: file.name.endsWith('.csv') ? 'string' : 'array' });
+      const sheet = wb.Sheets[wb.SheetNames[0]];
+      const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+      const [header, ...rows] = json;
+      const minIdx = header.findIndex(h => /min/i.test(h));
+      const maxIdx = header.findIndex(h => /max/i.test(h));
+      const rateIdx = header.findIndex(h => /rate|taxa/i.test(h));
+      irsBrackets = rows.map(r => ({
+        min: parseFloat(r[minIdx] || 0),
+        max: parseFloat(r[maxIdx] || Infinity),
+        rate: parseFloat(r[rateIdx] || 0)
+      }));
+      irsBrackets.sort((a, b) => a.min - b.min);
+      alert('Tabela IRS importada com sucesso!');
+    };
+    reader.readAsArrayBuffer(file);
+  });
 
-    let resultados = {};
-    let irsBrackets = null;
+  function filtrarPorData(lista, inicio, fim) {
+    return lista.filter(tx => {
+      const d = new Date(tx.date);
+      return (!inicio || d >= new Date(inicio)) && (!fim || d <= new Date(fim));
+    });
+  }
 
-    document.getElementById('irsFileInput').addEventListener('change', e => {
-      const file = e.target.files[0]; if (!file) return;
-      const reader = new FileReader();
-      reader.onload = evt => {
-        const data = evt.target.result;
-        const wb = XLSX.read(data, { type: file.name.endsWith('.csv') ? 'string' : 'array' });
-        const sheet = wb.Sheets[wb.SheetNames[0]];
-        const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-        const [header, ...rows] = json;
-        const minIdx = header.findIndex(h => /min/i.test(h));
-        const maxIdx = header.findIndex(h => /max/i.test(h));
-        const rateIdx = header.findIndex(h => /rate|taxa/i.test(h));
-        irsBrackets = rows.map(r => ({ min: parseFloat(r[minIdx]||0), max: parseFloat(r[maxIdx]||Infinity), rate: parseFloat(r[rateIdx]||0)}));
-        irsBrackets.sort((a,b)=>a.min-b.min);
-        alert('Tabela IRS importada com sucesso!');
-      };
-      reader.readAsArrayBuffer(file);
+  function calcProgressivo(amount) {
+    if (!irsBrackets) return 0;
+    let tax = 0;
+    for (const b of irsBrackets) {
+      if (amount <= b.min) break;
+      const upper = Math.min(amount, b.max);
+      tax += (upper - b.min) * (b.rate / 100);
+    }
+    return tax;
+  }
+
+  function gerarCSV() {
+    const linhas = ["Tipo,Total €,Imposto €,Taxa utilizada"];
+    linhas.push(`Despesas,${resultados.totalDespesas.toFixed(2)},${resultados.totalIVA.toFixed(2)},${resultados.ivaRate}%`);
+    linhas.push(`Rendimentos,${resultados.totalRendimentos.toFixed(2)},${resultados.totalIRS_Rend.toFixed(2)},Progressivo`);
+    linhas.push(`Investimentos,${resultados.totalInvestimentos.toFixed(2)},${resultados.totalIRS_Invest.toFixed(2)},Progressivo`);
+    const blob = new Blob([linhas.join("\n")], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'impostos_wallet360.csv'; a.click(); URL.revokeObjectURL(url);
+  }
+
+  function gerarPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(14);
+    doc.text("Resumo Fiscal Estimado - Wallet360", 10, 15);
+    doc.setFontSize(12);
+    doc.text(`🧾 IVA Despesas: €${resultados.totalIVA.toFixed(2)} (${resultados.ivaRate}%)`, 10, 30);
+    doc.text(`💼 IRS Rendimentos: €${resultados.totalIRS_Rend.toFixed(2)} (Progressivo)`, 10, 40);
+    doc.text(`📈 IRS Investimentos: €${resultados.totalIRS_Invest.toFixed(2)} (Progressivo)`, 10, 50);
+    doc.save("impostos_wallet360.pdf");
+  }
+
+  function renderTabelas(lista) {
+    const container = document.getElementById('tabelas');
+    container.innerHTML = '';
+    const grupos = {
+      'Despesas': lista.filter(tx => tx.type === 'expense'),
+      'Rendimentos': lista.filter(tx => tx.type === 'income'),
+      'Investimentos': lista.filter(tx => tx.type === 'investment')
+    };
+    Object.entries(grupos).forEach(([titulo, arr], idx) => {
+      const div = document.createElement('div');
+      div.innerHTML = `<h3 class="text-xl font-semibold mb-2">${titulo}</h3>`;
+      if (!arr.length) {
+        div.innerHTML += `<p class="italic text-gray-500">Sem ${titulo.toLowerCase()}.</p>`;
+      } else {
+        div.innerHTML += `
+          <div class="overflow-x-auto">
+            <table id="dt${idx}" class="min-w-full bg-white rounded-lg overflow-hidden display">
+              <thead class="bg-gray-200"><tr>
+                <th class="p-2">Data</th>
+                <th class="p-2">Descrição</th>
+                <th class="p-2">Valor (€)</th>
+                <th class="p-2">Imposto (€)</th>
+              </tr></thead>
+              <tbody>
+                ${arr.map(tx => {
+                  let imp = tx.type === 'expense'
+                    ? tx.amount * (resultados.ivaRate / 100)
+                    : calcProgressivo(tx.amount);
+                  return `
+                    <tr class="border-b">
+                      <td class="p-2">${tx.date}</td>
+                      <td class="p-2">${tx.description}</td>
+                      <td class="p-2">€${tx.amount.toFixed(2)}</td>
+                      <td class="p-2">€${imp.toFixed(2)}</td>
+                    </tr>`;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>`;
+      }
+      container.appendChild(div);
+      if (arr.length) {
+        $(`#dt${idx}`).DataTable({
+          dom: 'Bfrtip',
+          buttons: ['copyHtml5', 'csvHtml5', 'excelHtml5', 'pdfHtml5', 'print']
+        });
+      }
+    });
+  }
+
+  async function calcularImpostos() {
+    // deduções
+    const dedSaude  = parseFloat(document.getElementById('dedSaude').value) || 0;
+    const dedEduc   = parseFloat(document.getElementById('dedEduc').value ) || 0;
+    const dedHabit  = parseFloat(document.getElementById('dedHabit').value) || 0;
+    const dedPPR    = parseFloat(document.getElementById('dedPPR').value  ) || 0;
+    const dedDon    = parseFloat(document.getElementById('dedDon').value  ) || 0;
+    const totalDed  = dedSaude + dedEduc + dedHabit + dedPPR + dedDon;
+
+    document.getElementById('loading').classList.remove('hidden');
+    document.getElementById('resultado').classList.add('hidden');
+    document.getElementById('tabelas').innerHTML = '';
+
+    const start = document.getElementById('startDate').value;
+    const end   = document.getElementById('endDate').value;
+    const ivaRate = parseFloat(document.getElementById('ivaRate').value) || 0;
+
+    const trans = await FirebaseAPI.fetchRecentTransactions();
+    const filtr = filtrarPorData(trans, start, end);
+
+    let totDesp = 0, totIVA = 0;
+    let totRend = 0, totIRS_R = 0;
+    let totInv  = 0, totIRS_I = 0;
+
+    filtr.forEach(tx => {
+      if (tx.type === 'expense') {
+        totDesp += tx.amount;
+        totIVA  += tx.amount * (ivaRate / 100);
+      } else if (tx.type === 'income') {
+        const baseRend = Math.max(0, tx.amount - totalDed);
+        totRend   += tx.amount;
+        totIRS_R  += calcProgressivo(baseRend);
+      } else if (tx.type === 'investment') {
+        totInv   += tx.amount;
+        totIRS_I += calcProgressivo(tx.amount);
+      }
     });
 
-    function filtrarPorData(lista, inicio, fim) {
-      return lista.filter(tx => { const d=new Date(tx.date); return (!inicio||d>=new Date(inicio))&&(!fim||d<=new Date(fim)); });
-    }
+    resultados = {
+      totalDespesas: totDesp,
+      totalIVA:      totIVA,
+      ivaRate,
+      totalRendimentos: totRend,
+      totalIRS_Rend:    totIRS_R,
+      totalInvestimentos: totInv,
+      totalIRS_Invest:    totIRS_I
+    };
 
-    function calcProgressivo(amount) {
-      if (!irsBrackets) return 0;
-      let tax=0;
-      for (const b of irsBrackets) {
-        if (amount<=b.min) break;
-        const upper=Math.min(amount,b.max);
-        tax+=(upper-b.min)*(b.rate/100);
-      }
-      return tax;
-    }
+    document.getElementById('resultado').innerHTML = `
+      <div class="bg-white rounded-xl shadow-lg p-6 space-y-6">
+        <h2 class="text-2xl font-bold mb-4">Resumo Fiscal Estimado</h2>
+        <p>🧾 IVA Despesas: <strong>€${totIVA.toFixed(2)}</strong> (${ivaRate}%)</p>
+        <p>💼 IRS Rendimentos: <strong>€${totIRS_R.toFixed(2)}</strong> (Após deduções)</p>
+        <p>📈 IRS Investimentos: <strong>€${totIRS_I.toFixed(2)}</strong> (Progressivo)</p>
+      </div>`;
+    document.getElementById('loading').classList.add('hidden');
+    document.getElementById('resultado').classList.remove('hidden');
 
-    function gerarCSV() {
-      const linhas=["Tipo,Total €,Imposto €,Taxa utilizada"];
-      linhas.push(`Despesas,${resultados.totalDespesas.toFixed(2)},${resultados.totalIVA.toFixed(2)},${resultados.ivaRate}%`);
-      linhas.push(`Rendimentos,${resultados.totalRendimentos.toFixed(2)},${resultados.totalIRS_Rend.toFixed(2)},Progressivo`);
-      linhas.push(`Investimentos,${resultados.totalInvestimentos.toFixed(2)},${resultados.totalIRS_Invest.toFixed(2)},Progressivo`);
-      const blob=new Blob([linhas.join("\n")],{type:'text/csv'});
-      const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='impostos_wallet360.csv'; a.click(); URL.revokeObjectURL(url);
-    }
+    renderTabelas(filtr);
+  }
 
-    function gerarPDF() {
-      const { jsPDF }=window.jspdf; const doc=new jsPDF(); doc.setFontSize(14);
-      doc.text("Resumo Fiscal Estimado - Wallet360",10,15); doc.setFontSize(12);
-      doc.text(`🧾 IVA Despesas: €${resultados.totalIVA.toFixed(2)} (${resultados.ivaRate}%)`,10,30);
-      doc.text(`💼 IRS Rendimentos: €${resultados.totalIRS_Rend.toFixed(2)} (Progressivo)`,10,40);
-      doc.text(`📈 IRS Investimentos: €${resultados.totalIRS_Invest.toFixed(2)} (Progressivo)`,10,50);
-      doc.save("impostos_wallet360.pdf");
-    }
-
-    function renderTabelas(lista) {
-      const container=document.getElementById('tabelas'); container.innerHTML='';
-      const grupos={ 'Despesas':lista.filter(tx=>tx.type==='expense'), 'Rendimentos':lista.filter(tx=>tx.type==='income'),'Investimentos':lista.filter(tx=>tx.type==='investment')};
-      Object.entries(grupos).forEach(([titulo,arr],idx)=>{
-        const div=document.createElement('div'); div.innerHTML=`<h3 class="text-xl font-semibold mb-2">${titulo}</h3>`;
-        if(!arr.length){ div.innerHTML+=`<p class="italic text-gray-500">Sem ${titulo.toLowerCase()}.</p>`; }
-        else {
-          div.innerHTML+=`<div class="overflow-x-auto"><table id="dt${idx}" class="min-w-full bg-white rounded-lg overflow-hidden display"><thead class="bg-gray-200"><tr><th>Data</th><th>Desc</th><th>Valor (€)</th><th>Imposto (€)</th></tr></thead><tbody>${arr.map(tx=>{let imp= tx.type==='expense'?tx.amount*(resultados.ivaRate/100):calcProgressivo(tx.amount);return `<tr><td>${tx.date}</td><td>${tx.description}</td><td>€${tx.amount.toFixed(2)}</td><td>€${imp.toFixed(2)}</td></tr>`}).join('')}</tbody></table></div>`;
-        }
-        container.appendChild(div);
-        if(arr.length) $(`#dt${idx}`).DataTable({dom:'Bfrtip',buttons:['copyHtml5','csvHtml5','excelHtml5','pdfHtml5','print']});
-      });
-    }
-
-    async function calcularImpostos() {
-      // Deduções Fiscais
-      const dedSaude = parseFloat(document.getElementById('dedSaude').value) || 0;
-      const dedEduc = parseFloat(document.getElementById('dedEduc').value) || 0;
-      const dedHabit = parseFloat(document.getElementById('dedHabit').value) || 0;
-      const dedPPR = parseFloat(document.getElementById('dedPPR').value) || 0;
-      const dedDon = parseFloat(document.getElementById('dedDon').value) || 0;
-      const totalDed = dedSaude + dedEduc + dedHabit + dedPPR + dedDon;
-
-      // Iniciar loading e esconder resultados anteriores
-      document.getElementById('loading').classList.remove('hidden');
-      document.getElementById('resultado').classList.add('hidden');
-      document.getElementById('tabelas').innerHTML = '';
-
-      // Datas e taxas
-      const start = document.getElementById('startDate').value;
-      const end = document.getElementById('endDate').value;
-      const ivaRate = parseFloat(document.getElementById('ivaRate').value) || 0;
-      
-      document.getElementById('loading').classList.remove('hidden'); document.getElementById('resultado').classList.add('hidden'); document.getElementById('tabelas').innerHTML='';
-      const start=document.getElementById('startDate').value, end=document.getElementById('endDate').value;
-      const ivaRate=parseFloat(document.getElementById('ivaRate').value)||0;
-      const trans=await FirebaseAPI.fetchRecentTransactions(); const filtr=filtrarPorData(trans,start,end);
-      let totDesp=0,totIVA=0,totRend=0,totIRS_R=0,totInv=0,totIRS_I=0;
-      filtr.forEach(tx=>{
-        if(tx.type==='expense'){totDesp+=tx.amount;totIVA+=tx.amount*(ivaRate/100);} else if(tx.type==='income'){totRend+=tx.amount;totIRS_R+=calcProgressivo(tx.amount);} else if(tx.type==='investment'){totInv+=tx.amount;totIRS_I+=calcProgressivo(tx.amount);} });
-      resultados={totalDespesas:totDesp,totalIVA:totIVA,ivaRate,totalRendimentos:totRend,totalIRS_Rend:totIRS_R,totalInvestimentos:totInv,totalIRS_Invest:totIRS_I};
-      document.getElementById('resultado').innerHTML=`<div class="bg-white rounded-xl shadow-lg p-6 space-y-6"><h2 class="text-2xl font-bold mb-4">Resumo Fiscal Estimado</h2><p>🧾 IVA Despesas: <strong>€${totIVA.toFixed(2)}</strong> (${ivaRate}%)</p><p>💼 IRS Rendimentos: <strong>€${totIRS_R.toFixed(2)}</strong> (Progressivo)</p><p>📈 IRS Investimentos: <strong>€${totIRS_I.toFixed(2)}</strong> (Progressivo)</p></div>`;
-      document.getElementById('loading').classList.add('hidden'); document.getElementById('resultado').classList.remove('hidden'); renderTabelas(filtr);
-    }
-
-    document.getElementById('btnCalcular').addEventListener('click',calcularImpostos);
-    document.getElementById('btnExportCSV').addEventListener('click',gerarCSV);
-    document.getElementById('btnExportPDF').addEventListener('click',gerarPDF);
-  </script></body>
+  document.getElementById('btnCalcular').addEventListener('click', calcularImpostos);
+  document.getElementById('btnExportCSV').addEventListener('click', gerarCSV);
+  document.getElementById('btnExportPDF').addEventListener('click', gerarPDF);
+</script>
+</body>
 </html>
