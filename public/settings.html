@@ -26,7 +26,7 @@
     .slide-in { animation: slideIn 0.3s ease-out; }
     .pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
     .spin { animation: spin 1s linear infinite; }
-    
+
     .glass {
       backdrop-filter: blur(10px);
       background: rgba(255, 255, 255, 0.9);
@@ -36,56 +36,45 @@
       background: rgba(31, 41, 55, 0.9);
       border: 1px solid rgba(75, 85, 99, 0.3);
     }
-    
+
     .toggle-switch {
       position: relative;
       display: inline-block;
       width: 48px;
       height: 24px;
     }
-    
     .toggle-switch input {
       opacity: 0;
       width: 0;
       height: 0;
     }
-    
     .toggle-slider {
       position: absolute;
       cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      top: 0; left: 0; right: 0; bottom: 0;
       background-color: #ccc;
       transition: 0.3s;
       border-radius: 24px;
     }
-    
     .toggle-slider:before {
       position: absolute;
       content: "";
-      height: 18px;
-      width: 18px;
-      left: 3px;
-      bottom: 3px;
+      height: 18px; width: 18px;
+      left: 3px; bottom: 3px;
       background-color: white;
       transition: 0.3s;
       border-radius: 50%;
     }
-    
     input:checked + .toggle-slider {
       background-color: #3b82f6;
     }
-    
     input:checked + .toggle-slider:before {
       transform: translateX(24px);
     }
-    
+
     .toast {
       position: fixed;
-      top: 20px;
-      right: 20px;
+      top: 20px; right: 20px;
       z-index: 1000;
       transform: translateX(400px);
       transition: transform 0.3s ease-out;
@@ -93,13 +82,10 @@
     .toast.show {
       transform: translateX(0);
     }
-    
+
     .loading-overlay {
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(0, 0, 0, 0.5);
       display: flex;
       align-items: center;
@@ -111,7 +97,7 @@
 <body class="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 text-gray-800 dark:text-white min-h-screen transition-all duration-300">
   <!-- Toast Container -->
   <div id="toastContainer"></div>
-  
+
   <!-- Loading Overlay -->
   <div id="loadingOverlay" class="loading-overlay hidden">
     <div class="glass rounded-2xl p-8 text-center">
@@ -146,12 +132,10 @@
     <div class="glass rounded-2xl p-2 mb-8 shadow-lg slide-in">
       <nav class="flex space-x-2">
         <a href="relatorios.html" class="flex-1 text-center px-4 py-3 text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-xl transition-all duration-200 font-medium">
-          <span class="mr-2">📊</span>
-          Relatórios
+          <span class="mr-2">📊</span> Relatórios
         </a>
         <a href="settings.html" class="flex-1 text-center px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold shadow-md">
-          <span class="mr-2">⚙️</span>
-          Configurações
+          <span class="mr-2">⚙️</span> Configurações
         </a>
       </nav>
     </div>
@@ -169,7 +153,6 @@
             <p class="text-gray-600 dark:text-gray-300 text-sm">Atualize suas informações básicas</p>
           </div>
         </div>
-        
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div class="space-y-2">
             <label for="displayName" class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
@@ -183,7 +166,6 @@
             >
             <p class="text-xs text-gray-500 dark:text-gray-400">Este nome será exibido em sua conta</p>
           </div>
-          
           <div class="space-y-2">
             <label for="email" class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
               Email
@@ -210,33 +192,43 @@
             <p class="text-gray-600 dark:text-gray-300 text-sm">Personalize sua experiência</p>
           </div>
         </div>
-        
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Tema da Interface -->
           <div class="space-y-2">
-            <label for="themeSelect" class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
-              Tema da Interface
-            </label>
-            <select 
-              id="themeSelect" 
-              class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 transition-all duration-200 text-lg"
-            >
+            <label for="themeSelect" class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Tema da Interface</label>
+            <select id="themeSelect" class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 transition-all duration-200 text-lg">
               <option value="light">🌞 Claro</option>
               <option value="dark">🌙 Escuro</option>
               <option value="auto">🔄 Automático</option>
             </select>
           </div>
-          
+          <!-- Formato de Data -->
           <div class="space-y-2">
-            <label for="dateFormat" class="block text-sm font-semibold text-gray-700 dark:text-gray-300">
-              Formato de Data
-            </label>
-            <select 
-              id="dateFormat" 
-              class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 transition-all duration-200 text-lg"
-            >
+            <label for="dateFormat" class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Formato de Data</label>
+            <select id="dateFormat" class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 transition-all duration-200 text-lg">
               <option value="dd/mm/yyyy">📅 DD/MM/YYYY</option>
               <option value="yyyy-mm-dd">📅 YYYY-MM-DD</option>
               <option value="mm/dd/yyyy">📅 MM/DD/YYYY</option>
+            </select>
+          </div>
+          <!-- Idioma -->
+          <div class="space-y-2">
+            <label for="languageSelect" class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Idioma</label>
+            <select id="languageSelect" class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 transition-all duration-200 text-lg">
+              <option value="pt">🇵🇹 Português</option>
+              <option value="en">🇬🇧 Inglês</option>
+              <option value="es">🇪🇸 Espanhol</option>
+              <option value="fr">🇫🇷 Francês</option>
+            </select>
+          </div>
+          <!-- Moeda -->
+          <div class="space-y-2">
+            <label for="currencySelect" class="block text-sm font-semibold text-gray-700 dark:text-gray-300">Moeda</label>
+            <select id="currencySelect" class="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 transition-all duration-200 text-lg">
+              <option value="EUR">€ Euro</option>
+              <option value="USD">$ Dólar</option>
+              <option value="GBP">£ Libra</option>
+              <option value="BRL">R$ Real</option>
             </select>
           </div>
         </div>
@@ -253,7 +245,6 @@
             <p class="text-gray-600 dark:text-gray-300 text-sm">Configure como você quer ser notificado</p>
           </div>
         </div>
-        
         <div class="space-y-6">
           <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
             <div class="flex items-center space-x-4">
@@ -270,7 +261,6 @@
               <span class="toggle-slider"></span>
             </label>
           </div>
-          
           <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
             <div class="flex items-center space-x-4">
               <div class="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
@@ -286,7 +276,6 @@
               <span class="toggle-slider"></span>
             </label>
           </div>
-          
           <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
             <div class="flex items-center space-x-4">
               <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
@@ -316,7 +305,6 @@
             <p class="text-gray-600 dark:text-gray-300 text-sm">Mantenha sua conta segura</p>
           </div>
         </div>
-        
         <div class="space-y-4">
           <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
             <div class="flex items-center space-x-4">
@@ -332,7 +320,6 @@
               Configurar
             </button>
           </div>
-          
           <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-xl">
             <div class="flex items-center space-x-4">
               <div class="w-10 h-10 bg-red-100 dark:bg-red-900 rounded-lg flex items-center justify-center">
@@ -383,250 +370,201 @@
   </div>
 
   <script type="module">
-   // settings.js – versão com integração ao Firestore
-// -----------------------------------------------------
-// Firebase imports (ajuste o caminho conforme a sua configuração)
-import { app, auth, db } from './firebase-init.js';
-import {
-  getAuth,
-  onAuthStateChanged,
-  signOut,
-  updateProfile
-} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import {
-  getFirestore,
-  doc,
-  getDoc,
-  setDoc
-} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+    // settings.js – versão com integração ao Firestore
+    import { app, auth, db } from './firebase-init.js';
+    import { onAuthStateChanged, signOut, updateProfile } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+    import { doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
+    // DOM Elements
+    const contentEl = document.getElementById('content');
+    const signOutBtn = document.getElementById('signOutBtn');
+    const settingsForm = document.getElementById('settingsForm');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const toastContainer = document.getElementById('toastContainer');
+    const saveBtn = document.getElementById('saveBtn');
+    const saveBtnText = document.getElementById('saveBtnText');
+    const saveBtnSpinner = document.getElementById('saveBtnSpinner');
 
-
-// DOM Elements
-const contentEl = document.getElementById('content');
-const signOutBtn = document.getElementById('signOutBtn');
-const settingsForm = document.getElementById('settingsForm');
-const loadingOverlay = document.getElementById('loadingOverlay');
-const toastContainer = document.getElementById('toastContainer');
-const saveBtn = document.getElementById('saveBtn');
-const saveBtnText = document.getElementById('saveBtnText');
-const saveBtnSpinner = document.getElementById('saveBtnSpinner');
-
-// Utility Functions ----------------------------------------------------------
-function showToast(message, type = 'info') {
-  const toast = document.createElement('div');
-  toast.className = `toast glass p-4 rounded-xl shadow-lg max-w-sm ${
-    type === 'error'
-      ? 'border-l-4 border-red-500'
-      : type === 'success'
-      ? 'border-l-4 border-green-500'
-      : 'border-l-4 border-blue-500'
-  }`;
-
-  toast.innerHTML = `
-    <div class="flex items-center">
-      <span class="mr-3 text-xl">${
-        type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️'
-      }</span>
-      <div>
-        <p class="font-medium">${message}</p>
-      </div>
-    </div>
-  `;
-
-  toastContainer.appendChild(toast);
-  setTimeout(() => toast.classList.add('show'), 100);
-
-  setTimeout(() => {
-    toast.classList.remove('show');
-    setTimeout(() => toast.remove(), 300);
-  }, 4000);
-}
-
-function showLoading(show = true) {
-  loadingOverlay.classList.toggle('hidden', !show);
-}
-
-function setSaveButtonLoading(loading = true) {
-  saveBtn.disabled = loading;
-  saveBtnText.classList.toggle('hidden', loading);
-  saveBtnSpinner.classList.toggle('hidden', !loading);
-}
-
-function applyTheme(theme) {
-  if (theme === 'dark') {
-    document.documentElement.classList.add('dark');
-  } else if (theme === 'light') {
-    document.documentElement.classList.remove('dark');
-  } else {
-    // Auto theme
-    document.documentElement.classList.toggle(
-      'dark',
-      window.matchMedia('(prefers-color-scheme: dark)').matches
-    );
-  }
-}
-
-// ----------------------------------------------------------------------------
-// Auth observer
-onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    window.location.href = '/login.html';
-    return;
-  }
-
-  // Enable content while carregamos dados
-  contentEl.classList.remove('opacity-50', 'pointer-events-none');
-
-  try {
-    showLoading(true);
-
-    // Preencher campos padrão do Firebase Auth
-    document.getElementById('displayName').value = user.displayName || '';
-    document.getElementById('email').value = user.email;
-
-    // Carregar preferências do Firestore
-    const userRef = doc(db, 'users', user.uid);
-    const snap = await getDoc(userRef);
-    const data = snap.exists()
-      ? snap.data()
-      : {
-          theme: 'light',
-          dateFormat: 'dd/mm/yyyy',
-          notifEmail: false,
-          notifSummary: false,
-          notifPush: false
-        };
-
-    // Preencher formulário com dados obtidos
-    document.getElementById('themeSelect').value = data.theme;
-    document.getElementById('dateFormat').value = data.dateFormat;
-    document.getElementById('notifEmail').checked = data.notifEmail;
-    document.getElementById('notifSummary').checked = data.notifSummary;
-    document.getElementById('notifPush').checked = data.notifPush;
-
-    applyTheme(data.theme);
-    showToast('Configurações carregadas com sucesso!', 'success');
-  } catch (error) {
-    console.error(error);
-    showToast('Erro ao carregar preferências', 'error');
-  } finally {
-    showLoading(false);
-  }
-});
-
-// ---------------------------------------------------------------------------
-// Theme change handler
-document
-  .getElementById('themeSelect')
-  .addEventListener('change', function () {
-    applyTheme(this.value);
-    showToast('Tema alterado!', 'success');
-  });
-
-// Sign‑out handler -----------------------------------------------------------
-signOutBtn.addEventListener('click', () => {
-  if (confirm('Tem certeza que deseja sair?')) {
-    signOut(auth);
-  }
-});
-
-// Form submission ------------------------------------------------------------
-settingsForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  setSaveButtonLoading(true);
-
-  try {
-    const newName = document.getElementById('displayName').value.trim();
-    const theme = document.getElementById('themeSelect').value;
-    const dateFormat = document.getElementById('dateFormat').value;
-    const notifEmail = document.getElementById('notifEmail').checked;
-    const notifSummary = document.getElementById('notifSummary').checked;
-    const notifPush = document.getElementById('notifPush').checked;
-
-    if (!newName) throw new Error('Nome de exibição é obrigatório');
-
-    // Actualizar displayName no Firebase Auth
-    if (newName !== auth.currentUser.displayName) {
-      await updateProfile(auth.currentUser, { displayName: newName });
+    function showToast(message, type = 'info') {
+      const toast = document.createElement('div');
+      toast.className = `toast glass p-4 rounded-2xl shadow-lg max-w-sm ${
+        type === 'error'
+          ? 'border-l-4 border-red-500'
+          : type === 'success'
+          ? 'border-l-4 border-green-500'
+          : 'border-l-4 border-blue-500'
+      }`;
+      toast.innerHTML = `
+        <div class="flex items-center">
+          <span class="mr-3 text-xl">${
+            type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️'
+          }</span>
+          <div><p class="font-medium">${message}</p></div>
+        </div>
+      `;
+      toastContainer.appendChild(toast);
+      setTimeout(() => toast.classList.add('show'), 100);
+      setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 4000);
     }
 
-    // Salvar / atualizar documento de preferências no Firestore
-    const userRef = doc(db, 'users', auth.currentUser.uid);
-    await setDoc(
-      userRef,
-      {
-        displayName: newName,
-        theme,
-        dateFormat,
-        notifEmail,
-        notifSummary,
-        notifPush
-      },
-      { merge: true }
-    );
+    function showLoading(show = true) {
+      loadingOverlay.classList.toggle('hidden', !show);
+    }
 
-    showToast('Configurações salvas com sucesso!', 'success');
-  } catch (err) {
-    console.error(err);
-    showToast(err.message || 'Erro ao salvar configurações', 'error');
-  } finally {
-    setSaveButtonLoading(false);
-  }
-});
+    function setSaveButtonLoading(loading = true) {
+      saveBtn.disabled = loading;
+      saveBtnText.classList.toggle('hidden', loading);
+      saveBtnSpinner.classList.toggle('hidden', !loading);
+    }
 
-// ---------------------------------------------------------------------------
-// Reset form handler
-settingsForm.addEventListener('reset', async () => {
-  if (!confirm('Tem certeza que deseja cancelar as alterações?')) return;
+    function applyTheme(theme) {
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else if (theme === 'light') {
+        document.documentElement.classList.remove('dark');
+      } else {
+        document.documentElement.classList.toggle(
+          'dark',
+          window.matchMedia('(prefers-color-scheme: dark)').matches
+        );
+      }
+    }
 
-  try {
-    showLoading(true);
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = '/login.html';
+        return;
+      }
+      contentEl.classList.remove('opacity-50', 'pointer-events-none');
+      try {
+        showLoading(true);
+        document.getElementById('displayName').value = user.displayName || '';
+        document.getElementById('email').value = user.email;
 
-    // Re‑carrega preferências do Firestore
-    const userRef = doc(db, 'users', auth.currentUser.uid);
-    const snap = await getDoc(userRef);
-    const data = snap.exists() ? snap.data() : {};
+        const userRef = doc(db, 'users', user.uid);
+        const snap = await getDoc(userRef);
+        const data = snap.exists()
+          ? snap.data()
+          : {
+              theme: 'light',
+              dateFormat: 'dd/mm/yyyy',
+              language: 'pt',
+              currency: 'EUR',
+              notifEmail: false,
+              notifSummary: false,
+              notifPush: false
+            };
 
-    document.getElementById('displayName').value = auth.currentUser.displayName || '';
-    document.getElementById('themeSelect').value = data.theme || 'light';
-    document.getElementById('dateFormat').value = data.dateFormat || 'dd/mm/yyyy';
-    document.getElementById('notifEmail').checked = !!data.notifEmail;
-    document.getElementById('notifSummary').checked = !!data.notifSummary;
-    document.getElementById('notifPush').checked = !!data.notifPush;
+        document.getElementById('themeSelect').value = data.theme;
+        document.getElementById('dateFormat').value = data.dateFormat;
+        document.getElementById('languageSelect').value = data.language;
+        document.getElementById('currencySelect').value = data.currency;
+        document.getElementById('notifEmail').checked = data.notifEmail;
+        document.getElementById('notifSummary').checked = data.notifSummary;
+        document.getElementById('notifPush').checked = data.notifPush;
 
-    applyTheme(data.theme || 'light');
-    showToast('Alterações canceladas', 'info');
-  } catch (error) {
-    console.error(error);
-    showToast('Erro ao restaurar preferências', 'error');
-  } finally {
-    showLoading(false);
-  }
-});
+        applyTheme(data.theme);
+        showToast('Configurações carregadas com sucesso!', 'success');
+      } catch (error) {
+        console.error(error);
+        showToast('Erro ao carregar preferências', 'error');
+      } finally {
+        showLoading(false);
+      }
+    });
 
-// ---------------------------------------------------------------------------
-// Security placeholders
-['setup2fa', 'changePassword'].forEach((id) => {
-  document.getElementById(id)?.addEventListener('click', () => {
-    showToast('Funcionalidade em desenvolvimento', 'info');
-  });
-});
+    document.getElementById('themeSelect').addEventListener('change', function () {
+      applyTheme(this.value);
+      showToast('Tema alterado!', 'success');
+    });
 
-// Auto‑save indicators -------------------------------------------------------
-const inputs = document.querySelectorAll('input, select');
-inputs.forEach((input) => {
-  input.addEventListener('change', () => {
-    saveBtn.classList.add('pulse');
-    setTimeout(() => saveBtn.classList.remove('pulse'), 2000);
-  });
-});
+    signOutBtn.addEventListener('click', () => {
+      if (confirm('Tem certeza que deseja sair?')) {
+        signOut(auth);
+      }
+    });
 
-// ---------------------------------------------------------------------------
-// Inicializa tema com valor salvo/capricho
-// (Reaproveitamos as preferências carregadas; se falhar, assume light)
-applyTheme('light');
+    settingsForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      setSaveButtonLoading(true);
+      try {
+        const newName = document.getElementById('displayName').value.trim();
+        const theme = document.getElementById('themeSelect').value;
+        const dateFormat = document.getElementById('dateFormat').value;
+        const language = document.getElementById('languageSelect').value;
+        const currency = document.getElementById('currencySelect').value;
+        const notifEmail = document.getElementById('notifEmail').checked;
+        const notifSummary = document.getElementById('notifSummary').checked;
+        const notifPush = document.getElementById('notifPush').checked;
 
+        if (!newName) throw new Error('Nome de exibição é obrigatório');
+
+        if (newName !== auth.currentUser.displayName) {
+          await updateProfile(auth.currentUser, { displayName: newName });
+        }
+
+        await setDoc(doc(db, 'users', auth.currentUser.uid), {
+          displayName: newName,
+          theme,
+          dateFormat,
+          language,
+          currency,
+          notifEmail,
+          notifSummary,
+          notifPush
+        }, { merge: true });
+
+        showToast('Configurações salvas com sucesso!', 'success');
+      } catch (err) {
+        console.error(err);
+        showToast(err.message || 'Erro ao salvar configurações', 'error');
+      } finally {
+        setSaveButtonLoading(false);
+      }
+    });
+
+    settingsForm.addEventListener('reset', async () => {
+      if (!confirm('Tem certeza que deseja cancelar as alterações?')) return;
+      try {
+        showLoading(true);
+        const snap = await getDoc(doc(db, 'users', auth.currentUser.uid));
+        const data = snap.exists() ? snap.data() : {};
+
+        document.getElementById('displayName').value = auth.currentUser.displayName || '';
+        document.getElementById('themeSelect').value = data.theme || 'light';
+        document.getElementById('dateFormat').value = data.dateFormat || 'dd/mm/yyyy';
+        document.getElementById('languageSelect').value = data.language || 'pt';
+        document.getElementById('currencySelect').value = data.currency || 'EUR';
+        document.getElementById('notifEmail').checked = !!data.notifEmail;
+        document.getElementById('notifSummary').checked = !!data.notifSummary;
+        document.getElementById('notifPush').checked = !!data.notifPush;
+
+        applyTheme(data.theme || 'light');
+        showToast('Alterações canceladas', 'info');
+      } catch (error) {
+        console.error(error);
+        showToast('Erro ao restaurar preferências', 'error');
+      } finally {
+        showLoading(false);
+      }
+    });
+
+    ['setup2fa', 'changePassword'].forEach((id) => {
+      document.getElementById(id)?.addEventListener('click', () => {
+        showToast('Funcionalidade em desenvolvimento', 'info');
+      });
+    });
+
+    const inputs = document.querySelectorAll('input, select');
+    inputs.forEach((input) => {
+      input.addEventListener('change', () => {
+        saveBtn.classList.add('pulse');
+        setTimeout(() => saveBtn.classList.remove('pulse'), 2000);
+      });
+    });
+
+    // Inicializa tema padrão
+    applyTheme('light');
   </script>
 </body>
 </html>
