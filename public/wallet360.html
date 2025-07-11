@@ -1,471 +1,303 @@
-<!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<!DOCTYPE html><html lang="en" class="scroll-smooth">
 <head>
   <meta charset="UTF-8">
   <title>Wallet 360 - Complete Financial Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
-  <!-- Tailwind Config & CDN -->
- <script src="./utils/tail-util.js"></script>
-  <!-- Chart.js -->
+  <script src="./utils/tail-util.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 </head>
 <body class="bg-bgSoft dark:bg-bgSoftDark text-gray-900 dark:text-gray-200 min-h-screen transition-all duration-300">
-  <div id="header-widget" ></div>
-  <!-- 2) Include the widget script -->
-<script type="module" src="header.js"></script>
-  <!-- Loading Screen -->
-  <div id="loadingScreen" class="fixed inset-0 bg-white dark:bg-gray-900 z-50 flex items-center justify-center">
+  <div id="header-widget"></div>
+  <script type="module" src="header.js"></script>  <!-- Loading Screen -->  <div id="loadingScreen" class="fixed inset-0 bg-white dark:bg-gray-900 z-50 flex items-center justify-center">
     <div class="text-center">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
       <p id="loadingScreen-text" class="text-lg font-medium">Inicializar Wallet 360...</p>
     </div>
-  </div>
-
-  <div class="container mx-auto p-4 max-w-7xl">
+  </div>  <div class="px-4 py-6 max-w-screen-xl mx-auto">
     <!-- Header -->
-    <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-6 animate-fade-in">
+    <header class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
       <div class="flex items-center gap-3">
         <div class="bg-gradient-to-r from-primary to-primary-light p-3 rounded-2xl">
           <i data-lucide="wallet" class="w-8 h-8 text-white"></i>
         </div>
         <div>
-          <h1 id="title" class="text-3xl font-bold bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent">Wallet 360</h1>
-          <p class="text-sm text-gray-600 dark:text-gray-400" id="subtitle">Complete Financial Dashboard</p>
+          <h1 id="title" class="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent">Wallet 360</h1>
+          <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400" id="subtitle">Complete Financial Dashboard</p>
         </div>
       </div>
-      <div class="flex items-center flex-wrap gap-3">
-        <button id="darkToggle" class="p-2 rounded-full bg-primary hover:bg-primary-dark text-white transition-colors duration-200" aria-label="Toggle dark mode">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
+        <button id="darkToggle" class="p-2 rounded-full bg-primary hover:bg-primary-dark text-white transition-colors" aria-label="Toggle dark mode">
           <i data-lucide="moon" class="w-5 h-5"></i>
         </button>
-        <select disabled id="languageSelect" class="border rounded-lg px-3 py-2 bg-card dark:bg-cardDark transition-colors">
+        <select disabled id="languageSelect" class="border rounded-lg px-3 py-2 bg-card dark:bg-cardDark w-full sm:w-auto">
           <option value="en" selected>🇬🇧 English</option>
           <option value="pt">🇵🇹 Português</option>
           <option value="es">🇪🇸 Español</option>
           <option value="fr">🇫🇷 Français</option>
         </select>
-        <select disabled id="currencySelect" class="border rounded-lg px-3 py-2 bg-card dark:bg-cardDark transition-colors">
-           <option value="USD" selected>🇺🇸 USD $</option>
-            <option value="EUR">🇪🇺 EUR €</option>
-            <option value="GBP">🇬🇧 GBP £</option>
-            <option value="BRL">🇧🇷 BRL R$</option>
-            <option value="JPY">🇯🇵 JPY ¥</option>
-            <option value="CHF">🇨🇭 CHF CHF</option>
-            <option value="AUD">🇦🇺 AUD A$</option>
-            <option value="CAD">🇨🇦 CAD C$</option>
+        <select disabled id="currencySelect" class="border rounded-lg px-3 py-2 bg-card dark:bg-cardDark w-full sm:w-auto">
+          <option value="USD" selected>🇺🇸 USD $</option>
+          <option value="EUR">🇪🇺 EUR €</option>
+          <option value="GBP">🇬🇧 GBP £</option>
+          <option value="BRL">🇧🇷 BRL R$</option>
+          <option value="JPY">🇯🇵 JPY ¥</option>
+          <option value="CHF">🇨🇭 CHF CHF</option>
+          <option value="AUD">🇦🇺 AUD A$</option>
+          <option value="CAD">🇨🇦 CAD C$</option>
         </select>
-        <div class="flex items-center gap-2 bg-card dark:bg-cardDark rounded-lg px-3 py-2">
+        <div class="flex items-center gap-2 bg-card dark:bg-cardDark rounded-lg px-3 py-2 w-full sm:w-auto">
           <i data-lucide="user" class="w-4 h-4"></i>
           <span id="userName" class="text-sm font-medium"></span>
         </div>
-        <button id="signOut" class="text-xs text-danger hover:underline hidden transition-colors">Sign out</button>
+        <button id="signOut" class="text-xs text-danger hover:underline hidden">Sign out</button>
       </div>
+    </header><!-- Quick Actions -->
+<section class="flex flex-col sm:flex-row gap-3 mb-6">
+  <button type="button" class="quick-action-btn w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-medium bg-success hover:bg-success-dark text-white transition-transform transform hover:scale-105">
+    <i data-lucide="plus" class="w-4 h-4"></i>
+    <span id="addIncome">Add Income</span>
+  </button>
+  <button type="button" class="quick-action-btn w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-medium bg-danger hover:bg-danger-dark text-white transition-transform transform hover:scale-105">
+    <i data-lucide="minus" class="w-4 h-4"></i>
+    <span id="addExpense">Add Expense</span>
+  </button>
+  <button type="button" class="quick-action-btn w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-medium bg-primary hover:bg-primary-dark text-white transition-transform transform hover:scale-105">
+    <i data-lucide="trending-up" class="w-4 h-4"></i>
+    <span id="addInvestment">Add Investment</span>
+  </button>
+  <button type="button" class="quick-action-btn w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-medium bg-warning hover:bg-warning-dark text-white transition-transform transform hover:scale-105">
+    <i data-lucide="goal" class="w-4 h-4"></i>
+    <span id="setGoal">Set Goal</span>
+  </button>
+</section>
+
+<!-- Summary Cards -->
+<section id="summaryCards" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6"></section>
+
+<!-- Main Dashboard -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+  <!-- Charts -->
+  <div class="lg:col-span-2 space-y-6">
+    <!-- Portfolio Overview -->
+    <article class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6">
+      <header class="flex items-center justify-between mb-4">
+        <h2 class="text-lg sm:text-xl font-semibold flex items-center gap-2">
+          <i data-lucide="trending-up" class="w-5 h-5 text-primary"></i>
+          <span id="portfolioOverview">Portfolio Overview</span>
+        </h2>
+        <div class="flex gap-2">
+          <button class="text-xs sm:text-sm px-2 py-1 bg-primary/10 text-primary rounded-full">1M</button>
+          <button class="text-xs sm:text-sm px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full">3M</button>
+          <button class="text-xs sm:text-sm px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full">1Y</button>
+        </div>
+      </header>
+      <canvas id="portfolioChart" class="w-full" style="max-height:400px"></canvas>
+    </article>
+
+    <!-- Income vs Expenses -->
+    <article class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6">
+      <header class="flex items-center mb-4">
+        <i data-lucide="bar-chart-3" class="w-5 h-5 text-success mr-2"></i>
+        <h2 class="text-lg sm:text-xl font-semibold" id="incomeExpenses">Income vs Expenses</h2>
+      </header>
+      <canvas id="incomeExpensesChart" class="w-full" style="max-height:400px"></canvas>
+    </article>
+
+    <!-- Spending by Category -->
+    <article class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6">
+      <header class="flex items-center mb-4">
+        <i data-lucide="pie-chart" class="w-5 h-5 text-warning mr-2"></i>
+        <h2 class="text-lg sm:text-xl font-semibold" id="spendingByCategory">Spending by Category</h2>
+      </header>
+      <canvas id="categoryChart" class="w-full" style="max-height:400px"></canvas>
+    </article>
+  </div>
+
+  <!-- Widgets -->
+  <aside class="space-y-6">
+    <!-- Budget Progress -->
+    <div class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6">
+      <h2 class="text-lg sm:text-xl font-semibold flex items-center gap-2 mb-4">
+        <i data-lucide="target" class="w-5 h-5 text-primary"></i>
+        <span id="budgetProgress">Budget Progress</span>
+      </h2>
+      <div id="budgetList" class="space-y-3"></div>
     </div>
 
-    <!-- Quick Actions -->
-    <div class="flex flex-wrap gap-3 mb-6 animate-slide-up">
-      <button type="button" class=" quick-action-btn flex items-center gap-2 px-4 py-2 rounded-xl font-medium 
-         transition-transform duration-200 transform hover:scale-105
-         bg-success hover:bg-success-dark text-white">
-        <i data-lucide="plus" class="w-4 h-4"></i>
-        <span id="addIncome">Add Income</span>
-      </button>
-      <button  type="button" class="quick-action-btn flex items-center gap-2 px-4 py-2 rounded-xl font-medium 
-         transition-transform duration-200 transform hover:scale-105
-         bg-danger hover:bg-danger-dark text-white">
-        <i data-lucide="minus" class="w-4 h-4"></i>
-        <span id="addExpense">Add Expense</span>
-      </button>
-      <button type="button" class=" quick-action-btn flex items-center gap-2 px-4 py-2 rounded-xl font-medium 
-         transition-transform duration-200 transform hover:scale-105
-         bg-primary hover:bg-primary-dark text-white">
-        <i data-lucide="trending-up" class="w-4 h-4"></i>
-        <span id="addInvestment">Add Investment</span>
-      </button>
-      <button type="button" class="quick-action-btn flex items-center gap-2 px-4 py-2 rounded-xl font-medium 
-         transition-transform duration-200 transform hover:scale-105
-         bg-warning hover:bg-warning-dark text-white">
-        <i data-lucide="goal" class="w-4 h-4"></i>
-        <span id="setGoal">Set Goal</span>
-      </button>
+    <!-- Recent Transactions -->
+    <div class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6">
+      <header class="flex items-center justify-between mb-4">
+        <h2 class="text-lg sm:text-xl font-semibold flex items-center gap-2">
+          <i data-lucide="history" class="w-5 h-5 text-gray-600"></i>
+          <span id="recentTransactions">Recent Transactions</span>
+        </h2>
+        <button class="text-sm text-primary hover:underline">View All</button>
+      </header>
+      <div id="transactionsList" class="space-y-3"></div>
     </div>
 
-    <!-- Summary Cards -->
-    <div id="summaryCards" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4 mb-6 animate-fade-in"></div>
-
-    <!-- Main Dashboard Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <!-- Left Column - Charts -->
-      <div class="lg:col-span-2 space-y-6">
-        <!-- Portfolio Overview -->
-        <div class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6 animate-slide-up">
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="text-xl font-semibold flex items-center gap-2">
-              <i data-lucide="trending-up" class="w-5 h-5 text-primary"></i>
-              <span id="portfolioOverview">Portfolio Overview</span>
-            </h2>
-            <div class="flex gap-2">
-              <button class="text-sm px-3 py-1 bg-primary/10 text-primary rounded-full hover:bg-primary/20 transition-colors">1M</button>
-              <button class="text-sm px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">3M</button>
-              <button class="text-sm px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">1Y</button>
-            </div>
-          </div>
-          <canvas id="portfolioChart" style="max-height: 500px;"></canvas>
-        </div>
-
-        <!-- Income vs Expenses -->
-        <div class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6 animate-slide-up">
-          <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
-            <i data-lucide="bar-chart-3" class="w-5 h-5 text-success"></i>
-            <span id="incomeExpenses">Income vs Expenses</span>
-          </h2>
-          <canvas id="incomeExpensesChart" style="max-height: 500px;"></canvas>
-        </div>
-
-        <!-- Spending by Category -->
-        <div class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6 animate-slide-up">
-          <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
-            <i data-lucide="pie-chart" class="w-5 h-5 text-warning"></i>
-            <span id="spendingByCategory">Spending by Category</span>
-          </h2>
-          <canvas id="categoryChart" style="max-height: 500px;" ></canvas>
-        </div>
-      </div>
-
-      <!-- Right Column - Widgets -->
-      <div class="space-y-6">
-        <!-- Budget Progress -->
-        <div class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6 animate-slide-up">
-          <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
-            <i data-lucide="target" class="w-5 h-5 text-primary"></i>
-            <span  id="budgetProgress">Budget Progress</span>
-          </h2>
-          <div id="budgetList" class="space-y-3"></div>
-        </div>
-
-        <!-- Recent Transactions -->
-        <div class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6 animate-slide-up">
-          <div class="flex items-center justify-between mb-4">
-            <h2 class="text-xl font-semibold flex items-center gap-2">
-              <i data-lucide="history" class="w-5 h-5 text-gray-600"></i>
-              <span id="recentTransactions">Recent Transactions</span>
-            </h2>
-            <button class="text-sm text-primary hover:underline">View All</button>
-          </div>
-          <div id="transactionsList" class="space-y-3"></div>
-        </div>
-
-        <!-- Financial Goals -->
-        <div class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6 animate-slide-up">
-          <h2 class="text-xl font-semibold mb-4 flex items-center gap-2">
-            <i data-lucide="flag" class="w-5 h-5 text-success"></i>
-            <span id="financialGoals">Financial Goals</span>
-          </h2>
-          <div id="goalsList" class="space-y-3"></div>
-        </div>
-      </div>
+    <!-- Financial Goals -->
+    <div class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6">
+      <h2 class="text-lg sm:text-xl font-semibold flex items-center gap-2 mb-4">
+        <i data-lucide="flag" class="w-5 h-5 text-success"></i>
+        <span id="financialGoals">Financial Goals</span>
+      </h2>
+      <div id="goalsList" class="space-y-3"></div>
     </div>
+  </aside>
+</div>
 
-    <!-- Detailed Sections -->
-    <div class="mt-8 space-y-6">
-      <!-- Assets Portfolio -->
-      <section class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6 animate-fade-in">
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="text-xl font-semibold flex items-center gap-2">
-            <i data-lucide="briefcase" class="w-5 h-5 text-primary"></i>
-            <span id="assetsPortfolio">Assets Portfolio</span>
-          </h2>
-          <div class="flex gap-2">
-            <button
-    class="text-sm px-3 py-1 bg-primary text-white rounded-full hover:bg-primary-dark transition-colors"
-    data-i18n="tabs.stocks"
-  >
-    Stocks
-  </button>
-  <button
-    class="text-sm px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-    data-i18n="tabs.crypto"
-  >
-    Crypto
-  </button>
-  <button
-    class="text-sm px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-    data-i18n="tabs.bonds"
-  >
-    Bonds
-  </button>
-          </div>
-        </div>
-        <div id="assetsList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-      </section>
+<!-- Detailed Sections -->
+<section class="mt-8 space-y-6">
+  <!-- Assets Portfolio -->
+  <div class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6">
+    <header class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+      <h2 class="text-lg sm:text-xl font-semibold flex items-center gap-2">
+        <i data-lucide="briefcase" class="w-5 h-5 text-primary"></i>
+        <span id="assetsPortfolio">Assets Portfolio</span>
+      </h2>
+      <div class="flex gap-2 flex-wrap">
+        <button class="text-xs sm:text-sm px-2 py-1 bg-primary text-white rounded-full">Stocks</button>
+        <button class="text-xs sm:text-sm px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full">Crypto</button>
+        <button class="text-xs sm:text-sm px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded-full">Bonds</button>
+      </div>
+    </header>
+    <div id="assetsList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+  </div>
 
-      <!-- All Transactions -->
-      <section class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6 animate-fade-in">
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="text-xl font-semibold flex items-center gap-2">
-            <i data-lucide="list" class="w-5 h-5 text-gray-600"></i>
-            <span id="allTransactions">All Transactions</span>
-          </h2>
-          <div class="flex gap-2">
-            <input type="text" id="searchTransactions" placeholder="Search transactions..." class="px-3 py-1 border rounded-lg text-sm bg-transparent">
-            <select id="filterTransactions" class="px-3 py-1 border rounded-lg text-sm bg-transparent">
-  <option value="all" data-i18n="filter.allTypes">All Types</option>
-  <option value="income" data-i18n="txType.income">Income</option>
-  <option value="expense" data-i18n="txType.expense">Expense</option>
-  <option value="investment" data-i18n="txType.investment">Investment</option>
-</select>
-
-          </div>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
-            <thead id="transactionsThead" class="bg-gray-50 dark:bg-gray-800"></thead>
-            <tbody id="transactionsBody" class="divide-y divide-gray-200 dark:divide-gray-700"></tbody>
-          </table>
-        </div>
-      </section>
+  <!-- All Transactions -->
+  <div class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6">
+    <header class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+      <h2 class="text-lg sm:text-xl font-semibold flex items-center gap-2">
+        <i data-lucide="list" class="w-5 h-5 text-gray-600"></i>
+        <span id="allTransactions">All Transactions</span>
+      </h2>
+      <div class="flex gap-2 flex-wrap w-full sm:w-auto">
+        <input type="text" id="searchTransactions" placeholder="Search transactions..." class="px-3 py-2 border rounded-lg text-sm w-full sm:w-auto">
+        <select id="filterTransactions" class="px-3 py-2 border rounded-lg text-sm w-full sm:w-auto">
+          <option value="all">All Types</option>
+          <option value="income">Income</option>
+          <option value="expense">Expense</option>
+          <option value="investment">Investment</option>
+        </select>
+      </div>
+    </header>
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm">
+        <thead id="transactionsThead" class="bg-gray-50 dark:bg-gray-800"></thead>
+        <tbody id="transactionsBody" class="divide-y divide-gray-200 dark:divide-gray-700"></tbody>
+      </table>
     </div>
   </div>
-<!-- ─────────────────────── Asset Edit / Add Modal ──────────────────────── -->
-<div id="assetModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
-  <div class="bg-card dark:bg-cardDark rounded-2xl p-6 w-full max-w-md mx-4">
-    <div class="flex items-center justify-between mb-4">
-      <h3 id="assetModalTitle" class="text-lg font-semibold" data-i18n="modal.asset.edit">
-        Editar Ativo
-      </h3>
-      <button id="closeAssetModal" class="text-gray-500 hover:text-gray-700">
-        <i data-lucide="x" class="w-5 h-5"></i>
-      </button>
-    </div>
+</section>
 
-    <form id="assetForm" class="space-y-4">
-      <div>
-        <label class="block text-sm font-medium mb-1" data-i18n="modal.asset.field.nameTicker">
-          Name / Ticker
-        </label>
-        <input id="assetName" required class="w-full border rounded-lg px-3 py-2 bg-transparent">
+  </div>  <!-- Modals -->  <div id="assetModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+    <div class="bg-card dark:bg-cardDark rounded-2xl p-6 w-full max-w-md mx-4">
+      <div class="flex items-center justify-between mb-4">
+        <h3 id="assetModalTitle" class="text-lg font-semibold">Editar Ativo</h3>
+        <button id="closeAssetModal" class="text-gray-500 hover:text-gray-700">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
       </div>
-
-      <div class="grid grid-cols-2 gap-4">
+      <form id="assetForm" class="space-y-4">
+        <label class="block text-sm font-medium">Name / Ticker</label>
+        <input id="assetName" required class="w-full border rounded-lg px-3 py-2 bg-transparent">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium">Type</label>
+            <select id="assetType" class="w-full border rounded-lg px-3 py-2 bg-transparent">
+              <option>Stock</option>
+              <option>ETF</option>
+              <option>Crypto</option>
+              <option>Bond</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium">Sector</label>
+            <input id="assetSector" class="w-full border rounded-lg px-3 py-2 bg-transparent">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium">Quantity</label>
+            <input id="assetQty" type="number" step="0.01" required class="w-full border rounded-lg px-3 py-2 bg-transparent">
+          </div>
+          <div>
+            <label class="block text-sm font-medium">Price (USD)</label>
+            <input id="assetPrice" type="number" step="0.01" required class="w-full border rounded-lg px-3 py-2 bg-transparent">
+          </div>
+        </div>
+        <label class="block text-sm font-medium">Risk Level</label>
+        <select id="assetRisk" class="w-full border rounded-lg px-3 py-2 bg-transparent">
+          <option>Low</option>
+          <option>Medium</option>
+          <option>High</option>
+        </select>
+        <div class="flex gap-3 pt-4">
+          <button type="button" id="cancelAsset" class="flex-1 border rounded-lg px-4 py-2">Cancel</button>
+          <button type="submit" class="flex-1 bg-primary text-white rounded-lg px-4 py-2">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>  <!-- Transaction Modal -->  <div id="transactionModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+    <div class="bg-card dark:bg-cardDark rounded-2xl p-6 w-full max-w-md mx-4">
+      <div class="flex items-center justify-between mb-4">
+        <h3 id="modalTitle" class="text-lg font-semibold">Add Transaction</h3>
+        <button id="closeModal" class="text-gray-500 hover:text-gray-700">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <form id="transactionForm" class="space-y-4">
         <div>
-          <label class="block text-sm font-medium mb-1" data-i18n="modal.asset.field.type">
-            Type
-          </label>
-          <select id="assetType" class="w-full border rounded-lg px-3 py-2 bg-transparent">
-            <option value="Stock" data-i18n="assetType.Stock">Stock</option>
-            <option value="ETF"   data-i18n="assetType.ETF">ETF</option>
-            <option value="Crypto"data-i18n="assetType.Crypto">Crypto</option>
-            <option value="Bond"  data-i18n="assetType.Bond">Bond</option>
+          <label class="block text-sm font-medium">Type</label>
+          <select id="transactionType" class="w-full border rounded-lg px-3 py-2 bg-transparent">
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+            <option value="investment">Investment</option>
           </select>
         </div>
         <div>
-          <label class="block text-sm font-medium mb-1" data-i18n="modal.asset.field.sector">
-            Sector
-          </label>
-          <input id="assetSector" class="w-full border rounded-lg px-3 py-2 bg-transparent">
-        </div>
-      </div>
-
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <label class="block text-sm font-medium mb-1" data-i18n="modal.asset.field.quantity">
-            Quantity
-          </label>
-          <input id="assetQty" type="number" step="0.01" required class="w-full border rounded-lg px-3 py-2 bg-transparent">
+          <label class="block text-sm font-medium">Amount</label>
+          <input type="number" id="transactionAmount" required class="w-full border rounded-lg px-3 py-2 bg-transparent">
         </div>
         <div>
-          <label class="block text-sm font-medium mb-1" data-i18n="modal.asset.field.price">
-            Price (USD)
-          </label>
-          <input id="assetPrice" type="number" step="0.01" required class="w-full border rounded-lg px-3 py-2 bg-transparent">
+          <label class="block text-sm font-medium">Category</label>
+          <select id="transactionCategory" class="w-full border rounded-lg px-3 py-2 bg-transparent">
+            <option value="food">Food & Dining</option>
+            <option value="transport">Transportation</option>
+            <option value="shopping">Shopping</option>
+            <option value="bills">Bills & Utilities</option>
+            <option value="entertainment">Entertainment</option>
+            <option value="health">Health & Fitness</option>
+            <option value="investment">Investment</option>
+            <option value="salary">Salary</option>
+            <option value="other">Other</option>
+          </select>
         </div>
-      </div>
-
-      <div>
-        <label class="block text-sm font-medium mb-1" data-i18n="modal.asset.field.riskLevel">
-          Risk Level
-        </label>
-        <select id="assetRisk" class="w-full border rounded-lg px-3 py-2 bg-transparent">
-          <option value="Low"    data-i18n="riskLevel.Low">Low</option>
-          <option value="Medium" data-i18n="riskLevel.Medium">Medium</option>
-          <option value="High"   data-i18n="riskLevel.High">High</option>
-        </select>
-      </div>
-
-      <div class="flex gap-3 pt-4">
-        <button
-          type="button"
-          id="cancelAsset"
-          class="flex-1 border rounded-lg px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-          data-i18n="modal.button.cancel"
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          class="flex-1 bg-primary hover:bg-primary-dark text-white rounded-lg px-4 py-2"
-          data-i18n="modal.button.save"
-        >
-          Save
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- ──────────────────────────────────────────────────────────────────────── -->
-
-  <!-- Add Transaction Modal -->
-  <!-- Transaction Modal -->
-<div id="transactionModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
-  <div class="bg-card dark:bg-cardDark rounded-2xl p-6 w-full max-w-md mx-4">
-    <div class="flex items-center justify-between mb-4">
-      <h3 id="modalTitle" class="text-lg font-semibold" data-i18n="modal.addTransaction">
-        Add Transaction
-      </h3>
-      <button id="closeModal" class="text-gray-500 hover:text-gray-700">
-        <i data-lucide="x" class="w-5 h-5"></i>
-      </button>
+        <div>
+          <label class="block text-sm font-medium">Description</label>
+          <input type="text" id="transactionDescription" required class="w-full border rounded-lg px-3 py-2 bg-transparent">
+        </div>
+        <div>
+          <label class="block text-sm font-medium">Date</label>
+          <input type="date" id="transactionDate" required class="w-full border rounded-lg px-3 py-2 bg-transparent">
+        </div>
+        <div class="flex gap-3 pt-4">
+          <button type="button" id="cancelTransaction" class="flex-1 px-4 py-2 border rounded-lg">Cancel</button>
+          <button type="submit" class="flex-1 bg-primary text-white rounded-lg px-4 py-2">Save</button>
+        </div>
+      </form>
     </div>
-    <form id="transactionForm" class="space-y-4">
-      <div>
-        <label class="block text-sm font-medium mb-1" data-i18n="modal.field.type">
-          Type
-        </label>
-        <select id="transactionType" class="w-full border rounded-lg px-3 py-2 bg-transparent">
-          <option value="income" data-i18n="income">Income</option>
-          <option value="expense" data-i18n="expense">Expense</option>
-          <option value="investment" data-i18n="investment">Investment</option>
-        </select>
+  </div>  <!-- Delete Confirmation Modal -->  <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+    <div class="bg-white dark:bg-gray-900 rounded-lg p-6 max-w-md w-full shadow-lg">
+      <h2 class="text-xl font-bold mb-2">Confirm Delete</h2>
+      <p class="mb-4">Are you sure you want to delete this transaction: <strong id="deleteTransactionDescription"></strong> for <strong id="deleteTransactionAmount"></strong>?</p>
+      <div class="flex justify-end gap-2">
+        <button id="cancelDelete" class="px-4 py-2 bg-gray-300 dark:bg-gray-700 rounded">Cancel</button>
+        <button id="confirmDelete" class="px-4 py-2 bg-red-500 text-white rounded">Delete</button>
       </div>
-      <div>
-        <label class="block text-sm font-medium mb-1" data-i18n="modal.field.amount">
-          Amount
-        </label>
-        <input
-          type="number"
-          id="transactionAmount"
-          class="w-full border rounded-lg px-3 py-2 bg-transparent"
-          required
-        >
-      </div>
-      <div>
-        <label class="block text-sm font-medium mb-1" data-i18n="modal.field.category">
-          Category
-        </label>
-        <select id="transactionCategory" class="w-full border rounded-lg px-3 py-2 bg-transparent">
-          <option value="food" data-i18n="food">Food & Dining</option>
-          <option value="transport" data-i18n="transport">Transportation</option>
-          <option value="shopping" data-i18n="shopping">Shopping</option>
-          <option value="bills" data-i18n="bills">Bills & Utilities</option>
-          <option value="entertainment" data-i18n="entertainment">Entertainment</option>
-          <option value="health" data-i18n="health">Health & Fitness</option>
-          <option value="investment" data-i18n="investment">Investment</option>
-          <option value="salary" data-i18n="salary">Salary</option>
-          <option value="other" data-i18n="other">Other</option>
-        </select>
-      </div>
-      <div>
-        <label
-          class="block text-sm font-medium mb-1"
-          for="transactionDescription"
-          data-i18n="modal.field.description"
-        >
-          Description
-        </label>
-        <input
-          type="text"
-          id="transactionDescription"
-          class="w-full border rounded-lg px-3 py-2 bg-transparent"
-          required
-        >
-      </div>
-      <div>
-        <label class="block text-sm font-medium mb-1" data-i18n="modal.field.date">
-          Date
-        </label>
-        <input
-          type="date"
-          id="transactionDate"
-          class="w-full border rounded-lg px-3 py-2 bg-transparent"
-          required
-        >
-      </div>
-      <div class="flex gap-3 pt-4">
-        <button
-          type="button"
-          id="cancelTransaction"
-          class="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-          data-i18n="modal.button.cancel"
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          class="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors"
-          data-i18n="modal.button.save"
-        >
-          Save
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- Delete Confirmation Modal -->
-<div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-  <div class="bg-white dark:bg-gray-900 rounded-lg p-6 max-w-md w-full shadow-lg">
-    <h2
-      id="deleteModalTitle"
-      class="text-xl font-bold mb-2"
-      data-i18n="modal.delete.title"
-    >
-      Confirm Delete
-    </h2>
-    <p class="mb-4" data-i18n="modal.delete.question">
-      Are you sure you want to delete this transaction?
-      <strong id="deleteTransactionDescription"></strong>
-      no valor de <strong id="deleteTransactionAmount"></strong>?
-    </p>
-    <div class="flex justify-end gap-2">
-      <button
-        id="cancelDelete"
-        class="px-4 py-2 bg-gray-300 dark:bg-gray-700 rounded"
-        data-i18n="modal.delete.cancel"
-      >
-        Cancel
-      </button>
-      <button
-        id="confirmDelete"
-        class="px-4 py-2 bg-red-500 text-white rounded"
-        data-i18n="modal.delete.confirm"
-      >
-        Delete
-      </button>
     </div>
-  </div>
-</div>
-
-<!-- Spinner de carregamento global -->
-<div id="loadingOverlay" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
-  <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-white border-opacity-50"></div>
-</div>
-
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<!-- ES-modules (order matters for plain <script type="module"> use) -->
-  <script type="module" src="./utils.js"></script>
-<script type="module" src="./data.js"></script>
-<script type="module" src="./i18n.js"></script>
-<script type="module" src="./charts.js"></script>
-<script type="module" src="./helpers.js"></script>
-<script type="module" src="./render.js"></script>
-<script type="module" src="./firebaseSync.js"></script>
-<script type="module" src="./events.js"></script>
-<script type="module" src="./auth.js"></script>
-<script type="module" src="./main.js"></script>
-</body>
+  </div>  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>  <script type="module" src="./utils.js"></script>  <script type="module" src="./data.js"></script>  <script type="module" src="./i18n.js"></script>  <script type="module" src="./charts.js"></script>  <script type="module" src="./helpers.js"></script>  <script type="module" src="./render.js"></script>  <script type="module" src="./firebaseSync.js"></script>  <script type="module" src="./events.js"></script>  <script type="module" src="./auth.js"></script>  <script type="module" src="./main.js"></script></body>
 </html>
