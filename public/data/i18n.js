@@ -1,28 +1,42 @@
+const lang = localStorage.getItem('lang') || 'pt';
 const langSwitch = document.getElementById('lang-switch');
-let lang = localStorage.getItem('lang') || 'pt';
+const langSwitchMobile = document.getElementById('lang-switch-mobile');
 
-async function loadI18n() {
+async function loadTranslations(selectedLang) {
   const res = await fetch('./data/i18n-data.json');
   const data = await res.json();
-  const t = data[lang];
+  const t = data[selectedLang];
 
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
     if (t[key]) el.textContent = t[key];
   });
 
-  // SEO meta
+  // SEO metas
   document.getElementById('meta-title').textContent = t['meta.title'];
   document.getElementById('meta-desc').setAttribute('content', t['meta.desc']);
   document.getElementById('og-title').setAttribute('content', t['og.title']);
   document.getElementById('og-desc').setAttribute('content', t['og.desc']);
 }
 
-langSwitch.value = lang;
-langSwitch.addEventListener('change', () => {
-  lang = langSwitch.value;
-  localStorage.setItem('lang', lang);
-  loadI18n();
-});
+function setLanguage(newLang) {
+  localStorage.setItem('lang', newLang);
+  loadTranslations(newLang);
+  if (langSwitch) langSwitch.value = newLang;
+  if (langSwitchMobile) langSwitchMobile.value = newLang;
+}
 
-loadI18n();
+if (langSwitch) {
+  langSwitch.addEventListener('change', e => setLanguage(e.target.value));
+}
+if (langSwitchMobile) {
+  langSwitchMobile.addEventListener('change', e => setLanguage(e.target.value));
+}
+
+setLanguage(lang);
+
+// Menu toggle
+document.getElementById('btnMenu')?.addEventListener('click', () => {
+  const menu = document.getElementById('mobileMenu');
+  if (menu) menu.classList.toggle('hidden');
+});
