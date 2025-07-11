@@ -7,14 +7,29 @@ import { registerEventHandlers } from './events.js';
 import { initializeAuth, registerAuthHandlers } from './auth.js';  // ✅ new names
 import { exchangeRates } from './data.js';
 import { getExchangeRates } from './currency.js';
+import { applyLanguage } from './i18n.js';
+import { applyCurrency } from './helpers.js'; // ✅ AQUI
+const lang = localStorage.getItem('wallet360_language') || 'pt';
+applyLanguage(lang);
+
+const currency = localStorage.getItem('wallet360_currency') || 'EUR';
+applyCurrency(currency);
+
+// 🔁 Atualiza os selects visuais no header
+const languageSelect = document.getElementById('languageSelect');
+if (languageSelect) languageSelect.value = lang;
+
+const currencySelect = document.getElementById('currencySelect');
+if (currencySelect) currencySelect.value = currency;
+
 /* Optional splash-screen fade-out ----------------------------------------- */
 function hideLoadingScreen() {
   const splash = $('#loadingScreen');
   if (!splash) return;
   setTimeout(() => {
     splash.style.opacity = '0';
-    setTimeout(() => (splash.style.display = 'none'), 300);
-  }, 1000);
+    setTimeout(() => (splash.style.display = 'none'), 1000);
+  }, 5000);
 }
 
 /* -------------------------------------------------------------------------- */

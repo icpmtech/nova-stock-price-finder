@@ -6,53 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
   <!-- Tailwind Config & CDN -->
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            primary: {
-              DEFAULT: '#6366f1',
-              light: '#818cf8',
-              dark: '#4f46e5'
-            },
-            success: '#10b981',
-            warning: '#f59e0b',
-            danger: '#ef4444',
-            card: '#ffffff',
-            cardDark: '#1f2937',
-            bgSoft: '#f8fafc',
-            bgSoftDark: '#0f172a'
-          },
-          fontFamily: {
-            sans: ['Inter', 'ui-sans-serif', 'system-ui']
-          },
-          animation: {
-            'fade-in': 'fadeIn 0.5s ease-in-out',
-            'slide-up': 'slideUp 0.3s ease-out',
-            'pulse-slow': 'pulse 3s infinite',
-            'bounce-subtle': 'bounceSubtle 2s infinite'
-          },
-          keyframes: {
-            fadeIn: {
-              '0%': { opacity: '0', transform: 'translateY(10px)' },
-              '100%': { opacity: '1', transform: 'translateY(0)' }
-            },
-            slideUp: {
-              '0%': { transform: 'translateY(20px)', opacity: '0' },
-              '100%': { transform: 'translateY(0)', opacity: '1' }
-            },
-            bounceSubtle: {
-              '0%, 100%': { transform: 'translateY(0)' },
-              '50%': { transform: 'translateY(-5px)' }
-            }
-          }
-        }
-      }
-    };
-  </script>
-  
+ <script src="./utils/tail-util.js"></script>
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- Lucide Icons -->
@@ -66,7 +20,7 @@
   <div id="loadingScreen" class="fixed inset-0 bg-white dark:bg-gray-900 z-50 flex items-center justify-center">
     <div class="text-center">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-      <p class="text-lg font-medium">Loading Wallet 360...</p>
+      <p id="loadingScreen-text" class="text-lg font-medium">Inicializar Wallet 360...</p>
     </div>
   </div>
 
@@ -87,12 +41,20 @@
           <i data-lucide="moon" class="w-5 h-5"></i>
         </button>
         <select id="languageSelect" class="border rounded-lg px-3 py-2 bg-card dark:bg-cardDark transition-colors">
-          <option value="en" selected>English</option>
-          <option value="pt">Português</option>
+          <option value="en" selected>🇬🇧 English</option>
+          <option value="pt">🇵🇹 Português</option>
+          <option value="es">🇪🇸 Español</option>
+          <option value="fr">🇫🇷 Français</option>
         </select>
         <select id="currencySelect" class="border rounded-lg px-3 py-2 bg-card dark:bg-cardDark transition-colors">
-          <option value="USD" selected>USD $</option>
-          <option value="EUR">EUR €</option>
+           <option value="USD" selected>🇺🇸 USD $</option>
+            <option value="EUR">🇪🇺 EUR €</option>
+            <option value="GBP">🇬🇧 GBP £</option>
+            <option value="BRL">🇧🇷 BRL R$</option>
+            <option value="JPY">🇯🇵 JPY ¥</option>
+            <option value="CHF">🇨🇭 CHF CHF</option>
+            <option value="AUD">🇦🇺 AUD A$</option>
+            <option value="CAD">🇨🇦 CAD C$</option>
         </select>
         <div class="flex items-center gap-2 bg-card dark:bg-cardDark rounded-lg px-3 py-2">
           <i data-lucide="user" class="w-4 h-4"></i>

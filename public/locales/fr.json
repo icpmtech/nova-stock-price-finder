@@ -1,0 +1,17 @@
+{
+  "title": "Wallet 360",
+  "subtitle": "Tableau de Bord Financier Complet",
+  "addIncome": "Ajouter un Revenu",
+  "addExpense": "Ajouter une Dépense",
+  "addInvestment": "Ajouter un Investissement",
+  "setGoal": "Définir un Objectif",
+  "portfolioOverview": "Aperçu du Portefeuille",
+  "incomeExpenses": "Revenus vs Dépenses",
+  "spendingByCategory": "Dépenses par Catégorie",
+  "budgetProgress": "Progression du Budget",
+  "recentTransactions": "Transactions Récentes",
+  "financialGoals": "Objectifs Financiers",
+  "assetsPortfolio": "Portefeuille d’Actifs",
+  "allTransactions": "Toutes les Transactions",
+  "loadingScreen-text": "Chargement de 💳 Wallet 360..."
+}

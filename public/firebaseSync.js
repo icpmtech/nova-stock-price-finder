@@ -19,7 +19,23 @@ import {
   renderAll, renderBudgetProgress, renderFinancialGoals,
   renderAssets, renderRecentTransactions, renderAllTransactions
 } from './render.js';
+import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { db,auth } from './firebase-init.js';
+import { applyLanguage } from './i18n.js';
+import { applyCurrency } from './helpers.js';
+export async function getUserDetails() {
+  const user = auth.currentUser;
+  if (!user) return null;
 
+  const userRef = doc(db, 'users', user.uid);
+  const snap = await getDoc(userRef);
+
+  if (snap.exists()) {
+    return snap.data(); // retorna { displayName, theme, language, currency, ... }
+  } else {
+    return null; // não existe ainda
+  }
+}
 /* -------------------------------------------------------------------------- */
 /*  Load everything once after auth success                                   */
 /* -------------------------------------------------------------------------- */
@@ -31,7 +47,17 @@ export async function loadInitialData() {
 
   Object.assign(walletData, walletDoc ?? {});
   walletData.spendingCategories = cats ?? {};
+// Aplicar idioma e moeda ao dashboard
+const userDetails = await getUserDetails();
 
+if (userDetails?.language) {
+  localStorage.setItem('wallet360_language', userDetails.language);
+  applyLanguage(userDetails.language);
+}
+if (userDetails?.currency) {
+  localStorage.setItem('wallet360_currency', userDetails.currency);
+  applyCurrency(userDetails.currency);
+}
   let writeWallet = false;
   if (!walletData.portfolioHistory?.length) { walletData.portfolioHistory = [...demoPortfolioHistory]; writeWallet = true; }
   if (!walletData.monthlyData?.length)      { walletData.monthlyData      = [...demoMonthlyData];      writeWallet = true; }

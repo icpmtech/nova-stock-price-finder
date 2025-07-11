@@ -9,3 +9,17 @@ export const getIconForCategory = cat => ({
   salary: 'banknote',
   other: 'more-horizontal'
 }[cat] ?? 'circle');
+export let currentCurrency = 'EUR';
+
+export function applyCurrency(currency) {
+  currentCurrency = currency;
+  window.dispatchEvent(new CustomEvent('currencyChanged', { detail: currency }));
+}
+
+export function formatCurrency(value) {
+  return new Intl.NumberFormat(undefined, {
+    style: 'currency',
+    currency: currentCurrency,
+    minimumFractionDigits: 2
+  }).format(value);
+}

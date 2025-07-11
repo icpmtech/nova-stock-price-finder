@@ -70,3 +70,24 @@ export const i18n = {
     }
   }
 };
+export function applyLanguage(lang) {
+  document.documentElement.setAttribute('lang', lang);
+
+  fetch(`./locales/${lang}.json`)
+    .then((res) => {
+      if (!res.ok) throw new Error(`Erro ao carregar ./locales/${lang}.json`);
+      return res.json();
+    })
+    .then((translations) => {
+      Object.entries(translations).forEach(([key, value]) => {
+        const el = document.getElementById(key);
+        if (el) el.innerText = value;
+      });
+
+      // Dispara evento global
+      window.dispatchEvent(new CustomEvent('languageChanged', { detail: lang }));
+    })
+    .catch((err) => {
+      console.error(`[i18n] Falha ao aplicar idioma "${lang}":`, err);
+    });
+}

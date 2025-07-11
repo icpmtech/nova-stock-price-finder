@@ -11,7 +11,20 @@ import {
   deleteTransaction as deleteTxFromFirestore,
   saveAsset
 } from './firebaseSync.js';
+import { applyLanguage } from './i18n.js';
+import { applyCurrency } from './helpers.js';
 
+document.getElementById('languageSelect').addEventListener('change', (e) => {
+  const lang = e.target.value;
+  applyLanguage(lang);
+  localStorage.setItem('wallet360_language', lang);
+});
+
+document.getElementById('currencySelect').addEventListener('change', (e) => {
+  const currency = e.target.value;
+  applyCurrency(currency);
+  localStorage.setItem('wallet360_currency', currency);
+});
 let editingTx = null;
 let editingAsset = null;
 

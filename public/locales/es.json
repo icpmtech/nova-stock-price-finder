@@ -1,0 +1,17 @@
+{
+  "title": "Wallet 360",
+  "subtitle": "Panel Financiero Completo",
+  "addIncome": "Agregar Ingreso",
+  "addExpense": "Agregar Gasto",
+  "addInvestment": "Agregar Inversión",
+  "setGoal": "Establecer Meta",
+  "portfolioOverview": "Resumen del Portafolio",
+  "incomeExpenses": "Ingresos vs Gastos",
+  "spendingByCategory": "Gastos por Categoría",
+  "budgetProgress": "Progreso del Presupuesto",
+  "recentTransactions": "Transacciones Recientes",
+  "financialGoals": "Objetivos Financieros",
+  "assetsPortfolio": "Cartera de Activos",
+  "allTransactions": "Todas las Transacciones",
+  "loadingScreen-text": "Cargando 💳 Wallet 360..."
+}

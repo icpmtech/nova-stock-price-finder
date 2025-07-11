@@ -1,0 +1,17 @@
+{
+  "title": "Wallet 360",
+  "subtitle": "Complete Financial Dashboard",
+  "addIncome": "Add Income",
+  "addExpense": "Add Expense",
+  "addInvestment": "Add Investment",
+  "setGoal": "Set Goal",
+  "portfolioOverview": "Portfolio Overview",
+  "incomeExpenses": "Income vs Expenses",
+  "spendingByCategory": "Spending by Category",
+  "budgetProgress": "Budget Progress",
+  "recentTransactions": "Recent Transactions",
+  "financialGoals": "Financial Goals",
+  "assetsPortfolio": "Assets Portfolio",
+  "allTransactions": "All Transactions",
+   "loadingScreen-text": "Loading 💳 Wallet 360..."
+}
