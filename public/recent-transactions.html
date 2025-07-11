@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wallet360 - Transações Recentes</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#6366f1',
+            secondary: '#8b5cf6',
+            accent: '#06b6d4',
+            success: '#10b981',
+            warning: '#f59e0b',
+            danger: '#ef4444',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    * { font-family: 'Inter', sans-serif; }
+    
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .transaction-card {
+      transition: all 0.3s ease;
+      border-left: 4px solid transparent;
+    }
+    
+    .transaction-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      border-left-color: #6366f1;
+    }
+    
+    .loading-skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: loading 1.5s infinite;
+    }
+    
+    @keyframes loading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.5s ease-in;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .category-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    
+    .amount-positive { color: #10b981; }
+    .amount-negative { color: #ef4444; }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <!-- Header -->
+  <header class="gradient-bg text-white shadow-lg">
+    <div class="container mx-auto px-6 py-8">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+          <div class="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-3xl font-bold">Wallet360</h1>
+            <p class="text-white text-opacity-80">Gerencie suas finanças com inteligência</p>
+          </div>
+        </div>
+        <div class="flex items-center space-x-4">
+          <button class="glass-effect px-4 py-2 rounded-lg text-white hover:bg-white hover:bg-opacity-20 transition-all">
+            <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            Nova Transação
+          </button>
+          <button class="glass-effect p-2 rounded-lg text-white hover:bg-white hover:bg-opacity-20 transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-6 py-8">
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-success">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Total de Entradas</p>
+            <p class="text-2xl font-bold text-success">€ 2.450,00</p>
+          </div>
+          <div class="w-12 h-12 bg-success bg-opacity-10 rounded-full flex items-center justify-center">
+            <svg class="w-6 h-6 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-danger">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Total de Saídas</p>
+            <p class="text-2xl font-bold text-danger">€ 1.230,00</p>
+          </div>
+          <div class="w-12 h-12 bg-danger bg-opacity-10 rounded-full flex items-center justify-center">
+            <svg class="w-6 h-6 text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 13l-5 5m0 0l-5-5m5 5V6"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-primary">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-medium text-gray-600">Saldo Atual</p>
+            <p class="text-2xl font-bold text-primary">€ 1.220,00</p>
+          </div>
+          <div class="w-12 h-12 bg-primary bg-opacity-10 rounded-full flex items-center justify-center">
+            <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+      <div class="flex flex-wrap items-center gap-4">
+        <div class="flex-1 min-w-64">
+          <input type="text" id="search-input" placeholder="Pesquisar transações..." 
+                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+        </div>
+        <select id="category-filter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+          <option value="">Todas as categorias</option>
+          <option value="alimentacao">Alimentação</option>
+          <option value="transporte">Transporte</option>
+          <option value="saude">Saúde</option>
+          <option value="educacao">Educação</option>
+          <option value="lazer">Lazer</option>
+          <option value="outros">Outros</option>
+        </select>
+        <select id="period-filter" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+          <option value="">Todos os períodos</option>
+          <option value="today">Hoje</option>
+          <option value="week">Esta semana</option>
+          <option value="month">Este mês</option>
+          <option value="year">Este ano</option>
+        </select>
+        <button id="export-btn" class="px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent-600 transition-colors">
+          <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          Exportar
+        </button>
+      </div>
+    </div>
+
+    <!-- Transactions Table -->
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h2 class="text-xl font-semibold text-gray-800">Transações Recentes</h2>
+      </div>
+      
+      <!-- Loading State -->
+      <div id="loading-state" class="p-6">
+        <div class="space-y-4">
+          <div class="loading-skeleton h-16 rounded-lg"></div>
+          <div class="loading-skeleton h-16 rounded-lg"></div>
+          <div class="loading-skeleton h-16 rounded-lg"></div>
+        </div>
+      </div>
+
+      <!-- Desktop Table -->
+      <div id="desktop-table" class="hidden lg:block">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoria</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descrição</th>
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Valor</th>
+              <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="transactions-body" class="bg-white divide-y divide-gray-200">
+            <!-- Content will be inserted here -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Mobile Cards -->
+      <div id="mobile-cards" class="lg:hidden p-4 space-y-4">
+        <!-- Mobile transaction cards will be inserted here -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="empty-state" class="hidden text-center py-12">
+        <svg class="w-24 h-24 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+        </svg>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">Nenhuma transação encontrada</h3>
+        <p class="text-gray-500 mb-4">Comece adicionando sua primeira transação</p>
+        <button class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-600 transition-colors">
+          Adicionar Transação
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center">
+    <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4">
+      <div class="flex items-center justify-center w-12 h-12 bg-danger bg-opacity-10 rounded-full mx-auto mb-4">
+        <svg class="w-6 h-6 text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+        </svg>
+      </div>
+      <h3 class="text-lg font-medium text-gray-900 text-center mb-2">Confirmar Exclusão</h3>
+      <p class="text-gray-500 text-center mb-6">Tem certeza que deseja excluir esta transação? Esta ação não pode ser desfeita.</p>
+      <div class="flex space-x-3">
+        <button id="cancel-delete" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+          Cancelar
+        </button>
+        <button id="confirm-delete" class="flex-1 px-4 py-2 bg-danger text-white rounded-lg hover:bg-danger-600 transition-colors">
+          Excluir
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+    import './firebase-init.js';
+    import FirebaseAPI from './firebaseApi.js';
+
+    // Category colors and icons
+    const categoryConfig = {
+      alimentacao: { color: 'bg-orange-100 text-orange-800', icon: 'shopping-cart' },
+      transporte: { color: 'bg-blue-100 text-blue-800', icon: 'fuel' },
+      saude: { color: 'bg-red-100 text-red-800', icon: 'heart-pulse' },
+      educacao: { color: 'bg-green-100 text-green-800', icon: 'book' },
+      lazer: { color: 'bg-purple-100 text-purple-800', icon: 'pizza' },
+      outros: { color: 'bg-gray-100 text-gray-800', icon: 'receipt' }
+    };
+
+    let allTransactions = [];
+    let currentTransactionToDelete = null;
+
+    async function loadTransactions() {
+      try {
+        document.getElementById('loading-state').style.display = 'block';
+        document.getElementById('desktop-table').style.display = 'none';
+        document.getElementById('mobile-cards').style.display = 'none';
+        
+        const transactions = await FirebaseAPI.fetchRecentTransactions();
+        allTransactions = transactions;
+        
+        document.getElementById('loading-state').style.display = 'none';
+        
+        if (transactions.length === 0) {
+          document.getElementById('empty-state').style.display = 'block';
+        } else {
+          displayTransactions(transactions);
+        }
+      } catch (error) {
+        console.error('Erro ao carregar transações:', error);
+        document.getElementById('loading-state').style.display = 'none';
+        document.getElementById('empty-state').style.display = 'block';
+      }
+    }
+
+    function displayTransactions(transactions) {
+      const tbody = document.getElementById('transactions-body');
+      const mobileCards = document.getElementById('mobile-cards');
+      
+      tbody.innerHTML = '';
+      mobileCards.innerHTML = '';
+      
+      document.getElementById('desktop-table').style.display = 'block';
+      document.getElementById('mobile-cards').style.display = 'block';
+      document.getElementById('empty-state').style.display = 'none';
+      
+      transactions.forEach((tx, index) => {
+        const category = categoryConfig[tx.category] || categoryConfig.outros;
+        const isPositive = tx.amount > 0;
+        
+        // Desktop row
+        const tr = document.createElement('tr');
+        tr.classList.add('transaction-card', 'fade-in', 'hover:bg-gray-50');
+        tr.style.animationDelay = `${index * 0.1}s`;
+        
+        tr.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm font-medium text-gray-900">${new Date(tx.date).toLocaleDateString('pt-PT')}</div>
+            <div class="text-sm text-gray-500">${new Date(tx.date).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })}</div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <span class="category-badge ${category.color}">${tx.category}</span>
+          </td>
+          <td class="px-6 py-4">
+            <div class="flex items-center">
+              <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mr-3">
+                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <use href="#icon-${category.icon}" />
+                </svg>
+              </div>
+              <div>
+                <div class="text-sm font-medium text-gray-900">${tx.description}</div>
+                <div class="text-sm text-gray-500">ID: ${tx.id}</div>
+              </div>
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-right">
+            <div class="text-lg font-semibold ${isPositive ? 'amount-positive' : 'amount-negative'}">
+              ${isPositive ? '+' : '-'}€ ${Math.abs(tx.amount).toFixed(2)}
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-center">
+            <div class="flex items-center justify-center space-x-2">
+              <button class="edit-btn text-primary hover:text-primary-600 transition-colors" data-id="${tx.id}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+              </button>
+              <button class="delete-btn text-danger hover:text-danger-600 transition-colors" data-id="${tx.id}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+        
+        // Mobile card
+        const card = document.createElement('div');
+        card.classList.add('transaction-card', 'fade-in', 'bg-white', 'rounded-lg', 'p-4', 'shadow-sm', 'border');
+        card.style.animationDelay = `${index * 0.1}s`;
+        
+        card.innerHTML = `
+          <div class="flex items-center justify-between mb-2">
+            <span class="category-badge ${category.color}">${tx.category}</span>
+            <span class="text-sm text-gray-500">${new Date(tx.date).toLocaleDateString('pt-PT')}</span>
+          </div>
+          <div class="flex items-center mb-3">
+            <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mr-3">
+              <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <use href="#icon-${category.icon}" />
+              </svg>
+            </div>
+            <div class="flex-1">
+              <div class="text-sm font-medium text-gray-900">${tx.description}</div>
+              <div class="text-xs text-gray-500">ID: ${tx.id}</div>
+            </div>
+          </div>
+          <div class="flex items-center justify-between">
+            <div class="text-lg font-semibold ${isPositive ? 'amount-positive' : 'amount-negative'}">
+              ${isPositive ? '+' : '-'}€ ${Math.abs(tx.amount).toFixed(2)}
+            </div>
+            <div class="flex items-center space-x-2">
+              <button class="edit-btn text-primary hover:text-primary-600 transition-colors p-1" data-id="${tx.id}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+              </button>
+              <button class="delete-btn text-danger hover:text-danger-600 transition-colors p-1" data-id="${tx.id}">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        `;
+        mobileCards.appendChild(card);
+      });
+      
+      attachEventHandlers();
+    }
+
+    function attachEventHandlers() {
+      // Delete buttons
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          currentTransactionToDelete = btn.dataset.id;
+          document.getElementById('delete-modal').classList.remove('hidden');
+          document.getElementById('delete-modal').classList.add('flex');
+        });
+      });
+      
+      // Edit buttons (placeholder)
+      document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          // TODO: Implement edit functionality
+          console.log('Edit transaction:', btn.dataset.id);
+        });
+      });
+    }
+
+    // Modal handlers
+    document.getElementById('cancel-delete').addEventListener('click', () => {
+      document.getElementById('delete-modal').classList.add('hidden');
+      document.getElementById('delete-modal').classList.remove('flex');
+      currentTransactionToDelete = null;
+    });
+
+    document.getElementById('confirm-delete').addEventListener('click', async () => {
+      if (currentTransactionToDelete) {
+        try {
+          await FirebaseAPI.deleteTransaction(currentTransactionToDelete);
+          allTransactions = allTransactions.filter(tx => tx.id !== currentTransactionToDelete);
+          displayTransactions(allTransactions);
+          document.getElementById('delete-modal').classList.add('hidden');
+          document.getElementById('delete-modal').classList.remove('flex');
+          currentTransactionToDelete = null;
+        } catch (error) {
+          console.error('Erro ao excluir transação:', error);
+        }
+      }
+    });
+
+    // Filter handlers
+    document.getElementById('search-input').addEventListener('input', (e) => {
+      const searchTerm = e.target.value.toLowerCase();
+      const filteredTransactions = allTransactions.filter(tx => 
+        tx.description.toLowerCase().includes(searchTerm) ||
+        tx.category.toLowerCase().includes(searchTerm)
+      );
+      displayTransactions(filteredTransactions);
+    });
+
+    document.getElementById('category-filter').addEventListener('change', (e) => {
+      const category = e.target.value;
+      const filteredTransactions = category 
+        ? allTransactions.filter(tx => tx.category === category)
+        : allTransactions;
+      displayTransactions(filteredTransactions);
+    });
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', loadTransactions);
+  </script>
+
+  <!-- SVG Icons -->
+  <svg style="display: none;">
+    <symbol id="icon-shopping-cart" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m1.6 8L6 21H8m7 0a1 1 0 11-2 0 1 1 0 012 0zm6 0a1 1 0 11-2 0 1 1 0 012 0z"></path>
+    </symbol>
+    <symbol id="icon-pizza" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+    </symbol>
+    <symbol id="icon-fuel" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7h-3V6a4 4 0 00-8 0v1H5a1 1 0 00-1 1v11a3 3 0 003 3h8a3 3 0 003-3V8a1 1 0 00-1-1zM10 6a2 2 0 014 0v1h-4V6zm6 13a1 1 0 01-1 1H7a1 1 0 01-1-1V9h2v1a1 1 0 002 0V9h4v1a1 1 0 002 0V9h2v10z"></path>
+    </symbol>
+    <symbol id="icon-heart-pulse" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+    </symbol>
+    <symbol id="icon-book" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+    </symbol>
+    <symbol id="icon-receipt" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+    </symbol>
+  </svg>
+</body>
+</html>
