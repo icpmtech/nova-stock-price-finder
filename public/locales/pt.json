@@ -70,5 +70,6 @@
   "assetType.Bond": "Obrigações",
   "riskLevel.Low": "Baixo",
   "riskLevel.Medium": "Médio",
+   "search.placeholder": "Pesquisar transações...",
   "riskLevel.High": "Alto"
 }

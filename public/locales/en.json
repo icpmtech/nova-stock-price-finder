@@ -78,6 +78,7 @@
   "assetType.Bond": "Bond",
   "riskLevel.Low": "Low",
   "riskLevel.Medium": "Medium",
+  "search.placeholder": "Search transactions...",
   "riskLevel.High": "High"
   
 }

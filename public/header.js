@@ -3,13 +3,15 @@ const defaultConfig = {
   title: '💳 Wallet 360',
   logoUrl: '/assets/logo.png',
    links :[
+  { icon: '💼', label: 'Carteira',         href: 'wallet360.html' },  
   { icon: '📊', label: 'Dashboard',        href: 'dashboard.html' },       // overview / KPIs
   { icon: '💱', label: 'Transações',       href: 'real-time.html' },       // currency-style arrows
   { icon: '🔍', label: 'Análise',          href: 'symbol-analysis.html' }, // deep dive
   { icon: '🌐', label: 'Mercados',         href: 'global-markets.html' },  // global view
   { icon: '📑', label: 'Relatórios',       href: 'report-transactions.html' }, // documents
   { icon: '📷', label: 'Qr Code Leitor',   href: 'invoices-reader.html' },       // screen / monitor
-  { icon: '💼', label: 'Carteira',         href: 'wallet360.html' },          // portfolio / briefcase
+  { icon: '📑', label: 'Ativos',         href: 'assets.html' },  
+  { icon: '📑', label: 'Ativos',         href: 'goals.html' },  
   { icon: '📈', label: 'Análises de Ações',href: 'card-symbol.html' },     // stock chart
   { icon: '📈', label: 'Cotação',          href: 'cotacao.html' },     // cotacao chart
   { icon: '📆', label: 'Eventos',          href: 'events.html' },          // calendar

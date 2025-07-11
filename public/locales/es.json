@@ -79,6 +79,7 @@
   "assetType.Bond": "Bonos",
   "riskLevel.Low": "Bajo",
   "riskLevel.Medium": "Medio",
-  "riskLevel.High": "Alto"
+  "riskLevel.High": "Alto",
+  "search.placeholder": "Buscar transacciones..."
 
 }
