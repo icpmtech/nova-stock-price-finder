@@ -58,7 +58,7 @@
     "salary": "Salary",
     "other": "Other",
      "income": "Income",
-  "filter.allTypes": "All Types",
+  "txType.allTypes": "All Types",
   "txType.income": "Income",
   "txType.expense": "Expense",
   "txType.investment": "Investment",

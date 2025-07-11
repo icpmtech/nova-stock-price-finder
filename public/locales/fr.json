@@ -48,7 +48,7 @@
     "other": "Autres",
     "income": "Revenu",
   "expense": "Dépense",
-    "filter.allTypes": "Tous les types",
+    "txType.allTypes": "Tous les types",
     "txType.income": "Revenu",
     "txType.expense": "Dépense",
     "txType.investment": "Investissement",

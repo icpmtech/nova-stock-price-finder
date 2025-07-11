@@ -50,7 +50,7 @@
     "other": "Outros",
      "income": "Receita",
   "expense": "Despesa",
-   "filter.allTypes": "Todos os tipos",
+   "txType.allTypes": "Todos os tipos",
   "txType.income": "Receita",
   "txType.expense": "Despesa",
   "txType.investment": "Investimento",

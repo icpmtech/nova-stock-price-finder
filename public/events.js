@@ -290,14 +290,22 @@ async function saveAssetForm(e) {
 /* ========================================================================== */
 /*  Simple search / filter for transactions table                             */
 /* ========================================================================== */
-function filterTransactions() {
-  const search = $('#searchTransactions').value.toLowerCase();
-  const filter = $('#filterTransactions').value;
-
-  $$('#transactionsBody tr').forEach(row => {
-    const desc = row.cells[3].textContent.toLowerCase();
-    const type = row.cells[1].textContent.toLowerCase();
-    row.style.display =
-      desc.includes(search) && (filter === 'all' || type.includes(filter)) ? '' : 'none';
+function filterTransactions(){
+  const search=document.getElementById('searchTransactions').value.trim().toLowerCase();
+  const filterSelect=document.getElementById('filterTransactions');
+  const filterKey=filterSelect.value;
+  const filterText=filterKey==='all'
+    ? null
+    : filterSelect.options[filterSelect.selectedIndex].text.trim().toLowerCase();
+  document.querySelectorAll('#transactionsBody tr').forEach(row=>{
+    const desc=row.cells[3].textContent.trim().toLowerCase();
+    const typeText=row.cells[1].textContent.trim().toLowerCase();
+    const matchesSearch=desc.includes(search);
+    const matchesFilter=filterKey==='all'
+      ? true
+      : typeText===filterText;
+    row.style.display=(matchesSearch&&matchesFilter)?'':'none';
   });
 }
+
+
