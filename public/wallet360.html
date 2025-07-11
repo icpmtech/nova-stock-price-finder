@@ -178,9 +178,24 @@
             <span id="assetsPortfolio">Assets Portfolio</span>
           </h2>
           <div class="flex gap-2">
-            <button class="text-sm px-3 py-1 bg-primary text-white rounded-full hover:bg-primary-dark transition-colors">Stocks</button>
-            <button class="text-sm px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">Crypto</button>
-            <button class="text-sm px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">Bonds</button>
+            <button
+    class="text-sm px-3 py-1 bg-primary text-white rounded-full hover:bg-primary-dark transition-colors"
+    data-i18n="tabs.stocks"
+  >
+    Stocks
+  </button>
+  <button
+    class="text-sm px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+    data-i18n="tabs.crypto"
+  >
+    Crypto
+  </button>
+  <button
+    class="text-sm px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+    data-i18n="tabs.bonds"
+  >
+    Bonds
+  </button>
           </div>
         </div>
         <div id="assetsList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
@@ -196,11 +211,12 @@
           <div class="flex gap-2">
             <input type="text" id="searchTransactions" placeholder="Search transactions..." class="px-3 py-1 border rounded-lg text-sm bg-transparent">
             <select id="filterTransactions" class="px-3 py-1 border rounded-lg text-sm bg-transparent">
-              <option value="all">All Types</option>
-              <option value="income">Income</option>
-              <option value="expense">Expense</option>
-              <option value="investment">Investment</option>
-            </select>
+  <option value="all" data-i18n="filter.allTypes">All Types</option>
+  <option value="income" data-i18n="txType.income">Income</option>
+  <option value="expense" data-i18n="txType.expense">Expense</option>
+  <option value="investment" data-i18n="txType.investment">Investment</option>
+</select>
+
           </div>
         </div>
         <div class="overflow-x-auto">
@@ -213,11 +229,12 @@
     </div>
   </div>
 <!-- ─────────────────────── Asset Edit / Add Modal ──────────────────────── -->
-<div id="assetModal"
-     class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+<div id="assetModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
   <div class="bg-card dark:bg-cardDark rounded-2xl p-6 w-full max-w-md mx-4">
     <div class="flex items-center justify-between mb-4">
-      <h3 id="assetModalTitle" class="text-lg font-semibold">Edit Asset</h3>
+      <h3 id="assetModalTitle" class="text-lg font-semibold" data-i18n="modal.asset.edit">
+        Editar Ativo
+      </h3>
       <button id="closeAssetModal" class="text-gray-500 hover:text-gray-700">
         <i data-lucide="x" class="w-5 h-5"></i>
       </button>
@@ -225,54 +242,79 @@
 
     <form id="assetForm" class="space-y-4">
       <div>
-        <label class="block text-sm font-medium mb-1">Name / Ticker</label>
+        <label class="block text-sm font-medium mb-1" data-i18n="modal.asset.field.nameTicker">
+          Name / Ticker
+        </label>
         <input id="assetName" required class="w-full border rounded-lg px-3 py-2 bg-transparent">
       </div>
 
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm font-medium mb-1">Type</label>
+          <label class="block text-sm font-medium mb-1" data-i18n="modal.asset.field.type">
+            Type
+          </label>
           <select id="assetType" class="w-full border rounded-lg px-3 py-2 bg-transparent">
-            <option value="Stock">Stock</option><option value="ETF">ETF</option>
-            <option value="Crypto">Crypto</option><option value="Bond">Bond</option>
+            <option value="Stock" data-i18n="assetType.Stock">Stock</option>
+            <option value="ETF"   data-i18n="assetType.ETF">ETF</option>
+            <option value="Crypto"data-i18n="assetType.Crypto">Crypto</option>
+            <option value="Bond"  data-i18n="assetType.Bond">Bond</option>
           </select>
         </div>
         <div>
-          <label class="block text-sm font-medium mb-1">Sector</label>
+          <label class="block text-sm font-medium mb-1" data-i18n="modal.asset.field.sector">
+            Sector
+          </label>
           <input id="assetSector" class="w-full border rounded-lg px-3 py-2 bg-transparent">
         </div>
       </div>
 
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm font-medium mb-1">Quantity</label>
-          <input id="assetQty" type="number" step="0.01" required
-                 class="w-full border rounded-lg px-3 py-2 bg-transparent">
+          <label class="block text-sm font-medium mb-1" data-i18n="modal.asset.field.quantity">
+            Quantity
+          </label>
+          <input id="assetQty" type="number" step="0.01" required class="w-full border rounded-lg px-3 py-2 bg-transparent">
         </div>
         <div>
-          <label class="block text-sm font-medium mb-1">Price (USD)</label>
-          <input id="assetPrice" type="number" step="0.01" required
-                 class="w-full border rounded-lg px-3 py-2 bg-transparent">
+          <label class="block text-sm font-medium mb-1" data-i18n="modal.asset.field.price">
+            Price (USD)
+          </label>
+          <input id="assetPrice" type="number" step="0.01" required class="w-full border rounded-lg px-3 py-2 bg-transparent">
         </div>
       </div>
 
       <div>
-        <label class="block text-sm font-medium mb-1">Risk Level</label>
+        <label class="block text-sm font-medium mb-1" data-i18n="modal.asset.field.riskLevel">
+          Risk Level
+        </label>
         <select id="assetRisk" class="w-full border rounded-lg px-3 py-2 bg-transparent">
-          <option value="Low">Low</option><option value="Medium">Medium</option>
-          <option value="High">High</option>
+          <option value="Low"    data-i18n="riskLevel.Low">Low</option>
+          <option value="Medium" data-i18n="riskLevel.Medium">Medium</option>
+          <option value="High"   data-i18n="riskLevel.High">High</option>
         </select>
       </div>
 
       <div class="flex gap-3 pt-4">
-        <button type="button" id="cancelAsset" class="flex-1 border rounded-lg px-4 py-2
-                hover:bg-gray-50 dark:hover:bg-gray-700">Cancel</button>
-        <button type="submit"
-                class="flex-1 bg-primary hover:bg-primary-dark text-white rounded-lg px-4 py-2">Save</button>
+        <button
+          type="button"
+          id="cancelAsset"
+          class="flex-1 border rounded-lg px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          data-i18n="modal.button.cancel"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="flex-1 bg-primary hover:bg-primary-dark text-white rounded-lg px-4 py-2"
+          data-i18n="modal.button.save"
+        >
+          Save
+        </button>
       </div>
     </form>
   </div>
 </div>
+
 <!-- ──────────────────────────────────────────────────────────────────────── -->
 
   <!-- Add Transaction Modal -->

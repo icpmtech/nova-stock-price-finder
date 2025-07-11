@@ -58,6 +58,26 @@
     "salary": "Salary",
     "other": "Other",
      "income": "Income",
-  "expense": "Expense"
+  "filter.allTypes": "All Types",
+  "txType.income": "Income",
+  "txType.expense": "Expense",
+  "txType.investment": "Investment",
+   "tabs.stocks": "Stocks",
+  "tabs.crypto": "Crypto",
+  "tabs.bonds": "Bonds",
+  "modal.asset.edit": "Edit Asset",
+  "modal.asset.field.nameTicker": "Name / Ticker",
+  "modal.asset.field.type": "Type",
+  "modal.asset.field.sector": "Sector",
+  "modal.asset.field.quantity": "Quantity",
+  "modal.asset.field.price": "Price (USD)",
+  "modal.asset.field.riskLevel": "Risk Level",
+  "assetType.Stock": "Stock",
+  "assetType.ETF": "ETF",
+  "assetType.Crypto": "Crypto",
+  "assetType.Bond": "Bond",
+  "riskLevel.Low": "Low",
+  "riskLevel.Medium": "Medium",
+  "riskLevel.High": "High"
   
 }
