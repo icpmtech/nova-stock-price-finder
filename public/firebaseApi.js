@@ -1,5 +1,6 @@
 // firebaseApi.js
 // Firebase Cloud Firestore API interface for Wallet360 data
+
 import { db } from './firebase-init.js';
 import { getAuth } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import {
@@ -15,23 +16,23 @@ import {
 
 const auth = getAuth();
 
-// Verifica autenticação e devolve UID
+// Verifica autenticação e devolve o UID do utilizador
 function requireAuth() {
   const user = auth.currentUser;
   if (!user) throw new Error("Utilizador não autenticado.");
   return user.uid;
 }
 
-// Coleção do utilizador em path
+// Retorna referência à subcoleção do utilizador em 'path'
 function userCollection(path) {
   const uid = requireAuth();
-  return collection(db, `${path}/${uid}`);
+  return collection(db, path, uid);
 }
 
-// Documento do utilizador em path/id
+// Retorna referência ao documento 'id' do utilizador em 'path'
 function userDoc(path, id) {
   const uid = requireAuth();
-  return doc(db, `${path}/${uid}/${id}`);
+  return doc(db, path, uid, id);
 }
 
 // Helper de mapeamento → Transaction
@@ -153,59 +154,55 @@ export default class FirebaseAPI {
 
   /** DASHBOARD SINGLETON **/
   static async fetchWalletData() {
-    const ref = doc(db, `dashboard/${requireAuth()}/walletData`);
+    const ref = userDoc('dashboard', 'walletData');
     const snapshot = await getDoc(ref);
     return snapshot.exists() ? snapshot.data() : null;
   }
 
   static async setWalletData(data) {
-    const ref = doc(db, `dashboard/${requireAuth()}/walletData`);
+    const ref = userDoc('dashboard', 'walletData');
     await setDoc(ref, data);
   }
 
   /** PORTFOLIO HISTORY **/
   static async fetchPortfolioHistory() {
-    const col = collection(db, `dashboard/${requireAuth()}/portfolioHistory`);
-    const snap = await getDocs(col);
+    const snap = await getDocs(collection(db, 'dashboard', requireAuth(), 'portfolioHistory'));
     return snap.docs.map(d => ({ id: d.id, ...d.data() }));
   }
 
   static async addPortfolioEntry(entry) {
-    const col = collection(db, `dashboard/${requireAuth()}/portfolioHistory`);
-    const ref = await addDoc(col, entry);
+    const ref = await addDoc(collection(db, 'dashboard', requireAuth(), 'portfolioHistory'), entry);
     return ref.id;
   }
 
   static async updatePortfolioEntry(id, updates) {
-    const ref = doc(db, `dashboard/${requireAuth()}/portfolioHistory/${id}`);
+    const ref = doc(db, 'dashboard', requireAuth(), 'portfolioHistory', id);
     await updateDoc(ref, updates);
   }
 
   static async deletePortfolioEntry(id) {
-    const ref = doc(db, `dashboard/${requireAuth()}/portfolioHistory/${id}`);
+    const ref = doc(db, 'dashboard', requireAuth(), 'portfolioHistory', id);
     await deleteDoc(ref);
   }
 
   /** MONTHLY DATA **/
   static async fetchMonthlyData() {
-    const col = collection(db, `dashboard/${requireAuth()}/monthlyData`);
-    const snap = await getDocs(col);
+    const snap = await getDocs(collection(db, 'dashboard', requireAuth(), 'monthlyData'));
     return snap.docs.map(d => ({ id: d.id, ...d.data() }));
   }
 
   static async addMonthlyRecord(record) {
-    const col = collection(db, `dashboard/${requireAuth()}/monthlyData`);
-    const ref = await addDoc(col, record);
+    const ref = await addDoc(collection(db, 'dashboard', requireAuth(), 'monthlyData'), record);
     return ref.id;
   }
 
   static async updateMonthlyRecord(id, updates) {
-    const ref = doc(db, `dashboard/${requireAuth()}/monthlyData/${id}`);
+    const ref = doc(db, 'dashboard', requireAuth(), 'monthlyData', id);
     await updateDoc(ref, updates);
   }
 
   static async deleteMonthlyRecord(id) {
-    const ref = doc(db, `dashboard/${requireAuth()}/monthlyData/${id}`);
+    const ref = doc(db, 'dashboard', requireAuth(), 'monthlyData', id);
     await deleteDoc(ref);
   }
 }
