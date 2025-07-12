@@ -16,26 +16,26 @@ import {
 
 const auth = getAuth();
 
-// Verifica autenticação e devolve o UID do utilizador
+// Garante que o utilizador está autenticado e retorna o UID
 function requireAuth() {
   const user = auth.currentUser;
   if (!user) throw new Error("Utilizador não autenticado.");
   return user.uid;
 }
 
-// Retorna referência à subcoleção do utilizador em 'path'
+// Referência à subcoleção do utilizador: collection(path, uid)
 function userCollection(path) {
   const uid = requireAuth();
   return collection(db, path, uid);
 }
 
-// Retorna referência ao documento 'id' do utilizador em 'path'
-function userDoc(path, id) {
+// Referência ao documento do utilizador: doc(path, uid, docId)
+function userDoc(path, docId) {
   const uid = requireAuth();
-  return doc(db, path, uid, id);
+  return doc(db, path, uid, docId);
 }
 
-// Helper de mapeamento → Transaction
+// Mapeia faturas para transações
 function mapInvoiceToTx(id, inv) {
   const iso = inv.timestamp?.slice(0, 10) ?? new Date().toISOString().slice(0, 10);
   const cat = inv.categoria || 'outros';
@@ -50,7 +50,7 @@ function mapInvoiceToTx(id, inv) {
 
   return {
     id,
-    date: iso,                    // YYYY-MM-DD
+    date: iso,
     type: 'expense',
     category: cat,
     description: `${inv.tipo_documento ?? 'FT'} — NIF ${inv.nif_emitente ?? ''}`,
@@ -81,7 +81,6 @@ export default class FirebaseAPI {
   }
 
   static async deleteTransaction(id) {
-    if (!id || typeof id !== 'string') throw new Error('ID inválido');
     await deleteDoc(userDoc('recentTransactions', id));
   }
 
@@ -154,13 +153,13 @@ export default class FirebaseAPI {
 
   /** DASHBOARD SINGLETON **/
   static async fetchWalletData() {
-    const ref = userDoc('dashboard', 'walletData');
-    const snapshot = await getDoc(ref);
-    return snapshot.exists() ? snapshot.data() : null;
+    const ref = doc(db, 'dashboard', requireAuth(), 'walletData');
+    const snap = await getDoc(ref);
+    return snap.exists() ? snap.data() : null;
   }
 
   static async setWalletData(data) {
-    const ref = userDoc('dashboard', 'walletData');
+    const ref = doc(db, 'dashboard', requireAuth(), 'walletData');
     await setDoc(ref, data);
   }
 
