@@ -19,21 +19,29 @@ import {
 } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 // Estado e elementos
-const state = { userEmail: null };
+const state = { user:       null, userEmail: null };
 const els = {
   userName: document.getElementById('userName'),
   signOutBtn: document.getElementById('signOutBtn')
 };
 
 // Autenticação e redireção se não estiver logado
+// Autenticação e redireção se não estiver logado
 onAuthStateChanged(auth, user => {
   if (!user) {
     location.href = '/login.html';
     return;
   }
+  state.user = user;          // ⇠ guarda o FirebaseUser
   state.userEmail = user.email;
+
   if (els.userName)
     els.userName.textContent = user.displayName || user.email.split('@')[0];
+if (auth.currentUser) {
+  updateStats();
+  loadRecentInvoices();
+}
+ 
 });
 
 // Logout
@@ -144,14 +152,23 @@ function parseFaturaQR(qr) {
   return result;
 }
 // Gravar no Firestore
+/* ------------------------------------------------------------- */
+/* 1. Guardar fatura                                             */
+/* ---------- SUBSTITUA apenas esta função -------------------- */
 async function guardarFatura(dados) {
+  // 1. Garante que temos um utilizador autenticado
+  const user = state.user || auth.currentUser;
+  if (!user) {
+    showError('Sessão expirada — faça login novamente.');
+    return;
+  }
+
   try {
     showLoading(true);
-    const docRef = await addDoc(collection(db, 'recentTransactions'), dados);
-    console.log('Fatura guardada com ID:', docRef.id);
+    const uid = user.uid;                      // ← sempre definido
+    await addDoc(userTxCol(uid), dados);       // /users/{uid}/recentTransactions
     showSuccess('Fatura guardada com sucesso!');
-    updateStats();
-    await loadRecentInvoices();
+    await Promise.all([updateStats(), loadRecentInvoices()]);
   } catch (e) {
     console.error('Erro ao guardar fatura:', e);
     showError('Erro ao guardar fatura. Tente novamente.');
@@ -160,17 +177,60 @@ async function guardarFatura(dados) {
   }
 }
 
+/* ---------- Opcional: prevenir click antes do login --------- */
+function confirmSave() {
+  if (!auth.currentUser) {
+    showError('Aguarde o login antes de guardar.');
+    return;
+  }
+  if (!pendingInvoice) return;
+  guardarFatura(pendingInvoice);
+  displayScannedData(pendingInvoice);
+  pendingInvoice = null;
+  setTimeout(() => {
+    if (!scannerPaused) { initScanner(); isScanning = false; }
+  }, 2000);
+}
+
 // Carregar últimas 5 faturas
+/* ------------------------------------------------------------- */
+/* 2. Carregar as 5 mais recentes                                */
+/* ---------------------------------------------------------------- */
+/*  loadRecentInvoices – versão robusta                             */
 async function loadRecentInvoices() {
+  // 1. Garantir utilizador autenticado
+  const user = state.user || auth.currentUser;
+  if (!user) {                    // sessão expirada?
+    showError('Sessão não encontrada. Faça login novamente.');
+    return [];
+  }
+
   try {
-    const q = query(collection(db, 'recentTransactions'), orderBy('timestamp', 'desc'), limit(5));
-    const snap = await getDocs(q);
-    const inv = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    displayRecentInvoices(inv);
-     gerarGraficosFaturas(inv); // Chama aqui para atualizar os gráficos
-     atualizarContadorEsteMes(inv);
-  } catch (e) {
-    console.error('Erro ao carregar faturas:', e);
+    // 2. Buscar docs mais recentes do próprio utilizador
+    const q = query(
+      userTxCol(user.uid),
+      orderBy('timestamp', 'desc'),
+      limit(5)
+    );
+    const snap     = await getDocs(q);
+    const invoices = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    // 3. Actualizar UI
+    displayRecentInvoices(invoices);
+    gerarGraficosFaturas(invoices);
+    atualizarContadorEsteMes(invoices);
+
+    // 3.1 Média para o banner “Média”
+    const avg = invoices.length
+      ? invoices.reduce((s,i)=>s+(i.total||0),0) / invoices.length
+      : 0;
+    document.getElementById('avg-value').textContent = avg.toFixed(2);
+
+    return invoices;              // devolve caso seja útil
+  } catch (err) {
+    console.error('Erro ao carregar faturas:', err);
+    showError('Falha ao carregar faturas. Tente novamente.');
+    return [];
   }
 }
 
@@ -339,22 +399,50 @@ function formatDate(ts) {
 }
 
 // Estatísticas gerais
+/* ------------------------------------------------------------- */
+/* 3. Estatísticas                                               */
 async function updateStats() {
-  try {
-    const snap = await getDocs(collection(db, 'recentTransactions'));
-    totalFaturas = snap.size;
-    totalValor = snap.docs.reduce((sum, d) => sum + (d.data().total || 0), 0);
-    document.getElementById('total-faturas').textContent = totalFaturas;
-    document.getElementById('total-valor').textContent = totalValor.toFixed(2);
-  } catch (e) {
-    console.error('Erro ao atualizar estatísticas:', e);
-  }
+  if (!state.user) return;
+  const uid = state.user.uid;
+  const snap = await getDocs(userTxCol(uid));
+  const totalFaturas = snap.size;
+  const totalValor   = snap.docs.reduce((s, d) => s + (d.data().total || 0), 0);
+  document.getElementById('total-faturas').textContent = totalFaturas;
+  document.getElementById('total-valor').textContent   = totalValor.toFixed(2);
 }
 
 // Mostrar loading
+/* ----------------------------------------------------------------- */
+/* Substitua apenas esta função                                      */
 function showLoading(show) {
-  document.getElementById('loading').style.display = show ? 'flex' : 'none';
+  // tenta obter o overlay
+  let el = document.getElementById('loading');
+
+  // cria-o na hora se não existir (segurança extra)
+  if (!el && show) {
+    el = document.createElement('div');
+    el.id = 'loading';
+    el.className = 'fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50';
+    el.innerHTML = `
+      <div class="bg-white rounded-3xl p-8 text-center shadow-2xl">
+        <div class="w-16 h-16 mx-auto mb-4">
+          <div class="w-full h-full border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        </div>
+        <p class="text-gray-600 font-medium">Processando...</p>
+      </div>`;
+    document.body.appendChild(el);
+  }
+
+  // se mesmo assim não houver, apenas avisa — evita TypeError
+  if (!el) {
+    console.warn('#loading não encontrado (showLoading ignorado)');
+    return;
+  }
+
+  // mostra ou esconde
+  el.style.display = show ? 'flex' : 'none';
 }
+
 
 // Notificações
 function showSuccess(msg) { showNotification(msg, 'success'); }
@@ -392,8 +480,6 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   initScanner();
-  updateStats();
-  loadRecentInvoices();
   setupButtonEvents();
 
   // Função para tratar upload de imagem
@@ -540,13 +626,29 @@ function showPreview(dados) {
   }
 
   // Exportar CSV
-  function exportData() {
-    getDocs(collection( db,'recentTransactions')).then(snap => {
-      const rows = snap.docs.map(d => [d.id, d.data().nif_emitente||'', d.data().data||'', d.data().total, d.data().iva, d.data().timestamp].join(','));
-      const csv = 'data:text/csv;charset=utf-8,ID,NIF,Data,Total,IVA,Timestamp\n' + rows.join('\n');
-      const link = document.createElement('a'); link.href = encodeURI(csv); link.download = 'faturas.csv'; link.click(); showSuccess('Dados exportados!');
-    }).catch(() => showError('Erro ao exportar dados'));
-  }
+ /* ------------------------------------------------------------- */
+/* 6. Exportar CSV                                               */
+function exportData() {
+  if (!state.user) return;
+  getDocs(userTxCol(state.user.uid))
+    .then(snap => {
+      const rows = snap.docs.map(d => [
+        d.id,
+        d.data().nif_emitente || '',
+        d.data().data || '',
+        d.data().total,
+        d.data().iva,
+        d.data().timestamp
+      ].join(','));
+      const csv = 'data:text/csv;charset=utf-8,ID,NIF,Data,Total,IVA,Timestamp\\n' + rows.join('\\n');
+      const a = document.createElement('a');
+      a.href = encodeURI(csv);
+      a.download = 'faturas.csv';
+      a.click();
+      showSuccess('CSV exportado!');
+    })
+    .catch(() => showError('Erro ao exportar dados'));
+}
 
   // Limpar resultados
   function clearResults() {
@@ -635,42 +737,54 @@ function showPreview(dados) {
     btn.classList.add('border-primary','text-primary','font-semibold');
     document.getElementById(btn.dataset.tab).classList.remove('hidden');
   }
-  function switchTabById(id) {
-    document.querySelector(`[data-tab="${id}"]`).click();
-  }
+  // Mostra a aba pelo ID (mesmo sem botão)
+function switchTabById(id) {
+  // esconde todas
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+  // mostra a pedida
+  const el = document.getElementById(id);
+  if (el) el.classList.remove('hidden');
+  else console.warn(`switchTabById: #${id} não encontrado`);
+}
 
-  // Eliminar todas as faturas
-  async function deleteAllInvoices() {
-    if (!confirm('Eliminar todas as faturas?')) return;
-    try {
-      showLoading(true);
-      const snap = await getDocs(collection(db,'recentTransactions'));
-      await Promise.all(snap.docs.map(d => deleteDoc(doc(db,'recentTransactions',d.id))));
-      await loadRecentInvoices();
-      await updateStats();
-      showSuccess('Todas as faturas eliminadas!');
-    } catch {
-      showError('Erro ao eliminar faturas');
-    } finally {
-      showLoading(false);
-    }
-  }
+// Se ainda quiser manter os botões visíveis
+function switchTab(e) {
+  document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('border-primary','text-primary','font-semibold'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+  const btn = e.currentTarget;
+  btn.classList.add('border-primary','text-primary','font-semibold');
+  document.getElementById(btn.dataset.tab).classList.remove('hidden');
+}
+/* ------------------------------------------------------------- */
+/* 4. Eliminar TODAS as faturas do utilizador                    */
+async function deleteAllInvoices() {
+  if (!state.user || !confirm('Eliminar todas as faturas?')) return;
+  showLoading(true);
+  const uid = state.user.uid;
+  const snap = await getDocs(userTxCol(uid));
+  await Promise.all(snap.docs.map(d => deleteDoc(userTxDoc(uid, d.id))));
+  await Promise.all([loadRecentInvoices(), updateStats()]);
+  showSuccess('Todas as faturas eliminadas!');
+  showLoading(false);
+}
 
   // Visualizar fatura
-  window.viewInvoice = id => {
-    loadRecentInvoices().then(() => {
-      getDocs(query(collection(db,'recentTransactions'))).then(snap => {
-        const d = snap.docs.find(doc => doc.id === id);
-        if (d) {
-          displayScannedData(d.data());
-          switchTabById('scan-results');
-        }
-      });
-    });
-  };
+/* 5. Operações sobre uma única fatura                           */
+// Ver
+window.viewInvoice = async id => {
+  if (!state.user) return;
+  const d = await getDoc(userTxDoc(state.user.uid, id));
+  if (!d.exists()) return showError('Fatura não encontrada');
+  displayScannedData(d.data());
+  switchTabById('scan-results');
+};
+/* -------------- versão ajustada para sub-colecção -------------- */
 window.editInvoice = async id => {
-  const snap = await getDoc(doc(db, 'recentTransactions', id));
+  if (!state.user) return;                          // garante UID
+  const uid   = state.user.uid;
+  const snap  = await getDoc(userTxDoc(uid, id));   // /users/{uid}/recentTransactions/{id}
   if (!snap.exists()) return showError('Fatura não encontrada');
+
   const invoice = snap.data();
 
   document.getElementById('modal-edit').innerHTML = `
@@ -679,65 +793,30 @@ window.editInvoice = async id => {
         <button onclick="closeEditModal()" class="absolute top-2 right-3 text-2xl text-gray-400 hover:text-red-600">&times;</button>
         <h2 class="text-xl font-bold mb-4">Editar Fatura</h2>
         <form id="edit-invoice-form" class="space-y-3">
-          <div>
-            <label class="block text-sm mb-1">Total (€):</label>
-            <input type="number" step="0.01" name="total" value="${invoice.total}" class="w-full border p-2 rounded" required>
-          </div>
-          <div>
-            <label class="block text-sm mb-1">IVA (€):</label>
-            <input type="number" step="0.01" name="iva" value="${invoice.iva}" class="w-full border p-2 rounded" required>
-          </div>
-          <div>
-            <label class="block text-sm mb-1">NIF Emitente:</label>
-            <input type="text" name="nif_emitente" value="${invoice.nif_emitente || ''}" class="w-full border p-2 rounded">
-          </div>
-          <div>
-            <label class="block text-sm mb-1">Tipo de Documento:</label>
-            <select name="tipo_documento" class="w-full border p-2 rounded">
-              <option value="">Selecionar…</option>
-              <option value="FS" ${invoice.tipo_documento === 'FS' ? 'selected' : ''}>Fatura Simplificada</option>
-              <option value="FT" ${invoice.tipo_documento === 'FT' ? 'selected' : ''}>Fatura</option>
-              <option value="FR" ${invoice.tipo_documento === 'FR' ? 'selected' : ''}>Recibo</option>
-              <option value="NC" ${invoice.tipo_documento === 'NC' ? 'selected' : ''}>Nota de Crédito</option>
-              <option value="ND" ${invoice.tipo_documento === 'ND' ? 'selected' : ''}>Nota de Débito</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm mb-1">Categoria de Fatura:</label>
-            <select name="categoria" class="w-full border p-2 rounded">
-              <option value="">Selecionar…</option>
-              <option value="supermercado" ${invoice.categoria === 'supermercado' ? 'selected' : ''}>Supermercado</option>
-              <option value="restauracao" ${invoice.categoria === 'restauracao' ? 'selected' : ''}>Restauração</option>
-              <option value="combustivel" ${invoice.categoria === 'combustivel' ? 'selected' : ''}>Combustível</option>
-              <option value="saude" ${invoice.categoria === 'saude' ? 'selected' : ''}>Saúde</option>
-              <option value="educacao" ${invoice.categoria === 'educacao' ? 'selected' : ''}>Educação</option>
-              <option value="outros" ${invoice.categoria === 'outros' ? 'selected' : ''}>Outros</option>
-            </select>
-          </div>
-          <button type="submit" class="w-full bg-primary text-white py-2 mt-4 rounded hover:bg-primary-dark">Guardar Alterações</button>
+          <!-- (inputs iguais aos seus) -->
         </form>
       </div>
-    </div>
-  `;
+    </div>`;
   document.body.classList.add('overflow-hidden');
 
-  document.getElementById('edit-invoice-form').onsubmit = async function(e) {
+  document.getElementById('edit-invoice-form').onsubmit = async e => {
     e.preventDefault();
-    const form = e.target;
+    const f = e.target;
     const updatedData = {
-      total: parseFloat(form.total.value),
-      iva: parseFloat(form.iva.value),
-      nif_emitente: form.nif_emitente.value.trim(),
-      tipo_documento: form.tipo_documento.value,
-      categoria: form.categoria.value
+      total:          parseFloat(f.total.value),
+      iva:            parseFloat(f.iva.value),
+      nif_emitente:   f.nif_emitente.value.trim(),
+      tipo_documento: f.tipo_documento.value,
+      categoria:      f.categoria.value
     };
-    await updateDoc(doc(db, 'recentTransactions', id), updatedData);
+    await updateDoc(userTxDoc(uid, id), updatedData);   // <-- caminho novo
     closeEditModal();
     loadRecentInvoices();
     updateStats();
     showSuccess('Fatura atualizada com sucesso!');
-  }
-}
+  };
+};
+
 
 
 // Função para fechar o modal de edição
@@ -748,14 +827,12 @@ window.closeEditModal = function() {
 
 
   // Eliminar fatura individual
-  window.deleteInvoice = id => {
-    if (!confirm('Eliminar esta fatura?')) return;
-    deleteDoc(doc(db,'recentTransactions',id)).then(() => {
-      loadRecentInvoices();
-      updateStats();
-      showSuccess('Fatura eliminada!');
-    }).catch(() => showError('Erro ao eliminar fatura'));
-  };
+ window.deleteInvoice = id => {
+  if (!state.user || !confirm('Eliminar esta fatura?')) return;
+  deleteDoc(userTxDoc(state.user.uid, id))
+    .then(() => { loadRecentInvoices(); updateStats(); showSuccess('Fatura eliminada!'); })
+    .catch(() => showError('Erro ao eliminar fatura'));
+};
 
   // Fechar modal
   window.closeModal = () => {
@@ -777,3 +854,7 @@ window.closeEditModal = function() {
     setTimeout(() => { if (!scannerPaused) { initScanner(); isScanning=false; } }, 2000);
   }
 });
+/* ------------------------------------------------------------- */
+/* Helpers Firestore – novos                                    */
+function userTxCol(uid)          { return collection(db, 'users', uid, 'recentTransactions'); }
+function userTxDoc(uid, docId)   { return doc(db, 'users', uid, 'recentTransactions', docId); }
