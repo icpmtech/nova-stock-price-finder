@@ -87,16 +87,7 @@
     </div>
     
   </header>
-  <div class="flex gap-4 mb-4">
-  <button id="exportBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 hover-lift">
-    📤 Exportar Excel
-  </button>
-  <label class="bg-blue-600 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-blue-700 hover-lift">
-    📥 Importar Excel
-    <input id="importFile" type="file" accept=".csv, application/vnd.ms-excel" class="hidden" />
-  </label>
-</div>
-
+ 
   <main class="container mx-auto px-6 py-8">
     <!-- Formulário -->
     <div class="glass-effect floating-shadow rounded-2xl p-6 mb-8 animate-fade-in">
@@ -147,6 +138,15 @@
         </select>
       </div>
     </div>
+ <div class="flex gap-4 mb-4">
+  <button id="exportBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 hover-lift">
+    📤 Exportar Excel
+  </button>
+  <label class="bg-blue-600 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-blue-700 hover-lift">
+    📥 Importar Excel
+    <input id="importFile" type="file" accept=".csv, application/vnd.ms-excel" class="hidden" />
+  </label>
+</div>
 
     <!-- Tabela -->
     <div class="glass-effect floating-shadow rounded-2xl overflow-hidden animate-fade-in">
