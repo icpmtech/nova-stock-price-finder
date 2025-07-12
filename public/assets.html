@@ -201,8 +201,9 @@
 
  <div id="footer-widget"></div>
   <script type="module" src="footer.js"></script>
-  <script type="module">
- import './firebase-init.js';
+  
+<script type="module">
+import './firebase-init.js';
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import FirebaseAPI from './firebaseApi.js';
 
@@ -216,9 +217,12 @@ const searchInput = document.getElementById('searchInput');
 const filterType = document.getElementById('filterType');
 const filterRisk = document.getElementById('filterRisk');
 const emptyState = document.getElementById('emptyState');
+const pagination = document.getElementById('pagination');
 
 let editingId = null;
 let allAssets = [];
+const itemsPerPage = 5;
+let currentPage = 1;
 
 function applyFilters(arr) {
   const term = searchInput.value.toLowerCase();
@@ -233,44 +237,90 @@ function applyFilters(arr) {
   );
 }
 
+function renderTable(data) {
+  list.innerHTML = data.map(a => {
+    const total = (a.quantity * a.priceUSD).toFixed(2);
+    const chCls = a.change >= 0 ? 'text-green-600' : 'text-red-600';
+    const icon = a.change >= 0 ? '↗' : '↘';
+    return `
+      <tr class="hover:bg-gray-50 transition-colors duration-200 animate-fade-in">
+        <td class="p-4">${a.name}</td>
+        <td class="p-4">${a.type}</td>
+        <td class="p-4">${a.sector}</td>
+        <td class="p-4">${a.country}</td>
+        <td class="p-4">${a.risk}</td>
+        <td class="p-4">${a.quantity}</td>
+        <td class="p-4">$${a.priceUSD.toFixed(2)}</td>
+        <td class="p-4"><span class="${chCls}">${icon} ${Math.abs(a.change).toFixed(2)}%</span></td>
+        <td class="p-4">$${total}</td>
+        <td class="p-4 space-x-2">
+          <button onclick="editAsset('${a.id}')" class="text-blue-600 hover:text-blue-800">✏️</button>
+          <button onclick="deleteAsset('${a.id}')" class="text-red-600 hover:text-red-800">🗑️</button>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+function renderPagination(totalPages) {
+  pagination.innerHTML = '';
+
+  const prevBtn = document.createElement('button');
+  prevBtn.textContent = '<';
+  prevBtn.disabled = currentPage === 1;
+  prevBtn.className = 'px-3 py-1 mx-1 border rounded hover:bg-gray-200';
+  prevBtn.onclick = () => {
+    if (currentPage > 1) { currentPage--; updateDisplay(); }
+  };
+  pagination.appendChild(prevBtn);
+
+  for (let i = 1; i <= totalPages; i++) {
+    const pageBtn = document.createElement('button');
+    pageBtn.textContent = i;
+    pageBtn.className = `px-3 py-1 mx-1 border rounded ${i === currentPage ? 'bg-blue-500 text-white' : 'hover:bg-gray-200'}`;
+    pageBtn.onclick = () => { currentPage = i; updateDisplay(); };
+    pagination.appendChild(pageBtn);
+  }
+
+  const nextBtn = document.createElement('button');
+  nextBtn.textContent = '>';
+  nextBtn.disabled = currentPage === totalPages;
+  nextBtn.className = 'px-3 py-1 mx-1 border rounded hover:bg-gray-200';
+  nextBtn.onclick = () => {
+    if (currentPage < totalPages) { currentPage++; updateDisplay(); }
+  };
+  pagination.appendChild(nextBtn);
+}
+
 function updateDisplay() {
   const filtered = applyFilters(allAssets);
-  if (!filtered.length) {
+  const totalItems = filtered.length;
+  const totalPages = Math.max(Math.ceil(totalItems / itemsPerPage), 1);
+
+  if (currentPage > totalPages) currentPage = totalPages;
+  const start = (currentPage - 1) * itemsPerPage;
+  const pageData = filtered.slice(start, start + itemsPerPage);
+
+  if (!pageData.length) {
     list.innerHTML = '';
     emptyState.classList.remove('hidden');
   } else {
     emptyState.classList.add('hidden');
-    list.innerHTML = filtered.map(a => {
-      const total = (a.quantity * a.priceUSD).toFixed(2);
-      const chCls = a.change >= 0 ? 'text-green-600' : 'text-red-600';
-      const icon = a.change >= 0 ? '↗' : '↘';
-      return `
-        <tr class="hover:bg-gray-50 transition-colors duration-200 animate-fade-in">
-          <td class="p-4">${a.name}</td>
-          <td class="p-4">${a.type}</td>
-          <td class="p-4">${a.sector}</td>
-          <td class="p-4">${a.country}</td>
-          <td class="p-4">${a.risk}</td>
-          <td class="p-4">${a.quantity}</td>
-          <td class="p-4">$${a.priceUSD.toFixed(2)}</td>
-          <td class="p-4"><span class="${chCls}">${icon} ${Math.abs(a.change).toFixed(2)}%</span></td>
-          <td class="p-4">$${total}</td>
-          <td class="p-4 space-x-2">
-            <button onclick="editAsset('${a.id}')" class="text-blue-600 hover:text-blue-800">✏️</button>
-            <button onclick="deleteAsset('${a.id}')" class="text-red-600 hover:text-red-800">🗑️</button>
-          </td>
-        </tr>`;
-    }).join('');
+    renderTable(pageData);
   }
-  const sum = allAssets.reduce((s, a) => s + a.quantity * a.priceUSD, 0);
-  assetCount.textContent = allAssets.length;
-  totalValue.textContent = sum.toFixed(2);
+
+  assetCount.textContent = totalItems;
+  totalValue.textContent = filtered
+    .reduce((s, a) => s + a.quantity * a.priceUSD, 0)
+    .toFixed(2);
+
+  renderPagination(totalPages);
 }
 
 function updateAssets() {
   FirebaseAPI.fetchAssetsData()
     .then(assets => {
       allAssets = assets;
+      currentPage = 1;
       updateDisplay();
     })
     .catch(err => console.error('Erro ao ler assets:', err));
@@ -299,7 +349,6 @@ form.addEventListener('submit', async e => {
   updateAssets();
 });
 
-// funções de edição e remoção
 window.editAsset = id => {
   const a = allAssets.find(x => x.id === id);
   if (!a) return;
@@ -328,17 +377,19 @@ window.deleteAsset = async id => {
 };
 
 [searchInput, filterType, filterRisk].forEach(el =>
-  el.addEventListener('input', updateDisplay)
+  el.addEventListener('input', () => {
+    currentPage = 1;
+    updateDisplay();
+  })
 );
 
-// só inicia após autenticação
 onAuthStateChanged(auth, user => {
   if (user) {
     updateAssets();
   } else {
     console.log('Aguardando login...');
   }
-}); 
-  </script>
+});
+</script>
 </body>
 </html>
