@@ -867,11 +867,20 @@ window.closeEditModal = function() {
 
 
   // Eliminar fatura individual
- window.deleteInvoice = id => {
-  if (!state.user || !confirm('Eliminar esta fatura?')) return;
-  deleteDoc(userTxDoc(state.user.uid, id))
-    .then(() => { loadRecentInvoices(); updateStats(); showSuccess('Fatura eliminada!'); })
-    .catch(() => showError('Erro ao eliminar fatura'));
+ window.deleteInvoice = async id => {
+  if (!state.user) return showError('Utilizador não autenticado');
+  if (!confirm('❌ Eliminar esta fatura?')) return;
+  try {
+    showLoading(true);
+    await deleteDoc(userTxDoc(state.user.uid, id));
+    await Promise.all([loadRecentInvoices(), updateStats()]);
+    showSuccess('Fatura eliminada com sucesso!');
+  } catch (e) {
+    console.error('Erro ao eliminar fatura:', e);
+    showError('Erro ao eliminar fatura.');
+  } finally {
+    showLoading(false);
+  }
 };
 
   // Fechar modal
