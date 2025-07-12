@@ -1,7 +1,7 @@
 // firebaseApi.js
 // Firebase Cloud Firestore API interface for Wallet360 data
-
 import { db } from './firebase-init.js';
+import { getAuth } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import {
   collection,
   getDocs,
@@ -12,7 +12,29 @@ import {
   addDoc,
   deleteDoc
 } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
- /** helper de mapeamento → Transaction */
+
+const auth = getAuth();
+
+// Verifica autenticação e devolve UID
+function requireAuth() {
+  const user = auth.currentUser;
+  if (!user) throw new Error("Utilizador não autenticado.");
+  return user.uid;
+}
+
+// Coleção do utilizador em path
+function userCollection(path) {
+  const uid = requireAuth();
+  return collection(db, `${path}/${uid}`);
+}
+
+// Documento do utilizador em path/id
+function userDoc(path, id) {
+  const uid = requireAuth();
+  return doc(db, `${path}/${uid}/${id}`);
+}
+
+// Helper de mapeamento → Transaction
 function mapInvoiceToTx(id, inv) {
   const iso = inv.timestamp?.slice(0, 10) ?? new Date().toISOString().slice(0, 10);
   const cat = inv.categoria || 'outros';
@@ -37,174 +59,153 @@ function mapInvoiceToTx(id, inv) {
 }
 
 export default class FirebaseAPI {
-  /** WALLET DATA (singleton document) **/
-  static async fetchWalletData() {
-    const walletDoc = doc(db, 'dashboard', 'walletData');
-    const snapshot  = await getDoc(walletDoc);
-    return snapshot.exists() ? snapshot.data() : null;
+  /** TRANSAÇÕES **/
+  static async fetchRecentTransactions() {
+    const snap = await getDocs(userCollection('recentTransactions'));
+    return snap.docs.map(d => {
+      const data = d.data();
+      return ('total' in data && 'timestamp' in data)
+        ? mapInvoiceToTx(d.id, data)
+        : { id: d.id, ...data };
+    });
   }
-
-  static async setWalletData(data) {
-    const walletDoc = doc(db, 'dashboard', 'walletData');
-    await setDoc(walletDoc, data);
-  }
-
-  /** PORTFOLIO HISTORY (subcollection under walletData) **/
-  static async fetchPortfolioHistory() {
-    const colRef   = collection(db, 'dashboard', 'walletData', 'portfolioHistory');
-    const snapshot = await getDocs(colRef);
-    return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-  }
-
-  static async addPortfolioEntry(entry) {
-    const colRef = collection(db, 'dashboard', 'walletData', 'portfolioHistory');
-    const ref    = await addDoc(colRef, entry);
-    return ref.id;
-  }
-
-  static async updatePortfolioEntry(id, updates) {
-    const entryDoc = doc(db, 'dashboard', 'walletData', 'portfolioHistory', id);
-    await updateDoc(entryDoc, updates);
-  }
-
-  static async deletePortfolioEntry(id) {
-    const entryDoc = doc(db, 'dashboard', 'walletData', 'portfolioHistory', id);
-    await deleteDoc(entryDoc);
-  }
-
-  /** MONTHLY DATA (subcollection under walletData) **/
-  static async fetchMonthlyData() {
-    const colRef   = collection(db, 'dashboard', 'walletData', 'monthlyData');
-    const snapshot = await getDocs(colRef);
-    return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-  }
-
-  static async addMonthlyRecord(record) {
-    const colRef = collection(db, 'dashboard', 'walletData', 'monthlyData');
-    const ref    = await addDoc(colRef, record);
-    return ref.id;
-  }
-
-  static async updateMonthlyRecord(id, updates) {
-    const recDoc = doc(db, 'dashboard', 'walletData', 'monthlyData', id);
-    await updateDoc(recDoc, updates);
-  }
-
-  static async deleteMonthlyRecord(id) {
-    const recDoc = doc(db, 'dashboard', 'walletData', 'monthlyData', id);
-    await deleteDoc(recDoc);
-  }
-
-  /** SPENDING CATEGORIES (singleton document) **/
-  static async fetchSpendingCategories() {
-    const docRef  = doc(db, 'dashboard', 'spendingCategories');
-    const snapshot = await getDoc(docRef);
-    return snapshot.exists() ? snapshot.data() : {};
-  }
-
-  static async setSpendingCategories(categories) {
-    const docRef = doc(db, 'dashboard', 'spendingCategories');
-    await setDoc(docRef, categories);
-  }
-
-  /** BUDGETS (top-level collection) **/
-  static async fetchBudgets() {
-    const colRef   = collection(db, 'budgets');
-    const snapshot = await getDocs(colRef);
-    return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-  }
-
-  static async addBudget(budget) {
-    const colRef = collection(db, 'budgets');
-    const ref    = await addDoc(colRef, budget);
-    return ref.id;
-  }
-
-  static async updateBudget(id, updates) {
-    const budDoc = doc(db, 'budgets', id);
-    await updateDoc(budDoc, updates);
-  }
-
-  static async deleteBudget(id) {
-    const budDoc = doc(db, 'budgets', id);
-    await deleteDoc(budDoc);
-  }
-
-  /** GOALS (top-level collection) **/
-  static async fetchGoals() {
-    const colRef   = collection(db, 'goals');
-    const snapshot = await getDocs(colRef);
-    return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-  }
-
-  static async addGoal(goal) {
-    const colRef = collection(db, 'goals');
-    const ref    = await addDoc(colRef, goal);
-    return ref.id;
-  }
-
-  static async updateGoal(id, updates) {
-    const goalDoc = doc(db, 'goals', id);
-    await updateDoc(goalDoc, updates);
-  }
-
-  static async deleteGoal(id) {
-    const goalDoc = doc(db, 'goals', id);
-    await deleteDoc(goalDoc);
-  }
-
-  /** ASSETS (top-level collection) **/
-  static async fetchAssetsData() {
-    const colRef   = collection(db, 'assetsData');
-    const snapshot = await getDocs(colRef);
-    return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-  }
-
-  static async addAsset(asset) {
-    const colRef = collection(db, 'assetsData');
-    const ref    = await addDoc(colRef, asset);
-    return ref.id;
-  }
-
-  static async updateAsset(id, updates) {
-    const assetDoc = doc(db, 'assetsData', id);
-    await updateDoc(assetDoc, updates);
-  }
-
-  static async deleteAsset(id) {
-    const assetDoc = doc(db, 'assetsData', id);
-    await deleteDoc(assetDoc);
-  }
-
-
-/** TRANSACTIONS (top-level collection) **/
-static async fetchRecentTransactions() {
-  const snap = await getDocs(collection(db, 'recentTransactions'));
-
-  return snap.docs.map(d => {
-    const data = d.data();
-    // converte SÓ se existir total e timestamp
-    return ('total' in data && 'timestamp' in data)
-      ? mapInvoiceToTx(d.id, data)
-      : { id: d.id, ...data };      // devolve raw se faltar campo
-  });
-}
 
   static async addTransaction(tx) {
-    const colRef = collection(db, 'recentTransactions');
-    const ref    = await addDoc(colRef, tx);
+    const ref = await addDoc(userCollection('recentTransactions'), tx);
     return ref.id;
   }
 
   static async updateTransaction(id, updates) {
-    const txDoc = doc(db, 'recentTransactions', id);
-    await updateDoc(txDoc, updates);
+    await updateDoc(userDoc('recentTransactions', id), updates);
   }
 
+  static async deleteTransaction(id) {
+    if (!id || typeof id !== 'string') throw new Error('ID inválido');
+    await deleteDoc(userDoc('recentTransactions', id));
+  }
 
- static async deleteTransaction(id) {
-  if (!id || typeof id !== 'string') throw new Error('ID inválido');
-  const ref = doc(db, 'recentTransactions', id);
-  await deleteDoc(ref);
-}
+  /** ASSETS **/
+  static async fetchAssetsData() {
+    const snap = await getDocs(userCollection('assetsData'));
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  }
+
+  static async addAsset(asset) {
+    const ref = await addDoc(userCollection('assetsData'), asset);
+    return ref.id;
+  }
+
+  static async updateAsset(id, updates) {
+    await updateDoc(userDoc('assetsData', id), updates);
+  }
+
+  static async deleteAsset(id) {
+    await deleteDoc(userDoc('assetsData', id));
+  }
+
+  /** BUDGETS **/
+  static async fetchBudgets() {
+    const snap = await getDocs(userCollection('budgets'));
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  }
+
+  static async addBudget(budget) {
+    const ref = await addDoc(userCollection('budgets'), budget);
+    return ref.id;
+  }
+
+  static async updateBudget(id, updates) {
+    await updateDoc(userDoc('budgets', id), updates);
+  }
+
+  static async deleteBudget(id) {
+    await deleteDoc(userDoc('budgets', id));
+  }
+
+  /** GOALS **/
+  static async fetchGoals() {
+    const snap = await getDocs(userCollection('goals'));
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  }
+
+  static async addGoal(goal) {
+    const ref = await addDoc(userCollection('goals'), goal);
+    return ref.id;
+  }
+
+  static async updateGoal(id, updates) {
+    await updateDoc(userDoc('goals', id), updates);
+  }
+
+  static async deleteGoal(id) {
+    await deleteDoc(userDoc('goals', id));
+  }
+
+  /** SPENDING CATEGORIES **/
+  static async fetchSpendingCategories() {
+    const snap = await getDocs(userCollection('spendingCategories'));
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  }
+
+  static async setSpendingCategory(catId, data) {
+    await setDoc(userDoc('spendingCategories', catId), data);
+  }
+
+  /** DASHBOARD SINGLETON **/
+  static async fetchWalletData() {
+    const ref = doc(db, `dashboard/${requireAuth()}/walletData`);
+    const snapshot = await getDoc(ref);
+    return snapshot.exists() ? snapshot.data() : null;
+  }
+
+  static async setWalletData(data) {
+    const ref = doc(db, `dashboard/${requireAuth()}/walletData`);
+    await setDoc(ref, data);
+  }
+
+  /** PORTFOLIO HISTORY **/
+  static async fetchPortfolioHistory() {
+    const col = collection(db, `dashboard/${requireAuth()}/portfolioHistory`);
+    const snap = await getDocs(col);
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  }
+
+  static async addPortfolioEntry(entry) {
+    const col = collection(db, `dashboard/${requireAuth()}/portfolioHistory`);
+    const ref = await addDoc(col, entry);
+    return ref.id;
+  }
+
+  static async updatePortfolioEntry(id, updates) {
+    const ref = doc(db, `dashboard/${requireAuth()}/portfolioHistory/${id}`);
+    await updateDoc(ref, updates);
+  }
+
+  static async deletePortfolioEntry(id) {
+    const ref = doc(db, `dashboard/${requireAuth()}/portfolioHistory/${id}`);
+    await deleteDoc(ref);
+  }
+
+  /** MONTHLY DATA **/
+  static async fetchMonthlyData() {
+    const col = collection(db, `dashboard/${requireAuth()}/monthlyData`);
+    const snap = await getDocs(col);
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  }
+
+  static async addMonthlyRecord(record) {
+    const col = collection(db, `dashboard/${requireAuth()}/monthlyData`);
+    const ref = await addDoc(col, record);
+    return ref.id;
+  }
+
+  static async updateMonthlyRecord(id, updates) {
+    const ref = doc(db, `dashboard/${requireAuth()}/monthlyData/${id}`);
+    await updateDoc(ref, updates);
+  }
+
+  static async deleteMonthlyRecord(id) {
+    const ref = doc(db, `dashboard/${requireAuth()}/monthlyData/${id}`);
+    await deleteDoc(ref);
+  }
 }
