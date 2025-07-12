@@ -793,7 +793,47 @@ window.editInvoice = async id => {
         <button onclick="closeEditModal()" class="absolute top-2 right-3 text-2xl text-gray-400 hover:text-red-600">&times;</button>
         <h2 class="text-xl font-bold mb-4">Editar Fatura</h2>
         <form id="edit-invoice-form" class="space-y-3">
-          <!-- (inputs iguais aos seus) -->
+        <div>
+    <label class="block mb-1">NIF Emitente</label>
+    <input type="text" name="nif_emitente" class="w-full border p-2 rounded" value="${invoice.nif_emitente || ''}" required />
+  </div>
+  <div>
+    <label class="block mb-1">Total (€)</label>
+    <input type="number" name="total" class="w-full border p-2 rounded" value="${invoice.total || 0}" step="0.01" required />
+  </div>
+  <div>
+    <label class="block mb-1">IVA (€)</label>
+    <input type="number" name="iva" class="w-full border p-2 rounded" value="${invoice.iva || 0}" step="0.01" required />
+  </div>
+  <div>
+    <label class="block mb-1">Tipo de Documento</label>
+    <select name="tipo_documento" class="w-full border p-2 rounded">
+      <option value="FT" ${invoice.tipo_documento === 'FT' ? 'selected' : ''}>Fatura (FT)</option>
+      <option value="FS" ${invoice.tipo_documento === 'FS' ? 'selected' : ''}>Fatura Simplificada (FS)</option>
+      <option value="FR" ${invoice.tipo_documento === 'FR' ? 'selected' : ''}>Recibo (FR)</option>
+      <option value="NC" ${invoice.tipo_documento === 'NC' ? 'selected' : ''}>Nota de Crédito (NC)</option>
+      <option value="ND" ${invoice.tipo_documento === 'ND' ? 'selected' : ''}>Nota de Débito (ND)</option>
+    </select>
+  </div>
+  <div>
+    <label class="block mb-1">Categoria</label>
+    <select name="categoria" class="w-full border p-2 rounded">
+      <option value="supermercado" ${invoice.categoria === 'supermercado' ? 'selected' : ''}>Supermercado</option>
+      <option value="restauracao" ${invoice.categoria === 'restauracao' ? 'selected' : ''}>Restauração</option>
+      <option value="combustivel" ${invoice.categoria === 'combustivel' ? 'selected' : ''}>Combustível</option>
+      <option value="saude" ${invoice.categoria === 'saude' ? 'selected' : ''}>Saúde</option>
+      <option value="educacao" ${invoice.categoria === 'educacao' ? 'selected' : ''}>Educação</option>
+      <option value="outros" ${invoice.categoria === 'outros' ? 'selected' : ''}>Outros</option>
+    </select>
+  </div>
+  <div>
+    <label class="block mb-1">Data</label>
+    <input type="date" name="data" class="w-full border p-2 rounded" value="${(invoice.data || '').split('/').reverse().join('-')}" />
+  </div>
+  <div class="flex justify-end space-x-4">
+    <button type="button" class="px-4 py-2 bg-gray-600 text-white rounded" onclick="closeEditModal()">Cancelar</button>
+    <button type="submit" class="px-4 py-2 bg-primary text-white rounded">Guardar</button>
+  </div>
         </form>
       </div>
     </div>`;
