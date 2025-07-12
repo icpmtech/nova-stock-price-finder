@@ -201,125 +201,115 @@
  <div id="footer-widget"></div>
   <script type="module" src="footer.js"></script>
   <script type="module">
-    import './firebase-init.js';
-    import FirebaseAPI from './firebaseApi.js';
+   import './firebase-init.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import FirebaseAPI from './firebaseApi.js';
 
-    const form       = document.getElementById('form');
-    const list       = document.getElementById('list');
-    const btnText    = document.getElementById('btnText');
-    const assetCount = document.getElementById('assetCount');
-    const totalValue = document.getElementById('totalValue');
-    const searchInput= document.getElementById('searchInput');
-    const filterType = document.getElementById('filterType');
-    const filterRisk = document.getElementById('filterRisk');
-    const emptyState = document.getElementById('emptyState');
+const auth = getAuth();
+const form = document.getElementById('form');
+const list = document.getElementById('list');
+const btnText = document.getElementById('btnText');
+const assetCount = document.getElementById('assetCount');
+const totalValue = document.getElementById('totalValue');
+const searchInput = document.getElementById('searchInput');
+const filterType = document.getElementById('filterType');
+const filterRisk = document.getElementById('filterRisk');
+const emptyState = document.getElementById('emptyState');
 
-    let editingId = null;
-    let allAssets = [];
+let editingId = null;
+let allAssets = [];
 
-    async function loadAssets() {
-      allAssets = await FirebaseAPI.fetchAssetsData();
+function applyFilters(arr) {
+  const term = searchInput.value.toLowerCase();
+  const tF = filterType.value;
+  const rF = filterRisk.value;
+  return arr.filter(a =>
+    (!tF || a.type === tF) &&
+    (!rF || a.risk === rF) &&
+    (a.name.toLowerCase().includes(term) ||
+     a.sector.toLowerCase().includes(term) ||
+     a.country.toLowerCase().includes(term))
+  );
+}
+
+function updateDisplay() {
+  const filtered = applyFilters(allAssets);
+  if (!filtered.length) {
+    list.innerHTML = '';
+    emptyState.classList.remove('hidden');
+  } else {
+    emptyState.classList.add('hidden');
+    list.innerHTML = filtered.map(a => {
+      const total = (a.quantity * a.priceUSD).toFixed(2);
+      const chCls = a.change >= 0 ? 'text-green-600' : 'text-red-600';
+      const icon = a.change >= 0 ? '↗' : '↘';
+      return `
+        <tr class="hover:bg-gray-50 transition-colors duration-200 animate-fade-in">
+          <td class="p-4">${a.name}</td>
+          <td class="p-4">${a.type}</td>
+          <td class="p-4">${a.sector}</td>
+          <td class="p-4">${a.country}</td>
+          <td class="p-4">${a.risk}</td>
+          <td class="p-4">${a.quantity}</td>
+          <td class="p-4">$${a.priceUSD.toFixed(2)}</td>
+          <td class="p-4"><span class="${chCls}">${icon} ${Math.abs(a.change).toFixed(2)}%</span></td>
+          <td class="p-4">$${total}</td>
+          <td class="p-4 space-x-2">
+            <button onclick="editAsset('${a.id}')" class="text-blue-600 hover:text-blue-800">✏️</button>
+            <button onclick="deleteAsset('${a.id}')" class="text-red-600 hover:text-red-800">🗑️</button>
+          </td>
+        </tr>`;
+    }).join('');
+  }
+  const sum = allAssets.reduce((s, a) => s + a.quantity * a.priceUSD, 0);
+  assetCount.textContent = allAssets.length;
+  totalValue.textContent = sum.toFixed(2);
+}
+
+function updateAssets() {
+  FirebaseAPI.fetchAssetsData()
+    .then(assets => {
+      allAssets = assets;
       updateDisplay();
-    }
+    })
+    .catch(err => console.error('Erro ao ler assets:', err));
+}
 
-    form.addEventListener('submit', async e => {
-      e.preventDefault();
-      const data = {
-        name: form.name.value,
-        type: form.type.value,
-        sector: form.sector.value,
-        country: form.country.value,
-        risk: form.risk.value,
-        quantity: parseFloat(form.quantity.value),
-        priceUSD: parseFloat(form.priceUSD.value),
-        change: parseFloat(form.change.value) || 0
-      };
-      if (editingId) {
-        await FirebaseAPI.updateAsset(editingId, data);
-        editingId = null;
-      } else {
-        await FirebaseAPI.addAsset(data);
-      }
-      form.reset();
-      btnText.textContent = 'Salvar';
-      loadAssets();
-    });
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+  const data = {
+    name: form.name.value,
+    type: form.type.value,
+    sector: form.sector.value,
+    country: form.country.value,
+    risk: form.risk.value,
+    quantity: parseFloat(form.quantity.value),
+    priceUSD: parseFloat(form.priceUSD.value),
+    change: parseFloat(form.change.value) || 0
+  };
+  if (editingId) {
+    await FirebaseAPI.updateAsset(editingId, data);
+    editingId = null;
+  } else {
+    await FirebaseAPI.addAsset(data);
+  }
+  form.reset();
+  btnText.textContent = 'Salvar';
+  updateAssets();
+});
 
-    function applyFilters(arr) {
-      const term = searchInput.value.toLowerCase();
-      const tF   = filterType.value;
-      const rF   = filterRisk.value;
-      return arr.filter(a => {
-        return (!tF || a.type === tF)
-            && (!rF || a.risk === rF)
-            && (a.name.toLowerCase().includes(term) ||
-               a.sector.toLowerCase().includes(term) ||
-               a.country.toLowerCase().includes(term));
-      });
-    }
+[searchInput, filterType, filterRisk].forEach(el =>
+  el.addEventListener('input', updateDisplay)
+);
 
-    function updateDisplay() {
-      const filtered = applyFilters(allAssets);
-      if (!filtered.length) {
-        list.innerHTML = '';
-        emptyState.classList.remove('hidden');
-      } else {
-        emptyState.classList.add('hidden');
-        list.innerHTML = filtered.map(a => {
-          const total = (a.quantity * a.priceUSD).toFixed(2);
-          const chCls = a.change>=0 ? 'text-green-600' : 'text-red-600';
-          const icon  = a.change>=0 ? '↗' : '↘';
-          return `
-            <tr class="hover:bg-gray-50 transition-colors duration-200 animate-fade-in">
-              <td class="p-4">${a.name}</td>
-              <td class="p-4">${a.type}</td>
-              <td class="p-4">${a.sector}</td>
-              <td class="p-4">${a.country}</td>
-              <td class="p-4">${a.risk}</td>
-              <td class="p-4">${a.quantity}</td>
-              <td class="p-4">$${a.priceUSD.toFixed(2)}</td>
-              <td class="p-4"><span class="${chCls}">${icon} ${Math.abs(a.change).toFixed(2)}%</span></td>
-              <td class="p-4">$${total}</td>
-              <td class="p-4 space-x-2">
-                <button onclick="editAsset('${a.id}')" class="text-blue-600 hover:text-blue-800">✏️</button>
-                <button onclick="deleteAsset('${a.id}')" class="text-red-600 hover:text-red-800">🗑️</button>
-              </td>
-            </tr>`;
-        }).join('');
-      }
-      const sum = allAssets.reduce((s,a)=>s + a.quantity*a.priceUSD,0);
-      assetCount.textContent = allAssets.length;
-      totalValue.textContent = sum.toFixed(2);
-    }
-
-    window.editAsset = async id => {
-      const a = allAssets.find(x=>x.id===id);
-      editingId = id;
-      form.name.value    = a.name;
-      form.type.value    = a.type;
-      form.sector.value  = a.sector;
-      form.country.value = a.country;
-      form.risk.value    = a.risk;
-      form.quantity.value= a.quantity;
-      form.priceUSD.value= a.priceUSD;
-      form.change.value  = a.change;
-      btnText.textContent= 'Atualizar';
-      form.name.focus();
-    };
-
-    window.deleteAsset = async id => {
-      if (confirm('Excluir este ativo?')) {
-        await FirebaseAPI.deleteAsset(id);
-        loadAssets();
-      }
-    };
-
-    [searchInput, filterType, filterRisk].forEach(el =>
-      el.addEventListener('input', updateDisplay)
-    );
-
-    // Inicializa
-    loadAssets();
+// Só inicia após autenticação
+onAuthStateChanged(auth, user => {
+  if (user) {
+    updateAssets();
+  } else {
+    console.log('Aguardando login...');
+  }
+});
   </script>
 </body>
 </html>
