@@ -87,6 +87,15 @@
     </div>
     
   </header>
+  <div class="flex gap-4 mb-4">
+  <button id="exportBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 hover-lift">
+    📤 Exportar Excel
+  </button>
+  <label class="bg-blue-600 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-blue-700 hover-lift">
+    📥 Importar Excel
+    <input id="importFile" type="file" accept=".csv, application/vnd.ms-excel" class="hidden" />
+  </label>
+</div>
 
   <main class="container mx-auto px-6 py-8">
     <!-- Formulário -->
@@ -390,6 +399,68 @@ onAuthStateChanged(auth, user => {
     console.log('Aguardando login...');
   }
 });
+  function exportAssetsToCSV() {
+  if (!allAssets.length) return alert('Sem dados para exportar!');
+  const cols = ['Nome','Tipo','Setor','País','Risco','Quantidade','Preço USD','Variação %'];
+  const rows = allAssets.map(a => [
+    `"${a.name}"`,
+    `"${a.type}"`,
+    `"${a.sector}"`,
+    `"${a.country}"`,
+    `"${a.risk}"`,
+    a.quantity,
+    a.priceUSD,
+    a.change
+  ]);
+  let csv = cols.join(',') + '\n' + rows.map(r => r.join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'ativos-exportados.csv';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => {
+    URL.revokeObjectURL(url);
+    a.remove();
+  }, 100);
+}
+
+function parseCSV(csv) {
+  const lines = csv.split(/\r?\n/).filter(Boolean);
+  const sep = lines[0].includes(';') ? ';' : ',';
+  const [header, ...dataLines] = lines;
+  return dataLines.map(line => {
+    const vals = line.split(sep).map(s=>s.replace(/^"|"$/g,'').trim());
+    let [name, type, sector, country, risk, quantity, priceUSD, change] = vals;
+    return {
+      name, type, sector, country, risk,
+      quantity: parseFloat(quantity || 0),
+      priceUSD: parseFloat(priceUSD || 0),
+      change: parseFloat(change || 0)
+    };
+  });
+}
+
+async function importAssetsFromCSV(file) {
+  const text = await file.text();
+  const parsed = parseCSV(text);
+  if (!parsed.length) return alert('Ficheiro vazio ou inválido!');
+  for (const asset of parsed) {
+    if (!asset.name || !asset.type) continue;
+    await FirebaseAPI.addAsset(asset);
+  }
+  updateAssets();
+  alert('Importação concluída!');
+}
+
+document.getElementById('exportBtn').onclick = exportAssetsToCSV;
+document.getElementById('importFile').onchange = function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (!file.name.endsWith('.csv')) return alert('Apenas ficheiros .csv!');
+  importAssetsFromCSV(file);
+};
 </script>
 </body>
 </html>
