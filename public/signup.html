@@ -18,53 +18,470 @@
   <meta property="og:description" data-i18n="og.desc"
     content="Abra a sua conta na Wallet360 de forma rápida e segura.">
 
-  <script src="https://cdn.tailwindcss.com"></script>
-
+<script src="https://cdn.tailwindcss.com"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    /* Enhanced Custom Styles */
+    :root {
+      --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      --glass-bg: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.2);
+      --backdrop-blur: blur(20px);
+      --shadow-glow: 0 0 40px rgba(102, 126, 234, 0.3);
+      --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
     * {
-      font-family: 'Inter', sans-serif;
+      box-sizing: border-box;
     }
 
-    .gradient-bg {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #1e1b4b 0%, #3730a3 25%, #7c3aed 50%, #c026d3 75%, #ec4899 100%);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+      min-height: 100vh;
+      overflow-x: hidden;
     }
 
-    .gradient-text {
+    @keyframes gradientShift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .glass-morphism {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .glass-morphism-strong {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(25px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .wallet-header {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      transition: var(--transition-smooth);
+    }
+
+    .wallet-header.scrolled {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(25px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .logo-container {
+      transition: var(--transition-smooth);
+    }
+
+    .logo-container:hover {
+      transform: scale(1.05);
+    }
+
+    .logo-glow {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      box-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+    }
+
+    .mobile-menu {
+      transform: translateX(100%);
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      background: rgba(30, 27, 75, 0.95);
+      backdrop-filter: blur(25px);
+    }
+
+    .mobile-menu.open {
+      transform: translateX(0);
+    }
+
+    .hamburger {
+      width: 28px;
+      height: 28px;
+      position: relative;
+      cursor: pointer;
+      z-index: 51;
+      transition: var(--transition-smooth);
+    }
+
+    .hamburger:hover {
+      transform: scale(1.1);
+    }
+
+    .hamburger span {
+      display: block;
+      width: 100%;
+      height: 3px;
+      background: white;
+      margin: 5px 0;
+      transition: var(--transition-smooth);
+      border-radius: 2px;
+    }
+
+    .hamburger.active span:nth-child(1) {
+      transform: rotate(45deg) translate(6px, 6px);
+    }
+
+    .hamburger.active span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .hamburger.active span:nth-child(3) {
+      transform: rotate(-45deg) translate(7px, -6px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      transition: var(--transition-smooth);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.6s;
+    }
+
+    .btn-primary:hover::before {
+      left: 100%;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(10px);
+      transition: var(--transition-smooth);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(255, 255, 255, 0.1);
+    }
+
+    .input-enhanced {
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      transition: var(--transition-smooth);
+      position: relative;
+    }
+
+    .input-enhanced::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .input-enhanced:focus {
+      border-color: #667eea;
+      background: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
+      outline: none;
+    }
+
+    .input-enhanced:hover {
+      border-color: rgba(255, 255, 255, 0.4);
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .form-container {
+      position: relative;
+      z-index: 1;
+    }
+
+    .form-container::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+      animation: rotate 20s linear infinite;
+      z-index: -1;
+    }
+
+    @keyframes rotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .social-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      transition: var(--transition-smooth);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .social-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .social-btn:hover::before {
+      left: 100%;
+    }
+
+    .social-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .message-success {
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(16, 185, 129, 0.5);
+      color: #10b981;
+      backdrop-filter: blur(10px);
+    }
+
+    .message-error {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      color: #ef4444;
+      backdrop-filter: blur(10px);
+    }
+
+    .floating-shapes {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .floating-shape {
+      position: absolute;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+      border-radius: 50%;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .floating-shape:nth-child(1) {
+      width: 80px;
+      height: 80px;
+      top: 10%;
+      left: 10%;
+      animation-delay: 0s;
+    }
+
+    .floating-shape:nth-child(2) {
+      width: 120px;
+      height: 120px;
+      top: 70%;
+      right: 10%;
+      animation-delay: -2s;
+    }
+
+    .floating-shape:nth-child(3) {
+      width: 60px;
+      height: 60px;
+      bottom: 20%;
+      left: 20%;
+      animation-delay: -4s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(180deg); }
+    }
+
+    @keyframes slideInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+
+    .animate-slide-in-up {
+      animation: slideInUp 0.8s ease-out;
+    }
+
+    .animate-slide-in-down {
+      animation: slideInDown 0.8s ease-out;
+    }
+
+    .animate-shake {
+      animation: shake 0.5s ease-in-out;
+    }
+
+    .lang-selector {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(10px);
+      transition: var(--transition-smooth);
+    }
+
+    .lang-selector:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .lang-selector:focus {
+      outline: 2px solid rgba(102, 126, 234, 0.5);
+      outline-offset: 2px;
+    }
+
+    .mobile-overlay {
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(5px);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.4s ease;
+    }
+
+    .mobile-overlay.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .brand-text {
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateY(20px)
+    .mobile-menu-item {
+      transition: var(--transition-smooth);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .mobile-menu-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateX(8px);
+    }
+
+    .focus-ring {
+      outline: 2px solid rgba(102, 126, 234, 0.8);
+      outline-offset: 2px;
+    }
+
+    /* Enhanced responsive design */
+    @media (max-width: 640px) {
+      .form-container {
+        margin: 1rem;
+        padding: 1.5rem;
       }
-
-      to {
-        opacity: 1;
-        transform: translateY(0)
+      
+      .brand-text {
+        font-size: 1.5rem;
+      }
+      
+      .mobile-menu {
+        width: 100%;
+        max-width: 100%;
       }
     }
 
-    .slide-in {
-      animation: slideIn .6s ease-out
+    @media (min-width: 768px) {
+      .desktop-menu {
+        display: flex;
+      }
+      
+      .mobile-menu-toggle {
+        display: none;
+      }
     }
 
-    .strength-bar {
-      height: 4px;
-      border-radius: 2px;
-      transition: .3s
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
     }
-
-    .glass-effect {
-      backdrop-filter: blur(10px);
-      background: rgba(31, 41, 55, .8);
-      border: 1px solid rgba(255, 255, 255, .1)
+  </style>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    :root{
+      --primary-gradient:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+      --glass-bg:rgba(255,255,255,0.1);
+      --glass-border:rgba(255,255,255,0.2);
+      --transition-smooth:all .3s cubic-bezier(.4,0,.2,1);
     }
+    *{box-sizing:border-box;font-family:'Inter',sans-serif;}
+    body{
+      background:linear-gradient(135deg,#1e1b4b 0%,#3730a3 25%,#7c3aed 50%,#c026d3 75%,#ec4899 100%);
+      background-size:400% 400%;
+      animation:gradientShift 15s ease infinite;
+      min-height:100vh;overflow-x:hidden;color:#fff;
+    }
+    @keyframes gradientShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+    .wallet-header{background:var(--glass-bg);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.1);position:sticky;top:0;z-index:1000;transition:var(--transition-smooth)}
+    .wallet-header.scrolled{background:rgba(255,255,255,0.15);backdrop-filter:blur(25px);box-shadow:0 4px 20px rgba(0,0,0,0.2)}
+    .logo-container{transition:var(--transition-smooth)}
+    .logo-container:hover{transform:scale(1.05)}
+    .glass-morphism{background:var(--glass-bg);backdrop-filter:blur(20px);border:1px solid var(--glass-border);box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+    .btn-primary{background:var(--primary-gradient);border:1px solid var(--glass-border);transition:var(--transition-smooth);position:relative;overflow:hidden}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(102,126,234,.4)}
+    .btn-secondary{background:rgba(255,255,255,.1);border:1px solid var(--glass-border);transition:var(--transition-smooth)}
+    .btn-secondary:hover{background:rgba(255,255,255,.2);transform:translateY(-1px);box-shadow:0 8px 20px rgba(255,255,255,.1)}
+    @keyframes slideInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+    .animate-slide-in-up{animation:slideInUp .8s ease-out}
+    /* Strength bars */
+    .strength-bar{height:4px;border-radius:2px;transition:.3s}
+    @media (max-width:640px){.form-container{margin:1rem;padding:1.5rem}}
+    @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+    /* Floating shapes (mesmos elementos) */
+    .floating-shapes{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
+    .floating-shape{position:absolute;background:linear-gradient(135deg,rgba(102,126,234,.1),rgba(118,75,162,.1));border-radius:50%;animation:float 6s ease-in-out infinite}
+    .floating-shape:nth-child(1){width:80px;height:80px;top:10%;left:10%}
+    .floating-shape:nth-child(2){width:120px;height:120px;top:70%;right:10%}
+    .floating-shape:nth-child(3){width:60px;height:60px;bottom:20%;left:20%}
+    @keyframes float{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-20px) rotate(180deg)}}
   </style>
 
   <!-- ========= Translation JSON ========= -->
@@ -96,80 +513,230 @@
   }</script>
 </head>
 
-<body class="gradient-bg text-white bg-gray-50 text-gray-900 overflow-x-hidden">
-   <div class="max-w-7xl mx-auto flex items-center justify-between py-4 px-4 md:px-6">
-      <a href="index.html" class="text-2xl md:text-3xl font-bold flex items-center space-x-2">
-        <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-          <span class="text-purple-600 font-bold text-lg">💳 </span>
+<body class="overflow-x-hidden">
+  <!-- Floating Background Shapes -->
+  <div class="floating-shapes">
+    <div class="floating-shape"></div>
+    <div class="floating-shape"></div>
+    <div class="floating-shape"></div>
+  </div>
+
+  <!-- Header (mesmo componente do login) -->
+  <header class="wallet-header">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center justify-between py-4 px-4 md:px-6">
+        <a href="index.html" class="logo-container flex items-center space-x-3 group">
+          <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg group-hover:rotate-12 transition-all duration-300">
+            <span class="text-purple-600 font-bold text-xl">💳</span>
+          </div>
+          <span class="text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-purple-200 via-white to-purple-200 bg-clip-text text-transparent">Wallet360</span>
+        </a>
+        <div class="hidden md:flex items-center space-x-4">
+          <a href="/login.html" class="btn-secondary px-6 py-3 rounded-xl text-sm font-medium" data-i18n="login.link">Entrar</a>
+          <a href="/signup.html" class="btn-primary px-6 py-3 rounded-xl text-sm font-semibold" data-i18n="btn.create">Criar Conta</a>
+          <select id="lang-switch" class="lang-selector rounded-xl px-4 py-3 text-sm text-white cursor-pointer">
+            <option value="pt">🇵🇹 PT</option>
+            <option value="en">🇺🇸 EN</option>
+            <option value="es">🇪🇸 ES</option>
+          </select>
         </div>
-        <span data-i18n="footer.brand">Wallet360</span>
-      </a>
-      <div class="flex space-x-3">
-        <a href="/login.html" class="px-4 py-2 border border-white/30 rounded-lg text-sm hover:bg-white/10 transition-all duration-300" data-i18n="btn.login">Log In</a>
-        <a href="/signup.html" class="px-4 py-2 bg-white text-purple-600 rounded-lg text-sm font-semibold hover:bg-purple-50 transition-all duration-300" data-i18n="btn.signup">Get Started</a>
-     <select id="lang-switch" class="border rounded px-2 bg-slate-800 text-white">
-      <option value="pt">PT</option>
-      <option value="en">EN</option>
-      <option value="es">ES</option>
-    </select>
+        <!-- Mobile toggle (mesmo icone) -->
+        <button id="mobile-menu-btn" class="md:hidden hamburger focus:outline-none" aria-label="Abrir menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
       </div>
     </div>
-  <main class="text-white gradient-bg from-purple-700 to-blue-600 min-h-screen flex items-center justify-center p-4">
-    <div class="w-full max-w-md">
-      <div class="text-center mb-8 slide-in">
-        <h1 class="text-3xl font-bold" data-i18n="page.title">Criar Conta</h1>
-        <p class="text-gray-300" data-i18n="page.subtitle">Junte-se à nossa comunidade</p>
+  </header>
+    <!-- Mobile Menu Overlay -->
+  <div class="mobile-overlay fixed inset-0 z-40 md:hidden" id="mobile-overlay"></div>
+
+  <!-- Mobile Menu -->
+  <nav class="mobile-menu fixed top-0 right-0 h-full w-80 max-w-full z-50 md:hidden shadow-2xl"
+       id="mobile-menu"
+       role="navigation"
+       aria-label="Menu principal">
+    <div class="flex flex-col h-full">
+      <!-- Mobile Menu Header -->
+      <div class="flex items-center justify-between p-6 border-b border-white/20">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg">
+            <span class="text-purple-600 font-bold text-xl">💳</span>
+          </div>
+          <span class="text-white text-xl font-bold">Wallet360</span>
+        </div>
+        <button class="hamburger active focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 rounded-lg p-1" 
+                id="mobile-menu-close"
+                aria-label="Fechar menu"
+                data-i18n-aria="menu.close">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
       </div>
 
-      <div class="glass-effect p-8 rounded-xl shadow-xl slide-in">
-        <form id="registerForm" class="space-y-6" novalidate>
-          <div>
-            <label for="email" class="block text-sm" data-i18n="label.email">Email</label>
-            <input id="email" type="email" required autocomplete="email"
-              class="w-full mt-1 px-3 py-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring focus:ring-blue-500" />
+      <!-- Mobile Menu Content -->
+      <div class="flex-1 overflow-y-auto">
+        <div class="p-6 space-y-4">
+          <!-- Language Selector -->
+          <div class="mb-6">
+            <label class="block text-white text-sm font-medium mb-3">Idioma</label>
+            <select id="mobile-lang-switch" 
+                    class="w-full lang-selector rounded-xl px-4 py-3 text-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
+                    aria-label="Selecionar idioma">
+              <option value="pt">🇵🇹 Português</option>
+              <option value="en">🇺🇸 English</option>
+              <option value="es">🇪🇸 Español</option>
+            </select>
           </div>
 
-          <div>
-            <label for="password" class="block text-sm" data-i18n="label.password">Palavra‑passe</label>
-            <input id="password" type="password" required autocomplete="new-password"
-              class="w-full mt-1 px-3 py-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring focus:ring-blue-500" />
-            <div class="mt-2 flex space-x-1">
-              <div id="bar1" class="flex-1 strength-bar bg-gray-600"></div>
-              <div id="bar2" class="flex-1 strength-bar bg-gray-600"></div>
-              <div id="bar3" class="flex-1 strength-bar bg-gray-600"></div>
-              <div id="bar4" class="flex-1 strength-bar bg-gray-600"></div>
+          <!-- Menu Items -->
+          <div class="space-y-3">
+            <a href="/login.html" 
+               class="mobile-menu-item flex items-center p-4 text-white rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
+               data-i18n="btn.login">
+              <span class="mr-3 text-xl">🔐</span>
+              <span class="font-medium">Entrar</span>
+            </a>
+            <a href="/signup.html" 
+               class="mobile-menu-item flex items-center p-4 bg-white text-purple-600 rounded-xl font-semibold hover:bg-purple-50 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
+               data-i18n="btn.signup">
+              <span class="mr-3 text-xl">🚀</span>
+              <span>Criar Conta</span>
+            </a>
+          </div>
+
+          <!-- Additional Mobile Menu Items -->
+          <div class="mt-8 pt-6 border-t border-white/20">
+            <div class="space-y-3">
+              <a href="/about.html" class="mobile-menu-item flex items-center p-4 text-white rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50">
+                <span class="mr-3 text-xl">ℹ️</span>
+                <span>Sobre Nós</span>
+              </a>
+              <a href="/contact.html" class="mobile-menu-item flex items-center p-4 text-white rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50">
+                <span class="mr-3 text-xl">📞</span>
+                <span>Contacto</span>
+              </a>
+              <a href="/help.html" class="mobile-menu-item flex items-center p-4 text-white rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50">
+                <span class="mr-3 text-xl">❓</span>
+                <span>Ajuda</span>
+              </a>
             </div>
-            <p id="strengthText" class="text-xs mt-1 text-gray-300" data-i18n="strength.base">Força da password</p>
           </div>
-
-          <div>
-            <label for="confirmPassword" class="block text-sm" data-i18n="label.confirm">Confirmar Palavra‑passe</label>
-            <input id="confirmPassword" type="password" required autocomplete="new-password"
-              class="w-full mt-1 px-3 py-2 rounded-lg bg-gray-700 border border-gray-600 focus:outline-none focus:ring focus:ring-blue-500" />
-          </div>
-
-          <div class="flex items-center gap-2">
-            <input type="checkbox" id="terms" required
-              class="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500">
-            <label for="terms" class="text-sm" data-i18n="label.terms">Aceito os <a href="#" class="underline">Termos &
-                Condições</a></label>
-          </div>
-
-          <button id="submitBtn" type="submit"
-            class="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded-lg font-semibold transition-all flex items-center justify-center gap-2">
-            <span id="btnText" data-i18n="btn.create">Criar Conta</span>
-            <svg id="btnSpinner" class="hidden animate-spin h-5 w-5 text-white" viewBox="0 0 24 24" fill="none">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-            </svg>
-          </button>
-          <div id="message" class="text-sm text-center mt-4"></div>
-          <p class="text-sm text-center mt-4"><span data-i18n="login.link.q">Já tens conta?</span> <a href="/login.html"
-              class="text-blue-300 underline" data-i18n="login.link">Entrar</a></p>
-        </form>
+        </div>
       </div>
+    </div>
+  </nav>
+
+  <!-- 🔹 LOGIN MAIN CONTENT 🔹 -->
+  <!-- Main -->
+  <main class="min-h-screen flex items-center justify-center p-6 animate-slide-in-up">
+    <div class="form-container glass-morphism max-w-md w-full rounded-3xl p-8 md:p-10 shadow-2xl">
+      <h1 class="text-3xl md:text-4xl font-extrabold mb-2 text-center" data-i18n="page.title">Criar Conta</h1>
+      <p class="text-sm text-gray-200 mb-6 text-center" data-i18n="page.subtitle">Junte-se à nossa comunidade</p>
+      <form id="registerForm" novalidate>
+        <!-- Email -->
+        <div class="mb-5">
+          <label for="email" class="block mb-2 text-sm font-medium" data-i18n="label.email">Email</label>
+          <input type="email" id="email" class="input-enhanced w-full px-4 py-3 rounded-xl text-white placeholder-gray-300" required placeholder="john@example.com" />
+        </div>
+        <!-- Password -->
+        <div class="mb-5">
+          <label for="password" class="block mb-2 text-sm font-medium" data-i18n="label.password">Palavra‑passe</label>
+          <input type="password" id="password" class="input-enhanced w-full px-4 py-3 rounded-xl text-white placeholder-gray-300" required minlength="6" />
+          <div class="mt-2 flex space-x-1">
+            <div id="bar1" class="flex-1 strength-bar bg-gray-600"></div>
+            <div id="bar2" class="flex-1 strength-bar bg-gray-600"></div>
+            <div id="bar3" class="flex-1 strength-bar bg-gray-600"></div>
+            <div id="bar4" class="flex-1 strength-bar bg-gray-600"></div>
+          </div>
+          <p id="strengthText" class="text-xs mt-1 text-gray-300" data-i18n="strength.base">Força da password</p>
+        </div>
+        <!-- Confirm Password -->
+        <div class="mb-5">
+          <label for="confirmPassword" class="block mb-2 text-sm font-medium" data-i18n="label.confirm">Confirmar Palavra‑passe</label>
+          <input type="password" id="confirmPassword" class="input-enhanced w-full px-4 py-3 rounded-xl text-white placeholder-gray-300" required minlength="6" />
+        </div>
+        <!-- Terms -->
+        <div class="flex items-center gap-2 mb-6 text-sm">
+          <input type="checkbox" id="terms" required class="form-checkbox rounded text-purple-500 focus:ring-0" />
+          <label for="terms" data-i18n="label.terms" class="select-none">Aceito os <a href="#" class="underline">Termos</a></label>
+        </div>
+        <!-- Submit -->
+        <button id="submitBtn" type="submit" class="btn-primary w-full py-3 rounded-xl font-semibold flex items-center justify-center">
+          <span id="btnText" data-i18n="btn.create">Criar Conta</span>
+          <svg id="btnSpinner" class="hidden animate-spin ml-3 h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+          </svg>
+        </button>
+        <div id="message" class="hidden mt-4 text-sm rounded-xl px-4 py-3 text-center"></div>
+        <p class="text-center text-sm mt-6 text-gray-200"><span data-i18n="login.link.q">Já tens conta?</span> <a href="/login.html" class="text-purple-300 font-semibold hover:text-purple-100" data-i18n="login.link">Entrar</a></p>
+      </form>
     </div>
   </main>
+<!-- 🔹 Scripts 🔹 -->
+  <script type="module">
+    /* ================= Firebase ================= */
+    import { auth } from './firebase-init.js';
+    import { createUserWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+    /* ================= I18N ================= */
+    const i18n = JSON.parse(document.getElementById('i18n-data').textContent);
+    const langParam = new URLSearchParams(window.location.search).get('lang');
+    const langSwitch = document.getElementById('lang-switch');
+    const mobileLangSwitch = document.getElementById('mobile-lang-switch'); // inside mobile menu (if exists)
+
+    function setLang(lang){ if(!i18n[lang]) lang='pt'; document.documentElement.lang=lang;
+      document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.dataset.i18n;const txt=i18n[lang][k]??k; el.innerHTML=txt;});
+      document.title=i18n[lang]['meta.title'];
+      document.querySelector('meta[name=description]').setAttribute('content',i18n[lang]['meta.desc']);
+      document.querySelector('meta[property="og:title"]').setAttribute('content',i18n[lang]['og.title']);
+      document.querySelector('meta[property="og:description"]').setAttribute('content',i18n[lang]['og.desc']);
+      langSwitch.value=lang; if(mobileLangSwitch) mobileLangSwitch.value=lang; }
+    setLang(langParam||localStorage.getItem('lang')||'pt');
+    langSwitch.addEventListener('change',e=>{localStorage.setItem('lang',e.target.value);setLang(e.target.value);});
+
+    /* ================= Mobile Menu ================= */
+    const mobileBtn=document.getElementById('mobile-menu-btn');
+    const mobileMenu=document.getElementById('mobile-menu');
+    const overlay=document.getElementById('mobile-overlay');
+    function openMenu(){mobileMenu.classList.add('open');overlay.classList.add('open');mobileBtn.classList.add('active');mobileBtn.setAttribute('aria-expanded','true');}
+    function closeMenu(){mobileMenu.classList.remove('open');overlay.classList.remove('open');mobileBtn.classList.remove('active');mobileBtn.setAttribute('aria-expanded','false');}
+    mobileBtn?.addEventListener('click',openMenu);overlay?.addEventListener('click',closeMenu);
+
+    /* ================= UI helpers ================= */
+    const bars=[bar1,bar2,bar3,bar4];
+    const strengthText=document.getElementById('strengthText');
+    const strengthLabels=['strength.1','strength.2','strength.3','strength.4'];
+
+    /* Strength meter */
+    const pwd=document.getElementById('password');
+    pwd.addEventListener('input',()=>{
+      const v=pwd.value;let s=0; if(v.length>=6)s++; if(/[A-Z]/.test(v))s++; if(/[0-9]/.test(v))s++; if(/[\W]/.test(v))s++;
+      bars.forEach((b,i)=>b.className=`flex-1 strength-bar ${(i<s)?'bg-green-500':'bg-gray-600'}`);
+      const lang=document.documentElement.lang;
+      strengthText.textContent=v ? (i18n[lang][strengthLabels[s-1]]||i18n[lang]['strength.1']) : i18n[lang]['strength.base'];
+    });
+
+    /* ================= Form Submit ================= */
+    const form=document.getElementById('registerForm');
+    const emailEl=document.getElementById('email');
+    const passEl=document.getElementById('password');
+    const confirmEl=document.getElementById('confirmPassword');
+    const message=document.getElementById('message');
+    const btn=document.getElementById('submitBtn');
+    const spinner=document.getElementById('btnSpinner');
+    const btnText=document.getElementById('btnText');
+
+    function showMsg(txt,type){message.textContent=txt;message.className=`${type==='success'?'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30':'bg-red-500/20 text-red-400 border border-red-500/30'} mt-4 text-sm rounded-xl px-4 py-3 text-center animate-slide-in-up`;message.classList.remove('hidden'); if(type!=='success') setTimeout(()=>message.classList.add('hidden'),5000);}
+    function setLoading(state){btn.disabled=state;spinner.classList.toggle('hidden',!state);btnText.textContent=i18n[document.documentElement.lang][state?'btn.loading':'btn.create'];}
+
+    form.addEventListener('submit',async e=>{e.preventDefault();const lang=document.documentElement.lang;if(passEl.value!==confirmEl.value){showMsg(i18n[lang]['err.match'],'error');return;}setLoading(true);
+      try{const cred=await createUserWithEmailAndPassword(auth,emailEl.value.trim(),passEl.value);localStorage.setItem('token',await cred.user.getIdToken());showMsg(i18n[lang]['msg.success'],'success');setTimeout(()=>window.location.href='/wallet360.html',1500);}catch(err){showMsg('Erro: '+err.message,'error');}finally{setLoading(false);} });
+
+    /* ================= Header shadow ================= */
+    const header=document.querySelector('.wallet-header');window.addEventListener('scroll',()=>header.classList.toggle('scrolled',window.scrollY>10));
+  </script>
 
   <div id="footer-widget"></div>
   <script type="module" src="footer.js"></script>
@@ -206,7 +773,7 @@
         showMessage("Conta criada com sucesso! A redirecionar...", "text-green-400");
 
         setTimeout(() => {
-          window.location.href = "/dashboard.html";
+          window.location.href = "/wallet360.html";
         }, 1500);
       } catch (err) {
         showMessage("Erro: " + err.message, "text-red-400");

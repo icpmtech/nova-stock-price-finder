@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- 🔹 SEO multilíngue 🔹 -->
+  <!-- 🔹 SEO multilíngue 🔹 -->
   <link rel="alternate" hreflang="pt" href="https://wallet360.app/login.html?lang=pt">
   <link rel="alternate" hreflang="en" href="https://wallet360.app/login.html?lang=en">
   <link rel="alternate" hreflang="es" href="https://wallet360.app/login.html?lang=es">
@@ -25,406 +25,895 @@
 
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-    
+    /* Enhanced Custom Styles */
+    :root {
+      --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      --glass-bg: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.2);
+      --backdrop-blur: blur(20px);
+      --shadow-glow: 0 0 40px rgba(102, 126, 234, 0.3);
+      --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
     * {
-      font-family: 'Inter', sans-serif;
+      box-sizing: border-box;
     }
-    
-    .gradient-bg {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #1e1b4b 0%, #3730a3 25%, #7c3aed 50%, #c026d3 75%, #ec4899 100%);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+      min-height: 100vh;
+      overflow-x: hidden;
     }
-    
-    .gradient-text {
+
+    @keyframes gradientShift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .glass-morphism {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+
+    .glass-morphism-strong {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(25px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .wallet-header {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      transition: var(--transition-smooth);
+    }
+
+    .wallet-header.scrolled {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(25px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .logo-container {
+      transition: var(--transition-smooth);
+    }
+
+    .logo-container:hover {
+      transform: scale(1.05);
+    }
+
+    .logo-glow {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      box-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+    }
+
+    .mobile-menu {
+      transform: translateX(100%);
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      background: rgba(30, 27, 75, 0.95);
+      backdrop-filter: blur(25px);
+    }
+
+    .mobile-menu.open {
+      transform: translateX(0);
+    }
+
+    .hamburger {
+      width: 28px;
+      height: 28px;
+      position: relative;
+      cursor: pointer;
+      z-index: 51;
+      transition: var(--transition-smooth);
+    }
+
+    .hamburger:hover {
+      transform: scale(1.1);
+    }
+
+    .hamburger span {
+      display: block;
+      width: 100%;
+      height: 3px;
+      background: white;
+      margin: 5px 0;
+      transition: var(--transition-smooth);
+      border-radius: 2px;
+    }
+
+    .hamburger.active span:nth-child(1) {
+      transform: rotate(45deg) translate(6px, 6px);
+    }
+
+    .hamburger.active span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .hamburger.active span:nth-child(3) {
+      transform: rotate(-45deg) translate(7px, -6px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      transition: var(--transition-smooth);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      transition: left 0.6s;
+    }
+
+    .btn-primary:hover::before {
+      left: 100%;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(10px);
+      transition: var(--transition-smooth);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(255, 255, 255, 0.1);
+    }
+
+    .input-enhanced {
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      transition: var(--transition-smooth);
+      position: relative;
+    }
+
+    .input-enhanced::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .input-enhanced:focus {
+      border-color: #667eea;
+      background: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
+      outline: none;
+    }
+
+    .input-enhanced:hover {
+      border-color: rgba(255, 255, 255, 0.4);
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .form-container {
+      position: relative;
+      z-index: 1;
+    }
+
+    .form-container::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+      animation: rotate 20s linear infinite;
+      z-index: -1;
+    }
+
+    @keyframes rotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .social-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      transition: var(--transition-smooth);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .social-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .social-btn:hover::before {
+      left: 100%;
+    }
+
+    .social-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .message-success {
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(16, 185, 129, 0.5);
+      color: #10b981;
+      backdrop-filter: blur(10px);
+    }
+
+    .message-error {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      color: #ef4444;
+      backdrop-filter: blur(10px);
+    }
+
+    .floating-shapes {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .floating-shape {
+      position: absolute;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+      border-radius: 50%;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    .floating-shape:nth-child(1) {
+      width: 80px;
+      height: 80px;
+      top: 10%;
+      left: 10%;
+      animation-delay: 0s;
+    }
+
+    .floating-shape:nth-child(2) {
+      width: 120px;
+      height: 120px;
+      top: 70%;
+      right: 10%;
+      animation-delay: -2s;
+    }
+
+    .floating-shape:nth-child(3) {
+      width: 60px;
+      height: 60px;
+      bottom: 20%;
+      left: 20%;
+      animation-delay: -4s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(180deg); }
+    }
+
+    @keyframes slideInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+
+    .animate-slide-in-up {
+      animation: slideInUp 0.8s ease-out;
+    }
+
+    .animate-slide-in-down {
+      animation: slideInDown 0.8s ease-out;
+    }
+
+    .animate-shake {
+      animation: shake 0.5s ease-in-out;
+    }
+
+    .lang-selector {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(10px);
+      transition: var(--transition-smooth);
+    }
+
+    .lang-selector:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .lang-selector:focus {
+      outline: 2px solid rgba(102, 126, 234, 0.5);
+      outline-offset: 2px;
+    }
+
+    .mobile-overlay {
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(5px);
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.4s ease;
+    }
+
+    .mobile-overlay.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .brand-text {
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9ff 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
-    @keyframes slideIn { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
-    @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
-    .animate-slide-in{animation:slideIn .3s ease-out}.animate-shake{animation:shake .5s ease-in-out}
-    .glass-effect{background:rgba(30,41,59,.8);backdrop-filter:blur(16px);border:1px solid rgba(148,163,184,.1)}
-    .input-focus{transition:all .3s ease}.input-focus:focus{transform:translateY(-2px);box-shadow:0 10px 25px rgba(59,130,246,.2)}
-    .btn-hover{transition:all .3s ease;position:relative;overflow:hidden}
-    .btn-hover::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent);transition:left .5s}
-    .btn-hover:hover::before{left:100%}.password-strength{height:3px;border-radius:2px;margin-top:4px;transition:all .3s ease}
+
+    .mobile-menu-item {
+      transition: var(--transition-smooth);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .mobile-menu-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateX(8px);
+    }
+
+    .focus-ring {
+      outline: 2px solid rgba(102, 126, 234, 0.8);
+      outline-offset: 2px;
+    }
+
+    /* Enhanced responsive design */
+    @media (max-width: 640px) {
+      .form-container {
+        margin: 1rem;
+        padding: 1.5rem;
+      }
+      
+      .brand-text {
+        font-size: 1.5rem;
+      }
+      
+      .mobile-menu {
+        width: 100%;
+        max-width: 100%;
+      }
+    }
+
+    @media (min-width: 768px) {
+      .desktop-menu {
+        display: flex;
+      }
+      
+      .mobile-menu-toggle {
+        display: none;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
   </style>
 
-  <!-- 🔹 Traduções 🔹 -->
+  <!-- 🔹 Traduções 🔹 -->
   <script id="i18n-data" type="application/json">
   {
     "pt": {
-      "meta.title":  "Login Seguro",
-       "header.home":"Início","header.account":"Conta","header.signup":"Registo","header.contact":"Contactos",
-      "meta.desc":   "Entre com segurança na sua conta Wallet360 — dados criptografados, MFA e suporte 24/7.",
-      "og.title":    "Login Seguro",
-      "og.desc":     "Entre com segurança na sua conta Wallet360 — dados criptografados, MFA e suporte 24/7.",
-      "welcome":     "Bem-vindo",
-      "subtitle":    "Entre na sua conta",
-      "label.email": "Email",
-      "label.pass":  "Senha",
-      "remember":    "Lembrar-me",
-      "forgot":      "Esqueceu a senha?",
-      "btn.login":   "Entrar",
-      "loading":     "Entrando…",
-      "noacc":       "Ainda não tem conta?",
-      "signup":      "Criar conta gratuita",
-      "or":          "ou continue com",
-      "google":      "Google",
-      "facebook":    "Facebook",
-      "msg.success": "Login bem-sucedido! A redirecionar…",
-      "msg.user":    "Utilizador não encontrado.",
-      "msg.pass":    "Senha incorreta.",
-      "msg.too":     "Muitas tentativas. Tente mais tarde.",
-      "msg.generic": "Erro ao entrar. "
+      "meta.title": "Login Seguro",
+      "header.home": "Início",
+      "header.account": "Conta",
+      "header.signup": "Registo",
+      "header.contact": "Contactos",
+      "meta.desc": "Entre com segurança na sua conta Wallet360 — dados criptografados, MFA e suporte 24/7.",
+      "og.title": "Login Seguro",
+      "og.desc": "Entre com segurança na sua conta Wallet360 — dados criptografados, MFA e suporte 24/7.",
+      "welcome": "Bem-vindo de volta",
+      "subtitle": "Entre na sua conta para continuar",
+      "label.email": "Endereço de Email",
+      "label.pass": "Senha",
+      "remember": "Lembrar-me",
+      "forgot": "Esqueceu a senha?",
+      "btn.login": "Entrar na Conta",
+      "btn.signup": "Criar Conta",
+      "loading": "Entrando…",
+      "noacc": "Ainda não tem conta?",
+      "signup": "Criar conta gratuita",
+      "or": "ou continue com",
+      "google": "Google",
+      "facebook": "Facebook",
+      "msg.success": "✅ Login bem-sucedido! A redirecionar…",
+      "msg.user": "❌ Utilizador não encontrado.",
+      "msg.pass": "❌ Senha incorreta.",
+      "msg.too": "⚠️ Muitas tentativas. Tente mais tarde.",
+      "msg.generic": "❌ Erro ao entrar. ",
+      "email.required": "Email é obrigatório",
+      "email.invalid": "Formato de email inválido",
+      "password.required": "Senha é obrigatória",
+      "password.length": "Senha deve ter pelo menos 6 caracteres",
+      "toggle.show": "Mostrar senha",
+      "toggle.hide": "Ocultar senha",
+      "menu.open": "Abrir menu",
+      "menu.close": "Fechar menu"
     },
     "en": {
-      "meta.title":  "Secure Login",
-      "header.home":"Home","header.account":"Account","header.signup":"Sign Up","header.contact":"Contact",
-      "meta.desc":   "Sign in securely to your Wallet360 account — encrypted data, MFA & 24/7 support.",
-      "og.title":    "Secure Login",
-      "og.desc":     "Sign in securely to your Wallet360 account — encrypted data, MFA & 24/7 support.",
-      "welcome":     "Welcome",
-      "subtitle":    "Sign in to your account",
-      "label.email": "Email",
-      "label.pass":  "Password",
-      "remember":    "Remember me",
-      "forgot":      "Forgot password?",
-      "btn.login":   "Sign in",
-      "loading":     "Signing in…",
-      "noacc":       "Don't have an account?",
-      "signup":      "Create a free account",
-      "or":          "or continue with",
-      "google":      "Google",
-      "facebook":    "Facebook",
-      "msg.success": "Login successful! Redirecting…",
-      "msg.user":    "User not found.",
-      "msg.pass":    "Incorrect password.",
-      "msg.too":     "Too many attempts. Try again later.",
-      "msg.generic": "Error signing in. "
+      "meta.title": "Secure Login",
+      "header.home": "Home",
+      "header.account": "Account",
+      "header.signup": "Sign Up",
+      "header.contact": "Contact",
+      "meta.desc": "Sign in securely to your Wallet360 account — encrypted data, MFA & 24/7 support.",
+      "og.title": "Secure Login",
+      "og.desc": "Sign in securely to your Wallet360 account — encrypted data, MFA & 24/7 support.",
+      "welcome": "Welcome back",
+      "subtitle": "Sign in to your account to continue",
+      "label.email": "Email Address",
+      "label.pass": "Password",
+      "remember": "Remember me",
+      "forgot": "Forgot password?",
+      "btn.login": "Sign In",
+      "btn.signup": "Sign Up",
+      "loading": "Signing in…",
+      "noacc": "Don't have an account?",
+      "signup": "Create a free account",
+      "or": "or continue with",
+      "google": "Google",
+      "facebook": "Facebook",
+      "msg.success": "✅ Login successful! Redirecting…",
+      "msg.user": "❌ User not found.",
+      "msg.pass": "❌ Incorrect password.",
+      "msg.too": "⚠️ Too many attempts. Try again later.",
+      "msg.generic": "❌ Error signing in. ",
+      "email.required": "Email is required",
+      "email.invalid": "Invalid email format",
+      "password.required": "Password is required",
+      "password.length": "Password must be at least 6 characters",
+      "toggle.show": "Show password",
+      "toggle.hide": "Hide password",
+      "menu.open": "Open menu",
+      "menu.close": "Close menu"
     },
     "es": {
-      "meta.title":  "Inicio de sesión seguro",
-       "header.home":"Inicio","header.account":"Cuenta","header.signup":"Registro","header.contact":"Contactos","page.title":"Crear Cuenta",
-      "meta.desc":   "Inicia sesión de forma segura en tu cuenta Wallet360 — datos cifrados, MFA y soporte 24/7.",
-      "og.title":    "Inicio de sesión seguro",
-      "og.desc":     "Inicia sesión de forma segura en tu cuenta Wallet360 — datos cifrados, MFA y soporte 24/7.",
-      "welcome":     "Bienvenido",
-      "subtitle":    "Accede a tu cuenta",
-      "label.email": "Correo",
-      "label.pass":  "Contraseña",
-      "remember":    "Recuérdame",
-      "forgot":      "¿Olvidaste tu contraseña?",
-      "btn.login":   "Entrar",
-      "loading":     "Entrando…",
-      "noacc":       "¿Aún no tienes cuenta?",
-      "signup":      "Crear cuenta gratuita",
-      "or":          "o continúa con",
-      "google":      "Google",
-      "facebook":    "Facebook",
-      "msg.success": "¡Inicio de sesión correcto! Redirigiendo…",
-      "msg.user":    "Usuario no encontrado.",
-      "msg.pass":    "Contraseña incorrecta.",
-      "msg.too":     "Demasiados intentos. Intenta más tarde.",
-      "msg.generic": "Error al iniciar sesión. "
+      "meta.title": "Inicio de sesión seguro",
+      "header.home": "Inicio",
+      "header.account": "Cuenta",
+      "header.signup": "Registro",
+      "header.contact": "Contactos",
+      "meta.desc": "Inicia sesión de forma segura en tu cuenta Wallet360 — datos cifrados, MFA y soporte 24/7.",
+      "og.title": "Inicio de sesión seguro",
+      "og.desc": "Inicia sesión de forma segura en tu cuenta Wallet360 — datos cifrados, MFA y soporte 24/7.",
+      "welcome": "Bienvenido de vuelta",
+      "subtitle": "Accede a tu cuenta para continuar",
+      "label.email": "Dirección de Correo",
+      "label.pass": "Contraseña",
+      "remember": "Recuérdame",
+      "forgot": "¿Olvidaste tu contraseña?",
+      "btn.login": "Iniciar Sesión",
+      "btn.signup": "Registrarse",
+      "loading": "Entrando…",
+      "noacc": "¿Aún no tienes cuenta?",
+      "signup": "Crear cuenta gratuita",
+      "or": "o continúa con",
+      "google": "Google",
+      "facebook": "Facebook",
+      "msg.success": "✅ ¡Inicio de sesión correcto! Redirigiendo…",
+      "msg.user": "❌ Usuario no encontrado.",
+      "msg.pass": "❌ Contraseña incorrecta.",
+      "msg.too": "⚠️ Demasiados intentos. Intenta más tarde.",
+      "msg.generic": "❌ Error al iniciar sesión. ",
+      "email.required": "El correo es obligatorio",
+      "email.invalid": "Formato de correo inválido",
+      "password.required": "La contraseña es obligatoria",
+      "password.length": "La contraseña debe tener al menos 6 caracteres",
+      "toggle.show": "Mostrar contraseña",
+      "toggle.hide": "Ocultar contraseña",
+      "menu.open": "Abrir menú",
+      "menu.close": "Cerrar menú"
     }
   }
   </script>
 </head>
 
-<body class="gradient-bg text-white bg-gray-50 text-gray-900 overflow-x-hidden">
-  <div class="max-w-7xl mx-auto flex items-center justify-between py-4 px-4 md:px-6">
-      <a href="index.html" class="text-2xl md:text-3xl font-bold flex items-center space-x-2">
-        <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-          <span class="text-purple-600 font-bold text-lg">💳 </span>
+<body class="text-white overflow-x-hidden">
+  <!-- Floating Background Shapes -->
+  <div class="floating-shapes">
+    <div class="floating-shape"></div>
+    <div class="floating-shape"></div>
+    <div class="floating-shape"></div>
+  </div>
+
+  <!-- Header -->
+  <header class="wallet-header text-white">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center justify-between py-4 px-4 md:px-6">
+        <!-- Logo/Brand -->
+        <a href="index.html" class="logo-container flex items-center space-x-3 group">
+          <div class="logo-glow w-10 h-10 md:w-12 md:h-12 bg-white rounded-xl flex items-center justify-center shadow-lg transition-all duration-300 group-hover:rotate-12">
+            <span class="text-purple-600 font-bold text-xl md:text-2xl">💳</span>
+          </div>
+          <span class="brand-text text-2xl md:text-3xl lg:text-4xl font-bold">
+            Wallet360
+          </span>
+        </a>
+
+        <!-- Desktop Navigation -->
+        <div class="hidden md:flex items-center space-x-4">
+          <a href="/login.html" 
+             class="btn-secondary px-6 py-3 rounded-xl text-sm font-medium hover:text-white transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50" 
+             data-i18n="btn.login">
+            Entrar
+          </a>
+          <a href="/signup.html" 
+             class="btn-primary px-6 py-3 text-white rounded-xl text-sm font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50" 
+             data-i18n="btn.signup">
+            Criar Conta
+          </a>
+          <select id="lang-switch" 
+                  class="lang-selector rounded-xl px-4 py-3 text-sm text-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
+                  aria-label="Selecionar idioma">
+            <option value="pt">🇵🇹 PT</option>
+            <option value="en">🇺🇸 EN</option>
+            <option value="es">🇪🇸 ES</option>
+          </select>
         </div>
-        <span data-i18n="footer.brand">Wallet360</span>
-      </a>
-      <div class="flex space-x-3">
-        <a href="/login.html" class="px-4 py-2 border border-white/30 rounded-lg text-sm hover:bg-white/10 transition-all duration-300" data-i18n="btn.login">Log In</a>
-        <a href="/signup.html" class="px-4 py-2 bg-white text-purple-600 rounded-lg text-sm font-semibold hover:bg-purple-50 transition-all duration-300" data-i18n="btn.signup">Get Started</a>
-     <select id="lang-switch" class="border rounded px-2 bg-slate-800 text-white">
-      <option value="pt">PT</option>
-      <option value="en">EN</option>
-      <option value="es">ES</option>
-    </select>
+
+        <!-- Mobile Menu Toggle -->
+        <button class="mobile-menu-toggle md:hidden hamburger focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 rounded-lg p-1" 
+                aria-label="Abrir menu"
+                aria-expanded="false"
+                id="mobile-menu-btn"
+                data-i18n-aria="menu.open">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
       </div>
     </div>
- 
+  </header>
 
-  <!-- 🔹  LOGIN  🔹 -->
-  <main class="gradient-bg text-white min-h-screen flex items-center justify-center p-4">
-    <div class="w-full max-w-md p-8 glass-effect rounded-2xl shadow-2xl animate-slide-in">
-      <div class="text-center mb-8">
-        <div class="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-          <!-- ícone -->
-          <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2M6 21h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+  <!-- Mobile Menu Overlay -->
+  <div class="mobile-overlay fixed inset-0 z-40 md:hidden" id="mobile-overlay"></div>
+
+  <!-- Mobile Menu -->
+  <nav class="mobile-menu fixed top-0 right-0 h-full w-80 max-w-full z-50 md:hidden shadow-2xl"
+       id="mobile-menu"
+       role="navigation"
+       aria-label="Menu principal">
+    <div class="flex flex-col h-full">
+      <!-- Mobile Menu Header -->
+      <div class="flex items-center justify-between p-6 border-b border-white/20">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-lg">
+            <span class="text-purple-600 font-bold text-xl">💳</span>
+          </div>
+          <span class="text-white text-xl font-bold">Wallet360</span>
         </div>
-        <h2 class="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent" data-i18n="welcome">Bem-vindo</h2>
-        <p class="text-slate-400 mt-2" data-i18n="subtitle">Entre na sua conta</p>
+        <button class="hamburger active focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 rounded-lg p-1" 
+                id="mobile-menu-close"
+                aria-label="Fechar menu"
+                data-i18n-aria="menu.close">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
       </div>
 
-      <form id="loginForm" class="space-y-6" novalidate>
-        <div class="space-y-2">
-          <label for="email" class="block text-sm font-medium text-slate-300" data-i18n="label.email">Email</label>
-          <div class="relative">
-            <input id="email" type="email" required autocomplete="email" placeholder="you@example.com"
-                   class="input-focus w-full px-4 py-3 pl-12 rounded-xl bg-slate-800/50 text-white border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <svg class="absolute left-4 top-3.5 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/></svg>
+      <!-- Mobile Menu Content -->
+      <div class="flex-1 overflow-y-auto">
+        <div class="p-6 space-y-4">
+          <!-- Language Selector -->
+          <div class="mb-6">
+            <label class="block text-white text-sm font-medium mb-3">Idioma</label>
+            <select id="mobile-lang-switch" 
+                    class="w-full lang-selector rounded-xl px-4 py-3 text-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
+                    aria-label="Selecionar idioma">
+              <option value="pt">🇵🇹 Português</option>
+              <option value="en">🇺🇸 English</option>
+              <option value="es">🇪🇸 Español</option>
+            </select>
           </div>
-          <div id="emailError" class="text-red-400 text-sm hidden"></div>
-        </div>
 
-        <div class="space-y-2">
-          <label for="password" class="block text-sm font-medium text-slate-300" data-i18n="label.pass">Senha</label>
-          <div class="relative">
-            <input id="password" type="password" required autocomplete="current-password"
-                   class="input-focus w-full px-4 py-3 pl-12 pr-12 rounded-xl bg-slate-800/50 text-white border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <svg class="absolute left-4 top-3.5 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2M6 21h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-            <button type="button" id="togglePassword" class="absolute right-4 top-3.5 text-slate-400 hover:text-white" aria-label="show/hide">
-              <svg id="eyeOpen"  class="w-5 h-5" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-              <svg id="eyeClosed" class="w-5 h-5 hidden" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3l18 18"/></svg>
-            </button>
+          <!-- Menu Items -->
+          <div class="space-y-3">
+            <a href="/login.html" 
+               class="mobile-menu-item flex items-center p-4 text-white rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
+               data-i18n="btn.login">
+              <span class="mr-3 text-xl">🔐</span>
+              <span class="font-medium">Entrar</span>
+            </a>
+            <a href="/signup.html" 
+               class="mobile-menu-item flex items-center p-4 bg-white text-purple-600 rounded-xl font-semibold hover:bg-purple-50 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
+               data-i18n="btn.signup">
+              <span class="mr-3 text-xl">🚀</span>
+              <span>Criar Conta</span>
+            </a>
           </div>
-          <div id="passwordError" class="text-red-400 text-sm hidden"></div>
-        </div>
 
-        <div class="flex items-center justify-between">
-          <label class="flex items-center gap-2 text-sm text-slate-300 cursor-pointer">
-            <input id="remember" type="checkbox" class="w-4 h-4 text-blue-600 bg-slate-800 border-slate-600 rounded focus:ring-blue-500">
+          <!-- Additional Mobile Menu Items -->
+          <div class="mt-8 pt-6 border-t border-white/20">
+            <div class="space-y-3">
+              <a href="/about.html" class="mobile-menu-item flex items-center p-4 text-white rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50">
+                <span class="mr-3 text-xl">ℹ️</span>
+                <span>Sobre Nós</span>
+              </a>
+              <a href="/contact.html" class="mobile-menu-item flex items-center p-4 text-white rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50">
+                <span class="mr-3 text-xl">📞</span>
+                <span>Contacto</span>
+              </a>
+              <a href="/help.html" class="mobile-menu-item flex items-center p-4 text-white rounded-xl transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50">
+                <span class="mr-3 text-xl">❓</span>
+                <span>Ajuda</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 🔹 LOGIN MAIN CONTENT 🔹 -->
+  <main class="min-h-screen flex items-center justify-center <!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- 🔹 SEO multilíngue 🔹 -->
+  <link rel="alternate" hreflang="pt" href="https://wallet360.app/login.html?lang=pt">
+  <link rel="alternate" hreflang="en" href="https://wallet360.app/login.html?lang=en">
+  <link rel="alternate" hreflang="es" href="https://wallet360.app/login.html?lang=es">
+  <link rel="alternate" hreflang="x-default" href="https://wallet360.app/login.html">
+  <title data-i18n="meta.title">Login Seguro</title>
+  <meta name="description" data-i18n="meta.desc" content="Entre com segurança na sua conta Wallet360 — dados criptografados, MFA e suporte 24/7." />
+  <link id="canonical-link" rel="canonical" href="https://wallet360.app/login.html">
+
+  <meta property="og:type" content="website" />
+  <meta property="og:url"  content="https://wallet360.app/login.html" />
+  <meta property="og:title" data-i18n="og.title" content="Login Seguro" />
+  <meta property="og:description" data-i18n="og.desc" content="Entre com segurança na sua conta Wallet360 — dados criptografados, MFA e suporte 24/7." />
+  <meta property="og:locale" content="pt_PT" />
+  <meta property="og:locale:alternate" content="en_US" />
+  <meta property="og:locale:alternate" content="es_ES" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- ... (mesmos estilos avançados já fornecidos) ... -->
+  <style>
+    /* ⬆️  Os estilos originais foram mantidos; removidos aqui por brevidade */
+  </style>
+
+  <!-- 🔹 Traduções 🔹 -->
+  <script id="i18n-data" type="application/json">{...}</script>
+</head>
+<body class="text-white overflow-x-hidden">
+  <!-- Floating Shapes + Header já existentes -->
+  <!-- ... (código omitido para evitar duplicidade) ... -->
+
+  <!-- 🔹 LOGIN MAIN CONTENT 🔹 -->
+ <!-- 🔹 LOGIN MAIN CONTENT 🔹 -->
+  <main class="min-h-screen flex items-center justify-center p-6">
+    <div class="form-container glass-morphism-strong max-w-md w-full rounded-3xl p-8 md:p-10 shadow-2xl animate-slide-in-up">
+      <!-- Heading -->
+      <h1 class="text-3xl md:text-4xl font-extrabold mb-2" data-i18n="welcome">Bem-vindo de volta</h1>
+      <p class="text-sm text-gray-200 mb-6" data-i18n="subtitle">Entre na sua conta para continuar</p>
+
+      <!-- Alert Placeholder -->
+      <div id="alert-box" class="hidden mb-4 text-sm rounded-xl px-4 py-3"></div>
+
+      <!-- Login Form -->
+      <form id="login-form" novalidate>
+        <!-- Email -->
+        <div class="mb-5">
+          <label for="email" class="block mb-2 text-sm font-medium" data-i18n="label.email">Endereço de Email</label>
+          <input type="email" id="email" name="email" class="input-enhanced w-full px-4 py-3 rounded-xl text-white placeholder-gray-300" placeholder="john@example.com" required>
+          <p class="mt-1 text-xs text-red-400 hidden" id="email-error"></p>
+        </div>
+        <!-- Password -->
+        <div class="mb-5 relative">
+          <label for="password" class="block mb-2 text-sm font-medium" data-i18n="label.pass">Senha</label>
+          <input type="password" id="password" name="password" class="input-enhanced w-full px-4 py-3 rounded-xl pr-12 text-white placeholder-gray-300" required minlength="6">
+          <button type="button" id="toggle-pass" class="absolute top-9 right-4 text-gray-300 focus:outline-none" aria-label="Mostrar senha">👁️‍🗨️</button>
+          <p class="mt-1 text-xs text-red-400 hidden" id="password-error"></p>
+        </div>
+        <!-- Remember / Forgot -->
+        <div class="flex items-center justify-between mb-6 text-sm">
+          <label class="inline-flex items-center cursor-pointer select-none">
+            <input type="checkbox" id="remember" class="form-checkbox rounded text-purple-500 focus:ring-0 mr-2">
             <span data-i18n="remember">Lembrar-me</span>
           </label>
-          <a href="#" class="text-sm text-blue-400 hover:text-blue-300" data-i18n="forgot">Esqueceu a senha?</a>
+          <a href="/reset.html" class="text-purple-300 hover:text-purple-100 focus:underline" data-i18n="forgot">Esqueceu a senha?</a>
         </div>
-
-        <button id="submitBtn" type="submit"
-                class="btn-hover w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-4 rounded-xl flex items-center justify-center gap-2">
-          <span id="btnText" data-i18n="btn.login">Entrar</span>
-          <svg id="btnSpinner" class="animate-spin h-5 w-5 text-white hidden" fill="none" viewBox="0 0 24 24">
+        <!-- Submit -->
+        <button type="submit" id="login-btn" class="btn-primary w-full py-3 rounded-xl font-semibold flex items-center justify-center">
+          <span id="btn-text" data-i18n="btn.login">Entrar na Conta</span>
+          <svg id="spinner" class="hidden animate-spin ml-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+          </svg>
         </button>
       </form>
 
-      <div id="messageContainer" class="mt-6 hidden"><div id="message" class="animate-slide-in"></div></div>
-
-      <div class="mt-8 text-center">
-        <p class="text-slate-400" data-i18n="noacc">Ainda não tem conta?</p>
-        <a href="signup.html" class="text-blue-400 hover:text-blue-300 font-medium hover:underline" data-i18n="signup">Criar conta gratuita</a>
+      <!-- Divider -->
+      <div class="my-6 flex items-center justify-center">
+        <span class="h-px flex-grow bg-white/20"></span>
+        <span class="px-4 text-xs uppercase tracking-wider text-gray-200" data-i18n="or">ou continue com</span>
+        <span class="h-px flex-grow bg-white/20"></span>
       </div>
 
-      <div class="mt-6">
-        <div class="relative"><div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-600"></div></div>
-          <div class="relative flex justify-center text-sm"><span class="px-3 bg-slate-800/50 text-slate-400" data-i18n="or">ou continue com</span></div>
-        </div>
-
-        <div class="mt-4 grid grid-cols-2 gap-3">
-          <button type="button" class="w-full inline-flex justify-center py-2.5 px-4 rounded-lg border border-slate-600 bg-slate-800/50 text-sm font-medium text-slate-300 hover:bg-slate-700/50">
-            <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-            <span class="ml-2" data-i18n="google">Google</span>
-          </button>
-          <button type="button" class="w-full inline-flex justify-center py-2.5 px-4 rounded-lg border border-slate-600 bg-slate-800/50 text-sm font-medium text-slate-300 hover:bg-slate-700/50">
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-            <span class="ml-2" data-i18n="facebook">Facebook</span>
-          </button>
-        </div>
+      <!-- Social Buttons -->
+      <div class="grid grid-cols-2 gap-4">
+        <button class="social-btn flex items-center justify-center py-3 rounded-xl text-sm font-medium"><span class="mr-2">🔑</span><span data-i18n="google">Google</span></button>
+        <button class="social-btn flex items-center justify-center py-3 rounded-xl text-sm font-medium"><span class="mr-2">📘</span><span data-i18n="facebook">Facebook</span></button>
       </div>
+
+      <!-- Sign Up Link -->
+      <p class="mt-8 text-center text-sm text-gray-200" data-i18n="noacc">Ainda não tem conta?
+        <a href="/signup.html" class="text-purple-300 font-semibold hover:text-purple-100" data-i18n="signup">Criar conta gratuita</a>
+      </p>
     </div>
   </main>
 
-  <div id="footer-widget"></div>
-  <script type="module" src="footer.js"></script>
+  <!-- 🔹 SCRIPTS 🔹 -->
+  <script type="module">
+    /* ================= Firebase Auth ================= */
+    import { auth } from './firebase-init.js';
+    import { signInWithEmailAndPassword } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
-    <!-- Firebase SDKs + Login Logic -->
-<script type="module">
-   import { auth } from './firebase-init.js';
-  import {
-    getAuth,
-    signInWithEmailAndPassword
-  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    /* ================= I18N ================= */
+    const i18n = JSON.parse(document.getElementById('i18n-data').textContent);
+    const langParam = new URLSearchParams(window.location.search).get('lang');
+    const langSwitch = document.getElementById('lang-switch');
+    const mobileLangSwitch = document.getElementById('mobile-lang-switch');
 
- 
-
-  // Elementos do DOM
-  const form = document.getElementById("loginForm");
-  const emailInput = document.getElementById("email");
-  const passwordInput = document.getElementById("password");
-  const rememberCheckbox = document.getElementById("remember");
-
-  const emailError = document.getElementById("emailError");
-  const passwordError = document.getElementById("passwordError");
-
-  const submitBtn = document.getElementById("submitBtn");
-  const btnText = document.getElementById("btnText");
-  const btnSpinner = document.getElementById("btnSpinner");
-
-  const messageContainer = document.getElementById("messageContainer");
-  const messageEl = document.getElementById("message");
-
-  // Toggle de visibilidade da password
-  document.getElementById("togglePassword").addEventListener("click", () => {
-    const eyeOpen = document.getElementById("eyeOpen");
-    const eyeClosed = document.getElementById("eyeClosed");
-    if (passwordInput.type === "password") {
-      passwordInput.type = "text";
-      eyeOpen.classList.add("hidden");
-      eyeClosed.classList.remove("hidden");
-    } else {
-      passwordInput.type = "password";
-      eyeOpen.classList.remove("hidden");
-      eyeClosed.classList.add("hidden");
-    }
-  });
-
-  // Validações simples
-  function validateEmail() {
-    const email = emailInput.value.trim();
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email) {
-      showFieldError(emailError, "Email é obrigatório");
-      emailInput.classList.add("border-red-500");
-      return false;
-    }
-    if (!re.test(email)) {
-      showFieldError(emailError, "Formato de email inválido");
-      emailInput.classList.add("border-red-500");
-      return false;
-    }
-    clearFieldError(emailError, emailInput);
-    return true;
-  }
-
-  function validatePassword() {
-    const pwd = passwordInput.value;
-    if (!pwd) {
-      showFieldError(passwordError, "Senha é obrigatória");
-      passwordInput.classList.add("border-red-500");
-      return false;
-    }
-    if (pwd.length < 6) {
-      showFieldError(passwordError, "Senha deve ter ≥ 6 caracteres");
-      passwordInput.classList.add("border-red-500");
-      return false;
-    }
-    clearFieldError(passwordError, passwordInput);
-    return true;
-  }
-
-  function showFieldError(el, msg) {
-    el.textContent = msg;
-    el.classList.remove("hidden");
-  }
-  function clearFieldError(el, input) {
-    el.classList.add("hidden");
-    if (input) input.classList.remove("border-red-500");
-  }
-
-  function setLoadingState(isLoading) {
-    submitBtn.disabled = isLoading;
-    btnText.textContent = isLoading ? "Entrando..." : "Entrar";
-    btnSpinner.classList.toggle("hidden", !isLoading);
-  }
-
-   function showMessage(text, type) {
-    // Reset da mensagem
-    messageEl.className = "p-4 rounded-lg text-center text-sm font-medium animate-slide-in";
-    messageEl.textContent = text;
-
-    // Remove classes de estado anteriores
-    messageEl.classList.remove(
-      "bg-emerald-500/20", "text-emerald-400", "border", "border-emerald-500/30",
-      "bg-red-500/20",    "text-red-400",    "border-red-500/30",
-      "bg-blue-500/20",   "text-blue-400",   "border-blue-500/30"
-    );
-
-    // Adiciona classes consoante o tipo
-    if (type === "success") {
-      messageEl.classList.add(
-        "bg-emerald-500/20", "text-emerald-400", "border", "border-emerald-500/30"
-      );
-    } else if (type === "error") {
-      messageEl.classList.add(
-        "bg-red-500/20", "text-red-400", "border", "border-red-500/30"
-      );
-    } else {
-      messageEl.classList.add(
-        "bg-blue-500/20", "text-blue-400", "border", "border-blue-500/30"
-      );
-    }
-
-    // Mostra o container e, se não for success, esconde ao fim de 5s
-    messageContainer.classList.remove("hidden");
-    if (type !== "success") {
-      setTimeout(() => messageContainer.classList.add("hidden"), 5000);
-    }
-  }
-  // Envio do formulário
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    clearFieldError(emailError, emailInput);
-    clearFieldError(passwordError, passwordInput);
-
-    const validEmail = validateEmail();
-    const validPass = validatePassword();
-    if (!validEmail || !validPass) {
-      form.classList.add("animate-shake");
-      setTimeout(() => form.classList.remove("animate-shake"), 500);
-      return;
-    }
-
-    setLoadingState(true);
-    try {
-      const cred = await signInWithEmailAndPassword(auth, emailInput.value.trim(), passwordInput.value);
-      const token = await cred.user.getIdToken();
-      localStorage.setItem("token", token);
-      showMessage("Login bem-sucedido! A redirecionar…", "success");
-      setTimeout(() => window.location.href = "/wallet360.html", 1500);
-    } catch (err) {
-      let msg = "Erro ao entrar. ";
-      if (err.code === "auth/user-not-found")      msg += "Utilizador não encontrado.";
-      else if (err.code === "auth/wrong-password") msg += "Senha incorreta.";
-      else if (err.code === "auth/too-many-requests") msg += "Muitas tentativas. Tente mais tarde.";
-      else                                          msg += err.message;
-      showMessage(msg, "error");
-      form.classList.add("animate-shake");
-      setTimeout(() => form.classList.remove("animate-shake"), 500);
-    } finally {
-      setLoadingState(false);
-    }
-  });
-
-  // Navegação por Enter
-  form.querySelectorAll("input[required]").forEach((input, idx, arr) => {
-    input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        const next = arr[idx + 1];
-        if (next) next.focus();
-        else form.dispatchEvent(new Event("submit"));
-      }
-    });
-  });
-</script>
- <!-- ====== MULTILANG SCRIPT ====== -->
-  <script>
-    (function () {
-      const data = JSON.parse(document.getElementById('i18n-data').textContent);
-      const params = new URLSearchParams(location.search);
-      const lang = params.get('lang') || (navigator.language || 'pt').slice(0, 2) || 'pt';
-      const tr = data[lang] || data.pt;
+    function setLang(lang) {
+      if (!i18n[lang]) lang = 'pt';
       document.documentElement.lang = lang;
-      document.title = tr['meta.title'];
-      document.querySelector('meta[name="description"]').content = tr['meta.desc'];
-      document.getElementById('canonical-link').href = location.origin + location.pathname + '?lang=' + lang;
-      document.querySelector('meta[property="og:title"]').content = tr['og.title'];
-      document.querySelector('meta[property="og:description"]').content = tr['og.desc'];
-      document.querySelectorAll('[data-i18n]').forEach(el => { const k = el.dataset.i18n; if (tr[k]) el.innerHTML = tr[k]; });
-      const sel = document.getElementById('lang-switch'); sel.value = lang; sel.onchange = e => { params.set('lang', e.target.value); location.search = params.toString() };
-      const cfg = JSON.parse(document.getElementById('header-widget').dataset.config);
-      cfg.links[0].label = tr['header.home']; cfg.links[1].label = tr['header.account']; cfg.links[2].label = tr['header.signup']; cfg.links[3].label = tr['header.contact'];
-      document.getElementById('header-widget').dataset.config = JSON.stringify(cfg);
-    })();
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        const txt = i18n[lang][key] ?? key;
+        if (el.tagName === 'INPUT' && el.placeholder) el.placeholder = txt; else el.textContent = txt;
+      });
+      document.querySelectorAll('[data-i18n-aria]').forEach(el => el.setAttribute('aria-label', i18n[lang][el.getAttribute('data-i18n-aria')] ?? key));
+      document.title = i18n[lang]['meta.title'];
+      document.querySelector('meta[name=description]').setAttribute('content', i18n[lang]['meta.desc']);
+      document.querySelector('meta[property="og:title"]').setAttribute('content', i18n[lang]['og.title']);
+      document.querySelector('meta[property="og:description"]').setAttribute('content', i18n[lang]['og.desc']);
+      langSwitch.value = lang;
+      mobileLangSwitch.value = lang;
+    }
+    setLang(langParam || localStorage.getItem('lang') || 'pt');
+    langSwitch.addEventListener('change', e => { localStorage.setItem('lang', e.target.value); setLang(e.target.value); });
+    mobileLangSwitch.addEventListener('change', e => { localStorage.setItem('lang', e.target.value); setLang(e.target.value); closeMobileMenu(); });
+
+    /* =============== Mobile Menu (mesmas funções) =============== */
+    const mobileBtn = document.getElementById('mobile-menu-btn');
+    const mobileClose = document.getElementById('mobile-menu-close');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const overlay = document.getElementById('mobile-overlay');
+    function openMobileMenu(){ mobileMenu.classList.add('open'); overlay.classList.add('open'); mobileBtn.classList.add('active'); mobileBtn.setAttribute('aria-expanded','true'); }
+    function closeMobileMenu(){ mobileMenu.classList.remove('open'); overlay.classList.remove('open'); mobileBtn.classList.remove('active'); mobileBtn.setAttribute('aria-expanded','false'); }
+    mobileBtn?.addEventListener('click', openMobileMenu); mobileClose?.addEventListener('click', closeMobileMenu); overlay?.addEventListener('click', closeMobileMenu);
+
+    /* =============== UI helpers =============== */
+    const alertBox = document.getElementById('alert-box');
+    function showAlert(message, type='error') {
+      alertBox.textContent = message;
+      alertBox.className = type==='success' ? 'message-success' : 'message-error';
+      alertBox.classList.remove('hidden');
+      if(type!=='success') setTimeout(()=>alertBox.classList.add('hidden'),5000);
+    }
+    function validateEmailVal(val){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val); }
+
+    /* =============== Form Submit (Firebase) =============== */
+    const form = document.getElementById('login-form');
+    const emailEl = document.getElementById('email');
+    const passEl  = document.getElementById('password');
+    const emailErr= document.getElementById('email-error');
+    const passErr = document.getElementById('password-error');
+    const btn     = document.getElementById('login-btn');
+    const spinner = document.getElementById('spinner');
+    const btnText = document.getElementById('btn-text');
+
+    function setLoading(state){
+      btn.disabled = state;
+      spinner.classList.toggle('hidden', !state);
+      btnText.textContent = i18n[document.documentElement.lang][ state ? 'loading' : 'btn.login'];
+    }
+    function clearErrors(){ emailErr.classList.add('hidden'); passErr.classList.add('hidden'); emailEl.classList.remove('border-red-500'); passEl.classList.remove('border-red-500'); }
+
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const lang = document.documentElement.lang;
+      clearErrors();
+      let valid=true;
+      if(!emailEl.value.trim()){ valid=false; emailErr.textContent=i18n[lang]['email.required']; emailErr.classList.remove('hidden'); emailEl.classList.add('border-red-500'); }
+      else if(!validateEmailVal(emailEl.value.trim())){ valid=false; emailErr.textContent=i18n[lang]['email.invalid']; emailErr.classList.remove('hidden'); emailEl.classList.add('border-red-500'); }
+      if(!passEl.value){ valid=false; passErr.textContent=i18n[lang]['password.required']; passErr.classList.remove('hidden'); passEl.classList.add('border-red-500'); }
+      else if(passEl.value.length<6){ valid=false; passErr.textContent=i18n[lang]['password.length']; passErr.classList.remove('hidden'); passEl.classList.add('border-red-500'); }
+      if(!valid){ form.classList.add('animate-shake'); setTimeout(()=>form.classList.remove('animate-shake'),500); return; }
+      setLoading(true);
+      try {
+        const cred = await signInWithEmailAndPassword(auth, emailEl.value.trim(), passEl.value);
+        localStorage.setItem('token', await cred.user.getIdToken());
+        showAlert(i18n[lang]['msg.success'],'success');
+        setTimeout(()=> window.location.href='/wallet360.html',1500);
+      } catch(err){
+        let code = err.code || '';
+        let msg  = i18n[lang]['msg.generic'];
+        if(code==='auth/user-not-found')      msg = i18n[lang]['msg.user'];
+        else if(code==='auth/wrong-password') msg = i18n[lang]['msg.pass'];
+        else if(code==='auth/too-many-requests') msg = i18n[lang]['msg.too'];
+        showAlert(msg,'error');
+        form.classList.add('animate-shake'); setTimeout(()=>form.classList.remove('animate-shake'),500);
+      } finally { setLoading(false); }
+    });
+
+    /* =============== Password Toggle =============== */
+    const togglePass = document.getElementById('toggle-pass');
+    togglePass.addEventListener('click', ()=>{
+      const shown = passEl.type==='text';
+      passEl.type = shown ? 'password':'text';
+      togglePass.textContent = shown ? '👁️‍🗨️':'🙈';
+      togglePass.setAttribute('aria-label', i18n[document.documentElement.lang][ shown ? 'toggle.show':'toggle.hide' ]);
+    });
+
+    /* =============== Header Shadow on Scroll =============== */
+    const header = document.querySelector('.wallet-header');
+    window.addEventListener('scroll',()=> header.classList.toggle('scrolled', window.scrollY>10));
   </script>
 </body>
 </html>
