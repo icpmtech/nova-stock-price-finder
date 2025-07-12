@@ -201,7 +201,7 @@
  <div id="footer-widget"></div>
   <script type="module" src="footer.js"></script>
   <script type="module">
-   import './firebase-init.js';
+ import './firebase-init.js';
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import FirebaseAPI from './firebaseApi.js';
 
@@ -290,26 +290,54 @@ form.addEventListener('submit', async e => {
   if (editingId) {
     await FirebaseAPI.updateAsset(editingId, data);
     editingId = null;
+    btnText.textContent = 'Salvar';
   } else {
     await FirebaseAPI.addAsset(data);
   }
   form.reset();
-  btnText.textContent = 'Salvar';
   updateAssets();
 });
+
+// funções de edição e remoção
+window.editAsset = id => {
+  const a = allAssets.find(x => x.id === id);
+  if (!a) return;
+  editingId = id;
+  form.name.value    = a.name;
+  form.type.value    = a.type;
+  form.sector.value  = a.sector;
+  form.country.value = a.country;
+  form.risk.value    = a.risk;
+  form.quantity.value= a.quantity;
+  form.priceUSD.value= a.priceUSD;
+  form.change.value  = a.change;
+  btnText.textContent= 'Atualizar';
+  form.name.focus();
+};
+
+window.deleteAsset = async id => {
+  if (confirm('Excluir este ativo?')) {
+    try {
+      await FirebaseAPI.deleteAsset(id);
+      updateAssets();
+    } catch (err) {
+      console.error('Erro ao apagar ativo:', err);
+    }
+  }
+};
 
 [searchInput, filterType, filterRisk].forEach(el =>
   el.addEventListener('input', updateDisplay)
 );
 
-// Só inicia após autenticação
+// só inicia após autenticação
 onAuthStateChanged(auth, user => {
   if (user) {
     updateAssets();
   } else {
     console.log('Aguardando login...');
   }
-});
+}); 
   </script>
 </body>
 </html>
