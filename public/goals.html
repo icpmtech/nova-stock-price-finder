@@ -1,10 +1,9 @@
 <!-- index.html -->
-<!DOCTYPE html>
-<html lang="pt">
+<!DOCTYPE html><html lang="pt">
 <head>
   <meta charset="UTF-8" />
   <title>Metas Financeiras</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- TailwindCSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -67,9 +66,7 @@
 <body class="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
   <!-- cabeçalho dinâmico (header.js) -->
   <div id="header-widget" class="glass-effect sticky top-0 z-50 animate-slide-in"></div>
-  <script type="module" src="header.js"></script>
-  <!-- Header -->
-  <header class="glass-effect sticky top-0 z-10 animate-slide-in">
+  <script type="module" src="header.js"></script>  <!-- Header -->  <header class="glass-effect sticky top-0 z-10 animate-slide-in">
     <div class="container mx-auto px-6 py-4 flex justify-between items-center">
       <div class="flex items-center space-x-3">
         <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
@@ -88,9 +85,7 @@
        <p class="text-gray-600">Defina e acompanhe suas metas financeiras com facilidade</p>
       </div>
     </div>
-    
-  </header>
-  <div class="container mx-auto px-4 py-8 max-w-4xl">
+  </header>  <!-- Main -->  <div class="container mx-auto px-4 py-8 max-w-4xl">
     <!-- Formulário de Nova Meta -->
     <div class="bg-white rounded-2xl shadow-xl p-6 mb-8 border border-gray-100">
       <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
@@ -131,92 +126,75 @@
             <button type="submit"
                     class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-6 rounded-lg font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 transition duration-200 flex items-center justify-center">
               <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M12 4v16m8-8H4"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
               </svg>
               <span id="btnText">Adicionar Meta</span>
             </button>
           </div>
         </div>
       </form>
-    </div>
-
-    <!-- Lista de Metas -->
-    <div class="space-y-4">
-      <div class="flex items-center justify-between">
-        <h2 class="text-2xl font-semibold text-gray-800">Suas Metas</h2>
-        <div id="stats" class="text-sm text-gray-600"></div>
-      </div>
-      <div id="emptyState" class="text-center py-12 hidden">
-        <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 
-                   2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 
-                   2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 
-                   002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 
-                   2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-        </svg>
-        <h3 class="text-lg font-semibold text-gray-500 mb-2">Nenhuma meta definida</h3>
-        <p class="text-gray-400">Adicione sua primeira meta financeira para começar!</p>
-      </div>
-      <ul id="list" class="space-y-4"></ul>
-    </div>
+    </div><!-- Lista de Metas -->
+<div class="space-y-4">
+  <div class="flex items-center justify-between">
+    <h2 class="text-2xl font-semibold text-gray-800">Suas Metas</h2>
+    <div id="stats" class="text-sm text-gray-600"></div>
   </div>
-  <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 md:hidden">
-  <div class="flex justify-around py-2">
-    <!-- Início -->
-    <button onclick="location.href='index.html'" class="flex flex-col items-center p-2 text-blue-600 hover:text-blue-700">
-      <svg class="w-5 h-5 mb-1" fill="currentColor" viewBox="0 0 20 20">
-        <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
-      </svg>
-      <span class="text-xs font-medium" data-i18n="nav.home">Início</span>
-    </button>
-
-    <!-- Gráficos -->
-    <button onclick="location.href='report-transactions.html'" class="flex flex-col items-center p-2 text-gray-500 hover:text-blue-600">
-      <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-      </svg>
-      <span class="text-xs font-medium" data-i18n="nav.charts">Activos</span>
-    </button>
-
-    <!-- Carteira -->
-    <button onclick="location.href='wallet360.html'" class="flex flex-col items-center p-2 text-gray-500 hover:text-blue-600">
-      <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
-      </svg>
-      <span class="text-xs font-medium" data-i18n="nav.wallet">Carteira</span>
-    </button>
-
-    <!-- Conta -->
-    <button onclick="location.href='settings.html'" class="flex flex-col items-center p-2 text-gray-500 hover:text-blue-600">
-      <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-      </svg>
-      <span class="text-xs font-medium" data-i18n="nav.account">Conta</span>
-    </button>
+  <div id="emptyState" class="text-center py-12 hidden">
+    <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 
+               2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 
+               2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 
+               002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 
+               2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+    </svg>
+    <h3 class="text-lg font-semibold text-gray-500 mb-2">Nenhuma meta definida</h3>
+    <p class="text-gray-400">Adicione sua primeira meta financeira para começar!</p>
   </div>
-</nav>
+  <ul id="list" class="space-y-4"></ul>
+</div>
 
- <div id="footer-widget"></div>
-  <script type="module" src="footer.js"></script>
-  <script type="module">
+  </div>  <!-- Navegação mobile -->  <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 md:hidden">
+    <div class="flex justify-around py-2">
+      <!-- Início -->
+      <button onclick="location.href='index.html'" class="flex flex-col items-center p-2 text-blue-600 hover:text-blue-700">
+        <svg class="w-5 h-5 mb-1" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg>
+        <span class="text-xs font-medium">Início</span>
+      </button>
+      <!-- Gráficos -->
+      <button onclick="location.href='report-transactions.html'" class="flex flex-col items-center p-2 text-gray-500 hover:text-blue-600">
+        <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        <span class="text-xs font-medium">Activos</span>
+      </button>
+      <!-- Carteira -->
+      <button onclick="location.href='wallet360.html'" class="flex flex-col items-center p-2 text-gray-500 hover:text-blue-600">
+        <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
+        <span class="text-xs font-medium">Carteira</span>
+      </button>
+      <!-- Conta -->
+      <button onclick="location.href='settings.html'" class="flex flex-col items-center p-2 text-gray-500 hover:text-blue-600">
+        <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        <span class="text-xs font-medium">Conta</span>
+      </button>
+    </div>
+  </nav>  <!-- footer -->  <div id="footer-widget"></div>
+  <script type="module" src="footer.js"></script>  <!-- App principal -->  <script type="module">
     import './firebase-init.js';
     import FirebaseAPI from './firebaseApi.js';
+    import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js';
 
     class GoalsApp {
       constructor() {
         this.editingId = null;
+        this.goals = [];
         this.init();
       }
 
-      async init() {
+      init() {
         this.cacheEls();
         this.bindEvents();
-        await this.loadGoals();
+        // Removemos a chamada direta a loadGoals();
+        // Agora só carregamos metas após a autenticação.
       }
 
       cacheEls() {
@@ -362,7 +340,18 @@
       }
     }
 
+    // Instância global
     window.goalsApp = new GoalsApp();
-  </script>
-</body>
+
+    // Escuta a alteração de autenticação e carrega metas apenas após login
+    const auth = getAuth();
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        await goalsApp.loadGoals();
+      } else {
+        goalsApp.goals = [];
+        goalsApp.render();
+      }
+    });
+  </script></body>
 </html>
