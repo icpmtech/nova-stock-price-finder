@@ -1,7 +1,7 @@
 /* -------------------------------------------------------------------------- */
 /*  events.js – all DOM listeners & modal logic                               */
 /* -------------------------------------------------------------------------- */
-import { $, $$, settings, charts } from './utils.js';
+import { $, $$, settings, charts,formatCurrency } from './utils.js';
 import { renderAll } from './render.js';
 import { recentTransactionsData, assetsData } from './data.js';
 import { getIconForCategory } from './helpers.js';
@@ -73,6 +73,7 @@ document.addEventListener('click', e => {
     if (tx) showTransactionModal('edit', tx);
   }
 });
+
 
   /* ───── Edit asset button on each card ───── */
   $('#assetsList').addEventListener('click', e => {

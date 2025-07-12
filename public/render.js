@@ -232,11 +232,32 @@ export function renderRecentTransactions() {
   });
 }
 
-export function renderAssets() {
+export /* -------------------------------------------------------------------------- */
+/*  Paginação e Filtro de Ativos                                              */
+/* -------------------------------------------------------------------------- */
+let currentPage = 1;
+let totalPages = 1;
+const pageSize = 6;
+let currentFilter = 'all';
+
+export function renderAssets(filterType = 'all') {
+  currentFilter = filterType;
   const wrap = $('#assetsList');
   wrap.innerHTML = '';
 
-  assetsData.forEach(asset => {
+  const filtered = filterType === 'all'
+    ? assetsData
+    : assetsData.filter(asset =>
+        asset.type?.toLowerCase() === filterType.toLowerCase()
+      );
+
+  totalPages = Math.ceil(filtered.length / pageSize) || 1;
+  currentPage = Math.max(1, Math.min(currentPage, totalPages));
+
+  const start = (currentPage - 1) * pageSize;
+  const pageItems = filtered.slice(start, start + pageSize);
+
+  pageItems.forEach(asset => {
     const total = asset.quantity * asset.priceUSD;
     const chCls = asset.change >= 0 ? 'text-success' : 'text-danger';
     const chIco = asset.change >= 0 ? 'trending-up' : 'trending-down';
@@ -244,11 +265,11 @@ export function renderAssets() {
     const card = document.createElement('div');
     card.className =
       'relative bg-gray-50 dark:bg-gray-800 rounded-xl p-4 hover:shadow-md transition-all duration-200';
+
     card.innerHTML = `
       <button class="edit-asset-btn absolute top-2 right-2 p-1 bg-primary/10 rounded-full" data-id="${asset.id}">
         <i data-lucide="pencil" class="w-4 h-4 text-primary"></i>
       </button>
-
       <div class="flex justify-between items-start mb-3">
         <div>
           <h3 class="font-semibold text-lg">${asset.name}</h3>
@@ -262,11 +283,8 @@ export function renderAssets() {
           </div>
         </div>
       </div>
-
       <div class="flex justify-between items-center text-sm">
-        <span class="text-gray-600 dark:text-gray-400">${asset.quantity} × ${formatCurrency(
-          asset.priceUSD
-        )}</span>
+        <span class="text-gray-600 dark:text-gray-400">${asset.quantity} × ${formatCurrency(asset.priceUSD)}</span>
         <span class="px-2 py-1 rounded-full text-xs font-medium ${
           asset.risk === 'Low'
             ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
@@ -278,7 +296,43 @@ export function renderAssets() {
     `;
     wrap.appendChild(card);
   });
+
+  // Atualiza paginação
+  $('#pageIndicator').textContent = `${currentPage} / ${totalPages}`;
+  $('#prevPage').disabled = currentPage <= 1;
+  $('#nextPage').disabled = currentPage >= totalPages;
 }
+
+// Paginação
+$('#prevPage').addEventListener('click', () => {
+  if (currentPage > 1) {
+    currentPage--;
+    renderAssets(currentFilter);
+  }
+});
+
+$('#nextPage').addEventListener('click', () => {
+  if (currentPage < totalPages) {
+    currentPage++;
+    renderAssets(currentFilter);
+  }
+});
+
+// Filtro
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => {
+      b.classList.remove('bg-primary', 'text-white');
+      b.classList.add('bg-gray-100', 'dark:bg-gray-700');
+    });
+
+    btn.classList.remove('bg-gray-100', 'dark:bg-gray-700');
+    btn.classList.add('bg-primary', 'text-white');
+
+    currentPage = 1;
+    renderAssets(btn.dataset.type);
+  });
+});
 
 export function renderAllTransactions() {
   const thead = $('#transactionsThead');

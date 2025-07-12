@@ -65,6 +65,7 @@
    "tabs.stocks": "Stocks",
   "tabs.crypto": "Crypto",
   "tabs.bonds": "Bonds",
+   "tabs.all": "All",
   "modal.asset.edit": "Edit Asset",
   "modal.asset.field.nameTicker": "Name / Ticker",
   "modal.asset.field.type": "Type",

@@ -57,6 +57,7 @@
   "tabs.stocks": "Ações",
   "tabs.crypto": "Cripto",
   "tabs.bonds": "Obrigações",
+    "tabs.all": "Todos",
   "modal.asset.edit": "Editar Ativo",
   "modal.asset.field.nameTicker": "Nome / Ticker",
   "modal.asset.field.type": "Tipo",
