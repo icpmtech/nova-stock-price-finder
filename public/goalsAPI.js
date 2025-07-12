@@ -2,7 +2,7 @@
 import { db } from './firebase-init.js';
 import { collection, getDocs, addDoc, updateDoc, doc, deleteDoc } from 'https://www.gstatic.com/firebasejs/9.21.0/firebase-firestore.js';
 
-const FirebaseAPI = {
+const GoalsAPI = {
   async fetchGoals(user) {
     if (!user) return [];
     const ref = collection(db, 'users', user.uid, 'goals');
