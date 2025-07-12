@@ -11,6 +11,11 @@
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
   <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-KKP2317QMF"></script>
+<!-- Intro.js styles -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/intro.js/minified/introjs.min.css"
+    />
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
@@ -31,7 +36,9 @@
   </div>
   <div class="px-4 py-6 max-w-screen-xl mx-auto">
     <!-- Header -->
-    <header class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+    <header class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6"
+    data-intro="Este é o cabeçalho onde pode alterar preferências e iniciar o tour."
+        data-step="1">
       <div class="flex items-center gap-3">
         <div class="bg-gradient-to-r from-primary to-primary-light p-3 rounded-2xl">
           <i data-lucide="wallet" class="w-8 h-8 text-white"></i>
@@ -43,6 +50,16 @@
           <p class="text-xs sm:text-sm text-gray-600 dark:text-gray-400" id="subtitle">Complete Financial Dashboard</p>
         </div>
       </div>
+       <!-- TOUR BUTTON -->
+          <button
+            id="tourBtn"
+            class="p-2 rounded-full bg-primary/70 hover:bg-primary-dark text-white transition-colors"
+            aria-label="Iniciar tour"
+            data-intro="Clique aqui a qualquer momento para (re)iniciar o tour interativo."
+            data-step="2"
+          >
+            <i data-lucide="play-circle" class="w-5 h-5"></i>
+          </button>
       <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
         <button id="darkToggle" class="p-2 rounded-full bg-primary hover:bg-primary-dark text-white transition-colors"
           aria-label="Toggle dark mode">
@@ -75,6 +92,8 @@
     </header><!-- Quick Actions -->
     <section class="flex flex-col sm:flex-row gap-3 mb-6">
       <button type="button"
+       data-intro="Use estes botões para registar novos movimentos rapidamente."
+          data-step="3"
         class="quick-action-btn w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-medium bg-success hover:bg-success-dark text-white transition-transform transform hover:scale-105">
         <i data-lucide="plus" class="w-4 h-4"></i>
         <span id="addIncome">Add Income</span>
@@ -97,7 +116,10 @@
     </section>
 
     <!-- Summary Cards -->
-    <section id="summaryCards" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6">
+    <section id="summaryCards"
+     data-intro="Aqui tem um resumo rápido dos seus saldos, receitas e despesas."
+        data-step="4"
+    class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6">
     </section>
 
     <!-- Main Dashboard -->
@@ -105,7 +127,10 @@
       <!-- Charts -->
       <div class="lg:col-span-2 space-y-6">
         <!-- Portfolio Overview -->
-        <article class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6">
+        <article
+         data-intro="A evolução do seu portfólio ao longo do tempo."
+            data-step="5"
+        class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6">
           <header class="flex items-center justify-between mb-4">
             <h2 class="text-lg sm:text-xl font-semibold flex items-center gap-2">
               <i data-lucide="trending-up" class="w-5 h-5 text-primary"></i>
@@ -121,7 +146,11 @@
         </article>
 
         <!-- Income vs Expenses -->
-        <article class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6">
+        <article
+         class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6"
+            data-intro="Veja o progresso dos seus orçamentos e objectivos."
+            data-step="6"
+        class="bg-card dark:bg-cardDark rounded-2xl shadow-lg p-6">
           <header class="flex items-center mb-4">
             <i data-lucide="bar-chart-3" class="w-5 h-5 text-success mr-2"></i>
             <h2 class="text-lg sm:text-xl font-semibold" id="incomeExpenses">Income vs Expenses</h2>
@@ -409,7 +438,35 @@
     </div>
   </div>
 </div>
+ <script src="https://cdn.jsdelivr.net/npm/intro.js/minified/intro.min.js"></script>
+ <script>
+      document.addEventListener("DOMContentLoaded", () => {
+       const tourKey = "wallet360TourCompleted";
+        const tour = introJs();
+        tour.setOptions({
+          nextLabel: "Próximo",
+          prevLabel: "Anterior",
+          doneLabel: "Concluir",
+          hidePrev: false,
+          hideNext: false,
+        });
 
+        // Marcar tour concluído ao terminar ou sair
+        const markCompleted = () => localStorage.setItem(tourKey, "true");
+        tour.oncomplete(markCompleted);
+        tour.onexit(markCompleted);
+
+        // Mostrar tour automaticamente apenas se ainda não tiver sido concluído
+        if (localStorage.getItem(tourKey) !== "true") {
+          setTimeout(() => tour.start(), 2500);
+        }
+
+        // Botão manual — arranca sempre
+        document.getElementById("tourBtn")?.addEventListener("click", () => {
+          tour.start();
+        });
+      });
+    </script>
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script type="module" src="./utils.js"></script>
