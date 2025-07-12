@@ -178,180 +178,175 @@
       </button>
     </div>
   </nav>  <!-- footer -->  <div id="footer-widget"></div>
-  <script type="module" src="footer.js"></script>  <!-- App principal -->  <script type="module">
-    import './firebase-init.js';
-    import FirebaseAPI from './firebaseApi.js';
-    import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js';
+  <script type="module" src="footer.js"></script> 
+ <script type="module">
+import './firebase-init.js';
+import GoalsAPI from './goalsAPI.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/9.21.0/firebase-auth.js';
 
-    class GoalsApp {
-      constructor() {
-        this.editingId = null;
-        this.goals = [];
-        this.init();
-      }
+class GoalsApp {
+  constructor() {
+    this.editingId = null;
+    this.goals = [];
+    this.user = null;
+    this.init();
+  }
 
-      init() {
-        this.cacheEls();
-        this.bindEvents();
-        // Removemos a chamada direta a loadGoals();
-        // Agora só carregamos metas após a autenticação.
-      }
+  init() {
+    this.cacheEls();
+    this.bindEvents();
+  }
 
-      cacheEls() {
-        this.form       = document.getElementById('form');
-        this.btnText    = document.getElementById('btnText');
-        this.list       = document.getElementById('list');
-        this.emptyState = document.getElementById('emptyState');
-        this.stats      = document.getElementById('stats');
-        this.inputs     = {
-          name:     document.getElementById('name'),
-          target:   document.getElementById('target'),
-          current:  document.getElementById('current'),
-          deadline: document.getElementById('deadline'),
-          color:    document.getElementById('color'),
-        };
-      }
+  cacheEls() {
+    this.form       = document.getElementById('form');
+    this.btnText    = document.getElementById('btnText');
+    this.list       = document.getElementById('list');
+    this.emptyState = document.getElementById('emptyState');
+    this.stats      = document.getElementById('stats');
+    this.inputs     = {
+      name:     document.getElementById('name'),
+      target:   document.getElementById('target'),
+      current:  document.getElementById('current'),
+      deadline: document.getElementById('deadline'),
+      color:    document.getElementById('color'),
+    };
+  }
 
-      bindEvents() {
-        this.form.addEventListener('submit', e => {
-          e.preventDefault();
-          this.handleSubmit();
-        });
-      }
-
-      async loadGoals() {
-        this.goals = await FirebaseAPI.fetchGoals();
-        this.render();
-      }
-
-      async handleSubmit() {
-        const { name, target, current, deadline, color } = this.inputs;
-        const data = {
-          name:     name.value.trim(),
-          target:   parseFloat(target.value),
-          current:  parseFloat(current.value),
-          deadline: deadline.value,
-          color:    color.value
-        };
-
-        if (!data.name || isNaN(data.target) || data.target <= 0) {
-          return alert('Preencha nome e valor da meta corretamente.');
-        }
-
-        if (this.editingId) {
-          await FirebaseAPI.updateGoal(this.editingId, data);
-          this.editingId = null;
-        } else {
-          await FirebaseAPI.addGoal(data);
-        }
-
-        this.resetForm();
-        await this.loadGoals();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-
-      render() {
-        if (!this.goals.length) {
-          this.list.innerHTML = '';
-          this.emptyState.classList.remove('hidden');
-          this.stats.textContent = '';
-          return;
-        }
-        this.emptyState.classList.add('hidden');
-        const completed = this.goals.filter(g => g.current >= g.target).length;
-        this.stats.textContent = `${completed}/${this.goals.length} metas concluídas`;
-
-        this.list.innerHTML = this.goals.map(g => this.renderGoal(g)).join('');
-      }
-
-      renderGoal(goal) {
-        const progress = Math.min((goal.current / goal.target) * 100, 100);
-        const daysLeft = goal.deadline
-          ? Math.ceil((new Date(goal.deadline) - new Date()) / (1000*60*60*24))
-          : null;
-        const overdue  = daysLeft !== null && daysLeft < 0;
-
-        return `
-          <li class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition duration-300">
-            <div class="flex justify-between items-center mb-4">
-              <div>
-                <h3 class="text-xl font-semibold ${goal.current>=goal.target ? 'text-green-600 line-through' : ''}">
-                  ${goal.name}
-                </h3>
-                <div class="text-sm text-gray-600 flex space-x-4">
-                  <span>€${goal.current.toFixed(2)} / €${goal.target.toFixed(2)}</span>
-                  ${goal.deadline ? `
-                    <span class="${overdue ? 'text-red-500' : daysLeft<=7 ? 'text-yellow-500' : ''}">
-                      ${overdue ? `${-daysLeft} dias em atraso` : daysLeft===0 ? 'Hoje!' : `${daysLeft} dias restantes`}
-                    </span>` : ''}
-                </div>
-              </div>
-              <div class="flex space-x-2">
-                <button onclick="goalsApp.editGoal('${goal.id}')" class="p-2 text-gray-400 hover:text-blue-500">✏️</button>
-                <button onclick="goalsApp.deleteGoal('${goal.id}')" class="p-2 text-gray-400 hover:text-red-500">🗑️</button>
-              </div>
-            </div>
-            <div class="space-y-3">
-              <div class="flex justify-between text-sm text-gray-600">
-                <span>Progresso: ${progress.toFixed(1)}%</span>
-                <input type="number" value="${goal.current}" min="0" max="${goal.target}" step="0.01"
-                       onchange="goalsApp.updateProgress('${goal.id}', parseFloat(this.value))"
-                       class="w-24 text-sm border rounded px-2 py-1 text-center"/>
-              </div>
-              <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-                <div class="h-full rounded-full transition-all duration-500"
-                     style="width:${progress}%; background-color:${goal.current>=goal.target ? '#4ade80' : goal.color}">
-                </div>
-              </div>
-            </div>
-          </li>`;
-      }
-
-      async editGoal(id) {
-        const g = this.goals.find(x => x.id === id);
-        if (!g) return;
-        this.inputs.name.value     = g.name;
-        this.inputs.target.value   = g.target;
-        this.inputs.current.value  = g.current;
-        this.inputs.deadline.value = g.deadline;
-        this.inputs.color.value    = g.color;
-        this.editingId = id;
-        this.btnText.textContent = 'Atualizar Meta';
-        this.inputs.name.focus();
-      }
-
-      async deleteGoal(id) {
-        if (!confirm('Excluir esta meta?')) return;
-        await FirebaseAPI.deleteGoal(id);
-        await this.loadGoals();
-      }
-
-      async updateProgress(id, val) {
-        if (isNaN(val)) return;
-        await FirebaseAPI.updateGoal(id, { current: val });
-        await this.loadGoals();
-      }
-
-      resetForm() {
-        this.form.reset();
-        this.inputs.color.value = '#3b82f6';
-        this.editingId = null;
-        this.btnText.textContent = 'Adicionar Meta';
-      }
-    }
-
-    // Instância global
-    window.goalsApp = new GoalsApp();
-
-    // Escuta a alteração de autenticação e carrega metas apenas após login
-    const auth = getAuth();
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        await goalsApp.loadGoals();
-      } else {
-        goalsApp.goals = [];
-        goalsApp.render();
-      }
+  bindEvents() {
+    this.form.addEventListener('submit', e => {
+      e.preventDefault();
+      this.handleSubmit();
     });
-  </script></body>
+  }
+
+  async loadGoals() {
+    this.goals = await GoalsAPI.fetchGoals(this.user);
+    this.render();
+  }
+
+  async handleSubmit() {
+    const { name, target, current, deadline, color } = this.inputs;
+    const data = {
+      name:     name.value.trim(),
+      target:   parseFloat(target.value),
+      current:  parseFloat(current.value),
+      deadline: deadline.value,
+      color:    color.value
+    };
+    if (!data.name || isNaN(data.target) || data.target <= 0) {
+      return alert('Preencha nome e valor da meta corretamente.');
+    }
+    if (this.editingId) {
+      await GoalsAPI.updateGoal(this.user, this.editingId, data);
+      this.editingId = null;
+    } else {
+      await GoalsAPI.addGoal(this.user, data);
+    }
+    this.resetForm();
+    await this.loadGoals();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  render() {
+    if (!this.goals.length) {
+      this.list.innerHTML = '';
+      this.emptyState.classList.remove('hidden');
+      this.stats.textContent = '';
+      return;
+    }
+    this.emptyState.classList.add('hidden');
+    const completed = this.goals.filter(g => g.current >= g.target).length;
+    this.stats.textContent = `${completed}/${this.goals.length} metas concluídas`;
+    this.list.innerHTML = this.goals.map(g => this.renderGoal(g)).join('');
+  }
+
+  renderGoal(goal) {
+    const progress = Math.min((goal.current / goal.target) * 100, 100);
+    const daysLeft = goal.deadline
+      ? Math.ceil((new Date(goal.deadline) - new Date()) / (1000*60*60*24))
+      : null;
+    const overdue  = daysLeft !== null && daysLeft < 0;
+    return `
+      <li class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition duration-300">
+        <div class="flex justify-between items-center mb-4">
+          <div>
+            <h3 class="text-xl font-semibold ${goal.current>=goal.target ? 'text-green-600 line-through' : ''}">
+              ${goal.name}
+            </h3>
+            <div class="text-sm text-gray-600 flex space-x-4">
+              <span>€${goal.current.toFixed(2)} / €${goal.target.toFixed(2)}</span>
+              ${goal.deadline ? `
+                <span class="${overdue ? 'text-red-500' : daysLeft<=7 ? 'text-yellow-500' : ''}">
+                  ${overdue ? `${-daysLeft} dias em atraso` : daysLeft===0 ? 'Hoje!' : `${daysLeft} dias restantes`}
+                </span>` : ''}
+            </div>
+          </div>
+          <div class="flex space-x-2">
+            <button onclick="goalsApp.editGoal('${goal.id}')" class="p-2 text-gray-400 hover:text-blue-500">✏️</button>
+            <button onclick="goalsApp.deleteGoal('${goal.id}')" class="p-2 text-gray-400 hover:text-red-500">🗑️</button>
+          </div>
+        </div>
+        <div class="space-y-3">
+          <div class="flex justify-between text-sm text-gray-600">
+            <span>Progresso: ${progress.toFixed(1)}%</span>
+            <input type="number" value="${goal.current}" min="0" max="${goal.target}" step="0.01"
+                   onchange="goalsApp.updateProgress('${goal.id}', parseFloat(this.value))"
+                   class="w-24 text-sm border rounded px-2 py-1 text-center"/>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div class="h-full rounded-full transition-all duration-500"
+                 style="width:${progress}%; background-color:${goal.current>=goal.target ? '#4ade80' : goal.color}">
+            </div>
+          </div>
+        </div>
+      </li>`;
+  }
+
+  async editGoal(id) {
+    const g = this.goals.find(x => x.id === id);
+    if (!g) return;
+    this.inputs.name.value     = g.name;
+    this.inputs.target.value   = g.target;
+    this.inputs.current.value  = g.current;
+    this.inputs.deadline.value = g.deadline;
+    this.inputs.color.value    = g.color;
+    this.editingId = id;
+    this.btnText.textContent = 'Atualizar Meta';
+    this.inputs.name.focus();
+  }
+
+  async deleteGoal(id) {
+    if (!confirm('Excluir esta meta?')) return;
+    await GoalsAPI.deleteGoal(this.user, id);
+    await this.loadGoals();
+  }
+
+  async updateProgress(id, val) {
+    if (isNaN(val)) return;
+    await GoalsAPI.updateGoal(this.user, id, { current: val });
+    await this.loadGoals();
+  }
+
+  resetForm() {
+    this.form.reset();
+    this.inputs.color.value = '#3b82f6';
+    this.editingId = null;
+    this.btnText.textContent = 'Adicionar Meta';
+  }
+}
+
+window.goalsApp = new GoalsApp();
+
+const auth = getAuth();
+onAuthStateChanged(auth, async (user) => {
+  goalsApp.user = user;
+  if (user) {
+    await goalsApp.loadGoals();
+  } else {
+    goalsApp.goals = [];
+    goalsApp.render();
+  }
+});
+</script>
+</body>
 </html>
